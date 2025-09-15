@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for React Admin Panel
 
 FROM node:18-alpine AS base
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache gcompat
 WORKDIR /app
 
 # Install dependencies

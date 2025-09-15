@@ -2,7 +2,7 @@
 
 # Base stage with Node.js
 FROM node:18-alpine AS base
-RUN apk add --no-cache libc6-compat
+RUN apk update && apk add --no-cache gcompat
 WORKDIR /app
 
 # Install dependencies

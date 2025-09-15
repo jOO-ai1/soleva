@@ -49,7 +49,7 @@ fi
 
 # Step 2: Generate SSL certificates
 print_info "Step 2: Generating SSL certificates..."
-docker-compose run --rm certbot certonly \
+docker compose run --rm certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email $EMAIL \
@@ -76,7 +76,7 @@ git checkout docker/nginx/conf.d/solevaeg.conf 2>/dev/null || {
 
 # Step 4: Restart services
 print_info "Step 4: Restarting services with SSL configuration..."
-docker-compose restart nginx
+docker compose restart nginx
 sleep 10
 
 # Step 5: Verify SSL certificates
@@ -101,8 +101,8 @@ print_info "Step 7: Setting up certificate auto-renewal..."
 cat > renew-ssl.sh << 'EOF'
 #!/bin/bash
 cd /home/youssef/web
-docker-compose run --rm certbot renew
-docker-compose restart nginx
+docker compose run --rm certbot renew
+docker compose restart nginx
 EOF
 
 chmod +x renew-ssl.sh

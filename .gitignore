@@ -239,7 +239,8 @@ pids/
 # =============================================================================
 # DOCKER & CONTAINERIZATION
 # =============================================================================
-.dockerignore
+# Note: Keep .dockerignore for build optimization
+# .dockerignore
 docker-compose.override.yml
 
 # Docker volumes and data
@@ -371,3 +372,4 @@ ssl-renewal.log
 !test*.sh
 !start*.sh
 !stop*.sh
+!setup*.sh
