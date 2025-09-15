@@ -42,6 +42,12 @@ out/
 .env.production.local
 .env.staging
 .env.production
+.env.docker
+.env.production.secure
+
+# Environment backup files
+.env.backup.*
+.env.backup.20250915_150508
 
 # Project-specific env files
 env.local
@@ -332,6 +338,18 @@ production.log
 deployment.log
 ssl-renewal.log
 
+# Ignore production fix scripts (contain sensitive configuration)
+fix-production-deployment.sh
+fix-production-host-config.sh
+validate-env.sh
+
+# Ignore production reports (may contain sensitive information)
+PRODUCTION_DEPLOYMENT_FIX_REPORT.md
+PRODUCTION_HOST_SERVER_FIXES_REPORT.md
+
+# Ignore production nginx configuration (may contain sensitive settings)
+docker/nginx/conf.d/production.conf
+
 # =============================================================================
 # KEEP ESSENTIAL FILES
 # =============================================================================
@@ -351,6 +369,9 @@ ssl-renewal.log
 !Makefile
 !README.md
 !*.md
+# But ignore sensitive production reports
+PRODUCTION_DEPLOYMENT_FIX_REPORT.md
+PRODUCTION_HOST_SERVER_FIXES_REPORT.md
 !src/
 !public/
 !backend/src/
@@ -358,14 +379,13 @@ ssl-renewal.log
 !backend/package.json
 !backend/tsconfig.json
 
-# Keep deployment documentation
-!*DEPLOYMENT*.md
-!*PRODUCTION*.md
+# Keep deployment documentation (but exclude sensitive reports)
 !*GUIDE*.md
 !*STATUS*.md
 !*SUMMARY*.md
+# Note: *DEPLOYMENT*.md and *PRODUCTION*.md files are ignored above for security
 
-# Keep deployment scripts
+# Keep deployment scripts (but exclude sensitive ones)
 !deploy*.sh
 !configure*.sh
 !complete*.sh
