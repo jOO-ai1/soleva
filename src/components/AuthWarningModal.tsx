@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiLogIn, FiUserPlus, FiAlertCircle } from 'react-icons/fi';
+import { FiX, FiLogIn, FiUserPlus } from 'react-icons/fi';
 import { useLang, useTranslation } from '../contexts/LangContext';
 import { useTheme } from '../contexts/ThemeContext';
 import GlassButton from './GlassButton';

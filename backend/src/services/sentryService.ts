@@ -11,7 +11,7 @@ interface SentryConfig {
   sensitiveFields?: string[];
 }
 
-export const initializeSentry = (sentryConfig: SentryConfig) => {
+export const initializeSentry = (_sentryConfig: SentryConfig) => {
   // Check if Sentry is enabled
   if (!process.env.SENTRY_DSN || process.env.SENTRY_DSN.trim() === '') {
     console.log('Sentry initialization skipped - SENTRY_DSN not configured');
@@ -45,7 +45,7 @@ export class SentryService {
     return SentryService.instance;
   }
 
-  initialize(config: SentryConfig): void {
+  initialize(_config: SentryConfig): void {
     // Check if Sentry is enabled
     if (!process.env.SENTRY_DSN || process.env.SENTRY_DSN.trim() === '') {
       console.log('SentryService initialize skipped - SENTRY_DSN not configured');

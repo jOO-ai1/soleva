@@ -26,7 +26,7 @@ export default function CheckoutPage() {
   });
 
   const [error, setError] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
+  // const [isUploading, setIsUploading] = useState(false); // Removed as it's not used
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
   const discount = applied?.discount ? Math.min(Math.floor((subtotal * applied.discount) / 100), applied.maxDiscount || Infinity) : 0;

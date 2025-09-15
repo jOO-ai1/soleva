@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for React Admin Panel
 
-FROM node:18-alpine AS base
+FROM node:18-alpine3.18 AS base
 RUN apk add --no-cache gcompat
 WORKDIR /app
 

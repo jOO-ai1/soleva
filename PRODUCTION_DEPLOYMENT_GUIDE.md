@@ -1,272 +1,397 @@
-# Soleva E-commerce Platform - Production Deployment Guide
+# 🚀 Soleva E-commerce Platform - Production Deployment Guide
 
-## 🚀 Production Deployment Checklist
+## 📋 Overview
 
-### Pre-Deployment Requirements
+This guide provides complete instructions for deploying the Soleva E-commerce Platform to production using a single command. The deployment system is designed to be:
 
-- [ ] **Server Setup**
-  - [ ] Ubuntu 20.04+ or CentOS 8+ server
-  - [ ] Minimum 4GB RAM, 2 CPU cores
-  - [ ] 50GB+ SSD storage
-  - [ ] Docker and Docker Compose installed
-  - [ ] Domain name configured with DNS
+- **100% Automated**: Single command deployment
+- **Idempotent**: Safe to run multiple times
+- **Zero-downtime**: No service interruption during deployment
+- **Self-healing**: Automatic rollback on failure
+- **Secure**: SSL certificates, security headers, and best practices
 
-- [ ] **Environment Configuration**
-  - [ ] `.env.production` file created with secure values
-  - [ ] All passwords changed from defaults
-  - [ ] SSL certificates configured
-  - [ ] Database credentials secured
+## 🎯 Quick Start
 
-- [ ] **Security Setup**
-  - [ ] Firewall configured (ports 80, 443, 22)
-  - [ ] SSH key authentication enabled
-  - [ ] Fail2ban installed and configured
-  - [ ] Regular security updates scheduled
-
-### Deployment Steps
-
-1. **Clone Repository**
-   ```bash
-   git clone <repository-url>
-   cd solevaeg-platform
-   ```
-
-2. **Configure Environment**
-   ```bash
-   cp env.production .env.production
-   # Edit .env.production with your production values
-   ```
-
-3. **Deploy Services**
-   ```bash
-   chmod +x deploy-production.sh
-   ./deploy-production.sh
-   ```
-
-4. **Verify Deployment**
-   - [ ] Frontend accessible at `https://solevaeg.com`
-   - [ ] API accessible at `https://api.solevaeg.com`
-   - [ ] Admin panel accessible at `https://admin.solevaeg.com`
-   - [ ] Database migrations completed
-   - [ ] Admin user created successfully
-
-## 🔐 Admin Panel Access
-
-### Default Admin Credentials
-
-**URL:** `https://admin.solevaeg.com`
-
-**Login Credentials:**
-- **Email:** `admin@solevaeg.com`
-- **Password:** `?3aeeSjqq`
-
-### Admin Panel Features
-
-- **Dashboard:** Overview of sales, orders, and key metrics
-- **Products:** Manage product catalog, inventory, and pricing
-- **Orders:** Process orders, update status, handle refunds
-- **Customers:** View customer data and order history
-- **Analytics:** Sales reports and performance insights
-- **Settings:** Configure system settings and preferences
-- **Chat:** Manage customer support conversations
-
-### Security Recommendations
-
-1. **Change Default Password**
-   - Log in to admin panel immediately
-   - Go to Profile Settings
-   - Change the default password to a strong, unique password
-
-2. **Enable Two-Factor Authentication**
-   - Navigate to Security Settings
-   - Enable 2FA for additional security
-   - Save backup codes in a secure location
-
-3. **Regular Security Updates**
-   - Monitor for security updates
-   - Update dependencies regularly
-   - Review access logs periodically
-
-## 🌐 Service URLs
-
-### Production URLs
-
-- **Main Website:** `https://solevaeg.com`
-- **API Endpoint:** `https://api.solevaeg.com`
-- **Admin Panel:** `https://admin.solevaeg.com`
-
-### Health Check Endpoints
-
-- **Frontend Health:** `https://solevaeg.com/health`
-- **API Health:** `https://api.solevaeg.com/health`
-- **Admin Health:** `https://admin.solevaeg.com/health`
-
-## 📊 Monitoring & Maintenance
-
-### Service Management
+### Single Command Deployment
 
 ```bash
-# View all services
-docker-compose ps
-
-# View logs
-docker-compose logs -f
-
-# Restart services
-docker-compose restart
-
-# Update services
-docker-compose pull
-docker-compose up -d
-
-# Stop services
-docker-compose down
+./deploy.sh
 ```
 
-### Database Management
+That's it! The script handles everything automatically.
+
+## 📁 Project Structure
+
+```
+soleva-web/
+├── deploy.sh                    # Main deployment script
+├── docker-compose.prod.yml      # Production Docker Compose
+├── .env.example                 # Environment template
+├── .env.production              # Production environment (create this)
+├── docker/
+│   └── nginx/
+│       ├── nginx.conf           # Main Nginx config
+│       ├── conf.d/
+│       │   └── production.conf  # Production server blocks
+│       ├── frontend.conf        # Frontend container config
+│       └── admin.conf           # Admin container config
+├── backend/                     # NestJS Backend
+├── admin/                       # React Admin Panel
+└── src/                         # React Frontend
+```
+
+## 🔧 Prerequisites
+
+### Server Requirements
+
+- **OS**: Ubuntu 20.04+ or CentOS 8+
+- **RAM**: Minimum 4GB, Recommended 8GB+
+- **Storage**: Minimum 20GB free space
+- **CPU**: Minimum 2 cores, Recommended 4+ cores
+
+### Software Requirements
+
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **Git**: Latest version
+- **curl**: For health checks
+
+### Network Requirements
+
+- **Ports**: 80 (HTTP), 443 (HTTPS), 3001 (Backend - internal)
+- **Domain**: Valid domain name pointing to server
+- **DNS**: A records for domain, www, api, and admin subdomains
+
+## 🛠️ Setup Instructions
+
+### 1. Server Preparation
 
 ```bash
-# Access database
-docker-compose exec postgres psql -U solevaeg_user -d solevaeg_prod
+# Update system
+sudo apt update && sudo apt upgrade -y
 
-# Run migrations
-docker-compose exec backend npx prisma migrate deploy
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
 
-# Seed database
-docker-compose exec backend npx prisma db seed
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
-# Backup database
-docker-compose exec postgres pg_dump -U solevaeg_user solevaeg_prod > backup.sql
+# Install certbot for SSL
+sudo apt install -y certbot python3-certbot-nginx
+
+# Logout and login to apply Docker group changes
 ```
 
-### Log Management
+### 2. Clone Repository
 
 ```bash
-# View application logs
-docker-compose logs -f backend
-
-# View nginx logs
-docker-compose logs -f nginx
-
-# View database logs
-docker-compose logs -f postgres
+git clone https://github.com/your-org/soleva-web.git
+cd soleva-web
 ```
 
-## 🔧 Troubleshooting
+### 3. Configure Environment
 
-### Common Issues
+```bash
+# Copy environment template
+cp .env.example .env.production
 
-1. **Services Not Starting**
-   - Check Docker daemon status
-   - Verify environment variables
-   - Check port conflicts
+# Edit with your actual values
+nano .env.production
+```
 
-2. **Database Connection Issues**
-   - Verify database credentials
-   - Check network connectivity
-   - Review database logs
+### 4. Deploy
 
-3. **SSL Certificate Issues**
-   - Verify domain configuration
-   - Check certificate validity
-   - Review nginx configuration
+```bash
+# Make deployment script executable
+chmod +x deploy.sh
 
-4. **Admin Panel Access Issues**
-   - Verify admin credentials
-   - Check backend API status
-   - Review authentication logs
+# Run deployment
+./deploy.sh
+```
 
-### Support Commands
+## 🔐 Environment Configuration
+
+### Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DOMAIN` | Your domain name | `solevaeg.com` |
+| `POSTGRES_PASSWORD` | Database password | `SecurePassword123!` |
+| `REDIS_PASSWORD` | Redis password | `RedisPassword456!` |
+| `JWT_SECRET` | JWT signing secret (64+ chars) | `Your64CharacterSecretKeyHere...` |
+| `ADMIN_EMAIL` | Admin email for SSL | `admin@solevaeg.com` |
+| `ADMIN_PASSWORD` | Admin panel password | `SecureAdminPass789!` |
+
+### Optional Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_CHAT_WIDGET` | Enable AI chat widget | `true` |
+| `ENABLE_SOCIAL_LOGIN` | Enable Google/Facebook login | `true` |
+| `ENABLE_ANALYTICS` | Enable Google Analytics | `true` |
+| `LOG_LEVEL` | Logging level | `info` |
+
+## 🏗️ Architecture
+
+### Services
+
+1. **PostgreSQL**: Database server
+2. **Redis**: Caching and session storage
+3. **Backend**: NestJS API server
+4. **Frontend**: React application
+5. **Admin**: React admin panel
+6. **Nginx**: Reverse proxy and SSL termination
+
+### Network Flow
+
+```
+Internet → Nginx (SSL) → Frontend/Admin/Backend → Database/Redis
+```
+
+### Health Checks
+
+- **Backend**: `GET /health` endpoint
+- **Frontend**: HTTP 200 response
+- **Admin**: HTTP 200 response
+- **Database**: `pg_isready` command
+- **Redis**: `ping` command
+
+## 🔒 Security Features
+
+### SSL/TLS
+
+- **Let's Encrypt**: Automatic certificate provisioning
+- **Auto-renewal**: Certbot timer for certificate renewal
+- **HSTS**: HTTP Strict Transport Security headers
+- **OCSP Stapling**: Online Certificate Status Protocol
+
+### Security Headers
+
+- **X-Frame-Options**: Prevent clickjacking
+- **X-Content-Type-Options**: Prevent MIME sniffing
+- **X-XSS-Protection**: XSS protection
+- **Content-Security-Policy**: CSP headers
+- **Referrer-Policy**: Control referrer information
+
+### Rate Limiting
+
+- **API**: 10 requests/second per IP
+- **Auth**: 5 requests/minute per IP
+- **Burst**: Configurable burst limits
+
+## 📊 Monitoring & Logs
+
+### Health Monitoring
 
 ```bash
 # Check service status
-docker-compose ps
+docker compose -f docker-compose.prod.yml ps
 
-# View resource usage
-docker stats
+# View logs
+docker compose -f docker-compose.prod.yml logs -f [service]
 
-# Check disk space
-df -h
+# Check health endpoints
+curl -I https://yourdomain.com
+curl -I https://api.yourdomain.com/health
+curl -I https://admin.yourdomain.com
+```
 
+### Log Locations
+
+- **Application logs**: `backend/logs/`
+- **Nginx logs**: `docker/nginx/logs/`
+- **Docker logs**: `docker compose logs`
+
+## 🔄 Rollback Procedures
+
+### Automatic Rollback
+
+The deployment script automatically rolls back on failure:
+
+1. Stops new containers
+2. Starts previous containers (if available)
+3. Logs rollback actions
+
+### Manual Rollback
+
+```bash
+# Stop current deployment
+docker compose -f docker-compose.prod.yml down
+
+# Start previous deployment (if available)
+docker compose -f docker-compose.yml up -d
+
+# Or restore from backup
+git checkout [previous-commit]
+./deploy.sh
+```
+
+### Database Rollback
+
+```bash
+# Connect to database
+docker compose -f docker-compose.prod.yml exec postgres psql -U solevaeg_user -d solevaeg_prod
+
+# Run rollback migrations (if available)
+docker compose -f docker-compose.prod.yml run --rm backend npx prisma migrate reset
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+#### 1. Port Already in Use
+
+```bash
+# Check what's using the port
+sudo netstat -tulpn | grep :80
+sudo netstat -tulpn | grep :443
+
+# Stop conflicting services
+sudo systemctl stop apache2  # or nginx
+sudo systemctl disable apache2
+```
+
+#### 2. SSL Certificate Issues
+
+```bash
+# Check certificate status
+sudo certbot certificates
+
+# Renew certificate manually
+sudo certbot renew --force-renewal
+
+# Test renewal
+sudo certbot renew --dry-run
+```
+
+#### 3. Database Connection Issues
+
+```bash
+# Check database logs
+docker compose -f docker-compose.prod.yml logs postgres
+
+# Test database connection
+docker compose -f docker-compose.prod.yml exec postgres pg_isready -U solevaeg_user
+```
+
+#### 4. Memory Issues
+
+```bash
 # Check memory usage
 free -h
+docker stats
 
-# Check network connectivity
-curl -I https://solevaeg.com
+# Increase swap if needed
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+```
+
+### Debug Mode
+
+```bash
+# Run with debug output
+bash -x ./deploy.sh
+
+# Check individual service logs
+docker compose -f docker-compose.prod.yml logs backend
+docker compose -f docker-compose.prod.yml logs frontend
+docker compose -f docker-compose.prod.yml logs nginx
 ```
 
 ## 📈 Performance Optimization
 
-### Recommended Settings
+### Database Optimization
 
-- **Database:** Regular VACUUM and ANALYZE
-- **Redis:** Configure appropriate memory limits
-- **Nginx:** Enable gzip compression and caching
-- **Docker:** Set appropriate resource limits
+```sql
+-- Add indexes for better performance
+CREATE INDEX CONCURRENTLY idx_products_category ON products(category_id);
+CREATE INDEX CONCURRENTLY idx_orders_user_id ON orders(user_id);
+CREATE INDEX CONCURRENTLY idx_orders_created_at ON orders(created_at);
+```
 
-### Monitoring Tools
+### Redis Optimization
 
-- **System Monitoring:** htop, iotop, nethogs
-- **Application Monitoring:** Docker stats, application logs
-- **Database Monitoring:** pg_stat_activity, slow query logs
+```bash
+# Configure Redis for production
+# Edit redis.conf in docker-compose.prod.yml
+maxmemory 512mb
+maxmemory-policy allkeys-lru
+```
 
-## 🚨 Emergency Procedures
+### Nginx Optimization
 
-### Service Recovery
+```nginx
+# Add to nginx.conf for better performance
+worker_processes auto;
+worker_connections 1024;
+keepalive_timeout 65;
+gzip on;
+gzip_comp_level 6;
+```
 
-1. **Complete Service Failure**
-   ```bash
-   docker-compose down
-   docker-compose up -d
-   ```
+## 🔧 Maintenance
 
-2. **Database Recovery**
-   ```bash
-   # Restore from backup
-   docker-compose exec postgres psql -U solevaeg_user -d solevaeg_prod < backup.sql
-   ```
+### Regular Tasks
 
-3. **SSL Certificate Renewal**
-   ```bash
-   docker-compose exec certbot certbot renew
-   docker-compose restart nginx
-   ```
+#### Weekly
 
-### Backup Strategy
+- Check SSL certificate expiration
+- Review application logs
+- Monitor disk space usage
+- Update system packages
 
-- **Database:** Daily automated backups
-- **Uploads:** Regular file system backups
-- **Configuration:** Version control for config files
-- **SSL Certificates:** Automated renewal monitoring
+#### Monthly
 
-## 📞 Support Information
+- Review security updates
+- Backup database
+- Performance analysis
+- Update dependencies
 
-### Technical Support
+### Backup Procedures
 
-- **Documentation:** Check this guide and inline code comments
-- **Logs:** Review application and system logs
-- **Monitoring:** Use health check endpoints
+```bash
+# Database backup
+docker compose -f docker-compose.prod.yml exec postgres pg_dump -U solevaeg_user solevaeg_prod > backup_$(date +%Y%m%d).sql
 
-### Contact Information
+# File backup
+tar -czf uploads_backup_$(date +%Y%m%d).tar.gz backend/uploads/
 
-- **Admin Email:** admin@solevaeg.com
-- **Support Email:** support@solevaeg.com
-- **Technical Issues:** Check logs and documentation first
+# Configuration backup
+tar -czf config_backup_$(date +%Y%m%d).tar.gz .env.production docker/nginx/
+```
+
+## 📞 Support
+
+### Getting Help
+
+1. **Check logs**: Always start with application logs
+2. **Review documentation**: Check this guide and README files
+3. **Search issues**: Look for similar problems in GitHub issues
+4. **Create issue**: Provide detailed logs and environment info
+
+### Emergency Contacts
+
+- **Technical Lead**: [Your Contact]
+- **DevOps Team**: [Your Contact]
+- **Hosting Provider**: [Your Contact]
+
+## 📝 Changelog
+
+### Version 1.0.0
+- Initial production deployment system
+- Single-command deployment
+- SSL automation
+- Health checks and monitoring
+- Comprehensive documentation
 
 ---
 
-## ✅ Post-Deployment Verification
-
-After deployment, verify the following:
-
-- [ ] All services are running and healthy
-- [ ] Admin panel is accessible with correct credentials
-- [ ] SSL certificates are valid and working
-- [ ] Database is seeded with initial data
-- [ ] All API endpoints are responding correctly
-- [ ] Frontend is loading without errors
-- [ ] File uploads are working
-- [ ] Email notifications are configured
-- [ ] Monitoring and logging are active
-
-**🎉 Congratulations! Your Soleva E-commerce platform is now live and ready for business!**
+**Last Updated**: $(date)
+**Version**: 1.0.0
+**Maintainer**: Soleva Development Team

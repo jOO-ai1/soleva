@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiMenu, FiShoppingCart, FiUser, FiHeart } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';

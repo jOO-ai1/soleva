@@ -32,7 +32,6 @@ export default function FavoriteButton({
     showWarning,
     warningType,
     actionDescription,
-    requireAuth,
     handleLoginClick,
     handleSignUpClick,
     handleCloseWarning
@@ -56,11 +55,8 @@ export default function FavoriteButton({
     e.preventDefault();
     e.stopPropagation();
     
-    const actionDescription = isCurrentlyFavorite ? t("removeFromFavorites") : t("addToFavorites");
-    
-    requireAuth(handleToggleFavorite, {
-      action: actionDescription
-    });
+    // Allow guests to use favorites (stored in localStorage)
+    handleToggleFavorite();
   };
 
   return (

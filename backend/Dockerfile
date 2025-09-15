@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Node.js backend
 
 # Base stage with Node.js
-FROM node:18-alpine AS base
+FROM node:18-alpine3.18 AS base
 RUN apk update && apk add --no-cache gcompat
 WORKDIR /app
 
@@ -26,7 +26,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS production
+FROM node:18-alpine3.18 AS production
 RUN apk update && apk add --no-cache gcompat curl
 
 # Create non-root user

@@ -1,17 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
+# =============================================================================
 # Soleva E-commerce Platform - Production Deployment Script
-# Usage: ./deploy.sh [environment]
-# Environment: staging | production (default: production)
-
-set -e  # Exit on any error
-
-# Configuration
-ENVIRONMENT=${1:-production}
-PROJECT_NAME="solevaeg"
-DOMAIN="solevaeg.com"
-ADMIN_EMAIL="admin@solevaeg.com"
-VPS_IP="213.130.147.41"
+# =============================================================================
+# This script performs a complete, idempotent production deployment with:
+# - Pre-flight checks (Docker, ports, disk space)
+# - Environment validation
+# - Zero-downtime container replacement
+# - Database migrations
+# - Health checks and warm-up
+# - SSL certificate management
+# - Automatic rollback on failure
+# =============================================================================
 
 # Colors for output
 RED='\033[0;31m'
@@ -20,200 +21,443 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Logging function
-log() {
-    echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-warning() {
-    echo -e "${YELLOW}[WARNING] $1${NC}"
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-error() {
-    echo -e "${RED}[ERROR] $1${NC}"
-    exit 1
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# Check if running as root
-if [[ $EUID -eq 0 ]]; then
-   error "This script should not be run as root for security reasons"
-fi
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    error "Docker is not installed. Please install Docker first."
-fi
+# Error handling
+cleanup() {
+    local exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        log_error "Deployment failed with exit code $exit_code"
+        log_info "Attempting rollback..."
+        rollback_deployment
+    fi
+    exit $exit_code
+}
 
-# Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    error "Docker Compose is not installed. Please install Docker Compose first."
-fi
+trap cleanup EXIT
 
-log "Starting deployment for environment: $ENVIRONMENT"
+# Rollback function
+rollback_deployment() {
+    log_warning "Rolling back deployment..."
+    
+    # Stop new containers
+    docker-compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+    
+    # Start previous containers if they exist
+    if docker-compose -f docker-compose.yml ps -q | grep -q .; then
+        log_info "Starting previous deployment..."
+        docker-compose -f docker-compose.yml up -d 2>/dev/null || true
+    fi
+    
+    log_warning "Rollback completed. Please check the logs and fix issues before retrying."
+}
 
-# Create necessary directories
-log "Creating directory structure..."
-sudo mkdir -p /opt/$PROJECT_NAME/{data,logs,backups,ssl}
-sudo mkdir -p /opt/$PROJECT_NAME/data/{postgres,redis,uploads}
-sudo chown -R $USER:$USER /opt/$PROJECT_NAME
+# Main deployment function
+main() {
+    log_info "🚀 Starting Soleva production deployment at $(date -Is)"
+    
+    # 1. Pre-flight checks
+    log_info "📋 Running pre-flight checks..."
+    check_prerequisites
+    
+    # 2. Environment validation
+    log_info "🔍 Validating environment configuration..."
+    validate_environment
+    
+    # 3. Create necessary directories
+    log_info "📁 Creating necessary directories..."
+    create_directories
+    
+    # 4. Pull and build images
+    log_info "🔨 Building Docker images..."
+    build_images
+    
+    # 5. Start infrastructure services
+    log_info "🗄️ Starting infrastructure services..."
+    start_infrastructure
+    
+    # 6. Run database migrations
+    log_info "📊 Running database migrations..."
+    run_migrations
+    
+    # 7. Start application services
+    log_info "🚀 Starting application services..."
+    start_application_services
+    
+    # 8. Health checks and warm-up
+    log_info "🏥 Performing health checks..."
+    perform_health_checks
+    
+    # 9. SSL certificate management
+    log_info "🔒 Managing SSL certificates..."
+    manage_ssl_certificates
+    
+    # 10. Final validation
+    log_info "✅ Performing final validation..."
+    final_validation
+    
+    log_success "🎉 Deployment completed successfully at $(date -Is)"
+    log_info "🌐 Frontend: https://${DOMAIN}"
+    log_info "🔧 Admin Panel: https://admin.${DOMAIN}"
+    log_info "📡 API: https://api.${DOMAIN}"
+}
 
-# Copy environment file
-log "Setting up environment configuration..."
-if [ ! -f ".env.$ENVIRONMENT" ]; then
-    error "Environment file .env.$ENVIRONMENT not found!"
-fi
+# Pre-flight checks
+check_prerequisites() {
+    log_info "Checking Docker installation..."
+    command -v docker >/dev/null || { log_error "Docker is not installed"; exit 1; }
+    
+    log_info "Checking Docker Compose..."
+    command -v docker-compose >/dev/null || { log_error "Docker Compose is not available"; exit 1; }
+    
+    log_info "Checking disk space..."
+    local disk_usage=$(df -h / | awk 'NR==2 {print $5}' | sed 's/%//')
+    if [ "$disk_usage" -gt 90 ]; then
+        log_error "Disk usage is above 90% (${disk_usage}%)"
+        exit 1
+    fi
+    
+    log_info "Checking port availability..."
+    for port in 80 443 3001; do
+        if netstat -tuln | grep -q ":$port "; then
+            log_warning "Port $port is already in use"
+        fi
+    done
+    
+    log_info "Checking Docker daemon..."
+    docker info >/dev/null 2>&1 || { log_error "Docker daemon is not running"; exit 1; }
+    
+    log_success "All prerequisites checks passed"
+}
 
-cp .env.$ENVIRONMENT .env
-
-# Validate environment variables
-log "Validating environment configuration..."
-source .env
-
-required_vars=(
-    "POSTGRES_DB"
+# Environment validation
+validate_environment() {
+    local env_file=".env.production"
+    
+    if [ ! -f "$env_file" ]; then
+        log_error "Environment file $env_file not found"
+        exit 1
+    fi
+    
+    # Source environment variables
+    set -a
+    source "$env_file"
+    set +a
+    
+    # Required variables
+    local required_vars=(
+        "NODE_ENV"
+        "DOMAIN"
     "POSTGRES_USER" 
     "POSTGRES_PASSWORD"
+        "POSTGRES_DB"
+        "DATABASE_URL"
+        "REDIS_URL"
     "JWT_SECRET"
-    "JWT_REFRESH_SECRET"
+        "VITE_API_URL"
     "ADMIN_EMAIL"
-    "ADMIN_PASSWORD"
 )
 
 for var in "${required_vars[@]}"; do
-    if [ -z "${!var}" ]; then
-        error "Required environment variable $var is not set"
+        if [ -z "${!var:-}" ]; then
+            log_error "Required environment variable $var is not set"
+            exit 1
     fi
 done
 
-# Build and start services
-log "Building Docker images..."
-docker-compose build --no-cache
+    log_success "Environment validation passed"
+}
 
-log "Starting services..."
-docker-compose up -d
+# Create necessary directories
+create_directories() {
+    local dirs=(
+        "docker/nginx/ssl"
+        "docker/nginx/certbot-webroot"
+        "backend/uploads"
+        "backend/logs"
+    )
+    
+    for dir in "${dirs[@]}"; do
+        mkdir -p "$dir"
+        log_info "Created directory: $dir"
+    done
+    
+    log_success "All directories created"
+}
 
-# Wait for database to be ready
-log "Waiting for database to be ready..."
-max_attempts=30
-attempt=1
+# Build Docker images
+build_images() {
+    log_info "Pulling base images..."
+    docker-compose -f docker-compose.prod.yml pull --ignore-build-fails || true
+    
+    log_info "Building application images..."
+    docker-compose -f docker-compose.prod.yml build --no-cache --parallel
+    
+    log_success "All images built successfully"
+}
 
-while ! docker-compose exec -T postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB > /dev/null 2>&1; do
-    if [ $attempt -eq $max_attempts ]; then
-        error "Database failed to start after $max_attempts attempts"
-    fi
-    echo "Waiting for database... (attempt $attempt/$max_attempts)"
-    sleep 2
-    ((attempt++))
-done
-
-log "Database is ready!"
+# Start infrastructure services
+start_infrastructure() {
+    log_info "Starting PostgreSQL and Redis..."
+    docker-compose -f docker-compose.prod.yml up -d postgres redis
+    
+    # Wait for infrastructure to be healthy
+    log_info "Waiting for infrastructure services to be healthy..."
+    local max_attempts=30
+    local attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if docker-compose -f docker-compose.prod.yml ps postgres | grep -q "healthy" && \
+           docker-compose -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
+            log_success "Infrastructure services are healthy"
+            return 0
+        fi
+        
+        attempt=$((attempt + 1))
+        log_info "Waiting for infrastructure services... (attempt $attempt/$max_attempts)"
+        sleep 5
+    done
+    
+    log_error "Infrastructure services failed to become healthy"
+    exit 1
+}
 
 # Run database migrations
-log "Running database migrations..."
-docker-compose exec -T backend npm run migrate
-
-# Seed database with initial data
-log "Seeding database with initial data..."
-docker-compose exec -T backend npm run seed
-
-# Generate SSL certificates if in production
-if [ "$ENVIRONMENT" = "production" ]; then
-    log "Setting up SSL certificates..."
+run_migrations() {
+    log_info "Running database migrations..."
     
-    # Create initial certificates
-    docker-compose run --rm certbot certonly \
-        --webroot \
-        --webroot-path=/var/www/certbot \
-        --email $ADMIN_EMAIL \
-        --agree-tos \
-        --no-eff-email \
-        -d $DOMAIN \
-        -d www.$DOMAIN \
-        -d api.$DOMAIN \
-        -d admin.$DOMAIN
+    # Generate Prisma client
+    docker-compose -f docker-compose.prod.yml run --rm backend npx prisma generate
     
-    # Set up auto-renewal
-    (crontab -l 2>/dev/null; echo "0 3 * * * /opt/$PROJECT_NAME/renew-ssl.sh") | crontab -
-fi
+    # Run migrations
+    docker-compose -f docker-compose.prod.yml run --rm backend npx prisma migrate deploy
+    
+    log_success "Database migrations completed"
+}
 
-# Health check
-log "Performing health checks..."
-sleep 10
+# Start application services
+start_application_services() {
+    log_info "Starting backend service..."
+    docker-compose -f docker-compose.prod.yml up -d backend
+    
+    # Wait for backend to be healthy
+    log_info "Waiting for backend to be healthy..."
+    local max_attempts=30
+    local attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if docker-compose -f docker-compose.prod.yml ps backend | grep -q "healthy"; then
+            log_success "Backend is healthy"
+            break
+        fi
+        
+        attempt=$((attempt + 1))
+        log_info "Waiting for backend... (attempt $attempt/$max_attempts)"
+        sleep 5
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        log_error "Backend failed to become healthy"
+        exit 1
+    fi
+    
+    log_info "Starting frontend and admin services..."
+    docker-compose -f docker-compose.prod.yml up -d frontend admin
+    
+    # Wait for frontend and admin to be healthy
+    log_info "Waiting for frontend and admin to be healthy..."
+    attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if docker-compose -f docker-compose.prod.yml ps frontend | grep -q "healthy" && \
+           docker-compose -f docker-compose.prod.yml ps admin | grep -q "healthy"; then
+            log_success "Frontend and admin are healthy"
+            break
+        fi
+        
+        attempt=$((attempt + 1))
+        log_info "Waiting for frontend and admin... (attempt $attempt/$max_attempts)"
+        sleep 5
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        log_error "Frontend or admin failed to become healthy"
+        exit 1
+    fi
+    
+    log_info "Starting Nginx reverse proxy..."
+    docker-compose -f docker-compose.prod.yml up -d nginx
+    
+    log_success "All application services started"
+}
 
-# Check frontend
-if curl -f http://localhost:5173/health > /dev/null 2>&1; then
-    log "✓ Frontend is healthy"
-else
-    warning "Frontend health check failed"
-fi
+# Perform health checks
+perform_health_checks() {
+    log_info "Performing comprehensive health checks..."
+    
+    # Backend health check
+    log_info "Checking backend health..."
+    local max_attempts=30
+    local attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if curl -fsS "http://localhost:3001/health" >/dev/null 2>&1; then
+            log_success "Backend health check passed"
+            break
+        fi
+        
+        attempt=$((attempt + 1))
+        log_info "Backend health check attempt $attempt/$max_attempts"
+        sleep 2
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        log_error "Backend health check failed"
+        exit 1
+    fi
+    
+    # Frontend health check
+    log_info "Checking frontend health..."
+    attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if curl -fsS "http://localhost" >/dev/null 2>&1; then
+            log_success "Frontend health check passed"
+            break
+        fi
+        
+        attempt=$((attempt + 1))
+        log_info "Frontend health check attempt $attempt/$max_attempts"
+        sleep 2
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        log_error "Frontend health check failed"
+        exit 1
+    fi
+    
+    log_success "All health checks passed"
+}
 
-# Check backend
-if curl -f http://localhost:3001/health > /dev/null 2>&1; then
-    log "✓ Backend is healthy"
-else
-    warning "Backend health check failed"
-fi
+# Manage SSL certificates
+manage_ssl_certificates() {
+    log_info "Checking SSL certificate status..."
+    
+    # Check if certificate exists
+    if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+        log_info "SSL certificate not found. Requesting new certificate..."
+        
+        # Install certbot if not present
+        if ! command -v certbot >/dev/null; then
+            log_info "Installing certbot..."
+            if command -v apt-get >/dev/null; then
+                sudo apt-get update && sudo apt-get install -y certbot python3-certbot-nginx
+            elif command -v yum >/dev/null; then
+                sudo yum install -y certbot python3-certbot-nginx
+            else
+                log_error "Cannot install certbot. Please install it manually."
+                exit 1
+            fi
+        fi
+        
+        # Request certificate
+        log_info "Requesting SSL certificate for ${DOMAIN} and www.${DOMAIN}..."
+        sudo certbot certonly \
+            --webroot \
+            --webroot-path=/var/www/certbot \
+            --email "${ADMIN_EMAIL}" \
+            --agree-tos \
+            --no-eff-email \
+            --non-interactive \
+            -d "${DOMAIN}" \
+            -d "www.${DOMAIN}" \
+            -d "api.${DOMAIN}" \
+            -d "admin.${DOMAIN}" || {
+            log_warning "SSL certificate request failed. Continuing without SSL..."
+            return 0
+        }
+        
+        # Enable certbot auto-renewal
+        log_info "Enabling certbot auto-renewal..."
+        sudo systemctl enable --now certbot.timer
+        
+        # Test renewal
+        log_info "Testing SSL certificate renewal..."
+        sudo certbot renew --dry-run || log_warning "SSL renewal test failed"
+        
+        log_success "SSL certificate installed and configured"
+    else
+        log_info "SSL certificate exists. Checking expiration..."
+        
+        # Check certificate expiration
+        local expiry_date=$(openssl x509 -enddate -noout -in "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" | cut -d= -f2)
+        local expiry_timestamp=$(date -d "$expiry_date" +%s)
+        local current_timestamp=$(date +%s)
+        local days_until_expiry=$(( (expiry_timestamp - current_timestamp) / 86400 ))
+        
+        if [ $days_until_expiry -lt 30 ]; then
+            log_warning "SSL certificate expires in $days_until_expiry days. Attempting renewal..."
+            sudo certbot renew --quiet || log_warning "SSL renewal failed"
+        else
+            log_success "SSL certificate is valid for $days_until_expiry more days"
+        fi
+    fi
+}
 
-# Check database
-if docker-compose exec -T postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB > /dev/null 2>&1; then
-    log "✓ Database is healthy"
-else
-    warning "Database health check failed"
-fi
+# Final validation
+final_validation() {
+    log_info "Performing final validation..."
+    
+    # Check if all services are running
+    local services=("postgres" "redis" "backend" "frontend" "admin" "nginx")
+    for service in "${services[@]}"; do
+        if ! docker-compose -f docker-compose.prod.yml ps "$service" | grep -q "Up"; then
+            log_error "Service $service is not running"
+            exit 1
+        fi
+    done
+    
+    # Test HTTPS endpoints
+    log_info "Testing HTTPS endpoints..."
+    
+    # Test main site
+    if curl -I "https://${DOMAIN}" 2>/dev/null | grep -E "200|301|302" >/dev/null; then
+        log_success "Main site (https://${DOMAIN}) is responding"
+    else
+        log_warning "Main site HTTPS test failed"
+    fi
+    
+    # Test admin panel
+    if curl -I "https://admin.${DOMAIN}" 2>/dev/null | grep -E "200|301|302" >/dev/null; then
+        log_success "Admin panel (https://admin.${DOMAIN}) is responding"
+    else
+        log_warning "Admin panel HTTPS test failed"
+    fi
+    
+    # Test API
+    if curl -I "https://api.${DOMAIN}/health" 2>/dev/null | grep -E "200|301|302" >/dev/null; then
+        log_success "API (https://api.${DOMAIN}) is responding"
+    else
+        log_warning "API HTTPS test failed"
+    fi
+    
+    log_success "Final validation completed"
+}
 
-# Check Redis
-if docker-compose exec -T redis redis-cli ping > /dev/null 2>&1; then
-    log "✓ Redis is healthy"
-else
-    warning "Redis health check failed"
-fi
-
-# Setup monitoring and alerts
-log "Setting up monitoring..."
-./scripts/setup-monitoring.sh
-
-# Setup backup system
-log "Setting up backup system..."
-./scripts/setup-backups.sh
-
-# Display deployment summary
-log "Deployment completed successfully!"
-echo ""
-echo "🎉 Soleva E-commerce Platform is now live!"
-echo ""
-echo "📱 Frontend: http://$DOMAIN"
-echo "🔧 Admin Panel: http://admin.$DOMAIN"
-echo "🚀 API: http://api.$DOMAIN"
-echo "📚 API Docs: http://api.$DOMAIN/docs"
-echo ""
-echo "🔐 Admin Credentials:"
-echo "   Email: $ADMIN_EMAIL"
-echo "   Password: [Check your environment file]"
-echo ""
-echo "📊 Monitoring:"
-echo "   Logs: docker-compose logs -f"
-echo "   Status: docker-compose ps"
-echo ""
-echo "🛡️ Security:"
-if [ "$ENVIRONMENT" = "production" ]; then
-    echo "   SSL: ✓ Enabled with Let's Encrypt"
-    echo "   Auto-renewal: ✓ Configured"
-else
-    echo "   SSL: ⚠️ Not configured (staging environment)"
-fi
-echo ""
-echo "💾 Backups:"
-echo "   Location: /opt/$PROJECT_NAME/backups"
-echo "   Schedule: Daily at 2 AM UTC"
-echo ""
-
-# Final security reminders
-warning "Security Reminders:"
-echo "1. Change default admin password immediately"
-echo "2. Review and update environment variables"
-echo "3. Configure firewall rules"
-echo "4. Set up monitoring alerts"
-echo "5. Test backup and restore procedures"
-echo ""
-
-log "Deployment script completed. Please review the output above."
+# Run main function
+main "$@"

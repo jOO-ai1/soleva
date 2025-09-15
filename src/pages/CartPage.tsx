@@ -12,7 +12,7 @@ import RemoveConfirmModal from './cart/RemoveConfirmModal';
 export default function CartPage() {
   const { cart, removeFromCart } = useCart();
   const { showToast } = useToast();
-  const { lang } = useLang();
+  // const { lang } = useLang(); // Removed as it's not used
   const t = useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
   const [removeItem, setRemoveItem] = useState<any>(null);

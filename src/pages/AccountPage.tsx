@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiUser, FiFileText, FiBox, FiMapPin, FiLogOut, FiEdit3, FiSave } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { useLang, useTranslation } from '../contexts/LangContext';
-import GlassCard from '../components/GlassCard';
+// GlassCard import removed as it's not used
 import GlassButton from '../components/GlassButton';
 
 export default function AccountPage() {

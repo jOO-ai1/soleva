@@ -22,7 +22,6 @@ export default function CartSummary() {
     showWarning,
     warningType,
     actionDescription,
-    requireAuth,
     handleLoginClick,
     handleSignUpClick,
     handleCloseWarning
@@ -54,11 +53,8 @@ export default function CartSummary() {
   };
 
   const handleCheckout = () => {
-    requireAuth(() => {
-      navigate("/checkout", { state: { appliedCoupon: applied } });
-    }, {
-      action: t("checkout")
-    });
+    // Allow guests to proceed to checkout
+    navigate("/checkout", { state: { appliedCoupon: applied } });
   };
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
   const discount = applied?.discount ? Math.min(Math.floor((subtotal * applied.discount) / 100), applied.maxDiscount || Infinity) : 0;

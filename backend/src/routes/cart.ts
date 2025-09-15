@@ -1,21 +1,17 @@
-import express, { Response } from 'express';
+import express, { Response, Request } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get cart items
-router.get('/', async (req, res): Promise<Response | void> => {
+// Guest cart storage (in-memory for now, could be Redis in production)
+const guestCarts = new Map<string, any[]>();
+
+// Get cart items (authenticated users)
+router.get('/', async (req: AuthenticatedRequest, res): Promise<Response | void> => {
   try {
-    // This would normally use auth middleware to get user ID
-    const userId = req.query.userId as string;
-    
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User ID required'
-      });
-    }
+    const userId = req.user!.id;
 
     const cartItems = await prisma.cartItem.findMany({
       where: { userId },
@@ -38,10 +34,36 @@ router.get('/', async (req, res): Promise<Response | void> => {
   }
 });
 
-// Add item to cart
-router.post('/', async (req, res) => {
+// Get guest cart items
+router.get('/guest/:sessionId', async (req: Request, res): Promise<Response | void> => {
   try {
-    const { userId, productId, variantId, quantity } = req.body;
+    const { sessionId } = req.params;
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID is required'
+      });
+    }
+    const guestCart = guestCarts.get(sessionId) || [];
+
+    res.json({
+      success: true,
+      data: guestCart
+    });
+  } catch (error) {
+    console.error('Guest cart fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch guest cart'
+    });
+  }
+});
+
+// Add item to cart (authenticated users)
+router.post('/', async (req: AuthenticatedRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const { productId, variantId, quantity } = req.body;
 
     const cartItem = await prisma.cartItem.upsert({
       where: {
@@ -75,6 +97,141 @@ router.post('/', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to add item to cart'
+    });
+  }
+});
+
+// Add item to guest cart
+router.post('/guest/:sessionId', async (req: Request, res): Promise<Response | void> => {
+  try {
+    const { sessionId } = req.params;
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID is required'
+      });
+    }
+    const { productId, variantId, quantity, product } = req.body;
+
+    let guestCart = guestCarts.get(sessionId) || [];
+    
+    // Check if item already exists
+    const existingItemIndex = guestCart.findIndex(item => 
+      item.productId === productId && item.variantId === variantId
+    );
+
+    if (existingItemIndex >= 0) {
+      // Update quantity
+      guestCart[existingItemIndex].quantity += quantity || 1;
+    } else {
+      // Add new item
+      guestCart.push({
+        id: Date.now().toString(),
+        productId,
+        variantId: variantId || null,
+        quantity: quantity || 1,
+        product: product || { id: productId },
+        variant: variantId ? { id: variantId } : null
+      });
+    }
+
+    guestCarts.set(sessionId, guestCart);
+
+    res.json({
+      success: true,
+      data: guestCart
+    });
+  } catch (error) {
+    console.error('Add to guest cart error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add item to guest cart'
+    });
+  }
+});
+
+// Update guest cart item quantity
+router.put('/guest/:sessionId/:itemId', async (req: Request, res): Promise<Response | void> => {
+  try {
+    const { sessionId, itemId } = req.params;
+    if (!sessionId || !itemId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID and Item ID are required'
+      });
+    }
+    const { quantity } = req.body;
+
+    let guestCart = guestCarts.get(sessionId) || [];
+    const itemIndex = guestCart.findIndex(item => item.id === itemId);
+
+    if (itemIndex >= 0) {
+      guestCart[itemIndex].quantity = Math.max(1, quantity);
+      guestCarts.set(sessionId, guestCart);
+    }
+
+    res.json({
+      success: true,
+      data: guestCart
+    });
+  } catch (error) {
+    console.error('Update guest cart error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update guest cart'
+    });
+  }
+});
+
+// Remove item from guest cart
+router.delete('/guest/:sessionId/:itemId', async (req: Request, res): Promise<Response | void> => {
+  try {
+    const { sessionId, itemId } = req.params;
+    if (!sessionId || !itemId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID and Item ID are required'
+      });
+    }
+
+    let guestCart = guestCarts.get(sessionId) || [];
+    guestCart = guestCart.filter(item => item.id !== itemId);
+    guestCarts.set(sessionId, guestCart);
+
+    res.json({
+      success: true,
+      data: guestCart
+    });
+  } catch (error) {
+    console.error('Remove from guest cart error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove item from guest cart'
+    });
+  }
+});
+
+// Clear guest cart
+router.delete('/guest/:sessionId', async (req: Request, res): Promise<Response | void> => {
+  try {
+    const { sessionId } = req.params;
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID is required'
+      });
+    }
+    guestCarts.set(sessionId, []);
+
+    res.json({
+      success: true,
+      data: []
+    });
+  } catch (error) {
+    console.error('Clear guest cart error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to clear guest cart'
     });
   }
 });

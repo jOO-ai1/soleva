@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiMessageCircle, 
@@ -73,45 +73,11 @@ const ChatWidget: React.FC = () => {
   const { lang } = useLang();
   const { showToast } = useToast();
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Initialize chat when opened
-  useEffect(() => {
-    if (isOpen && !conversation) {
-      initializeChat();
-    }
-  }, [isOpen]);
-
-  // Check for new messages periodically
-  useEffect(() => {
-    if (conversation) {
-      const interval = setInterval(checkForNewMessages, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [conversation]);
-
-  // Check chat availability on component mount and periodically
-  useEffect(() => {
-    checkAvailability();
-    const interval = setInterval(checkAvailability, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, [lang]);
-
-  // Update chat mode based on availability
-  useEffect(() => {
-    if (availability) {
-      setChatMode(availability.currentMode === 'LIVE' ? 'HUMAN' : 'AI');
-    }
-  }, [availability]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const checkAvailability = async () => {
+  const checkAvailability = useCallback(async () => {
     try {
       // First try to get availability from backend
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/availability?language=${lang}`, {
@@ -135,9 +101,9 @@ const ChatWidget: React.FC = () => {
       const clientAvailability = getChatAvailability(undefined, lang as 'en' | 'ar');
       setAvailability(clientAvailability);
     }
-  };
+  }, [lang]);
 
-  const initializeChat = async () => {
+  const initializeChat = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -172,7 +138,7 @@ const ChatWidget: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const createNewConversation = async () => {
     try {
@@ -218,15 +184,16 @@ const ChatWidget: React.FC = () => {
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !conversation || loading) return;
+    if (!inputMessage.trim() || loading) return;
     
     // Ensure user is logged in
     if (!user) {
-      showToast(
-        lang === 'ar' 
-          ? 'يجب تسجيل الدخول أولاً لاستخدام خدمة الدردشة' 
-          : 'Please log in first to use the chat service'
-      );
+      requireAuth(() => {
+        // Retry sending message after authentication
+        sendMessage();
+      }, {
+        action: lang === 'ar' ? 'إرسال رسالة' : 'send message'
+      });
       return;
     }
 
@@ -252,7 +219,7 @@ const ChatWidget: React.FC = () => {
           ...(user ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {})
         },
         body: JSON.stringify({
-          conversationId: conversation.id,
+          conversationId: conversation?.id,
           content: inputMessage.trim(),
           type: 'TEXT'
         })
@@ -692,11 +659,11 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     }
   };
 
-  const checkForNewMessages = async () => {
+  const checkForNewMessages = useCallback(async () => {
     if (!conversation) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/conversations/${conversation.id}/messages?since=${messages[messages.length - 1]?.timestamp || new Date().toISOString()}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/conversations/${conversation?.id}/messages?since=${messages[messages.length - 1]?.timestamp || new Date().toISOString()}`, {
         headers: user ? {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         } : {}
@@ -716,7 +683,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     } catch (error) {
       console.error('Failed to check for new messages:', error);
     }
-  };
+  }, [conversation, messages, user]);
 
   const handleFileUpload = async (file: File) => {
     if (!conversation) return;
@@ -724,7 +691,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('conversationId', conversation.id);
+      formData.append('conversationId', conversation?.id || '');
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/upload`, {
         method: 'POST',
@@ -806,15 +773,50 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
   };
 
   const openChat = () => {
-    requireAuth(openChatAction, {
-      action: lang === 'ar' ? 'استخدام خدمة الدردشة' : 'use chat service'
-    });
+    // Allow guests to open chat - authentication only required when sending messages
+    openChatAction();
   };
 
   const closeChat = () => {
     setIsOpen(false);
     setIsMinimized(false);
   };
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Initialize chat when opened
+  useEffect(() => {
+    if (isOpen && !conversation) {
+      initializeChat();
+    }
+  }, [isOpen, conversation, initializeChat]);
+
+  // Check for new messages periodically
+  useEffect(() => {
+    if (conversation) {
+      const interval = setInterval(() => {
+        checkForNewMessages();
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [conversation, checkForNewMessages]);
+
+  // Check chat availability on component mount and periodically
+  useEffect(() => {
+    checkAvailability();
+    const interval = setInterval(checkAvailability, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [lang, checkAvailability]);
+
+  // Update chat mode based on availability
+  useEffect(() => {
+    if (availability) {
+      setChatMode(availability.currentMode === 'LIVE' ? 'HUMAN' : 'AI');
+    }
+  }, [availability]);
 
   return (
     <>

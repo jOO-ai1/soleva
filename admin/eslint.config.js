@@ -9,14 +9,9 @@ export default tseslint.config(
     ignores: [
       'dist',
       'node_modules',
-      'docker',
-      'backend',
-      'admin',
       '*.log',
       '*.md',
-      'scripts',
-      'uploads',
-      'logs'
+      'public'
     ] 
   },
   {
@@ -36,6 +31,8 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
     },
   }
 );

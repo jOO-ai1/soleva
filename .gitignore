@@ -1,9 +1,10 @@
 # =============================================================================
-# .gitignore - Optimized for Soleva E-commerce Platform
+# .gitignore - Soleva E-commerce Platform
+# Comprehensive ignore rules for monorepo with Backend (NestJS), Frontend (React), Admin (React), Prisma, Docker
 # =============================================================================
 
 # =============================================================================
-# DEPENDENCIES
+# NODE.JS & PACKAGE MANAGERS
 # =============================================================================
 node_modules/
 npm-debug.log*
@@ -12,6 +13,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 .pnpm-debug.log*
+.pnpm-store/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Package manager integrity files
+.yarn-integrity
+package-lock.json
 
 # =============================================================================
 # BUILD OUTPUTS & ARTIFACTS
@@ -20,44 +31,57 @@ dist/
 dist-ssr/
 build/
 .next/
+.next-static/
 out/
+coverage/
 *.tsbuildinfo
+*.log
 
-# Frontend build
+# Frontend builds
 /dist/
 /admin/dist/
 
-# Backend build
+# Backend builds
 /backend/dist/
 /backend/build/
 
 # =============================================================================
-# ENVIRONMENT VARIABLES & CONFIGURATION
+# ENVIRONMENT VARIABLES & SECRETS
 # =============================================================================
 # Environment files with sensitive data
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.staging
-.env.production
-.env.docker
-.env.production.secure
-
-# Environment backup files
-.env.backup.*
-.env.backup.20250915_150508
+.env.*
+!.env.example
+docker.env
+docker.env.local
+secrets/
+certs/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.csr
 
 # Project-specific env files (PRODUCTION SECRETS - DO NOT COMMIT)
 env.local
 env.production
 env.staging
 env.production.complete
+env.production.secure
 backend/.env
+backend/.env.*
 backend/env.local
 backend/env.production
 backend/env.staging
+admin/.env
+admin/.env.*
+frontend/.env
+frontend/.env.*
+
+# Environment backup files
+.env.backup.*
+.env.backup.20250915_150508
 
 # =============================================================================
 # LOGS & DEBUGGING
@@ -75,6 +99,9 @@ dev.log
 backend.log
 backend/logs/
 backend/backend.log
+production.log
+deployment.log
+ssl-renewal.log
 
 # =============================================================================
 # CACHE & TEMPORARY FILES
@@ -89,6 +116,11 @@ backend/backend.log
 .parcel-cache/
 .vite/
 .turbo/
+.next/cache/
+.next/server/
+.next/static/
+public/.next-cache/
+public/temp/
 
 # ESLint cache
 .eslintcache
@@ -109,10 +141,14 @@ backend/backend.log
 *.db
 *.sqlite
 *.sqlite3
+*.sqlite-journal
 
 # Prisma
-# Note: Keep migrations for version control
-# prisma/migrations/ - Commented out to keep migrations
+prisma/*.db
+prisma/migrations/**/steps.json
+prisma/dev.db
+prisma/*.sqlite
+prisma/*.sqlite-journal
 
 # Uploads and user content
 uploads/
@@ -146,6 +182,11 @@ test-results/
 playwright-report/
 test-results.xml
 junit.xml
+
+# Test files (keep documentation, ignore generated test files)
+test-*.html
+test-*.js
+!test-*.md
 
 # =============================================================================
 # EDITOR & IDE FILES
@@ -222,29 +263,11 @@ pids/
 *.pid.lock
 
 # =============================================================================
-# PACKAGE MANAGER FILES
-# =============================================================================
-# Yarn
-.yarn-integrity
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# npm
-# Note: Keep package-lock.json for consistent installs
-# Uncomment the line below if you want to ignore it
-# package-lock.json
-
-# =============================================================================
 # DOCKER & CONTAINERIZATION
 # =============================================================================
-# Note: Keep .dockerignore for build optimization
-# .dockerignore
 docker-compose.override.yml
-
-# Docker volumes and data
+docker-data/
+.docker/
 docker/volumes/
 docker/data/
 
@@ -259,17 +282,14 @@ tmp/
 temp/
 
 # =============================================================================
-# PROJECT-SPECIFIC IGNORES
+# GENERATED FILES
 # =============================================================================
-# Test files (keep documentation, ignore generated test files)
-test-*.html
-test-*.js
-!test-*.md
-
-# Generated documentation
+**/generated/
 docs/generated/
 
-# Local development scripts
+# =============================================================================
+# LOCAL DEVELOPMENT SCRIPTS
+# =============================================================================
 local-*.sh
 dev-*.sh
 
@@ -291,43 +311,8 @@ secrets/
 .sentryclirc
 
 # =============================================================================
-# MISC
-# =============================================================================
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variable files
-.env.development
-.env.test
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# =============================================================================
 # PRODUCTION DEPLOYMENT FILES
 # =============================================================================
-# Keep deployment scripts but ignore sensitive ones
-# !deploy-production-ssl.sh
-# !configure-router.sh
-# !complete-ssl-deployment.sh
-# !test-production-deployment.sh
-
 # Ignore production logs
 production.log
 deployment.log
@@ -346,6 +331,21 @@ PRODUCTION_HOST_SERVER_FIXES_REPORT.md
 docker/nginx/conf.d/production.conf
 
 # =============================================================================
+# MISC
+# =============================================================================
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# =============================================================================
 # KEEP ESSENTIAL FILES (MUST COME AFTER IGNORE RULES)
 # =============================================================================
 # Keep example files and templates (safe to commit)
@@ -358,7 +358,6 @@ docker/nginx/conf.d/production.conf
 
 # Ensure these important files are not ignored
 !package.json
-!package-lock.json
 !yarn.lock
 !pnpm-lock.yaml
 !tsconfig.json
@@ -372,21 +371,22 @@ docker/nginx/conf.d/production.conf
 !Makefile
 !README.md
 !*.md
-# But ignore sensitive production reports
-PRODUCTION_DEPLOYMENT_FIX_REPORT.md
-PRODUCTION_HOST_SERVER_FIXES_REPORT.md
+
+# Keep source code
 !src/
 !public/
 !backend/src/
 !backend/prisma/schema.prisma
 !backend/package.json
 !backend/tsconfig.json
+!admin/src/
+!admin/package.json
+!admin/tsconfig.json
 
 # Keep deployment documentation (but exclude sensitive reports)
 !*GUIDE*.md
 !*STATUS*.md
 !*SUMMARY*.md
-# Note: *DEPLOYMENT*.md and *PRODUCTION*.md files are ignored above for security
 
 # Keep deployment scripts (but exclude sensitive ones)
 !deploy*.sh
@@ -397,3 +397,8 @@ PRODUCTION_HOST_SERVER_FIXES_REPORT.md
 !stop*.sh
 !setup*.sh
 !manage-env.sh
+
+# Keep Nginx configuration templates
+!docker/nginx/nginx.conf
+!docker/nginx/frontend.conf
+!docker/nginx/admin.conf

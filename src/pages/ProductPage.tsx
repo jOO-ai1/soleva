@@ -24,7 +24,6 @@ export default function ProductPage() {
     showWarning,
     warningType,
     actionDescription,
-    requireAuth,
     handleLoginClick,
     handleSignUpClick,
     handleCloseWarning
@@ -98,9 +97,8 @@ export default function ProductPage() {
   };
 
   const handleAddToCart = () => {
-    requireAuth(handleAddToCartAction, {
-      action: t("addToCart")
-    });
+    // Allow guests to add items to cart
+    handleAddToCartAction();
   };
 
   const handleColorSelect = (color: any) => {
