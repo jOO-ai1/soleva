@@ -56,12 +56,12 @@ rollback_deployment() {
     log_warning "Rolling back deployment..."
     
     # Stop new containers
-    docker-compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
     
     # Start previous containers if they exist
-    if docker-compose -f docker-compose.yml ps -q | grep -q .; then
+    if $COMPOSE_CMD -f docker-compose.yml ps -q | grep -q .; then
         log_info "Starting previous deployment..."
-        docker-compose -f docker-compose.yml up -d 2>/dev/null || true
+        $COMPOSE_CMD -f docker-compose.yml up -d 2>/dev/null || true
     fi
     
     log_warning "Rollback completed. Please check the logs and fix issues before retrying."
@@ -123,7 +123,17 @@ check_prerequisites() {
     command -v docker >/dev/null || { log_error "Docker is not installed"; exit 1; }
     
     log_info "Checking Docker Compose..."
-    command -v docker-compose >/dev/null || { log_error "Docker Compose is not available"; exit 1; }
+    # Check for Docker Compose v2 first, then fallback to v1
+    if ! docker compose version >/dev/null 2>&1; then
+        if ! command -v docker-compose >/dev/null; then
+            log_error "Neither 'docker compose' nor 'docker-compose' is available"; exit 1; 
+        fi
+        log_info "Using Docker Compose v1 (docker-compose)"
+        export COMPOSE_CMD="docker-compose"
+    else
+        log_info "Using Docker Compose v2 (docker compose)"
+        export COMPOSE_CMD="docker compose"
+    fi
     
     log_info "Checking disk space..."
     local disk_usage=$(df -h / | awk 'NR==2 {print $5}' | sed 's/%//')
@@ -134,7 +144,7 @@ check_prerequisites() {
     
     log_info "Checking port availability..."
     for port in 80 443 3001; do
-        if netstat -tuln | grep -q ":$port "; then
+        if ss -tuln | grep -q ":$port "; then
             log_warning "Port $port is already in use"
         fi
     done
@@ -154,9 +164,17 @@ validate_environment() {
         exit 1
     fi
     
-    # Source environment variables
+    # Source environment variables safely
     set -a
-    source "$env_file"
+    # Use a safer method to source the env file
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip empty lines and comments
+        if [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]]; then
+            continue
+        fi
+        # Export the variable
+        export "$line"
+    done < "$env_file"
     set +a
     
     # Required variables
@@ -203,10 +221,10 @@ create_directories() {
 # Build Docker images
 build_images() {
     log_info "Pulling base images..."
-    docker-compose -f docker-compose.prod.yml pull --ignore-build-fails || true
+    $COMPOSE_CMD -f docker-compose.prod.yml pull --ignore-build-fails || true
     
     log_info "Building application images..."
-    docker-compose -f docker-compose.prod.yml build --no-cache --parallel
+    $COMPOSE_CMD -f docker-compose.prod.yml build --no-cache --parallel
     
     log_success "All images built successfully"
 }
@@ -214,7 +232,7 @@ build_images() {
 # Start infrastructure services
 start_infrastructure() {
     log_info "Starting PostgreSQL and Redis..."
-    docker-compose -f docker-compose.prod.yml up -d postgres redis
+    $COMPOSE_CMD -f docker-compose.prod.yml up -d postgres redis
     
     # Wait for infrastructure to be healthy
     log_info "Waiting for infrastructure services to be healthy..."
@@ -222,8 +240,8 @@ start_infrastructure() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if docker-compose -f docker-compose.prod.yml ps postgres | grep -q "healthy" && \
-           docker-compose -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
+        if $COMPOSE_CMD -f docker-compose.prod.yml ps postgres | grep -q "healthy" && \
+           $COMPOSE_CMD -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
             log_success "Infrastructure services are healthy"
             return 0
         fi
@@ -242,10 +260,10 @@ run_migrations() {
     log_info "Running database migrations..."
     
     # Generate Prisma client
-    docker-compose -f docker-compose.prod.yml run --rm backend npx prisma generate
+    $COMPOSE_CMD -f docker-compose.prod.yml run --rm backend npx prisma generate
     
     # Run migrations
-    docker-compose -f docker-compose.prod.yml run --rm backend npx prisma migrate deploy
+    $COMPOSE_CMD -f docker-compose.prod.yml run --rm backend npx prisma migrate deploy
     
     log_success "Database migrations completed"
 }
@@ -253,7 +271,7 @@ run_migrations() {
 # Start application services
 start_application_services() {
     log_info "Starting backend service..."
-    docker-compose -f docker-compose.prod.yml up -d backend
+    $COMPOSE_CMD -f docker-compose.prod.yml up -d backend
     
     # Wait for backend to be healthy
     log_info "Waiting for backend to be healthy..."
@@ -261,7 +279,7 @@ start_application_services() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if docker-compose -f docker-compose.prod.yml ps backend | grep -q "healthy"; then
+        if $COMPOSE_CMD -f docker-compose.prod.yml ps backend | grep -q "healthy"; then
             log_success "Backend is healthy"
             break
         fi
@@ -277,15 +295,15 @@ start_application_services() {
     fi
     
     log_info "Starting frontend and admin services..."
-    docker-compose -f docker-compose.prod.yml up -d frontend admin
+    $COMPOSE_CMD -f docker-compose.prod.yml up -d frontend admin
     
     # Wait for frontend and admin to be healthy
     log_info "Waiting for frontend and admin to be healthy..."
     attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if docker-compose -f docker-compose.prod.yml ps frontend | grep -q "healthy" && \
-           docker-compose -f docker-compose.prod.yml ps admin | grep -q "healthy"; then
+        if $COMPOSE_CMD -f docker-compose.prod.yml ps frontend | grep -q "healthy" && \
+           $COMPOSE_CMD -f docker-compose.prod.yml ps admin | grep -q "healthy"; then
             log_success "Frontend and admin are healthy"
             break
         fi
@@ -301,7 +319,7 @@ start_application_services() {
     fi
     
     log_info "Starting Nginx reverse proxy..."
-    docker-compose -f docker-compose.prod.yml up -d nginx
+    $COMPOSE_CMD -f docker-compose.prod.yml up -d nginx
     
     log_success "All application services started"
 }
@@ -426,7 +444,7 @@ final_validation() {
     # Check if all services are running
     local services=("postgres" "redis" "backend" "frontend" "admin" "nginx")
     for service in "${services[@]}"; do
-        if ! docker-compose -f docker-compose.prod.yml ps "$service" | grep -q "Up"; then
+        if ! $COMPOSE_CMD -f docker-compose.prod.yml ps "$service" | grep -q "Up"; then
             log_error "Service $service is not running"
             exit 1
         fi
