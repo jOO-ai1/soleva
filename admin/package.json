@@ -1,7 +1,7 @@
 {
-  "name": "solevaeg-admin",
+  "name": "soleva-luxury-footwear-admin",
   "version": "1.0.0",
-  "description": "Soleva E-commerce Admin Panel",
+  "description": "Soleva – Luxury Footwear Admin Panel",
   "private": true,
   "type": "module",
   "scripts": {
