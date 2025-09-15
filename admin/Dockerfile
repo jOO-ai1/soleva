@@ -3,10 +3,21 @@
 FROM node:18-alpine3.18 AS base
 WORKDIR /app
 
+# Configure npm for better reliability
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set registry https://registry.npmjs.org/
+
 # Install dependencies
 FROM base AS deps
 COPY package*.json ./
-RUN npm ci
+RUN for i in 1 2 3; do \
+        npm ci && \
+        break || \
+        (echo "npm install attempt $i failed, retrying..." && sleep 10); \
+    done
 
 # Development stage
 FROM base AS development

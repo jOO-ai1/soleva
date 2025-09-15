@@ -4,14 +4,29 @@
 FROM node:18-alpine3.18 AS base
 WORKDIR /app
 
-# Install dependencies
+# Configure npm for better reliability
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set registry https://registry.npmjs.org/
+
+# Install dependencies with retry logic
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN for i in 1 2 3; do \
+        npm ci --omit=dev && npm cache clean --force && \
+        break || \
+        (echo "npm install attempt $i failed, retrying..." && sleep 10); \
+    done
 
 # Development stage
 FROM base AS development
 ENV NODE_ENV=development
-RUN npm ci
+RUN for i in 1 2 3; do \
+        npm ci && \
+        break || \
+        (echo "npm install attempt $i failed, retrying..." && sleep 10); \
+    done
 COPY . .
 EXPOSE 3001
 CMD ["npm", "run", "dev"]
@@ -20,7 +35,11 @@ CMD ["npm", "run", "dev"]
 FROM base AS build
 ENV NODE_ENV=production
 COPY package*.json ./
-RUN npm ci
+RUN for i in 1 2 3; do \
+        npm ci && \
+        break || \
+        (echo "npm install attempt $i failed, retrying..." && sleep 10); \
+    done
 COPY . .
 RUN npm run build
 

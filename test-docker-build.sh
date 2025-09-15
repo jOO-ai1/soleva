@@ -25,36 +25,76 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Test Docker build for each service
+# Test Docker build for each service with retry logic
 test_docker_build() {
-    log_info "🧪 Testing Docker builds with Alpine repository fixes..."
+    log_info "🧪 Testing Docker builds with Alpine repository and npm fixes..."
     
-    # Test backend build
+    # Test backend build with retry
     log_info "Testing backend Docker build..."
-    if docker build -f backend/Dockerfile --target production backend/ -t test-backend:latest; then
-        log_success "Backend build successful"
-    else
-        log_error "Backend build failed"
-        return 1
-    fi
+    local max_attempts=2
+    local attempt=1
     
-    # Test frontend build
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Backend build attempt $attempt/$max_attempts..."
+        if docker build -f backend/Dockerfile --target production backend/ -t test-backend:latest; then
+            log_success "Backend build successful"
+            break
+        else
+            log_warning "Backend build attempt $attempt failed"
+            if [ $attempt -lt $max_attempts ]; then
+                log_info "Waiting 30 seconds before retry..."
+                sleep 30
+            else
+                log_error "Backend build failed after $max_attempts attempts"
+                return 1
+            fi
+        fi
+        attempt=$((attempt + 1))
+    done
+    
+    # Test frontend build with retry
     log_info "Testing frontend Docker build..."
-    if docker build -f Dockerfile.frontend --target production . -t test-frontend:latest; then
-        log_success "Frontend build successful"
-    else
-        log_error "Frontend build failed"
-        return 1
-    fi
+    attempt=1
     
-    # Test admin build
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Frontend build attempt $attempt/$max_attempts..."
+        if docker build -f Dockerfile.frontend --target production . -t test-frontend:latest; then
+            log_success "Frontend build successful"
+            break
+        else
+            log_warning "Frontend build attempt $attempt failed"
+            if [ $attempt -lt $max_attempts ]; then
+                log_info "Waiting 30 seconds before retry..."
+                sleep 30
+            else
+                log_error "Frontend build failed after $max_attempts attempts"
+                return 1
+            fi
+        fi
+        attempt=$((attempt + 1))
+    done
+    
+    # Test admin build with retry
     log_info "Testing admin Docker build..."
-    if docker build -f admin/Dockerfile --target production admin/ -t test-admin:latest; then
-        log_success "Admin build successful"
-    else
-        log_error "Admin build failed"
-        return 1
-    fi
+    attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Admin build attempt $attempt/$max_attempts..."
+        if docker build -f admin/Dockerfile --target production admin/ -t test-admin:latest; then
+            log_success "Admin build successful"
+            break
+        else
+            log_warning "Admin build attempt $attempt failed"
+            if [ $attempt -lt $max_attempts ]; then
+                log_info "Waiting 30 seconds before retry..."
+                sleep 30
+            else
+                log_error "Admin build failed after $max_attempts attempts"
+                return 1
+            fi
+        fi
+        attempt=$((attempt + 1))
+    done
     
     log_success "🎉 All Docker builds completed successfully!"
     
