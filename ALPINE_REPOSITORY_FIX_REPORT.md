@@ -26,8 +26,7 @@ RUN npm config set fetch-retry-mintimeout 30000 && \
     npm config set fetch-retry-factor 1.5 && \
     npm config set fetch-timeout 300000 && \
     npm config set registry https://registry.npmjs.org/ && \
-    npm config set cache-max 0 && \
-    npm config set prefer-offline false
+    npm config set prefer-online true
 ```
 
 #### Multi-Strategy NPM Installation
