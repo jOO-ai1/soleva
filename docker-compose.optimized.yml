@@ -1,0 +1,249 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: solevaeg-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-solevaeg_db}
+      POSTGRES_USER: ${POSTGRES_USER:-solevaeg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - solevaeg-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-solevaeg} -d ${POSTGRES_DB:-solevaeg_db}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: solevaeg-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - solevaeg-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.optimized
+      target: ${NODE_ENV:-production}
+    container_name: solevaeg-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DOMAIN=${DOMAIN}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
+      - ADMIN_URL=${ADMIN_URL}
+      - PORT=${PORT:-3001}
+      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_NAME=${ADMIN_NAME}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - EMAIL_INFO=${EMAIL_INFO}
+      - EMAIL_SALES=${EMAIL_SALES}
+      - EMAIL_BUSINESS=${EMAIL_BUSINESS}
+      - EMAIL_SUPPORT=${EMAIL_SUPPORT}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE}
+      - UPLOAD_ALLOWED_TYPES=${UPLOAD_ALLOWED_TYPES}
+      - UPLOAD_DIR=${UPLOAD_DIR}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - FACEBOOK_APP_ID=${FACEBOOK_APP_ID}
+      - FACEBOOK_APP_SECRET=${FACEBOOK_APP_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
+      - GA4_MEASUREMENT_ID=${GA4_MEASUREMENT_ID}
+      - GTM_CONTAINER_ID=${GTM_CONTAINER_ID}
+      - FACEBOOK_PIXEL_ID=${FACEBOOK_PIXEL_ID}
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - BACKUP_ENCRYPTION_KEY=${BACKUP_ENCRYPTION_KEY}
+      - BACKUP_S3_BUCKET=${BACKUP_S3_BUCKET}
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS}
+      - UPTIME_WEBHOOK_URL=${UPTIME_WEBHOOK_URL}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - SSL_EMAIL=${SSL_EMAIL}
+      - ENABLE_CHAT_WIDGET=${ENABLE_CHAT_WIDGET}
+      - ENABLE_SOCIAL_LOGIN=${ENABLE_SOCIAL_LOGIN}
+      - ENABLE_ANALYTICS=${ENABLE_ANALYTICS}
+      - ENABLE_PAYMENT_PROOFS=${ENABLE_PAYMENT_PROOFS}
+      - ENABLE_ADAPTIVE_MODE=${ENABLE_ADAPTIVE_MODE}
+      - ENABLE_COD=${ENABLE_COD}
+      - ENABLE_BANK_WALLET=${ENABLE_BANK_WALLET}
+      - ENABLE_DIGITAL_WALLET=${ENABLE_DIGITAL_WALLET}
+      - FREE_SHIPPING_THRESHOLD=${FREE_SHIPPING_THRESHOLD}
+      - CACHE_TTL=${CACHE_TTL}
+      - CACHE_MAX_ITEMS=${CACHE_MAX_ITEMS}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_MAX_FILES=${LOG_MAX_FILES}
+      - LOG_MAX_SIZE=${LOG_MAX_SIZE}
+      - APP_TIMEZONE=${APP_TIMEZONE}
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    networks:
+      - solevaeg-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Frontend (React) - Production Build
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.optimized
+      target: ${NODE_ENV:-production}
+    container_name: solevaeg-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_APP_URL=${VITE_APP_URL}
+      - VITE_GTM_CONTAINER_ID=${VITE_GTM_CONTAINER_ID}
+      - GA4_MEASUREMENT_ID=${GA4_MEASUREMENT_ID}
+      - FACEBOOK_PIXEL_ID=${FACEBOOK_PIXEL_ID}
+    volumes:
+      - frontend_static:/usr/share/nginx/html:ro
+    networks:
+      - solevaeg-network
+    depends_on:
+      - backend
+
+  # Admin Panel
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile.optimized
+      target: ${NODE_ENV:-production}
+    container_name: solevaeg-admin
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - REACT_APP_API_URL=${VITE_API_URL}
+      - REACT_APP_NAME=Soleva Admin
+      - REACT_APP_ADMIN_URL=${ADMIN_URL}
+    volumes:
+      - admin_static:/usr/share/nginx/html:ro
+    ports:
+      - "${ADMIN_PORT:-3002}:3000"
+    networks:
+      - solevaeg-network
+    depends_on:
+      - backend
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: solevaeg-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d/production.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/ssl:/etc/letsencrypt:ro
+      - ./docker/nginx/certbot-webroot:/var/www/certbot:ro
+      - backend_uploads:/var/www/uploads:ro
+      - frontend_static:/var/www/frontend:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - solevaeg-network
+    depends_on:
+      - frontend
+      - backend
+      - admin
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Certbot for SSL certificates
+  certbot:
+    image: certbot/certbot
+    container_name: solevaeg-certbot
+    volumes:
+      - ./docker/nginx/ssl:/etc/letsencrypt
+      - ./docker/nginx/certbot-webroot:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${ADMIN_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN} -d www.${DOMAIN} -d api.${DOMAIN} -d admin.${DOMAIN}
+    depends_on:
+      - nginx
+    profiles:
+      - ssl
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+  frontend_static:
+    driver: local
+  admin_static:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  solevaeg-network:
+    driver: bridge
