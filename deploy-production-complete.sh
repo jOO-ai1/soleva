@@ -70,7 +70,9 @@ fi
 
 # Load environment variables
 log "Loading production environment variables..."
-export $(grep -v '^#' env.production | xargs)
+set -a
+source env.production
+set +a
 
 # Validate critical environment variables
 log "Validating critical environment variables..."
