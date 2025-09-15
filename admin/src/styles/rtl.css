@@ -1,0 +1,480 @@
+/* RTL Styles for Admin Panel */
+
+/* Base RTL Layout */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl .ant-layout-sider {
+  order: 1;
+}
+
+.rtl .ant-layout-content {
+  order: 0;
+}
+
+/* Menu RTL Adjustments */
+.rtl .ant-menu-item,
+.rtl .ant-menu-submenu-title {
+  text-align: right;
+  padding-left: 0;
+  padding-right: 16px;
+}
+
+.rtl .ant-menu-item .anticon,
+.rtl .ant-menu-submenu-title .anticon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.rtl .ant-menu-submenu-arrow {
+  left: 16px;
+  right: auto;
+  transform: rotate(180deg);
+}
+
+.rtl .ant-menu-submenu-open .ant-menu-submenu-arrow {
+  transform: rotate(90deg);
+}
+
+/* Header RTL Adjustments */
+.rtl .ant-layout-header {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.rtl .ant-layout-header .ant-btn {
+  margin-left: 0;
+  margin-right: 16px;
+}
+
+/* Table RTL Adjustments */
+.rtl .ant-table {
+  direction: rtl;
+}
+
+.rtl .ant-table-thead > tr > th {
+  text-align: right;
+}
+
+.rtl .ant-table-tbody > tr > td {
+  text-align: right;
+}
+
+.rtl .ant-table-thead > tr > th:first-child {
+  border-radius: 0 6px 0 0;
+}
+
+.rtl .ant-table-thead > tr > th:last-child {
+  border-radius: 6px 0 0 0;
+}
+
+.rtl .ant-table-column-sorters {
+  justify-content: flex-end;
+}
+
+.rtl .ant-table-column-sorter {
+  margin-right: 4px;
+  margin-left: 0;
+}
+
+/* Form RTL Adjustments */
+.rtl .ant-form-item-label {
+  text-align: right;
+}
+
+.rtl .ant-form-item-label > label {
+  text-align: right;
+}
+
+.rtl .ant-form-item-required::before {
+  margin-left: 4px;
+  margin-right: 0;
+}
+
+.rtl .ant-form-item-required::after {
+  margin-right: 4px;
+  margin-left: 0;
+}
+
+.rtl .ant-checkbox-wrapper {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.rtl .ant-radio-wrapper {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+/* Input RTL Adjustments */
+.rtl .ant-input-group > .ant-input:first-child,
+.rtl .ant-input-group-addon:first-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.rtl .ant-input-group > .ant-input:last-child,
+.rtl .ant-input-group-addon:last-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.rtl .ant-input-search .ant-input-group .ant-input-group-addon:last-child .ant-btn {
+  border-radius: 6px 0 0 6px;
+}
+
+.rtl .ant-input-affix-wrapper .ant-input-prefix {
+  margin-left: 4px;
+  margin-right: 0;
+}
+
+.rtl .ant-input-affix-wrapper .ant-input-suffix {
+  margin-right: 4px;
+  margin-left: 0;
+}
+
+/* Select RTL Adjustments */
+.rtl .ant-select-arrow {
+  left: 12px;
+  right: auto;
+}
+
+.rtl .ant-select-clear {
+  left: 32px;
+  right: auto;
+}
+
+.rtl .ant-select-selection-search {
+  left: 11px;
+  right: auto;
+}
+
+/* Button RTL Adjustments */
+.rtl .ant-btn > .anticon + span,
+.rtl .ant-btn > span + .anticon {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.rtl .ant-btn-group > .ant-btn:first-child:not(:last-child) {
+  border-radius: 0 6px 6px 0;
+}
+
+.rtl .ant-btn-group > .ant-btn:last-child:not(:first-child) {
+  border-radius: 6px 0 0 6px;
+}
+
+/* Dropdown RTL Adjustments */
+.rtl .ant-dropdown-menu-item,
+.rtl .ant-dropdown-menu-submenu-title {
+  text-align: right;
+}
+
+.rtl .ant-dropdown-menu-submenu-arrow {
+  left: 8px;
+  right: auto;
+  transform: rotate(180deg);
+}
+
+/* Pagination RTL Adjustments */
+.rtl .ant-pagination {
+  text-align: left;
+}
+
+.rtl .ant-pagination-prev,
+.rtl .ant-pagination-next {
+  transform: rotate(180deg);
+}
+
+.rtl .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
+.rtl .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
+  transform: rotate(180deg);
+}
+
+/* Card RTL Adjustments */
+.rtl .ant-card-head-title {
+  text-align: right;
+}
+
+.rtl .ant-card-extra {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.rtl .ant-card-actions > li {
+  text-align: center;
+  border-left: 1px solid #f0f0f0;
+  border-right: none;
+}
+
+.rtl .ant-card-actions > li:last-child {
+  border-left: none;
+}
+
+.rtl .ant-card-actions > li:first-child {
+  border-right: 1px solid #f0f0f0;
+}
+
+/* Tabs RTL Adjustments */
+.rtl .ant-tabs-nav {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.rtl .ant-tabs-tab {
+  margin-left: 0;
+  margin-right: 32px;
+}
+
+.rtl .ant-tabs-tab:last-child {
+  margin-right: 0;
+}
+
+.rtl .ant-tabs-tab-btn {
+  text-align: right;
+}
+
+/* Steps RTL Adjustments */
+.rtl .ant-steps-item-icon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.rtl .ant-steps-item-tail {
+  left: 16px;
+  right: auto;
+}
+
+.rtl .ant-steps-item-content {
+  text-align: right;
+}
+
+/* Breadcrumb RTL Adjustments */
+.rtl .ant-breadcrumb {
+  direction: rtl;
+}
+
+.rtl .ant-breadcrumb-separator {
+  margin: 0 4px;
+  transform: rotate(180deg);
+}
+
+/* Alert RTL Adjustments */
+.rtl .ant-alert-icon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.rtl .ant-alert-close-icon {
+  left: 16px;
+  right: auto;
+}
+
+/* Modal RTL Adjustments */
+.rtl .ant-modal-close {
+  left: 24px;
+  right: auto;
+}
+
+.rtl .ant-modal-header {
+  text-align: right;
+}
+
+.rtl .ant-modal-title {
+  text-align: right;
+}
+
+/* Drawer RTL Adjustments */
+.rtl .ant-drawer-close {
+  left: 16px;
+  right: auto;
+}
+
+.rtl .ant-drawer-header {
+  text-align: right;
+}
+
+.rtl .ant-drawer-title {
+  text-align: right;
+}
+
+/* Upload RTL Adjustments */
+.rtl .ant-upload-list-item-name {
+  text-align: right;
+  padding-right: 22px;
+  padding-left: 0;
+}
+
+.rtl .ant-upload-list-item-card-actions {
+  left: 8px;
+  right: auto;
+}
+
+/* Tree RTL Adjustments */
+.rtl .ant-tree-switcher {
+  margin-left: 2px;
+  margin-right: 0;
+}
+
+.rtl .ant-tree-node-content-wrapper {
+  text-align: right;
+}
+
+/* Transfer RTL Adjustments */
+.rtl .ant-transfer-list-header-selected {
+  text-align: right;
+}
+
+.rtl .ant-transfer-list-content-item {
+  text-align: right;
+}
+
+/* Timeline RTL Adjustments */
+.rtl .ant-timeline-item-left .ant-timeline-item-content {
+  left: auto;
+  right: calc(100% - 4px - 100px);
+  text-align: right;
+}
+
+.rtl .ant-timeline-item-right .ant-timeline-item-content {
+  left: calc(100% - 4px - 100px);
+  right: auto;
+  text-align: right;
+}
+
+/* Rate RTL Adjustments */
+.rtl .ant-rate {
+  direction: ltr; /* Keep stars left-to-right for consistency */
+}
+
+/* Statistic RTL Adjustments */
+.rtl .ant-statistic-content {
+  direction: ltr; /* Keep numbers left-to-right */
+  text-align: right;
+}
+
+.rtl .ant-statistic-content-value {
+  direction: ltr;
+}
+
+/* Typography RTL Adjustments */
+.rtl .ant-typography {
+  text-align: right;
+}
+
+.rtl .ant-typography-copy {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+.rtl .ant-typography-edit {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+/* Custom Admin Panel RTL Styles */
+.rtl .admin-header {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.rtl .admin-content {
+  text-align: right;
+}
+
+.rtl .admin-sidebar {
+  text-align: right;
+}
+
+.rtl .admin-toolbar {
+  justify-content: flex-end;
+}
+
+.rtl .admin-toolbar > * {
+  margin-left: 16px;
+  margin-right: 0;
+}
+
+.rtl .admin-toolbar > *:first-child {
+  margin-left: 0;
+}
+
+/* Language Switcher RTL */
+.rtl .language-switcher {
+  margin-left: 16px;
+  margin-right: 0;
+}
+
+.rtl .flag-icon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+/* Custom Responsive RTL */
+@media (max-width: 768px) {
+  .rtl .ant-layout-sider {
+    left: auto;
+    right: 0;
+  }
+  
+  .rtl .ant-drawer-content-wrapper {
+    left: auto;
+    right: 0;
+  }
+}
+
+/* Dark Theme RTL Adjustments */
+.rtl .ant-layout-sider-dark .ant-menu-dark {
+  background: transparent;
+}
+
+.rtl .ant-layout-sider-dark .ant-menu-dark .ant-menu-item-selected {
+  background-color: #1890ff;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Charts and Data Visualization RTL */
+.rtl .recharts-wrapper {
+  direction: ltr; /* Keep charts left-to-right for readability */
+}
+
+.rtl .chart-container {
+  direction: ltr;
+}
+
+/* Custom Components RTL */
+.rtl .status-badge {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.rtl .action-buttons {
+  text-align: left;
+}
+
+.rtl .action-buttons > * {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.rtl .action-buttons > *:first-child {
+  margin-left: 0;
+}
+
+/* Search and Filter RTL */
+.rtl .search-container {
+  text-align: right;
+}
+
+.rtl .filter-container {
+  text-align: right;
+}
+
+.rtl .filter-tags {
+  text-align: right;
+}
+
+.rtl .filter-tags .ant-tag {
+  margin-left: 8px;
+  margin-right: 0;
+}

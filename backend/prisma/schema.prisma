@@ -1,0 +1,1017 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String? // Nullable for social logins
+  name     String
+  phone    String?
+  avatar   String?
+
+  // Social login providers
+  googleId   String? @unique
+  facebookId String? @unique
+
+  // Account status
+  isActive        Boolean   @default(true)
+  isVerified      Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Role-based access control
+  role UserRole @default(CUSTOMER)
+
+  // Language preference
+  preferredLanguage String @default("en") // 'en' or 'ar'
+
+  // 2FA fields
+  twoFactorSecret   String?
+  twoFactorEnabled  Boolean @default(false)
+  backupCodes       String[]
+
+  // Relationships
+  addresses             Address[]
+  orders                Order[]
+  favorites             Favorite[]
+  cartItems             CartItem[]
+  deviceLogs            DeviceLog[]
+  conversations         Conversation[] @relation("ConversationUser")
+  assignedConversations Conversation[] @relation("ConversationAssignedTo")
+  auditLogs             AuditLog[]     @relation("AuditUser")
+  adminLogs             AuditLog[]     @relation("AuditAdmin")
+  Message               Message[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  CUSTOMER
+  SUPPORT
+  CONTENT
+  MANAGER
+  ADMIN
+  OWNER
+}
+
+model Address {
+  id             String  @id @default(uuid())
+  userId         String
+  name           String // Address name/label
+  recipientName  String // Person receiving the order
+  phone          String
+  secondaryPhone String?
+
+  // Egyptian address hierarchy
+  country     String  @default("Egypt")
+  governorate String // محافظة
+  center      String // مركز
+  village     String? // قرية/كفر/عزبة/شيخ
+
+  // Detailed address
+  street     String
+  building   String?
+  floor      String?
+  apartment  String?
+  landmark   String?
+  postalCode String?
+
+  // Delivery instructions
+  instructions String?
+
+  // Address metadata
+  isDefault Boolean @default(false)
+  isActive  Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+// ============================================================================
+// PRODUCT CATALOG
+// ============================================================================
+
+model Brand {
+  id          String  @id @default(uuid())
+  name        Json // { ar: "سوليفا", en: "Soleva" }
+  description Json?
+  logo        String?
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  // SEO
+  slug            String @unique
+  metaTitle       Json?
+  metaDescription Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  products Product[]
+
+  @@map("brands")
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  name        Json // { ar: "أحذية رجالي", en: "Men's Shoes" }
+  description Json?
+  image       String?
+
+  // Hierarchy
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  // Status & ordering
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  // SEO
+  slug            String @unique
+  metaTitle       Json?
+  metaDescription Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  products Product[]
+
+  @@map("categories")
+}
+
+model Collection {
+  id          String  @id @default(uuid())
+  name        Json // { ar: "كوليكشن الخريف", en: "Fall Collection" }
+  description Json?
+  image       String?
+
+  // Collection settings
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  // Schedule
+  startDate DateTime?
+  endDate   DateTime?
+
+  // SEO
+  slug            String @unique
+  metaTitle       Json?
+  metaDescription Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  products Product[]
+
+  @@map("collections")
+}
+
+model Product {
+  id          String @id @default(uuid())
+  name        Json // { ar: "حذاء سوليفا كلاسيك", en: "Soleva Classic Shoe" }
+  description Json
+
+  // Basic info
+  sku     String  @unique
+  barcode String?
+
+  // Pricing
+  basePrice Decimal  @db.Decimal(10, 2)
+  salePrice Decimal? @db.Decimal(10, 2)
+  costPrice Decimal? @db.Decimal(10, 2)
+
+  // Product attributes
+  weight     Decimal? @db.Decimal(8, 2)
+  dimensions Json? // { length, width, height }
+
+  // Images and media
+  images Json // Array of image URLs
+  video  String?
+
+  // Product status
+  status     ProductStatus @default(DRAFT)
+  isActive   Boolean       @default(true)
+  isFeatured Boolean       @default(false)
+
+  // Inventory
+  trackInventory    Boolean @default(true)
+  stockQuantity     Int     @default(0)
+  lowStockThreshold Int     @default(5)
+
+  // SEO
+  slug            String @unique
+  metaTitle       Json?
+  metaDescription Json?
+  metaKeywords    Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Foreign keys
+  brandId      String?
+  categoryId   String?
+  collectionId String?
+
+  // Relationships
+  brand      Brand?      @relation(fields: [brandId], references: [id])
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  collection Collection? @relation(fields: [collectionId], references: [id])
+
+  variants           ProductVariant[]
+  specifications     ProductSpecification[]
+  orderItems         OrderItem[]
+  cartItems          CartItem[]
+  favorites          Favorite[]
+  inventoryMovements InventoryMovement[]
+  PurchaseOrderItem  PurchaseOrderItem[]
+
+  @@map("products")
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+model ProductVariant {
+  id        String @id @default(uuid())
+  productId String
+
+  // Variant attributes
+  color    Json // { ar: "أحمر", en: "Red", code: "#DC143C" }
+  size     String // "40", "41", "42", etc.
+  material String?
+
+  // Variant-specific data
+  sku           String  @unique
+  barcode       String?
+  priceDelta    Decimal @default(0) @db.Decimal(10, 2) // Price difference from base
+  stockQuantity Int     @default(0)
+
+  // Images specific to this variant
+  images Json? // Array of variant-specific images
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  product            Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems         OrderItem[]
+  cartItems          CartItem[]
+  inventoryMovements InventoryMovement[]
+  PurchaseOrderItem  PurchaseOrderItem[]
+
+  @@unique([productId, color, size])
+  @@map("product_variants")
+}
+
+model ProductSpecification {
+  id        String @id @default(uuid())
+  productId String
+
+  key   Json // { ar: "الخامة", en: "Material" }
+  value Json // { ar: "جلد طبيعي", en: "Genuine Leather" }
+
+  sortOrder Int @default(0)
+
+  // Relationships
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_specifications")
+}
+
+// ============================================================================
+// SHOPPING CART & FAVORITES
+// ============================================================================
+
+model CartItem {
+  id        String  @id @default(uuid())
+  userId    String
+  productId String
+  variantId String?
+  quantity  Int     @default(1)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@unique([userId, productId, variantId])
+  @@map("cart_items")
+}
+
+model Favorite {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+// ============================================================================
+// ORDER MANAGEMENT
+// ============================================================================
+
+model Order {
+  id          String @id @default(uuid())
+  orderNumber String @unique // Auto-generated order number
+
+  // Customer info
+  userId    String
+  addressId String
+
+  // Order totals
+  subtotal       Decimal @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  shippingCost   Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal @db.Decimal(10, 2)
+
+  // Payment info
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentProofUrl String? // For wallet transfers
+  senderNumber    String? // For digital wallet transfers
+
+  // Order status
+  orderStatus OrderStatus @default(PENDING)
+
+  // Shipping info
+  shippingStatus    ShippingStatus @default(PENDING)
+  trackingNumber    String?
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+
+  // Coupon/discount info
+  couponCode   String?
+  discountType String? // "percentage" or "fixed"
+
+  // Notes
+  customerNotes String?
+  adminNotes    String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  user     User            @relation(fields: [userId], references: [id])
+  address  Address         @relation(fields: [addressId], references: [id])
+  items    OrderItem[]
+  timeline OrderTimeline[]
+
+  @@map("orders")
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  BANK_WALLET
+  DIGITAL_WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  AWAITING_PROOF
+  UNDER_REVIEW
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+enum ShippingStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED_DELIVERY
+  RETURNED
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  variantId String?
+
+  quantity   Int
+  unitPrice  Decimal @db.Decimal(10, 2)
+  totalPrice Decimal @db.Decimal(10, 2)
+
+  // Product snapshot at time of order
+  productSnapshot Json // Store product details at time of purchase
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+model OrderTimeline {
+  id      String @id @default(uuid())
+  orderId String
+
+  status      String // Status name
+  description Json // { ar: "تم تأكيد الطلب", en: "Order confirmed" }
+  timestamp   DateTime @default(now())
+
+  // Optional metadata
+  metadata Json?
+
+  // Relationships
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_timeline")
+}
+
+// ============================================================================
+// SHIPPING SYSTEM (EGYPT)
+// ============================================================================
+
+model Governorate {
+  id       String  @id @default(uuid())
+  name     Json // { ar: "القاهرة", en: "Cairo" }
+  code     String  @unique
+  isActive Boolean @default(true)
+
+  // Default shipping cost for this governorate
+  shippingCost Decimal @db.Decimal(8, 2)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  centers       Centers[]
+  shippingRates ShippingRate[]
+
+  @@map("governorates")
+}
+
+model Centers {
+  id            String  @id @default(uuid())
+  governorateId String
+  name          Json // { ar: "مركز القاهرة", en: "Cairo Center" }
+  code          String  @unique
+  isActive      Boolean @default(true)
+
+  // Override shipping cost if different from governorate
+  shippingCost Decimal? @db.Decimal(8, 2)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  governorate   Governorate    @relation(fields: [governorateId], references: [id], onDelete: Cascade)
+  villages      Village[]
+  shippingRates ShippingRate[]
+
+  @@map("centers")
+}
+
+model Village {
+  id       String      @id @default(uuid())
+  centerId String
+  name     Json // { ar: "كفر الشيخ", en: "Kafr El Sheikh" }
+  code     String      @unique
+  type     VillageType @default(VILLAGE) // كفر، عزبة، شيخ، قرية
+  isActive Boolean     @default(true)
+
+  // Override shipping cost if different from center/governorate
+  shippingCost Decimal? @db.Decimal(8, 2)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  center        Centers        @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  shippingRates ShippingRate[]
+
+  @@map("villages")
+}
+
+enum VillageType {
+  KAFR // كفر
+  EZBA // عزبة
+  SHEIKH // شيخ
+  VILLAGE // قرية
+}
+
+model ShippingRate {
+  id String @id @default(uuid())
+
+  // Location hierarchy - at least one must be specified
+  governorateId String?
+  centerId      String?
+  villageId     String?
+
+  // Shipping cost and rules
+  cost          Decimal  @db.Decimal(8, 2)
+  freeThreshold Decimal? @db.Decimal(10, 2) // Free shipping above this amount
+
+  // Effective dates
+  effectiveFrom DateTime  @default(now())
+  effectiveTo   DateTime?
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  governorate Governorate? @relation(fields: [governorateId], references: [id])
+  center      Centers?     @relation(fields: [centerId], references: [id])
+  village     Village?     @relation(fields: [villageId], references: [id])
+
+  @@map("shipping_rates")
+}
+
+// ============================================================================
+// INVENTORY MANAGEMENT
+// ============================================================================
+
+model Supplier {
+  id      String  @id @default(uuid())
+  name    String
+  email   String?
+  phone   String?
+  address String?
+
+  // Contact person
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id         String @id @default(uuid())
+  supplierId String
+
+  orderNumber String              @unique
+  status      PurchaseOrderStatus @default(DRAFT)
+
+  // Totals
+  subtotal    Decimal @db.Decimal(10, 2)
+  taxAmount   Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount Decimal @db.Decimal(10, 2)
+
+  // Dates
+  orderDate    DateTime  @default(now())
+  expectedDate DateTime?
+  receivedDate DateTime?
+
+  // Notes
+  notes String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  supplier Supplier            @relation(fields: [supplierId], references: [id])
+  items    PurchaseOrderItem[]
+
+  @@map("purchase_orders")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrderItem {
+  id              String  @id @default(uuid())
+  purchaseOrderId String
+  productId       String
+  variantId       String?
+
+  quantity    Int
+  unitCost    Decimal @db.Decimal(10, 2)
+  totalCost   Decimal @db.Decimal(10, 2)
+  receivedQty Int     @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  purchaseOrder PurchaseOrder   @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product         @relation(fields: [productId], references: [id])
+  variant       ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("purchase_order_items")
+}
+
+model InventoryMovement {
+  id        String  @id @default(uuid())
+  productId String
+  variantId String?
+
+  type      MovementType
+  quantity  Int // Positive for inbound, negative for outbound
+  reference String? // Order ID, PO ID, etc.
+  reason    String? // Reason for adjustment
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+enum MovementType {
+  SALE
+  RETURN
+  PURCHASE
+  ADJUSTMENT
+  DAMAGE
+  TRANSFER
+}
+
+// ============================================================================
+// CONTENT MANAGEMENT SYSTEM
+// ============================================================================
+
+model CmsBlock {
+  id          String @id @default(uuid())
+  key         String @unique // "hero_section", "about_us", etc.
+  name        Json // { ar: "قسم البطل", en: "Hero Section" }
+  description Json?
+
+  // Content
+  content Json // Flexible JSON content structure
+
+  // Settings
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  // Schedule
+  startDate DateTime?
+  endDate   DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cms_blocks")
+}
+
+model Page {
+  id      String @id @default(uuid())
+  title   Json // { ar: "من نحن", en: "About Us" }
+  content Json // Rich content structure
+
+  // SEO
+  slug            String @unique
+  metaTitle       Json?
+  metaDescription Json?
+  metaKeywords    Json?
+
+  // Settings
+  isActive    Boolean @default(true)
+  isPublished Boolean @default(false)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  @@map("pages")
+}
+
+// ============================================================================
+// COMMUNICATION & CHAT SYSTEM
+// ============================================================================
+
+model Conversation {
+  id     String  @id @default(uuid())
+  userId String?
+
+  // Conversation metadata
+  subject  String?
+  source   ConversationSource   @default(WEBSITE)
+  status   ConversationStatus   @default(OPEN)
+  priority ConversationPriority @default(NORMAL)
+
+  // Assignment
+  assignedToId String?
+
+  // Customer info (for anonymous users)
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  closedAt  DateTime?
+
+  // Relationships
+  user       User?     @relation("ConversationUser", fields: [userId], references: [id])
+  assignedTo User?     @relation("ConversationAssignedTo", fields: [assignedToId], references: [id])
+  messages   Message[]
+
+  @@map("conversations")
+}
+
+enum ConversationSource {
+  WEBSITE
+  EMAIL
+  PHONE
+  WHATSAPP
+  FACEBOOK
+  INSTAGRAM
+}
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum ConversationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Message {
+  id             String @id @default(uuid())
+  conversationId String
+
+  // Message content
+  content     String
+  type        MessageType @default(TEXT)
+  attachments Json? // Array of attachment URLs
+
+  // Sender info
+  senderId   String?
+  senderType SenderType
+  senderName String? // For system messages or AI
+
+  // AI/Bot info
+  isFromAI   Boolean @default(false)
+  aiModel    String? // "gpt-4", "claude", etc.
+  confidence Float? // AI confidence score
+
+  // Message metadata
+  metadata Json? // Additional context, order info, etc.
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  // Relationships
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User?        @relation(fields: [senderId], references: [id])
+
+  @@map("messages")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  ORDER_INFO
+  PRODUCT_LINK
+  SYSTEM
+}
+
+enum SenderType {
+  CUSTOMER
+  AGENT
+  SYSTEM
+  AI
+}
+
+// ============================================================================
+// DEVICE TRACKING & ANALYTICS
+// ============================================================================
+
+model DeviceLog {
+  id     String  @id @default(uuid())
+  userId String?
+
+  // Device information
+  userAgent        String
+  deviceType       String // "mobile", "tablet", "desktop"
+  os               String
+  browser          String
+  screenWidth      Int?
+  screenHeight     Int?
+  devicePixelRatio Float?
+
+  // Performance metrics
+  cpuCores       Int?
+  memoryGB       Float?
+  connectionType String? // "4g", "wifi", etc.
+
+  // Location (IP-based)
+  ipAddress String
+  country   String?
+  city      String?
+
+  // Performance signals
+  pageLoadTime Float?
+  fcp          Float? // First Contentful Paint
+  lcp          Float? // Largest Contentful Paint
+  inp          Float? // Interaction to Next Paint
+  cls          Float? // Cumulative Layout Shift
+
+  // Adaptive mode
+  adaptiveModeEnabled Boolean           @default(false)
+  performanceLevel    PerformanceLevel?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("device_logs")
+}
+
+enum PerformanceLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// ============================================================================
+// AUDIT & LOGGING
+// ============================================================================
+
+model AuditLog {
+  id      String  @id @default(uuid())
+  userId  String?
+  adminId String?
+
+  // Action details
+  action     String // "CREATE", "UPDATE", "DELETE"
+  resource   String // "Product", "Order", "User"
+  resourceId String?
+
+  // Change tracking
+  oldValues Json?
+  newValues Json?
+  changes   Json?
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+  endpoint  String?
+  method    String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user  User? @relation("AuditUser", fields: [userId], references: [id])
+  admin User? @relation("AuditAdmin", fields: [adminId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// COUPONS & PROMOTIONS
+// ============================================================================
+
+model Coupon {
+  id          String @id @default(uuid())
+  code        String @unique
+  name        Json // { ar: "خصم 10%", en: "10% Off" }
+  description Json?
+
+  // Discount settings
+  type          CouponType
+  value         Decimal    @db.Decimal(10, 2) // Percentage or fixed amount
+  maxDiscount   Decimal?   @db.Decimal(10, 2) // Max discount for percentage coupons
+  minOrderValue Decimal?   @db.Decimal(10, 2) // Minimum order value
+
+  // Usage limits
+  usageLimit Int? // Total usage limit
+  usageCount Int  @default(0)
+  userLimit  Int  @default(1) // Per-user usage limit
+
+  // Validity
+  validFrom DateTime
+  validTo   DateTime?
+
+  // Additional benefits
+  freeShipping Boolean @default(false)
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coupons")
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+// ============================================================================
+// PERFORMANCE INDEXES
+// ============================================================================
+
+// Note: Indexes are defined within their respective models above
+// This section serves as documentation for the index strategy used

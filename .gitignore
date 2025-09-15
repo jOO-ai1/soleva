@@ -1,0 +1,323 @@
+# =============================================================================
+# .gitignore - Optimized for Full-Stack React/Node.js Project
+# =============================================================================
+
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# =============================================================================
+# BUILD OUTPUTS & ARTIFACTS
+# =============================================================================
+dist/
+dist-ssr/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Frontend build
+/dist/
+/admin/dist/
+
+# Backend build
+/backend/dist/
+/backend/build/
+
+# =============================================================================
+# ENVIRONMENT VARIABLES & CONFIGURATION
+# =============================================================================
+# Environment files with sensitive data
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging
+.env.production
+
+# Project-specific env files
+env.local
+env.production
+env.staging
+backend/.env
+backend/env.local
+backend/env.production
+backend/env.staging
+
+# Keep example files
+!.env.example
+!env.local.example
+!backend/env.example
+!backend/env.local.example
+
+# =============================================================================
+# LOGS & DEBUGGING
+# =============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Project-specific logs
+dev.log
+backend.log
+backend/logs/
+backend/backend.log
+
+# =============================================================================
+# CACHE & TEMPORARY FILES
+# =============================================================================
+# Package manager caches
+.npm/
+.yarn/
+.pnpm-store/
+
+# Build caches
+.cache/
+.parcel-cache/
+.vite/
+.turbo/
+
+# ESLint cache
+.eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# =============================================================================
+# DATABASE & STORAGE
+# =============================================================================
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Prisma
+# Note: Keep migrations for version control
+# prisma/migrations/ - Commented out to keep migrations
+
+# Uploads and user content
+uploads/
+public/uploads/
+backend/uploads/
+
+# =============================================================================
+# TESTING & COVERAGE
+# =============================================================================
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+playwright-report/
+test-results.xml
+junit.xml
+
+# =============================================================================
+# EDITOR & IDE FILES
+# =============================================================================
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon?
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# RUNTIME & PROCESS FILES
+# =============================================================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# PACKAGE MANAGER FILES
+# =============================================================================
+# Yarn
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# npm
+package-lock.json
+# Note: Keep package-lock.json for consistent installs
+# Uncomment the line above if you want to ignore it
+
+# =============================================================================
+# DOCKER & CONTAINERIZATION
+# =============================================================================
+.dockerignore
+docker-compose.override.yml
+
+# =============================================================================
+# BACKUP & TEMPORARY FILES
+# =============================================================================
+*.backup
+*.bak
+*.tmp
+*.temp
+tmp/
+temp/
+
+# =============================================================================
+# PROJECT-SPECIFIC IGNORES
+# =============================================================================
+# Test files (keep documentation, ignore generated test files)
+test-*.html
+test-*.js
+!test-*.md
+
+# Generated documentation
+docs/generated/
+
+# Local development scripts
+local-*.sh
+dev-*.sh
+
+# =============================================================================
+# SECURITY & SENSITIVE FILES
+# =============================================================================
+# API keys and secrets
+secrets/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# =============================================================================
+# MONITORING & ANALYTICS
+# =============================================================================
+# Sentry
+.sentryclirc
+
+# =============================================================================
+# MISC
+# =============================================================================
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env.development
+.env.test
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# =============================================================================
+# KEEP ESSENTIAL FILES
+# =============================================================================
+# Ensure these important files are not ignored
+!package.json
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml
+!tsconfig.json
+!tsconfig.*.json
+!vite.config.*
+!tailwind.config.*
+!postcss.config.*
+!eslint.config.*
+!Dockerfile*
+!docker-compose*.yml
+!Makefile
+!README.md
+!*.md
+!src/
+!public/
+!backend/src/
+!backend/prisma/schema.prisma
+!backend/package.json
+!backend/tsconfig.json
