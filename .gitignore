@@ -1,5 +1,5 @@
 # =============================================================================
-# .gitignore - Optimized for Full-Stack React/Node.js Project
+# .gitignore - Optimized for Soleva E-commerce Platform
 # =============================================================================
 
 # =============================================================================
@@ -119,6 +119,23 @@ public/uploads/
 backend/uploads/
 
 # =============================================================================
+# SSL CERTIFICATES & SECURITY
+# =============================================================================
+# SSL certificates and keys
+docker/nginx/ssl/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.csr
+
+# Let's Encrypt certificates
+/etc/letsencrypt/
+/var/lib/letsencrypt/
+/var/log/letsencrypt/
+
+# =============================================================================
 # TESTING & COVERAGE
 # =============================================================================
 coverage/
@@ -215,15 +232,19 @@ pids/
 .pnp.*
 
 # npm
-package-lock.json
 # Note: Keep package-lock.json for consistent installs
-# Uncomment the line above if you want to ignore it
+# Uncomment the line below if you want to ignore it
+# package-lock.json
 
 # =============================================================================
 # DOCKER & CONTAINERIZATION
 # =============================================================================
 .dockerignore
 docker-compose.override.yml
+
+# Docker volumes and data
+docker/volumes/
+docker/data/
 
 # =============================================================================
 # BACKUP & TEMPORARY FILES
@@ -297,6 +318,20 @@ secrets/
 .pnp.*
 
 # =============================================================================
+# PRODUCTION DEPLOYMENT FILES
+# =============================================================================
+# Keep deployment scripts but ignore sensitive ones
+# !deploy-production-ssl.sh
+# !configure-router.sh
+# !complete-ssl-deployment.sh
+# !test-production-deployment.sh
+
+# Ignore production logs
+production.log
+deployment.log
+ssl-renewal.log
+
+# =============================================================================
 # KEEP ESSENTIAL FILES
 # =============================================================================
 # Ensure these important files are not ignored
@@ -321,3 +356,18 @@ secrets/
 !backend/prisma/schema.prisma
 !backend/package.json
 !backend/tsconfig.json
+
+# Keep deployment documentation
+!*DEPLOYMENT*.md
+!*PRODUCTION*.md
+!*GUIDE*.md
+!*STATUS*.md
+!*SUMMARY*.md
+
+# Keep deployment scripts
+!deploy*.sh
+!configure*.sh
+!complete*.sh
+!test*.sh
+!start*.sh
+!stop*.sh
