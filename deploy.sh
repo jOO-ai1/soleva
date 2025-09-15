@@ -245,10 +245,31 @@ build_images() {
     log_info "Pulling base images..."
     $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" pull || true
     
-    log_info "Building application images..."
-    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" build --no-cache --parallel
+    log_info "Building application images with retry logic..."
     
-    log_success "All images built successfully"
+    # Build with retry logic for network issues
+    local max_attempts=3
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Build attempt $attempt/$max_attempts..."
+        
+        if $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" build --no-cache --parallel; then
+            log_success "All images built successfully"
+            return 0
+        else
+            log_warning "Build attempt $attempt failed"
+            if [ $attempt -lt $max_attempts ]; then
+                log_info "Waiting 30 seconds before retry..."
+                sleep 30
+            fi
+        fi
+        
+        attempt=$((attempt + 1))
+    done
+    
+    log_error "All build attempts failed"
+    exit 1
 }
 
 # Start infrastructure services

@@ -26,7 +26,18 @@ RUN npm run build
 
 # Production stage
 FROM node:18-alpine3.18 AS production
-RUN apk update && apk add --no-cache curl
+
+# Install curl with retry logic and alternative repositories
+RUN for i in 1 2 3; do \
+        apk update --no-cache && \
+        apk add --no-cache curl && \
+        break || \
+        (echo "Attempt $i failed, retrying..." && sleep 5); \
+    done || \
+    (echo "Using alternative repository..." && \
+     sed -i 's/dl-cdn.alpinelinux.org/mirror.yandex.ru\/mirrors\/alpine/g' /etc/apk/repositories && \
+     apk update --no-cache && \
+     apk add --no-cache curl)
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs

@@ -23,7 +23,18 @@ RUN npm run build
 
 # Production stage
 FROM nginx:alpine AS production
-RUN apk add --no-cache curl
+
+# Install curl for health checks with retry logic and alternative repositories
+RUN for i in 1 2 3; do \
+        apk update --no-cache && \
+        apk add --no-cache curl && \
+        break || \
+        (echo "Attempt $i failed, retrying..." && sleep 5); \
+    done || \
+    (echo "Using alternative repository..." && \
+     sed -i 's/dl-cdn.alpinelinux.org/mirror.yandex.ru\/mirrors\/alpine/g' /etc/apk/repositories && \
+     apk update --no-cache && \
+     apk add --no-cache curl)
 
 # Copy nginx config for SPA
 COPY docker/nginx/admin.conf /etc/nginx/conf.d/default.conf
