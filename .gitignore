@@ -49,20 +49,15 @@ out/
 .env.backup.*
 .env.backup.20250915_150508
 
-# Project-specific env files
+# Project-specific env files (PRODUCTION SECRETS - DO NOT COMMIT)
 env.local
 env.production
 env.staging
+env.production.complete
 backend/.env
 backend/env.local
 backend/env.production
 backend/env.staging
-
-# Keep example files
-!.env.example
-!env.local.example
-!backend/env.example
-!backend/env.local.example
 
 # =============================================================================
 # LOGS & DEBUGGING
@@ -351,8 +346,16 @@ PRODUCTION_HOST_SERVER_FIXES_REPORT.md
 docker/nginx/conf.d/production.conf
 
 # =============================================================================
-# KEEP ESSENTIAL FILES
+# KEEP ESSENTIAL FILES (MUST COME AFTER IGNORE RULES)
 # =============================================================================
+# Keep example files and templates (safe to commit)
+!.env.example
+!env.local.example
+!env.production.template
+!backend/env.example
+!backend/env.local.example
+!backend/env.production.template
+
 # Ensure these important files are not ignored
 !package.json
 !package-lock.json
@@ -393,3 +396,4 @@ PRODUCTION_HOST_SERVER_FIXES_REPORT.md
 !start*.sh
 !stop*.sh
 !setup*.sh
+!manage-env.sh
