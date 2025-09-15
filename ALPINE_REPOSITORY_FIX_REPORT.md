@@ -3,7 +3,7 @@
 ## Issue Summary
 The production deployment was failing due to two main issues:
 1. **Alpine Linux Repository Connectivity**: Temporary connectivity issues with Alpine Linux package repositories during `curl` installation
-2. **NPM Timeout Issues**: NPM package installation was timing out with "Exit handler never called!" errors
+2. **Persistent NPM Timeout Issues**: NPM package installation was timing out with "Exit handler never called!" errors, even with initial retry logic
 
 ## Root Cause
 - Alpine Linux package repositories (`dl-cdn.alpinelinux.org`) were temporarily unavailable
@@ -16,25 +16,42 @@ The production deployment was failing due to two main issues:
 ### 1. Enhanced Dockerfiles with Retry Logic
 Updated all three Dockerfiles to include robust retry mechanisms for both Alpine packages and NPM:
 
-#### NPM Configuration
-Added comprehensive npm configuration for better reliability:
+#### Aggressive NPM Configuration
+Added comprehensive npm configuration with extended timeouts and retry parameters:
 ```dockerfile
-# Configure npm for better reliability
-RUN npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm config set fetch-retries 5 && \
-    npm config set fetch-retry-factor 2 && \
-    npm config set registry https://registry.npmjs.org/
+# Configure npm for better reliability with multiple strategies
+RUN npm config set fetch-retry-mintimeout 30000 && \
+    npm config set fetch-retry-maxtimeout 300000 && \
+    npm config set fetch-retries 10 && \
+    npm config set fetch-retry-factor 1.5 && \
+    npm config set fetch-timeout 300000 && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set cache-max 0 && \
+    npm config set prefer-offline false
 ```
 
-#### NPM Retry Logic
+#### Multi-Strategy NPM Installation
+Implemented multiple installation strategies with timeout protection:
 ```dockerfile
-# Install dependencies with retry logic
-RUN for i in 1 2 3; do \
-        npm ci --omit=dev && npm cache clean --force && \
-        break || \
-        (echo "npm install attempt $i failed, retrying..." && sleep 10); \
-    done
+# Install dependencies with aggressive retry logic and fallback strategies
+RUN for strategy in "npm ci --omit=dev" "npm install --omit=dev --no-optional" "npm install --omit=dev --legacy-peer-deps"; do \
+        echo "Trying strategy: $strategy"; \
+        for i in 1 2 3; do \
+            echo "Attempt $i for strategy: $strategy"; \
+            if timeout 600 $strategy; then \
+                echo "Strategy $strategy succeeded on attempt $i"; \
+                npm cache clean --force; \
+                break 2; \
+            else \
+                echo "Strategy $strategy attempt $i failed, retrying..."; \
+                sleep 15; \
+            fi; \
+        done; \
+        echo "Strategy $strategy failed all attempts, trying next..."; \
+        sleep 10; \
+    done || (echo "All npm strategies failed, trying with alternative registry..." && \
+             npm config set registry https://registry.npmmirror.com/ && \
+             npm install --omit=dev --no-optional)
 ```
 
 #### Backend Dockerfile (`backend/Dockerfile`)
@@ -93,28 +110,36 @@ Created `test-docker-build.sh` to verify the fixes work before running the full 
 
 1. **Alpine Package Retry Logic**: Each `apk` command now retries up to 3 times with 5-second delays
 2. **Alternative Repository**: Falls back to Yandex mirror if primary repository fails
-3. **NPM Configuration**: Enhanced timeout settings and retry parameters for npm
-4. **NPM Retry Logic**: Each `npm ci` command retries up to 3 times with 10-second delays
-5. **Build Retry**: Entire Docker build process retries up to 3 times with 30-second delays
-6. **Better Logging**: Enhanced error messages and progress indicators
-7. **Test Validation**: Pre-deployment test script to verify builds work
+3. **Aggressive NPM Configuration**: Extended timeouts (300s), 10 retries, and optimized cache settings
+4. **Multi-Strategy NPM Installation**: Three different installation strategies with timeout protection
+5. **Alternative NPM Registry**: Falls back to npmmirror.com if all strategies fail
+6. **Build Retry**: Entire Docker build process retries up to 3 times with 30-second delays
+7. **Extended Test Timeouts**: Test scripts now allow 15-20 minutes for builds
+8. **Better Logging**: Enhanced error messages and progress indicators
+9. **Test Validation**: Multiple test scripts for different scenarios
 
 ## Files Modified
 
-- `backend/Dockerfile` - Added retry logic for curl installation and npm configuration
-- `Dockerfile.frontend` - Added retry logic for curl installation and npm configuration
-- `admin/Dockerfile` - Added retry logic for curl installation and npm configuration
+- `backend/Dockerfile` - Added aggressive npm configuration and multi-strategy installation
+- `Dockerfile.frontend` - Added aggressive npm configuration and multi-strategy installation
+- `admin/Dockerfile` - Added aggressive npm configuration and multi-strategy installation
 - `deploy.sh` - Added build retry logic
-- `test-docker-build.sh` - Enhanced test script with retry logic (updated)
+- `test-docker-build.sh` - Enhanced test script with extended timeouts (updated)
+- `test-backend-only.sh` - New focused test script for backend-only testing (created)
 
 ## Testing Instructions
 
-1. **Test Individual Builds**:
+1. **Quick Backend Test** (Recommended first):
+   ```bash
+   ./test-backend-only.sh
+   ```
+
+2. **Test All Builds**:
    ```bash
    ./test-docker-build.sh
    ```
 
-2. **Run Full Deployment**:
+3. **Run Full Deployment**:
    ```bash
    ./deploy.sh
    ```
@@ -122,9 +147,9 @@ Created `test-docker-build.sh` to verify the fixes work before running the full 
 ## Expected Behavior
 
 - **Alpine Packages**: If primary repository is available, builds proceed normally. If it fails, automatically retries with delays and switches to alternative Yandex mirror
-- **NPM Packages**: Enhanced timeout settings and retry logic handle network issues during package installation
+- **NPM Packages**: Multiple installation strategies with 10-minute timeouts per strategy, falling back to alternative registry if all fail
 - **Build Process**: If individual service builds fail, entire deployment retries up to 3 times with 30-second delays
-- **Test Script**: Individual service builds retry up to 2 times with 30-second delays
+- **Test Scripts**: Extended timeouts (15-20 minutes) to accommodate aggressive retry strategies
 
 ## Benefits
 
