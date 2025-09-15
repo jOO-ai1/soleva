@@ -55,13 +55,18 @@ trap cleanup EXIT
 rollback_deployment() {
     log_warning "Rolling back deployment..."
     
+    # Get script directory if not already set
+    if [ -z "$SCRIPT_DIR" ]; then
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    fi
+    
     # Stop new containers
-    $COMPOSE_CMD -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" down --remove-orphans 2>/dev/null || true
     
     # Start previous containers if they exist
-    if $COMPOSE_CMD -f docker-compose.yml ps -q | grep -q .; then
+    if $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.yml" ps -q | grep -q .; then
         log_info "Starting previous deployment..."
-        $COMPOSE_CMD -f docker-compose.yml up -d 2>/dev/null || true
+        $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.yml" up -d 2>/dev/null || true
     fi
     
     log_warning "Rollback completed. Please check the logs and fix issues before retrying."
@@ -70,6 +75,10 @@ rollback_deployment() {
 # Main deployment function
 main() {
     log_info "🚀 Starting Soleva production deployment at $(date -Is)"
+    
+    # Set script directory for relative paths
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    log_info "Script directory: $SCRIPT_DIR"
     
     # 1. Pre-flight checks
     log_info "📋 Running pre-flight checks..."
@@ -159,9 +168,22 @@ check_prerequisites() {
 validate_environment() {
     local env_file=".env.production"
     
+    # Try to find the environment file in the script directory or current directory
     if [ ! -f "$env_file" ]; then
-        log_error "Environment file $env_file not found"
-        exit 1
+        # Get the directory where the script is located
+        local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        local script_env_file="$script_dir/.env.production"
+        
+        if [ -f "$script_env_file" ]; then
+            env_file="$script_env_file"
+            log_info "Found environment file at: $env_file"
+        else
+            log_error "Environment file $env_file not found in current directory or script directory"
+            log_error "Current directory: $(pwd)"
+            log_error "Script directory: $script_dir"
+            log_error "Please ensure .env.production exists in the same directory as deploy.sh"
+            exit 1
+        fi
     fi
     
     # Source environment variables safely
@@ -221,10 +243,10 @@ create_directories() {
 # Build Docker images
 build_images() {
     log_info "Pulling base images..."
-    $COMPOSE_CMD -f docker-compose.prod.yml pull --ignore-build-fails || true
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" pull --ignore-build-fails || true
     
     log_info "Building application images..."
-    $COMPOSE_CMD -f docker-compose.prod.yml build --no-cache --parallel
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" build --no-cache --parallel
     
     log_success "All images built successfully"
 }
@@ -232,7 +254,7 @@ build_images() {
 # Start infrastructure services
 start_infrastructure() {
     log_info "Starting PostgreSQL and Redis..."
-    $COMPOSE_CMD -f docker-compose.prod.yml up -d postgres redis
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" up -d postgres redis
     
     # Wait for infrastructure to be healthy
     log_info "Waiting for infrastructure services to be healthy..."
@@ -240,8 +262,8 @@ start_infrastructure() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if $COMPOSE_CMD -f docker-compose.prod.yml ps postgres | grep -q "healthy" && \
-           $COMPOSE_CMD -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
+        if $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" ps postgres | grep -q "healthy" && \
+           $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" ps redis | grep -q "healthy"; then
             log_success "Infrastructure services are healthy"
             return 0
         fi
@@ -260,10 +282,10 @@ run_migrations() {
     log_info "Running database migrations..."
     
     # Generate Prisma client
-    $COMPOSE_CMD -f docker-compose.prod.yml run --rm backend npx prisma generate
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" run --rm backend npx prisma generate
     
     # Run migrations
-    $COMPOSE_CMD -f docker-compose.prod.yml run --rm backend npx prisma migrate deploy
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" run --rm backend npx prisma migrate deploy
     
     log_success "Database migrations completed"
 }
@@ -271,7 +293,7 @@ run_migrations() {
 # Start application services
 start_application_services() {
     log_info "Starting backend service..."
-    $COMPOSE_CMD -f docker-compose.prod.yml up -d backend
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" up -d backend
     
     # Wait for backend to be healthy
     log_info "Waiting for backend to be healthy..."
@@ -279,7 +301,7 @@ start_application_services() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if $COMPOSE_CMD -f docker-compose.prod.yml ps backend | grep -q "healthy"; then
+        if $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" ps backend | grep -q "healthy"; then
             log_success "Backend is healthy"
             break
         fi
@@ -295,15 +317,15 @@ start_application_services() {
     fi
     
     log_info "Starting frontend and admin services..."
-    $COMPOSE_CMD -f docker-compose.prod.yml up -d frontend admin
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" up -d frontend admin
     
     # Wait for frontend and admin to be healthy
     log_info "Waiting for frontend and admin to be healthy..."
     attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if $COMPOSE_CMD -f docker-compose.prod.yml ps frontend | grep -q "healthy" && \
-           $COMPOSE_CMD -f docker-compose.prod.yml ps admin | grep -q "healthy"; then
+        if $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" ps frontend | grep -q "healthy" && \
+           $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" ps admin | grep -q "healthy"; then
             log_success "Frontend and admin are healthy"
             break
         fi
@@ -319,7 +341,7 @@ start_application_services() {
     fi
     
     log_info "Starting Nginx reverse proxy..."
-    $COMPOSE_CMD -f docker-compose.prod.yml up -d nginx
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" up -d nginx
     
     log_success "All application services started"
 }
@@ -444,7 +466,7 @@ final_validation() {
     # Check if all services are running
     local services=("postgres" "redis" "backend" "frontend" "admin" "nginx")
     for service in "${services[@]}"; do
-        if ! $COMPOSE_CMD -f docker-compose.prod.yml ps "$service" | grep -q "Up"; then
+        if ! $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" ps "$service" | grep -q "Up"; then
             log_error "Service $service is not running"
             exit 1
         fi
