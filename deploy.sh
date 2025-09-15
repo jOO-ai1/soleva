@@ -243,7 +243,7 @@ create_directories() {
 # Build Docker images
 build_images() {
     log_info "Pulling base images..."
-    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" pull --ignore-build-fails || true
+    $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" pull || true
     
     log_info "Building application images..."
     $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" build --no-cache --parallel

@@ -2,7 +2,6 @@
 
 # Base stage with Node.js
 FROM node:18-alpine3.18 AS base
-RUN apk update && apk add --no-cache gcompat
 WORKDIR /app
 
 # Install dependencies
@@ -27,7 +26,7 @@ RUN npm run build
 
 # Production stage
 FROM node:18-alpine3.18 AS production
-RUN apk update && apk add --no-cache gcompat curl
+RUN apk update && apk add --no-cache curl
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs

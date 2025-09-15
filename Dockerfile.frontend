@@ -2,7 +2,6 @@
 
 # Base stage with Node.js
 FROM node:18-alpine3.18 AS base
-RUN apk update && apk add --no-cache gcompat
 WORKDIR /app
 
 # Install dependencies
