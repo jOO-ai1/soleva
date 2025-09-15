@@ -25,6 +25,9 @@ import adminRoutes from './routes/admin';
 import chatRoutes from './routes/chat';
 import uploadRoutes from './routes/upload';
 
+// Import services
+import { uptimeService } from './services/uptimeService';
+
 // Load environment variables
 dotenv.config();
 
@@ -222,6 +225,9 @@ app.use(errorHandler);
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
   
+  // Stop uptime monitoring
+  uptimeService.stop();
+  
   // Close database connections
   await prisma.$disconnect();
   
@@ -233,6 +239,9 @@ process.on('SIGTERM', async () => {
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
+  
+  // Stop uptime monitoring
+  uptimeService.stop();
   
   // Close database connections
   await prisma.$disconnect();
@@ -259,6 +268,9 @@ app.listen(port, () => {
 🔄 Cache: Redis for sessions and caching
 📝 Logging: Winston with structured logging
   `);
+
+  // Start uptime monitoring if enabled
+  uptimeService.start();
 });
 
 // Export app for testing

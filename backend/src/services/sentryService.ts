@@ -11,7 +11,13 @@ interface SentryConfig {
   sensitiveFields?: string[];
 }
 
-export const initializeSentry = (_sentryConfig: SentryConfig) => {
+export const initializeSentry = (sentryConfig: SentryConfig) => {
+  // Check if Sentry is enabled
+  if (!process.env.SENTRY_DSN || process.env.SENTRY_DSN.trim() === '') {
+    console.log('Sentry initialization skipped - SENTRY_DSN not configured');
+    return;
+  }
+  
   console.log('Sentry initialization disabled - requires API update to v8');
   // TODO: Implement with @sentry/node v8+ API
 };
@@ -39,7 +45,14 @@ export class SentryService {
     return SentryService.instance;
   }
 
-  initialize(_config: SentryConfig): void {
+  initialize(config: SentryConfig): void {
+    // Check if Sentry is enabled
+    if (!process.env.SENTRY_DSN || process.env.SENTRY_DSN.trim() === '') {
+      console.log('SentryService initialize skipped - SENTRY_DSN not configured');
+      this.initialized = false;
+      return;
+    }
+    
     console.log('SentryService initialize disabled - requires API update to v8');
     this.initialized = false;
   }

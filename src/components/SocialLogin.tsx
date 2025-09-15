@@ -82,8 +82,17 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
 
   const handleFacebookLogin = async () => {
     try {
-      setLoading('facebook');
+      // Check if Facebook login is enabled
+      const facebookAppId = import.meta.env.VITE_FACEBOOK_APP_ID;
+      if (!facebookAppId || facebookAppId.trim() === '') {
+        showToast(
+          lang === 'ar' ? 'تسجيل الدخول بفيسبوك غير متاح حالياً' : 'Facebook login is temporarily unavailable'
+        );
+        return;
+      }
 
+      setLoading('facebook');
+      
       // Load Facebook SDK
       if (!window.FB) {
         await loadFacebookScript();
@@ -91,7 +100,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
 
       // Initialize Facebook SDK
       window.FB.init({
-        appId: import.meta.env.VITE_FACEBOOK_APP_ID,
+        appId: facebookAppId,
         cookie: true,
         xfbml: true,
         version: 'v18.0'
@@ -214,28 +223,31 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
           </div>
         </motion.button>
 
-        <motion.button
-          type="button"
-          className={`social-button facebook ${loading === 'facebook' ? 'loading' : ''}`}
-          onClick={handleFacebookLogin}
-          disabled={loading !== null}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <div className="social-button-content">
-            {loading === 'facebook' ? (
-              <div className="loading-spinner"></div>
-            ) : (
-              <FaFacebook className="social-icon" />
-            )}
-            <span className="social-text">
-              {loading === 'facebook'
-                ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...')
-                : (lang === 'ar' ? 'فيسبوك' : 'Facebook')
-              }
-            </span>
-          </div>
-        </motion.button>
+        {/* Facebook Login Button - Only show if enabled */}
+        {import.meta.env.VITE_FACEBOOK_APP_ID && import.meta.env.VITE_FACEBOOK_APP_ID.trim() !== '' && (
+          <motion.button
+            type="button"
+            className={`social-button facebook ${loading === 'facebook' ? 'loading' : ''}`}
+            onClick={handleFacebookLogin}
+            disabled={loading !== null}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="social-button-content">
+              {loading === 'facebook' ? (
+                <div className="loading-spinner"></div>
+              ) : (
+                <FaFacebook className="social-icon" />
+              )}
+              <span className="social-text">
+                {loading === 'facebook'
+                  ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...')
+                  : (lang === 'ar' ? 'فيسبوك' : 'Facebook')
+                }
+              </span>
+            </div>
+          </motion.button>
+        )}
       </div>
 
       {/* Hidden Google Sign-In button for fallback */}

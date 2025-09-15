@@ -303,6 +303,15 @@ export const googleLogin = async (req: Request, res: Response): Promise<Response
 // Facebook OAuth Login
 export const facebookLogin = async (req: Request, res: Response): Promise<Response | void> => {
   try {
+    // Check if Facebook login is enabled
+    if (!process.env.FACEBOOK_APP_ID || !process.env.FACEBOOK_APP_SECRET || 
+        process.env.FACEBOOK_APP_ID.trim() === '' || process.env.FACEBOOK_APP_SECRET.trim() === '') {
+      return res.status(503).json({
+        success: false,
+        message: 'Facebook login is temporarily disabled'
+      });
+    }
+
     const { accessToken, userID } = req.body;
 
     if (!accessToken || !userID) {

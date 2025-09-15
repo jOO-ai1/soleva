@@ -89,8 +89,9 @@ const Analytics: React.FC<AnalyticsProps> = ({ children }) => {
   const initializeFacebookPixel = () => {
     const PIXEL_ID = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
     
-    if (!PIXEL_ID || PIXEL_ID === 'CHANGE_THIS_PIXEL_ID') {
-      // Facebook Pixel not configured
+    if (!PIXEL_ID || PIXEL_ID === 'CHANGE_THIS_PIXEL_ID' || PIXEL_ID.trim() === '') {
+      // Facebook Pixel not configured or temporarily disabled
+      console.log('Facebook Pixel initialization skipped - PIXEL_ID not configured');
       return;
     }
 
