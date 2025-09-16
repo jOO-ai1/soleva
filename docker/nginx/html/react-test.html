@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React App Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 React App Diagnostic Test</h1>
+        <p>This page tests if the React application is loading and mounting correctly.</p>
+        
+        <div id="test-results"></div>
+        
+        <div class="test-section info">
+            <h3>Browser Console Check</h3>
+            <p>Open browser developer tools (F12) and check the Console tab for any errors.</p>
+        </div>
+    </div>
+
+    <script>
+        // Test if React is available
+        function testReact() {
+            const resultsDiv = document.getElementById('test-results');
+            let html = '<h2>Test Results:</h2>';
+            
+            // Test 1: Check if React is loaded
+            if (typeof React !== 'undefined') {
+                html += '<div class="test-section success"><h3>✅ React is loaded</h3><p>React version: ' + React.version + '</p></div>';
+            } else {
+                html += '<div class="test-section error"><h3>❌ React is not loaded</h3><p>React library is not available</p></div>';
+            }
+            
+            // Test 2: Check if ReactDOM is loaded
+            if (typeof ReactDOM !== 'undefined') {
+                html += '<div class="test-section success"><h3>✅ ReactDOM is loaded</h3></div>';
+            } else {
+                html += '<div class="test-section error"><h3>❌ ReactDOM is not loaded</h3><p>ReactDOM library is not available</p></div>';
+            }
+            
+            // Test 3: Check if the main app script is loaded
+            const scripts = document.querySelectorAll('script[src*="index-"]');
+            if (scripts.length > 0) {
+                html += '<div class="test-section success"><h3>✅ Main app script found</h3><p>Scripts: ' + scripts.length + '</p></div>';
+            } else {
+                html += '<div class="test-section error"><h3>❌ Main app script not found</h3><p>No index-*.js scripts found</p></div>';
+            }
+            
+            // Test 4: Check if root element exists
+            const rootElement = document.getElementById('root');
+            if (rootElement) {
+                html += '<div class="test-section success"><h3>✅ Root element exists</h3><p>Content length: ' + rootElement.innerHTML.length + ' characters</p></div>';
+            } else {
+                html += '<div class="test-section error"><h3>❌ Root element not found</h3><p>No element with id="root" found</p></div>';
+            }
+            
+            // Test 5: Check for JavaScript errors
+            const originalError = console.error;
+            const errors = [];
+            console.error = function(...args) {
+                errors.push(args.join(' '));
+                originalError.apply(console, args);
+            };
+            
+            // Test 6: Check if the main app is trying to render
+            setTimeout(() => {
+                if (errors.length > 0) {
+                    html += '<div class="test-section error"><h3>❌ JavaScript errors detected</h3><pre>' + errors.join('\n') + '</pre></div>';
+                } else {
+                    html += '<div class="test-section success"><h3>✅ No JavaScript errors detected</h3></div>';
+                }
+                
+                resultsDiv.innerHTML = html;
+            }, 2000);
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', testReact);
+    </script>
+</body>
+</html>

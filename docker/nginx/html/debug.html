@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Frontend Backend Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .console-output {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Frontend-Backend Connection Debug</h1>
+        <p>This page helps diagnose the white page issue by testing various connections.</p>
+        
+        <div id="console-test" class="test-section info">
+            <h3>Browser Console Check</h3>
+            <p>Check browser console for JavaScript errors (F12 → Console tab)</p>
+            <button onclick="checkConsole()">Check Console</button>
+            <div id="console-result"></div>
+        </div>
+
+        <div id="network-test" class="test-section info">
+            <h3>Network Requests Test</h3>
+            <p>Test if JavaScript files are loading properly</p>
+            <button onclick="testNetwork()">Test Network</button>
+            <div id="network-result"></div>
+        </div>
+
+        <div id="api-test" class="test-section info">
+            <h3>API Connection Test</h3>
+            <p>Test backend API connectivity</p>
+            <button onclick="testAPI()">Test API</button>
+            <div id="api-result"></div>
+        </div>
+
+        <div id="config-test" class="test-section info">
+            <h3>Configuration Check</h3>
+            <p>Check frontend configuration and environment</p>
+            <button onclick="checkConfig()">Check Config</button>
+            <div id="config-result"></div>
+        </div>
+
+        <div id="main-app-test" class="test-section info">
+            <h3>Main App Test</h3>
+            <p>Test if the main React app is loading</p>
+            <button onclick="testMainApp()">Test Main App</button>
+            <div id="main-app-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Console check
+        function checkConsole() {
+            const resultDiv = document.getElementById('console-result');
+            resultDiv.innerHTML = `
+                <p><strong>Console Check Instructions:</strong></p>
+                <ol>
+                    <li>Open browser developer tools (F12)</li>
+                    <li>Go to Console tab</li>
+                    <li>Look for any red error messages</li>
+                    <li>Check for network errors (Failed to load resource)</li>
+                    <li>Look for JavaScript errors</li>
+                </ol>
+                <p><strong>Common Issues:</strong></p>
+                <ul>
+                    <li>Failed to load resource errors</li>
+                    <li>JavaScript syntax errors</li>
+                    <li>CORS errors</li>
+                    <li>Network timeouts</li>
+                </ul>
+            `;
+            document.getElementById('console-test').className = 'test-section info';
+        }
+
+        // Network test
+        async function testNetwork() {
+            const resultDiv = document.getElementById('network-result');
+            resultDiv.innerHTML = '<p>Testing network requests...</p>';
+            
+            try {
+                // Test if we can load the main page
+                const response = await fetch('/');
+                const html = await response.text();
+                
+                // Check for script tags
+                const scriptTags = html.match(/<script[^>]*src="([^"]*)"[^>]*>/g) || [];
+                const cssTags = html.match(/<link[^>]*href="([^"]*)"[^>]*>/g) || [];
+                
+                resultDiv.innerHTML = `
+                    <p><strong>✅ Main page loaded successfully</strong></p>
+                    <p><strong>Script tags found:</strong> ${scriptTags.length}</p>
+                    <p><strong>CSS tags found:</strong> ${cssTags.length}</p>
+                    <pre>${scriptTags.slice(0, 3).join('\n')}</pre>
+                `;
+                document.getElementById('network-test').className = 'test-section success';
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p><strong>❌ Network test failed</strong></p>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                document.getElementById('network-test').className = 'test-section error';
+            }
+        }
+
+        // API test
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p>Testing API connection...</p>';
+            
+            try {
+                const response = await fetch('/api/v1/products');
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p><strong>✅ API connection successful</strong></p>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+                document.getElementById('api-test').className = 'test-section success';
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p><strong>❌ API test failed</strong></p>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                document.getElementById('api-test').className = 'test-section error';
+            }
+        }
+
+        // Config check
+        function checkConfig() {
+            const resultDiv = document.getElementById('config-result');
+            
+            const config = {
+                'Current URL': window.location.href,
+                'Origin': window.location.origin,
+                'Protocol': window.location.protocol,
+                'User Agent': navigator.userAgent,
+                'Screen Resolution': `${screen.width}x${screen.height}`,
+                'Viewport': `${window.innerWidth}x${window.innerHeight}`,
+                'Document Ready State': document.readyState,
+                'Has React': typeof React !== 'undefined',
+                'Has ReactDOM': typeof ReactDOM !== 'undefined'
+            };
+            
+            resultDiv.innerHTML = `
+                <pre>${JSON.stringify(config, null, 2)}</pre>
+                <p><strong>Note:</strong> Check if React and ReactDOM are loaded</p>
+            `;
+            document.getElementById('config-test').className = 'test-section info';
+        }
+
+        // Main app test
+        function testMainApp() {
+            const resultDiv = document.getElementById('main-app-result');
+            
+            // Check if the main app container exists
+            const rootElement = document.getElementById('root');
+            const hasRoot = !!rootElement;
+            const rootContent = rootElement ? rootElement.innerHTML : 'Not found';
+            
+            resultDiv.innerHTML = `
+                <p><strong>Root element exists:</strong> ${hasRoot ? 'Yes' : 'No'}</p>
+                <p><strong>Root content length:</strong> ${rootContent.length} characters</p>
+                <p><strong>Root content preview:</strong></p>
+                <pre>${rootContent.substring(0, 200)}${rootContent.length > 200 ? '...' : ''}</pre>
+                <p><strong>Document body children:</strong> ${document.body.children.length}</p>
+            `;
+            
+            if (hasRoot && rootContent.length > 0) {
+                document.getElementById('main-app-test').className = 'test-section success';
+            } else {
+                document.getElementById('main-app-test').className = 'test-section error';
+            }
+        }
+
+        // Auto-run tests when page loads
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                checkConsole();
+                setTimeout(() => testNetwork(), 1000);
+                setTimeout(() => testAPI(), 2000);
+                setTimeout(() => checkConfig(), 3000);
+                setTimeout(() => testMainApp(), 4000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

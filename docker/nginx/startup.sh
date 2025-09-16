@@ -35,7 +35,7 @@ upstream admin {
 # HTTP-only configuration (no SSL)
 server {
     listen 80;
-    server_name solevaeg.com www.solevaeg.com api.solevaeg.com admin.solevaeg.com;
+    server_name localhost solevaeg.com www.solevaeg.com api.solevaeg.com admin.solevaeg.com;
     
     # Let's Encrypt challenge
     location /.well-known/acme-challenge/ {
@@ -55,7 +55,7 @@ server {
 # API backend (HTTP)
 server {
     listen 80;
-    server_name api.solevaeg.com;
+    server_name localhost api.solevaeg.com;
     
     # Health check endpoint
     location /health {
@@ -112,7 +112,7 @@ server {
 # Admin panel (HTTP)
 server {
     listen 80;
-    server_name admin.solevaeg.com;
+    server_name localhost admin.solevaeg.com;
     
     # Admin panel
     location / {
