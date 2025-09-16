@@ -32,9 +32,7 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set registry https://registry.npmjs.org/ && \
     npm config set prefer-offline true && \
     npm config set audit false && \
-    npm config set fund false && \
-    npm config set cache-max 86400000 && \
-    npm config set cache-min 3600000
+    npm config set fund false
 
 # Install dependencies
 FROM base AS deps
