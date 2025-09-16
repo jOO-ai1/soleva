@@ -23,16 +23,18 @@ RUN set -e && \
        fi; \
      done)
 
-# Configure npm for faster, more reliable installs
+# Configure npm for faster, more reliable installs with network resiliency
 RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set fetch-retry-maxtimeout 60000 && \
-    npm config set fetch-retries 3 && \
+    npm config set fetch-retries 5 && \
     npm config set fetch-retry-factor 2 && \
     npm config set fetch-timeout 60000 && \
     npm config set registry https://registry.npmjs.org/ && \
-    npm config set prefer-online true && \
+    npm config set prefer-offline true && \
     npm config set audit false && \
-    npm config set fund false
+    npm config set fund false && \
+    npm config set cache-max 86400000 && \
+    npm config set cache-min 3600000
 
 # Install dependencies
 FROM base AS deps
@@ -51,11 +53,30 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 # Build stage
 FROM base AS build
 COPY package*.json ./
-RUN npm ci --include=dev --no-audit --no-fund || \
-    (echo "npm ci failed, trying npm install..." && \
-     npm install --no-audit --no-fund --no-optional)
+# Install dependencies with enhanced retry logic and offline fallback
+RUN set -e && \
+    echo "Installing dependencies with retry logic..." && \
+    for attempt in 1 2 3; do \
+      echo "Attempt $attempt/3: Installing dependencies..." && \
+      if npm ci --include=dev --no-audit --no-fund --prefer-offline; then \
+        echo "Dependencies installed successfully on attempt $attempt" && \
+        break; \
+      elif [ $attempt -eq 3 ]; then \
+        echo "All attempts failed, trying npm install as fallback..." && \
+        npm install --no-audit --no-fund --no-optional --prefer-offline || \
+        (echo "npm install also failed, trying with different registry..." && \
+         npm install --no-audit --no-fund --no-optional --registry https://registry.npmmirror.com/); \
+      else \
+        echo "Attempt $attempt failed, retrying in 5 seconds..." && \
+        sleep 5; \
+      fi; \
+    done
 COPY . .
-RUN npm run build
+# Run build with local binaries to avoid network calls
+RUN echo "Starting build process..." && \
+    ./node_modules/.bin/tsc && \
+    ./node_modules/.bin/vite build && \
+    echo "Build completed successfully"
 
 # Production stage
 FROM nginx:alpine3.19 AS production

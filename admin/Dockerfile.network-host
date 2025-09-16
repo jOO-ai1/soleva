@@ -1,0 +1,38 @@
+# Network Host Fallback Dockerfile for Admin Panel
+# Use this for troubleshooting: docker build --network=host -f admin/Dockerfile.network-host -t admin:test .
+
+FROM node:20-alpine3.19 AS base
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache --virtual .build-deps python3 make g++
+
+# Configure npm for network host mode
+RUN npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 3 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-timeout 60000 && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set prefer-online true && \
+    npm config set audit false && \
+    npm config set fund false
+
+# Build stage with network host
+FROM base AS build
+COPY package*.json ./
+RUN npm ci --include=dev --no-audit --no-fund
+COPY . .
+RUN ./node_modules/.bin/tsc && ./node_modules/.bin/vite build
+
+# Production stage
+FROM nginx:alpine3.19 AS production
+RUN apk add --no-cache curl
+COPY docker/nginx/admin.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
