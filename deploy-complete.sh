@@ -42,7 +42,7 @@ print_error() {
 }
 
 # Global variables
-PROJECT_ROOT="/home/youssef/web"
+PROJECT_ROOT="/root/soleva"
 LOG_FILE="deployment-$(date +%Y%m%d_%H%M%S).log"
 ERRORS=0
 

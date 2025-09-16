@@ -12,6 +12,12 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Change to project directory
+cd /root/soleva || {
+    echo -e "${RED}❌ Failed to change to project directory: /root/soleva${NC}"
+    exit 1
+}
+
 echo -e "${BLUE}🏭 Starting Production Deployment...${NC}"
 
 # Check if production environment file exists

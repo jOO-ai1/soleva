@@ -28,6 +28,12 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Change to project directory
+cd /root/soleva || {
+    print_error "Failed to change to project directory: /root/soleva"
+    exit 1
+}
+
 # Check if frontend container is running
 if ! docker ps | grep -q "solevaeg-frontend"; then
     print_error "Frontend container is not running!"

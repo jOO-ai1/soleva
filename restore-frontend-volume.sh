@@ -28,6 +28,12 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Change to project directory
+cd /root/soleva || {
+    print_error "Failed to change to project directory: /root/soleva"
+    exit 1
+}
+
 # Check if we're in the right directory
 if [ ! -f "docker-compose.yml" ]; then
     print_error "Please run this script from the project root directory"

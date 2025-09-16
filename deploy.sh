@@ -11,6 +11,12 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+# Change to project directory
+cd /root/soleva || {
+    echo -e "${RED}❌ Failed to change to project directory: /root/soleva${NC}"
+    exit 1
+}
+
 echo -e "${BLUE}🚀 Starting Complete Project Deployment...${NC}"
 
 # Make scripts executable
