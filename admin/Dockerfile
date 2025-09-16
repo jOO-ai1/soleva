@@ -51,7 +51,7 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 # Build stage
 FROM base AS build
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund || \
+RUN npm ci --include=dev --no-audit --no-fund || \
     (echo "npm ci failed, trying npm install..." && \
      npm install --no-audit --no-fund --no-optional)
 COPY . .

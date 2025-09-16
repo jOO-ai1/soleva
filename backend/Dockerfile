@@ -89,7 +89,7 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
 ENV NODE_ENV=production
 COPY package*.json ./
 # Install all dependencies including devDependencies for build tools like TypeScript
-RUN npm ci --no-audit --no-fund || \
+RUN npm ci --include=dev --no-audit --no-fund || \
     (echo "npm ci failed, trying npm install..." && \
      npm install --no-audit --no-fund --no-optional)
 COPY . .
