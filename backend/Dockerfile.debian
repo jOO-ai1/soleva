@@ -1,20 +1,18 @@
-# Alternative Dockerfile using Debian base for better package availability
-# Use this if Alpine continues to have repository issues
+# Debian-based Dockerfile for Node.js backend (fallback option)
+# Use this when Alpine repositories are having connectivity issues
 
-# Base stage with Node.js 20 on Debian
-FROM node:20-bullseye AS base
+# Base stage with Node.js 20 - using Debian for better package availability
+FROM node:20-slim AS base
 WORKDIR /app
 
-# Install build dependencies
+# Update Debian repositories and install build dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        python3 \
-        make \
-        g++ \
-        curl \
-        ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    python3 \
+    make \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Configure npm for faster, more reliable installs
 RUN npm config set fetch-retry-mintimeout 10000 && \
@@ -54,17 +52,16 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-bullseye-slim AS production
+FROM node:20-slim AS production
 
 # Install curl for health checks
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
-    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN groupadd --gid 1001 nodejs && \
-    useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home backend
+RUN groupadd -g 1001 nodejs && \
+    useradd -r -u 1001 -g nodejs backend
 
 WORKDIR /app
 

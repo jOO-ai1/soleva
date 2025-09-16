@@ -1,7 +1,7 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:15-alpine
+    image: postgres:15
     container_name: solevaeg-postgres-prod
     restart: unless-stopped
     environment:
@@ -21,7 +21,7 @@ services:
 
   # Redis Cache
   redis:
-    image: redis:7-alpine
+    image: redis:7
     container_name: solevaeg-redis-prod
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
@@ -36,7 +36,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # Backend API - Using Debian base for better package availability
+  # Backend API
   backend:
     build:
       context: ./backend
@@ -63,7 +63,7 @@ services:
       retries: 5
       start_period: 60s
 
-  # Frontend (React) - Production Build - Using Debian base
+  # Frontend (React) - Production Build
   frontend:
     build:
       context: .
@@ -86,7 +86,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # Admin Panel - Using Debian base
+  # Admin Panel
   admin:
     build:
       context: ./admin
@@ -109,9 +109,9 @@ services:
       retries: 5
       start_period: 30s
 
-  # Nginx Reverse Proxy - Using Debian base
+  # Nginx Reverse Proxy
   nginx:
-    image: nginx:bullseye-slim
+    image: nginx:stable
     container_name: solevaeg-nginx-prod
     restart: unless-stopped
     ports:

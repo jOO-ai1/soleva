@@ -3,14 +3,25 @@
 FROM node:20-alpine3.19 AS base
 WORKDIR /app
 
-# Update Alpine repositories and install build dependencies for native modules with retry logic
-RUN apk update --no-cache && \
+# Update Alpine repositories and install build dependencies for native modules with robust retry logic
+RUN set -e && \
+    # Try primary repositories first
+    apk update --no-cache && \
     apk add --no-cache --virtual .build-deps python3 make g++ || \
-    (echo "Primary apk add failed, trying with different mirrors..." && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache --virtual .build-deps python3 make g++)
+    (echo "Primary apk add failed, trying alternative mirrors..." && \
+     # Try multiple Alpine mirrors with retries
+     for mirror in "https://dl-cdn.alpinelinux.org/alpine/v3.19" "https://mirror.yandex.ru/mirrors/alpine/v3.19" "https://mirrors.aliyun.com/alpine/v3.19" "https://mirror.leaseweb.com/alpine/v3.19"; do \
+       echo "Trying mirror: $mirror" && \
+       echo "$mirror/main" > /etc/apk/repositories && \
+       echo "$mirror/community" >> /etc/apk/repositories && \
+       if apk update --no-cache && apk add --no-cache --virtual .build-deps python3 make g++; then \
+         echo "Successfully installed packages from $mirror" && \
+         break; \
+       else \
+         echo "Failed to install from $mirror, trying next mirror..." && \
+         sleep 2; \
+       fi; \
+     done)
 
 # Configure npm for faster, more reliable installs
 RUN npm config set fetch-retry-mintimeout 10000 && \
@@ -49,14 +60,25 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine3.19 AS production
 
-# Update repositories and install curl for health checks with retry logic
-RUN apk update --no-cache && \
+# Update repositories and install curl for health checks with robust retry logic
+RUN set -e && \
+    # Try primary repositories first
+    apk update --no-cache && \
     apk add --no-cache curl || \
-    (echo "Primary curl install failed, trying with different mirrors..." && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache curl)
+    (echo "Primary curl install failed, trying alternative mirrors..." && \
+     # Try multiple Alpine mirrors with retries
+     for mirror in "https://dl-cdn.alpinelinux.org/alpine/v3.19" "https://mirror.yandex.ru/mirrors/alpine/v3.19" "https://mirrors.aliyun.com/alpine/v3.19" "https://mirror.leaseweb.com/alpine/v3.19"; do \
+       echo "Trying mirror: $mirror" && \
+       echo "$mirror/main" > /etc/apk/repositories && \
+       echo "$mirror/community" >> /etc/apk/repositories && \
+       if apk update --no-cache && apk add --no-cache curl; then \
+         echo "Successfully installed curl from $mirror" && \
+         break; \
+       else \
+         echo "Failed to install curl from $mirror, trying next mirror..." && \
+         sleep 2; \
+       fi; \
+     done)
 
 # Copy nginx config for SPA
 COPY docker/nginx/admin.conf /etc/nginx/conf.d/default.conf

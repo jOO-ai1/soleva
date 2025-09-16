@@ -52,13 +52,20 @@ fi
 test_alpine_build() {
     log_info "Testing Alpine-based build..."
     
-    # Test backend build
-    if ! $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" build --no-cache backend 2>&1 | grep -q "apk.*failed\|repository.*not.*found\|package.*not.*found"; then
+    # Test backend build with timeout
+    local build_output
+    if build_output=$($COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.prod.yml" build --no-cache backend 2>&1); then
         log_success "Alpine backend build successful"
         return 0
     else
-        log_warning "Alpine backend build failed - package repository issues detected"
-        return 1
+        # Check for specific Alpine repository errors
+        if echo "$build_output" | grep -q "temporary error\|repository.*not.*found\|package.*not.*found\|apk.*failed\|fetch.*failed"; then
+            log_warning "Alpine backend build failed - package repository issues detected"
+            return 1
+        else
+            log_warning "Alpine backend build failed for other reasons"
+            return 1
+        fi
     fi
 }
 
