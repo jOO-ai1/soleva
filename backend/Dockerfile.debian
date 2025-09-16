@@ -1,17 +1,20 @@
-# Optimized Multi-stage Dockerfile for Node.js backend
+# Alternative Dockerfile using Debian base for better package availability
+# Use this if Alpine continues to have repository issues
 
-# Base stage with Node.js 20 - using Alpine 3.19 for better package availability
-FROM node:20-alpine3.19 AS base
+# Base stage with Node.js 20 on Debian
+FROM node:20-bullseye AS base
 WORKDIR /app
 
-# Update Alpine repositories and install build dependencies with retry logic
-RUN apk update --no-cache && \
-    apk add --no-cache --virtual .build-deps python3 make g++ curl || \
-    (echo "Primary apk add failed, trying with different mirrors..." && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache --virtual .build-deps python3 make g++ curl)
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3 \
+        make \
+        g++ \
+        curl \
+        ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure npm for faster, more reliable installs
 RUN npm config set fetch-retry-mintimeout 10000 && \
@@ -51,20 +54,17 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine3.19 AS production
+FROM node:20-bullseye-slim AS production
 
-# Update repositories and install curl for health checks with retry logic
-RUN apk update --no-cache && \
-    apk add --no-cache curl || \
-    (echo "Primary curl install failed, trying with different mirrors..." && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache curl)
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S backend -u 1001
+RUN groupadd --gid 1001 nodejs && \
+    useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home backend
 
 WORKDIR /app
 

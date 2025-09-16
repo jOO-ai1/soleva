@@ -1,16 +1,18 @@
-# Optimized Multi-stage Dockerfile for React Admin Panel
+# Alternative Dockerfile using Debian base for better package availability
+# Use this if Alpine continues to have repository issues
 
-FROM node:20-alpine3.19 AS base
+FROM node:20-bullseye AS base
 WORKDIR /app
 
-# Update Alpine repositories and install build dependencies for native modules with retry logic
-RUN apk update --no-cache && \
-    apk add --no-cache --virtual .build-deps python3 make g++ || \
-    (echo "Primary apk add failed, trying with different mirrors..." && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache --virtual .build-deps python3 make g++)
+# Install build dependencies for native modules
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3 \
+        make \
+        g++ \
+        ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure npm for faster, more reliable installs
 RUN npm config set fetch-retry-mintimeout 10000 && \
@@ -47,16 +49,13 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine3.19 AS production
+FROM nginx:bullseye-slim AS production
 
-# Update repositories and install curl for health checks with retry logic
-RUN apk update --no-cache && \
-    apk add --no-cache curl || \
-    (echo "Primary curl install failed, trying with different mirrors..." && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories && \
-     echo "https://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache curl)
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy nginx config for SPA
 COPY docker/nginx/admin.conf /etc/nginx/conf.d/default.conf
