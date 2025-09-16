@@ -2,6 +2,8 @@
 FROM node:20-alpine3.19 AS base
 WORKDIR /app
 
+# DNS configuration is handled by docker-compose.yml
+
 # Install build dependencies with robust mirror fallback
 RUN set -e && \
     apk update --no-cache && apk add --no-cache python3 make g++ curl || \
@@ -38,19 +40,78 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set fund false && \
     npm config set maxsockets 15
 
-# Install production dependencies only
+# Install production dependencies with enhanced retry logic and registry fallbacks
 COPY package*.json ./
-RUN npm ci --omit=dev --no-audit --no-fund || npm install --omit=dev --no-audit --no-fund --no-optional
+RUN set -e && \
+    echo "Installing production dependencies with multiple registry fallbacks..." && \
+    for attempt in 1 2 3; do \
+      echo "Attempt $attempt/3: Installing production dependencies..." && \
+      if npm ci --omit=dev --no-audit --no-fund; then \
+        echo "Production dependencies installed successfully on attempt $attempt" && \
+        break; \
+      elif [ $attempt -eq 3 ]; then \
+        echo "All attempts failed, trying npm install as fallback..." && \
+        npm install --omit=dev --no-audit --no-fund --no-optional || \
+        (echo "npm install also failed, trying with different registries..." && \
+         for registry in "https://registry.npmmirror.com/" "https://registry.npm.taobao.org/" "https://registry.yarnpkg.com/"; do \
+           echo "Trying registry: $registry" && \
+           npm config set registry "$registry" && \
+           if npm install --omit=dev --no-audit --no-fund --no-optional; then \
+             echo "Successfully installed with registry: $registry" && \
+             break 2; \
+           fi; \
+         done); \
+      else \
+        echo "Attempt $attempt failed, retrying in 10 seconds..." && \
+        sleep 10; \
+      fi; \
+    done
 
 # Build stage - install all dependencies including devDependencies for build tools
 FROM base AS build
 COPY package*.json ./
-# Install all dependencies including devDependencies for TypeScript compilation
-RUN npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund --no-optional
+# Install all dependencies including devDependencies for TypeScript compilation with registry fallbacks
+RUN set -e && \
+    echo "Installing all dependencies (including devDependencies) with multiple registry fallbacks..." && \
+    for attempt in 1 2 3; do \
+      echo "Attempt $attempt/3: Installing all dependencies..." && \
+      if npm ci --include=dev --no-audit --no-fund; then \
+        echo "All dependencies installed successfully on attempt $attempt" && \
+        break; \
+      elif [ $attempt -eq 3 ]; then \
+        echo "All attempts failed, trying npm install as fallback..." && \
+        npm install --include=dev --no-audit --no-fund --no-optional || \
+        (echo "npm install also failed, trying with different registries..." && \
+         for registry in "https://registry.npmmirror.com/" "https://registry.npm.taobao.org/" "https://registry.yarnpkg.com/"; do \
+           echo "Trying registry: $registry" && \
+           npm config set registry "$registry" && \
+           if npm install --include=dev --no-audit --no-fund --no-optional; then \
+             echo "Successfully installed with registry: $registry" && \
+             break 2; \
+           fi; \
+         done); \
+      else \
+        echo "Attempt $attempt failed, retrying in 10 seconds..." && \
+        sleep 10; \
+      fi; \
+    done
 COPY . .
 ENV NODE_ENV=production
-# Verify TypeScript is available and run build
-RUN npx tsc --version && npm run build
+# Verify TypeScript is available and run build with retry logic
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "Build attempt $i/3"; \
+      if npx tsc --version && npm run build; then \
+        echo "Build successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "Build failed, retrying in 10 seconds..."; \
+        sleep 10; \
+      else \
+        echo "Build failed after 3 attempts"; \
+        exit 1; \
+      fi; \
+      i=$((i + 1)); \
+    done
 
 # Production stage
 FROM node:20-alpine3.19 AS production
