@@ -126,15 +126,15 @@ main() {
     fi
     
     # Check if Docker Compose is available
-    if ! command_exists docker-compose; then
-        handle_error "Docker Compose is not installed"
+    if ! docker compose version >/dev/null 2>&1; then
+        handle_error "Docker Compose is not available"
         exit 1
     fi
     
     # Check for required files
     local required_files=(
         "package.json"
-        "docker-compose.yml"
+        "docker compose.yml"
         "vite.config.ts"
         "backend/package.json"
         "admin/package.json"
@@ -153,8 +153,8 @@ main() {
     print_header "STEP 2: STOPPING EXISTING SERVICES"
     
     print_step "Stopping existing containers..."
-    docker-compose down --remove-orphans 2>/dev/null || true
-    docker-compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+    docker compose down --remove-orphans 2>/dev/null || true
+    docker compose -f docker compose.prod.yml down --remove-orphans 2>/dev/null || true
     
     # Step 3: Clean up old volumes and containers
     print_header "STEP 3: CLEANING UP OLD RESOURCES"
@@ -223,28 +223,28 @@ main() {
     print_header "STEP 6: BUILDING ALL SERVICES"
     
     print_step "Building frontend with --no-cache..."
-    docker-compose build --no-cache frontend || {
+    docker compose build --no-cache frontend || {
         handle_error "Frontend build failed"
         exit 1
     }
     print_success "Frontend built successfully"
     
     print_step "Building backend with --no-cache..."
-    docker-compose build --no-cache backend || {
+    docker compose build --no-cache backend || {
         handle_error "Backend build failed"
         exit 1
     }
     print_success "Backend built successfully"
     
     print_step "Building admin with --no-cache..."
-    docker-compose build --no-cache admin || {
+    docker compose build --no-cache admin || {
         handle_error "Admin build failed"
         exit 1
     }
     print_success "Admin built successfully"
     
     print_step "Building nginx..."
-    docker-compose build --no-cache nginx || {
+    docker compose build --no-cache nginx || {
         handle_error "Nginx build failed"
         exit 1
     }
@@ -254,39 +254,39 @@ main() {
     print_header "STEP 7: STARTING DATABASE SERVICES"
     
     print_step "Starting PostgreSQL..."
-    docker-compose up -d postgres
+    docker compose up -d postgres
     wait_for_service "PostgreSQL" "docker exec solevaeg-postgres pg_isready -U solevaeg -d solevaeg_db"
     
     print_step "Starting Redis..."
-    docker-compose up -d redis
+    docker compose up -d redis
     wait_for_service "Redis" "docker exec solevaeg-redis redis-cli ping"
     
     # Step 8: Start backend
     print_header "STEP 8: STARTING BACKEND"
     
     print_step "Starting backend service..."
-    docker-compose up -d backend
+    docker compose up -d backend
     wait_for_service "Backend" "curl -f http://localhost:3001/health"
     
     # Step 9: Start frontend (without volume mount)
     print_header "STEP 9: STARTING FRONTEND"
     
     print_step "Starting frontend service..."
-    docker-compose up -d frontend
+    docker compose up -d frontend
     wait_for_service "Frontend" "curl -f http://localhost:80"
     
     # Step 10: Start admin
     print_header "STEP 10: STARTING ADMIN"
     
     print_step "Starting admin service..."
-    docker-compose up -d admin
+    docker compose up -d admin
     wait_for_service "Admin" "curl -f http://localhost:3002"
     
     # Step 11: Start nginx
     print_header "STEP 11: STARTING NGINX"
     
     print_step "Starting nginx reverse proxy..."
-    docker-compose up -d nginx
+    docker compose up -d nginx
     wait_for_service "Nginx" "curl -f http://localhost/health"
     
     # Step 12: Verify asset consistency
@@ -370,7 +370,7 @@ main() {
         
         echo ""
         print_status "Container Status:"
-        docker-compose ps
+        docker compose ps
         
         echo ""
         print_success "The website should now be fully functional with no white screen or broken assets!"
@@ -379,7 +379,7 @@ main() {
         print_error "❌ DEPLOYMENT COMPLETED WITH $ERRORS ERROR(S)"
         print_status "Please check the log file: $LOG_FILE"
         print_status "Container logs:"
-        docker-compose logs --tail=50
+        docker compose logs --tail=50
     fi
     
     print_status "Deployment completed at $(date)"

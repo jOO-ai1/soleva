@@ -38,7 +38,7 @@ cd /root/soleva || {
 if ! docker ps | grep -q "solevaeg-frontend"; then
     print_error "Frontend container is not running!"
     print_status "Please start the frontend container first:"
-    print_status "docker-compose up -d frontend"
+    print_status "docker compose up -d frontend"
     exit 1
 fi
 

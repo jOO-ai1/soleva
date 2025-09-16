@@ -40,14 +40,14 @@ cd /root/soleva || {
 }
 
 # Check if we're in the right directory
-if [ ! -f "docker-compose.yml" ]; then
+if [ ! -f "docker compose.yml" ]; then
     print_error "Please run this script from the project root directory"
     exit 1
 fi
 
 # Step 1: Stop existing containers
 print_status "Stopping existing containers..."
-docker-compose down frontend nginx 2>/dev/null || true
+docker compose down frontend nginx 2>/dev/null || true
 
 # Step 2: Remove old frontend volume to clear cached files
 print_status "Removing old frontend volume to clear cached files..."
@@ -55,11 +55,11 @@ docker volume rm solevaeg_frontend_static 2>/dev/null || print_warning "Volume d
 
 # Step 3: Rebuild frontend with --no-cache
 print_status "Rebuilding frontend container with --no-cache..."
-docker-compose build --no-cache frontend
+docker compose build --no-cache frontend
 
 # Step 4: Start the frontend container
 print_status "Starting frontend container..."
-docker-compose up -d frontend
+docker compose up -d frontend
 
 # Step 5: Wait for container to be ready
 print_status "Waiting for frontend container to be ready..."
@@ -92,7 +92,7 @@ fi
 
 # Step 8: Start nginx if not running
 print_status "Starting nginx reverse proxy..."
-docker-compose up -d nginx
+docker compose up -d nginx
 
 # Step 9: Final verification
 print_status "Performing final verification..."
@@ -105,13 +105,13 @@ if curl -f http://localhost/ >/dev/null 2>&1; then
     print_status "You can now:"
     print_status "1. Test the frontend at http://localhost/"
     print_status "2. Check browser console for any remaining errors"
-    print_status "3. If everything works, restore the volume mount in docker-compose.yml"
+    print_status "3. If everything works, restore the volume mount in docker compose.yml"
 else
     print_error "❌ Frontend is still not accessible. Please check the logs:"
     print_status "Frontend logs:"
-    docker-compose logs frontend
+    docker compose logs frontend
     print_status "Nginx logs:"
-    docker-compose logs nginx
+    docker compose logs nginx
 fi
 
 echo ""

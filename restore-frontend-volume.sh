@@ -35,7 +35,7 @@ cd /root/soleva || {
 }
 
 # Check if we're in the right directory
-if [ ! -f "docker-compose.yml" ]; then
+if [ ! -f "docker compose.yml" ]; then
     print_error "Please run this script from the project root directory"
     exit 1
 fi
@@ -51,19 +51,19 @@ fi
 
 print_success "Frontend is working correctly. Proceeding with volume mount restoration..."
 
-# Create a backup of current docker-compose.yml
-print_status "Creating backup of docker-compose.yml..."
-cp docker-compose.yml docker-compose.yml.backup.$(date +%Y%m%d_%H%M%S)
+# Create a backup of current docker compose.yml
+print_status "Creating backup of docker compose.yml..."
+cp docker compose.yml docker compose.yml.backup.$(date +%Y%m%d_%H%M%S)
 
-# Restore volume mount in docker-compose.yml
-print_status "Restoring volume mount in docker-compose.yml..."
-sed -i 's|# volumes:|volumes:|g' docker-compose.yml
-sed -i 's|#   - frontend_static:/usr/share/nginx/html:ro|  - frontend_static:/usr/share/nginx/html:ro|g' docker-compose.yml
+# Restore volume mount in docker compose.yml
+print_status "Restoring volume mount in docker compose.yml..."
+sed -i 's|# volumes:|volumes:|g' docker compose.yml
+sed -i 's|#   - frontend_static:/usr/share/nginx/html:ro|  - frontend_static:/usr/share/nginx/html:ro|g' docker compose.yml
 
-# Restore volume mount in docker-compose.prod.yml
-print_status "Restoring volume mount in docker-compose.prod.yml..."
-sed -i 's|# volumes:|volumes:|g' docker-compose.prod.yml
-sed -i 's|#   - frontend_static:/usr/share/nginx/html:ro|  - frontend_static:/usr/share/nginx/html:ro|g' docker-compose.prod.yml
+# Restore volume mount in docker compose.prod.yml
+print_status "Restoring volume mount in docker compose.prod.yml..."
+sed -i 's|# volumes:|volumes:|g' docker compose.prod.yml
+sed -i 's|#   - frontend_static:/usr/share/nginx/html:ro|  - frontend_static:/usr/share/nginx/html:ro|g' docker compose.prod.yml
 
 # Copy current build files to volume
 print_status "Copying current build files to volume..."
@@ -83,8 +83,8 @@ docker run --rm -v solevaeg_frontend_static:/target -v solevaeg_frontend_static:
 
 # Restart frontend with volume mount
 print_status "Restarting frontend with volume mount..."
-docker-compose down frontend
-docker-compose up -d frontend
+docker compose down frontend
+docker compose up -d frontend
 
 # Wait for container to be ready
 print_status "Waiting for frontend container to be ready..."
@@ -98,8 +98,8 @@ if curl -f http://localhost/ >/dev/null 2>&1; then
     
     echo ""
     print_status "Summary of changes:"
-    print_status "1. ✅ Restored volume mount in docker-compose.yml"
-    print_status "2. ✅ Restored volume mount in docker-compose.prod.yml"
+    print_status "1. ✅ Restored volume mount in docker compose.yml"
+    print_status "2. ✅ Restored volume mount in docker compose.prod.yml"
     print_status "3. ✅ Copied current build files to volume"
     print_status "4. ✅ Restarted frontend with volume mount"
     print_status "5. ✅ Verified frontend is working"
@@ -113,15 +113,15 @@ else
     print_status "Restoring backup configuration..."
     
     # Find the most recent backup
-    BACKUP_FILE=$(ls -t docker-compose.yml.backup.* | head -1)
+    BACKUP_FILE=$(ls -t docker compose.yml.backup.* | head -1)
     if [ -n "$BACKUP_FILE" ]; then
-        cp "$BACKUP_FILE" docker-compose.yml
+        cp "$BACKUP_FILE" docker compose.yml
         print_status "Restored from backup: $BACKUP_FILE"
     fi
     
     # Restart without volume mount
-    docker-compose down frontend
-    docker-compose up -d frontend
+    docker compose down frontend
+    docker compose up -d frontend
     
     print_error "Please investigate the volume mount issue before trying again."
     exit 1

@@ -30,13 +30,13 @@ fi
 # Make scripts executable
 chmod +x deploy-complete.sh fix-frontend-deployment.sh verify-asset-consistency.sh restore-frontend-volume.sh 2>/dev/null || true
 
-# Use production docker-compose file
+# Use production docker compose file
 echo -e "${BLUE}Using production configuration...${NC}"
 
 # Run deployment with production config
-docker-compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
-docker-compose -f docker-compose.prod.yml build --no-cache
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker compose.prod.yml down --remove-orphans 2>/dev/null || true
+docker compose -f docker compose.prod.yml build --no-cache
+docker compose -f docker compose.prod.yml up -d
 
 # Wait for services
 echo -e "${BLUE}Waiting for services to start...${NC}"
@@ -49,6 +49,6 @@ if curl -f http://localhost/ >/dev/null 2>&1; then
     echo -e "${BLUE}🌐 Your production website is now available${NC}"
 else
     echo -e "${RED}❌ Production deployment failed!${NC}"
-    echo -e "${YELLOW}Check logs: docker-compose -f docker-compose.prod.yml logs${NC}"
+    echo -e "${YELLOW}Check logs: docker compose -f docker compose.prod.yml logs${NC}"
     exit 1
 fi
