@@ -1,0 +1,6 @@
+ssl/
+certbot-webroot/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

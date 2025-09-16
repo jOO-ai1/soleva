@@ -130,15 +130,15 @@ services:
 
   # Nginx Reverse Proxy
   nginx:
-    image: nginx:alpine
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
     container_name: solevaeg-nginx
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/nginx/conf.d/production.conf:/etc/nginx/conf.d/default.conf:ro
       - ./docker/nginx/ssl:/etc/letsencrypt:ro
       - ./docker/nginx/certbot-webroot:/var/www/certbot:ro
       - backend_uploads:/var/www/uploads:ro
