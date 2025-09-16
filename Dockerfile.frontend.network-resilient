@@ -75,6 +75,8 @@ RUN i=1; while [ $i -le 3 ]; do \
       fi; \
       i=$((i + 1)); \
     done
+# Verify Vite is available before building
+RUN npx vite --version
 RUN npm run build
 
 # Production stage with Nginx
