@@ -2,19 +2,28 @@
 FROM node:20-alpine3.19 AS base
 WORKDIR /app
 
-# Install build dependencies with retry logic
+# Install build dependencies with robust mirror fallback
 RUN set -e && \
-    apk update --no-cache && \
-    apk add --no-cache python3 make g++ curl || \
-    (echo "Trying alternative mirrors..." && \
+    apk update --no-cache && apk add --no-cache python3 make g++ curl || \
+    (echo "Primary package install failed, trying alternative mirrors..." && \
      for mirror in "https://dl-cdn.alpinelinux.org/alpine/v3.19" \
                    "https://mirror.yandex.ru/mirrors/alpine/v3.19" \
                    "https://mirrors.aliyun.com/alpine/v3.19" \
-                   "https://mirror.leaseweb.com/alpine/v3.19"; do \
-       echo "Using mirror: $mirror"; \
+                   "https://mirror.leaseweb.com/alpine/v3.19" \
+                   "https://mirror.xtom.com/alpine/v3.19" \
+                   "https://mirror.clarkson.edu/alpine/v3.19" \
+                   "https://mirror.one.com/alpine/v3.19" \
+                   "https://mirror.ams1.nl.leaseweb.net/alpine/v3.19"; do \
+       echo "Trying mirror: $mirror"; \
        echo "$mirror/main" > /etc/apk/repositories; \
        echo "$mirror/community" >> /etc/apk/repositories; \
-       if apk update --no-cache && apk add --no-cache python3 make g++ curl; then break; fi; \
+       if apk update --no-cache && apk add --no-cache python3 make g++ curl; then \
+         echo "Successfully installed packages from $mirror"; \
+         break; \
+       else \
+         echo "Failed to install from $mirror, trying next mirror..."; \
+         sleep 2; \
+       fi; \
      done)
 
 # Configure npm
@@ -44,8 +53,27 @@ RUN npm run build
 FROM node:20-alpine3.19 AS production
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk update --no-cache && apk add --no-cache curl
+# Install curl for health checks with robust mirror fallback
+RUN set -e && \
+    apk update --no-cache && apk add --no-cache curl || \
+    (echo "Primary curl install failed, trying alternative mirrors..." && \
+     for mirror in "https://dl-cdn.alpinelinux.org/alpine/v3.19" \
+                   "https://mirror.yandex.ru/mirrors/alpine/v3.19" \
+                   "https://mirrors.aliyun.com/alpine/v3.19" \
+                   "https://mirror.leaseweb.com/alpine/v3.19" \
+                   "https://mirror.xtom.com/alpine/v3.19" \
+                   "https://mirror.clarkson.edu/alpine/v3.19"; do \
+       echo "Trying mirror: $mirror"; \
+       echo "$mirror/main" > /etc/apk/repositories; \
+       echo "$mirror/community" >> /etc/apk/repositories; \
+       if apk update --no-cache && apk add --no-cache curl; then \
+         echo "Successfully installed curl from $mirror"; \
+         break; \
+       else \
+         echo "Failed to install curl from $mirror, trying next mirror..."; \
+         sleep 2; \
+       fi; \
+     done)
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && adduser -S backend -u 1001
