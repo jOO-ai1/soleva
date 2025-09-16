@@ -284,10 +284,7 @@ test_docker_build() {
     # Create a simple test Dockerfile
     cat > "$test_dir/Dockerfile" << 'EOF'
 FROM node:20-slim
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Test network connectivity and package installation with retry logic
 RUN for i in {1..3}; do \
       echo "Package installation attempt $i/3"; \
       if apt-get update && apt-get install -y --no-install-recommends curl; then \
@@ -302,7 +299,10 @@ RUN for i in {1..3}; do \
       fi; \
     done && \
     rm -rf /var/lib/apt/lists/*
+# Test HTTP connectivity
 RUN curl -f http://httpbin.org/get || echo "HTTP test failed but continuing"
+# Test DNS resolution
+RUN nslookup google.com || echo "DNS test failed but continuing"
 EOF
     
     # Test the build (try BuildKit first, fallback to legacy)
