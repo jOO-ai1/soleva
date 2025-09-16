@@ -17,14 +17,14 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
 
 # Install dependencies with simplified retry logic
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund || \
+RUN npm ci --include=dev --no-audit --no-fund || \
     (echo "npm ci failed, trying npm install..." && \
      npm install --no-audit --no-fund --no-optional)
 
 # Development stage
 FROM base AS development
 ENV NODE_ENV=development
-RUN npm ci --no-audit --no-fund || \
+RUN npm ci --include=dev --no-audit --no-fund || \
     (echo "npm ci failed, trying npm install..." && \
      npm install --no-audit --no-fund --no-optional)
 COPY . .
