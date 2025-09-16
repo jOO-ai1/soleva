@@ -37,7 +37,6 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set audit false && \
     npm config set fund false && \
     npm config set maxsockets 15 && \
-    npm config set network-timeout 300000
 
 # Install dependencies with simplified retry logic
 COPY package*.json ./
@@ -92,7 +91,6 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set audit false && \
     npm config set fund false && \
     npm config set maxsockets 15 && \
-    npm config set network-timeout 300000
 
 ENV NODE_ENV=production
 COPY package*.json ./
