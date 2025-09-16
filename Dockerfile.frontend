@@ -5,11 +5,8 @@
 FROM node:20-alpine3.19 AS base
 WORKDIR /app
 
-# Configure DNS and network settings for better connectivity
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# DNS configuration is handled by Docker Compose dns settings
+# No need to modify /etc/resolv.conf directly
 
 # Configure npm for faster, more reliable installs with multiple registry fallbacks
 RUN npm config set fetch-retry-mintimeout 10000 && \
@@ -21,46 +18,41 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set prefer-online true && \
     npm config set audit false && \
     npm config set fund false && \
-    npm config set strict-ssl false
+    npm config set strict-ssl false && \
+    npm config set maxsockets 15 && \
+    npm config set network-timeout 60000
 
 # Install dependencies with enhanced retry logic and registry fallbacks
 COPY package*.json ./
-RUN i=1; while [ $i -le 3 ]; do \
-      echo "npm install attempt $i/3"; \
+RUN set -e && \
+    echo "Installing dependencies with multiple registry fallbacks..." && \
+    for attempt in 1 2 3; do \
+      echo "Attempt $attempt/3: Installing dependencies..." && \
       if npm ci --include=dev --no-audit --no-fund; then \
-        echo "npm install successful"; \
+        echo "Dependencies installed successfully on attempt $attempt" && \
         break; \
-      elif [ $i -lt 3 ]; then \
-        echo "npm install failed, trying alternative registry..."; \
-        npm config set registry https://registry.npmmirror.com/; \
-        sleep $((i * 10)); \
+      elif [ $attempt -eq 3 ]; then \
+        echo "All attempts failed, trying npm install as fallback..." && \
+        npm install --include=dev --no-audit --no-fund --no-optional || \
+        (echo "npm install also failed, trying with different registries..." && \
+         for registry in "https://registry.npmmirror.com/" "https://registry.npm.taobao.org/" "https://registry.yarnpkg.com/"; do \
+           echo "Trying registry: $registry" && \
+           npm config set registry "$registry" && \
+           if npm install --include=dev --no-audit --no-fund --no-optional; then \
+             echo "Successfully installed with registry: $registry" && \
+             break 2; \
+           fi; \
+         done); \
       else \
-        echo "npm ci failed, trying npm install with fallback registry..."; \
-        npm config set registry https://registry.npmmirror.com/; \
-        npm install --include=dev --no-audit --no-fund --no-optional; \
+        echo "Attempt $attempt failed, retrying in 10 seconds..." && \
+        sleep 10; \
       fi; \
-      i=$((i + 1)); \
     done
 
 # Development stage
 FROM base AS development
 ENV NODE_ENV=development
-RUN i=1; while [ $i -le 3 ]; do \
-      echo "npm install attempt $i/3"; \
-      if npm ci --include=dev --no-audit --no-fund; then \
-        echo "npm install successful"; \
-        break; \
-      elif [ $i -lt 3 ]; then \
-        echo "npm install failed, trying alternative registry..."; \
-        npm config set registry https://registry.npmmirror.com/; \
-        sleep $((i * 10)); \
-      else \
-        echo "npm ci failed, trying npm install with fallback registry..."; \
-        npm config set registry https://registry.npmmirror.com/; \
-        npm install --include=dev --no-audit --no-fund --no-optional; \
-      fi; \
-      i=$((i + 1)); \
-    done
+# Dependencies are already installed in base stage
 COPY . .
 EXPOSE 5173
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
@@ -69,23 +61,7 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 FROM base AS build
 ENV NODE_ENV=production
 COPY . .
-# Install all dependencies including devDependencies for build
-RUN i=1; while [ $i -le 3 ]; do \
-      echo "npm install attempt $i/3"; \
-      if npm ci --include=dev --no-audit --no-fund; then \
-        echo "npm install successful"; \
-        break; \
-      elif [ $i -lt 3 ]; then \
-        echo "npm install failed, trying alternative registry..."; \
-        npm config set registry https://registry.npmmirror.com/; \
-        sleep $((i * 10)); \
-      else \
-        echo "npm ci failed, trying npm install with fallback registry..."; \
-        npm config set registry https://registry.npmmirror.com/; \
-        npm install --include=dev --no-audit --no-fund --no-optional; \
-      fi; \
-      i=$((i + 1)); \
-    done
+# Dependencies are already installed in base stage
 # Verify Vite is available before building with retry logic
 RUN i=1; while [ $i -le 3 ]; do \
       echo "Vite version check attempt $i/3"; \
