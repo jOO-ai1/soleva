@@ -78,8 +78,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
-    volumes:
-      - frontend_static:/usr/share/nginx/html:ro
+    # Temporarily removed volume mount to allow fresh build files
+    # volumes:
+    #   - frontend_static:/usr/share/nginx/html:ro
     networks:
       - solevaeg-network
     depends_on:
