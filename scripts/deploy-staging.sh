@@ -41,9 +41,16 @@ if ! command -v docker &> /dev/null; then
     error "Docker is not installed. Please install Docker first."
 fi
 
-# Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    error "Docker Compose is not installed. Please install Docker Compose first."
+# Check if Docker Compose is installed (v2)
+if ! docker compose version >/dev/null 2>&1; then
+    if ! command -v $COMPOSE_CMD >/dev/null; then
+        error "Neither 'docker compose' nor '$COMPOSE_CMD' is available. Please install Docker Compose first."
+    fi
+    log "Using Docker Compose v1 ($COMPOSE_CMD)"
+    COMPOSE_CMD="$COMPOSE_CMD"
+else
+    log "Using Docker Compose v2 (docker compose)"
+    COMPOSE_CMD="docker compose"
 fi
 
 log "Starting staging deployment..."
@@ -60,22 +67,22 @@ source .env.staging
 
 # Stop any existing staging containers
 log "Stopping existing staging containers..."
-docker-compose -f docker-compose.staging.yml down --remove-orphans || true
+$COMPOSE_CMD -f $COMPOSE_CMD.staging.yml down --remove-orphans || true
 
 # Pull latest images and build
 log "Building staging images..."
-docker-compose -f docker-compose.staging.yml build --no-cache
+$COMPOSE_CMD -f $COMPOSE_CMD.staging.yml build --no-cache
 
 # Start staging services
 log "Starting staging services..."
-docker-compose -f docker-compose.staging.yml up -d
+$COMPOSE_CMD -f $COMPOSE_CMD.staging.yml up -d
 
 # Wait for database to be ready
 log "Waiting for database to be ready..."
 max_attempts=30
 attempt=1
 
-while ! docker-compose -f docker-compose.staging.yml exec -T postgres pg_isready -U solevaeg_staging -d solevaeg_staging > /dev/null 2>&1; do
+while ! $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml exec -T postgres pg_isready -U solevaeg_staging -d solevaeg_staging > /dev/null 2>&1; do
     if [ $attempt -eq $max_attempts ]; then
         error "Database failed to start after $max_attempts attempts"
     fi
@@ -88,11 +95,11 @@ log "Database is ready!"
 
 # Run database migrations
 log "Running database migrations..."
-docker-compose -f docker-compose.staging.yml exec -T backend npm run migrate
+$COMPOSE_CMD -f $COMPOSE_CMD.staging.yml exec -T backend npm run migrate
 
 # Seed database with staging data
 log "Seeding database with staging data..."
-docker-compose -f docker-compose.staging.yml exec -T backend npm run seed:staging
+$COMPOSE_CMD -f $COMPOSE_CMD.staging.yml exec -T backend npm run seed:staging
 
 # Health check
 log "Performing health checks..."
@@ -120,14 +127,14 @@ else
 fi
 
 # Check database
-if docker-compose -f docker-compose.staging.yml exec -T postgres pg_isready -U solevaeg_staging -d solevaeg_staging > /dev/null 2>&1; then
+if $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml exec -T postgres pg_isready -U solevaeg_staging -d solevaeg_staging > /dev/null 2>&1; then
     log "✓ Database is healthy"
 else
     warning "Database health check failed"
 fi
 
 # Check Redis
-if docker-compose -f docker-compose.staging.yml exec -T redis redis-cli -a staging_redis_123 ping > /dev/null 2>&1; then
+if $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml exec -T redis redis-cli -a staging_redis_123 ping > /dev/null 2>&1; then
     log "✓ Redis is healthy"
 else
     warning "Redis health check failed"
@@ -135,7 +142,7 @@ fi
 
 # Create staging test data
 log "Creating staging test data..."
-docker-compose -f docker-compose.staging.yml exec -T backend npm run create-test-data
+$COMPOSE_CMD -f $COMPOSE_CMD.staging.yml exec -T backend npm run create-test-data
 
 # Display staging summary
 log "Staging deployment completed successfully!"
@@ -153,8 +160,8 @@ echo "   Email: ${ADMIN_EMAIL}"
 echo "   Password: ${ADMIN_PASSWORD}"
 echo ""
 echo "📊 Monitoring:"
-echo "   Logs: docker-compose -f docker-compose.staging.yml logs -f"
-echo "   Status: docker-compose -f docker-compose.staging.yml ps"
+echo "   Logs: $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml logs -f"
+echo "   Status: $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml ps"
 echo ""
 echo "🧪 Test Data:"
 echo "   - 50 sample products across all collections"
@@ -164,8 +171,8 @@ echo "   - Complete Egyptian shipping data"
 echo "   - Test payment proofs and return requests"
 echo ""
 echo "🔄 Management Commands:"
-echo "   Stop: docker-compose -f docker-compose.staging.yml down"
-echo "   Restart: docker-compose -f docker-compose.staging.yml restart"
+echo "   Stop: $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml down"
+echo "   Restart: $COMPOSE_CMD -f $COMPOSE_CMD.staging.yml restart"
 echo "   Reset: ./scripts/reset-staging.sh"
 echo ""
 

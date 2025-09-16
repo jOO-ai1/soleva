@@ -2,10 +2,13 @@
 # Comprehensive deployment and management commands
 
 # Variables
-COMPOSE_FILE := docker-compose.yml
+COMPOSE_FILE := $(COMPOSE_CMD).yml
 ENV_FILE := .env
 PROJECT_NAME := solevaeg
 DOMAIN := solevaeg.com
+
+# Docker Compose command (v2)
+COMPOSE_CMD := docker compose
 
 # Colors for output
 RED := \033[0;31m
@@ -41,10 +44,10 @@ install: ## Install dependencies and setup environment
 # Development
 dev: ## Start development environment
 	@echo "$(BLUE)Starting development environment...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) up --build -d postgres redis
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) up --build -d postgres redis
 	@echo "$(YELLOW)Waiting for database to be ready...$(NC)"
 	@sleep 10
-	@docker-compose -f $(COMPOSE_FILE) up --build backend frontend
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) up --build backend frontend
 	@echo "$(GREEN)✅ Development environment started!$(NC)"
 	@echo "$(BLUE)Frontend:$(NC) http://localhost:5173"
 	@echo "$(BLUE)Backend API:$(NC) http://localhost:3001"
@@ -52,30 +55,30 @@ dev: ## Start development environment
 
 dev-detached: ## Start development environment in background
 	@echo "$(BLUE)Starting development environment (detached)...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) up --build -d
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) up --build -d
 	@echo "$(GREEN)✅ Development environment started in background!$(NC)"
 
 # Production Build
 build: ## Build production images
 	@echo "$(BLUE)Building production images...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) build --no-cache
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) build --no-cache
 	@echo "$(GREEN)✅ Production images built successfully!$(NC)"
 
 # Production Deployment
 deploy: ## Deploy to production with SSL
 	@echo "$(BLUE)Deploying Soleva to production...$(NC)"
 	@echo "$(YELLOW)Building production images...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) build --no-cache
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) build --no-cache
 	@echo "$(YELLOW)Starting core services...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) up -d postgres redis
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) up -d postgres redis
 	@echo "$(YELLOW)Waiting for database...$(NC)"
 	@sleep 15
 	@echo "$(YELLOW)Running database migrations...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) run --rm backend npm run migrate
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) run --rm backend npm run migrate
 	@echo "$(YELLOW)Seeding database...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) run --rm backend npm run seed
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) run --rm backend npm run seed
 	@echo "$(YELLOW)Starting application services...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) up -d backend frontend nginx
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) up -d backend frontend nginx
 	@echo "$(YELLOW)Setting up SSL certificates...$(NC)"
 	@make ssl
 	@echo "$(GREEN)✅ Deployment complete!$(NC)"
@@ -88,54 +91,54 @@ ssl: ## Setup SSL certificates with Let's Encrypt
 		echo "$(RED)Error: ADMIN_EMAIL environment variable is required$(NC)"; \
 		exit 1; \
 	fi
-	@docker-compose -f $(COMPOSE_FILE) --profile ssl run --rm certbot
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) --profile ssl run --rm certbot
 	@echo "$(YELLOW)Reloading Nginx with SSL...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec nginx nginx -s reload
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec nginx nginx -s reload
 	@echo "$(GREEN)✅ SSL certificates configured!$(NC)"
 
 ssl-renew: ## Renew SSL certificates
 	@echo "$(BLUE)Renewing SSL certificates...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) --profile ssl run --rm certbot renew
-	@docker-compose -f $(COMPOSE_FILE) exec nginx nginx -s reload
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) --profile ssl run --rm certbot renew
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec nginx nginx -s reload
 	@echo "$(GREEN)✅ SSL certificates renewed!$(NC)"
 
 # Service Management
 start: ## Start all services
 	@echo "$(BLUE)Starting all services...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) start
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) start
 	@echo "$(GREEN)✅ All services started!$(NC)"
 
 stop: ## Stop all services
 	@echo "$(BLUE)Stopping all services...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) stop
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) stop
 	@echo "$(GREEN)✅ All services stopped!$(NC)"
 
 restart: ## Restart all services
 	@echo "$(BLUE)Restarting all services...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) restart
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) restart
 	@echo "$(GREEN)✅ All services restarted!$(NC)"
 
 # Database Management
 migrate: ## Run database migrations
 	@echo "$(BLUE)Running database migrations...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm run migrate
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm run migrate
 	@echo "$(GREEN)✅ Database migrations completed!$(NC)"
 
 migrate-dev: ## Run database migrations for development
 	@echo "$(BLUE)Running database migrations (development)...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm run migrate:dev
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm run migrate:dev
 	@echo "$(GREEN)✅ Development database migrations completed!$(NC)"
 
 seed: ## Seed database with initial data
 	@echo "$(BLUE)Seeding database...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm run seed
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm run seed
 	@echo "$(GREEN)✅ Database seeded successfully!$(NC)"
 
 # Backup and Restore
 backup: ## Create database and uploads backup
 	@echo "$(BLUE)Creating backup...$(NC)"
 	@mkdir -p backups
-	@docker-compose -f $(COMPOSE_FILE) exec postgres pg_dump -U $${POSTGRES_USER:-solevaeg} -d $${POSTGRES_DB:-solevaeg_db} > backups/db_backup_$(shell date +%Y%m%d_%H%M%S).sql
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec postgres pg_dump -U $${POSTGRES_USER:-solevaeg} -d $${POSTGRES_DB:-solevaeg_db} > backups/db_backup_$(shell date +%Y%m%d_%H%M%S).sql
 	@docker run --rm -v solevaeg_backend_uploads:/data -v $(PWD)/backups:/backup alpine tar czf /backup/uploads_backup_$(shell date +%Y%m%d_%H%M%S).tar.gz -C /data .
 	@echo "$(GREEN)✅ Backup created in backups/ directory!$(NC)"
 
@@ -146,24 +149,24 @@ restore: ## Restore database from backup (requires BACKUP_FILE variable)
 		exit 1; \
 	fi
 	@echo "$(BLUE)Restoring database from $(BACKUP_FILE)...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec -T postgres psql -U $${POSTGRES_USER:-solevaeg} -d $${POSTGRES_DB:-solevaeg_db} < $(BACKUP_FILE)
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec -T postgres psql -U $${POSTGRES_USER:-solevaeg} -d $${POSTGRES_DB:-solevaeg_db} < $(BACKUP_FILE)
 	@echo "$(GREEN)✅ Database restored successfully!$(NC)"
 
 # Monitoring and Logs
 logs: ## Show logs for all services
-	@docker-compose -f $(COMPOSE_FILE) logs -f --tail=100
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) logs -f --tail=100
 
 logs-backend: ## Show backend logs
-	@docker-compose -f $(COMPOSE_FILE) logs -f backend --tail=100
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) logs -f backend --tail=100
 
 logs-frontend: ## Show frontend logs
-	@docker-compose -f $(COMPOSE_FILE) logs -f frontend --tail=100
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) logs -f frontend --tail=100
 
 logs-nginx: ## Show nginx logs
-	@docker-compose -f $(COMPOSE_FILE) logs -f nginx --tail=100
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) logs -f nginx --tail=100
 
 logs-db: ## Show database logs
-	@docker-compose -f $(COMPOSE_FILE) logs -f postgres --tail=100
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) logs -f postgres --tail=100
 
 # Health Checks
 health: ## Check health of all services
@@ -173,62 +176,62 @@ health: ## Check health of all services
 	@echo "$(YELLOW)Frontend:$(NC)"
 	@curl -f http://localhost:5173 2>/dev/null && echo " $(GREEN)✅ Healthy$(NC)" || echo " $(RED)❌ Unhealthy$(NC)"
 	@echo "$(YELLOW)Database:$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec postgres pg_isready -U $${POSTGRES_USER:-solevaeg} 2>/dev/null && echo " $(GREEN)✅ Healthy$(NC)" || echo " $(RED)❌ Unhealthy$(NC)"
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec postgres pg_isready -U $${POSTGRES_USER:-solevaeg} 2>/dev/null && echo " $(GREEN)✅ Healthy$(NC)" || echo " $(RED)❌ Unhealthy$(NC)"
 	@echo "$(YELLOW)Redis:$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec redis redis-cli ping 2>/dev/null && echo " $(GREEN)✅ Healthy$(NC)" || echo " $(RED)❌ Unhealthy$(NC)"
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec redis redis-cli ping 2>/dev/null && echo " $(GREEN)✅ Healthy$(NC)" || echo " $(RED)❌ Unhealthy$(NC)"
 
 # Development Tools
 shell-backend: ## Open shell in backend container
-	@docker-compose -f $(COMPOSE_FILE) exec backend sh
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend sh
 
 shell-frontend: ## Open shell in frontend container
-	@docker-compose -f $(COMPOSE_FILE) exec frontend sh
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec frontend sh
 
 shell-db: ## Open PostgreSQL shell
-	@docker-compose -f $(COMPOSE_FILE) exec postgres psql -U $${POSTGRES_USER:-solevaeg} -d $${POSTGRES_DB:-solevaeg_db}
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec postgres psql -U $${POSTGRES_USER:-solevaeg} -d $${POSTGRES_DB:-solevaeg_db}
 
 shell-redis: ## Open Redis CLI
-	@docker-compose -f $(COMPOSE_FILE) exec redis redis-cli
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec redis redis-cli
 
 # Testing
 test: ## Run all tests
 	@echo "$(BLUE)Running tests...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm test
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm test
 	@echo "$(GREEN)✅ Tests completed!$(NC)"
 
 test-backend: ## Run backend tests
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm test
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm test
 
 # Code Quality
 lint: ## Run linting on all code
 	@echo "$(BLUE)Running linting...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm run lint
-	@docker-compose -f $(COMPOSE_FILE) exec frontend npm run lint
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm run lint
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec frontend npm run lint
 	@echo "$(GREEN)✅ Linting completed!$(NC)"
 
 lint-fix: ## Fix linting issues
 	@echo "$(BLUE)Fixing linting issues...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) exec backend npm run lint:fix
-	@docker-compose -f $(COMPOSE_FILE) exec frontend npm run lint:fix
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec backend npm run lint:fix
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec frontend npm run lint:fix
 	@echo "$(GREEN)✅ Linting fixes applied!$(NC)"
 
 # Cleanup
 clean: ## Clean up containers and volumes
 	@echo "$(BLUE)Cleaning up...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) down -v --remove-orphans
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) down -v --remove-orphans
 	@docker system prune -f
 	@echo "$(GREEN)✅ Cleanup completed!$(NC)"
 
 clean-all: ## Clean everything including images
 	@echo "$(BLUE)Cleaning everything...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) down -v --remove-orphans --rmi all
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) down -v --remove-orphans --rmi all
 	@docker system prune -a -f
 	@echo "$(GREEN)✅ Full cleanup completed!$(NC)"
 
 # Monitoring (Optional)
 monitoring: ## Start monitoring services (Prometheus + Grafana)
 	@echo "$(BLUE)Starting monitoring services...$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) --profile monitoring up -d prometheus grafana
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) --profile monitoring up -d prometheus grafana
 	@echo "$(GREEN)✅ Monitoring services started!$(NC)"
 	@echo "$(BLUE)Prometheus:$(NC) http://localhost:9090"
 	@echo "$(BLUE)Grafana:$(NC) http://localhost:3000 (admin/admin)"
@@ -251,12 +254,12 @@ production-deploy: ## Full production deployment
 update: ## Update and restart services
 	@echo "$(BLUE)Updating services...$(NC)"
 	@git pull
-	@docker-compose -f $(COMPOSE_FILE) pull
-	@docker-compose -f $(COMPOSE_FILE) up --build -d
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) pull
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) up --build -d
 	@make migrate
 	@echo "$(GREEN)✅ Services updated!$(NC)"
 
 # Status
 status: ## Show status of all services
 	@echo "$(BLUE)Service Status:$(NC)"
-	@docker-compose -f $(COMPOSE_FILE) ps
+	@$(COMPOSE_CMD) -f $(COMPOSE_FILE) ps

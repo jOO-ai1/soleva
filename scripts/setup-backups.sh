@@ -214,7 +214,7 @@ CONFIG_BACKUP_DIR="$TEMP_DIR/solevaeg-config"
 mkdir -p "$CONFIG_BACKUP_DIR"
 
 # Copy configuration files (excluding sensitive data)
-cp docker-compose.yml "$CONFIG_BACKUP_DIR/" 2>/dev/null || true
+cp docker compose.yml "$CONFIG_BACKUP_DIR/" 2>/dev/null || true
 cp -r docker/ "$CONFIG_BACKUP_DIR/" 2>/dev/null || true
 cp Makefile "$CONFIG_BACKUP_DIR/" 2>/dev/null || true
 cp -r scripts/ "$CONFIG_BACKUP_DIR/" 2>/dev/null || true
@@ -431,7 +431,7 @@ case "$BACKUP_TYPE" in
         fi
         
         # Stop backend to prevent connections
-        docker-compose stop backend
+        docker compose stop backend
         
         # Restore database
         if docker exec -i solevaeg-postgres psql -U solevaeg_user -d solevaeg_prod < "$TEMP_FILE"; then
@@ -441,7 +441,7 @@ case "$BACKUP_TYPE" in
         fi
         
         # Start backend
-        docker-compose start backend
+        docker compose start backend
         
         # Clean up
         rm "$TEMP_FILE"
@@ -451,7 +451,7 @@ case "$BACKUP_TYPE" in
         log "Restoring uploads..."
         
         # Stop services that might be using uploads
-        docker-compose stop backend frontend
+        docker compose stop backend frontend
         
         # Backup current uploads
         CURRENT_BACKUP="/tmp/current_uploads_$(date +%s).tar.gz"
@@ -474,7 +474,7 @@ case "$BACKUP_TYPE" in
         chown -R $USER:$USER "/opt/$PROJECT_NAME/data/uploads"
         
         # Start services
-        docker-compose start backend frontend
+        docker compose start backend frontend
         ;;
         
     "config")

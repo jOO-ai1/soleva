@@ -1,37 +1,28 @@
-# Multi-stage Dockerfile for React Admin Panel
+# Optimized Multi-stage Dockerfile for React Admin Panel
 
 FROM node:20-alpine AS base
 WORKDIR /app
 
-# Configure npm for better reliability with multiple strategies
-RUN npm config set fetch-retry-mintimeout 30000 && \
-    npm config set fetch-retry-maxtimeout 300000 && \
-    npm config set fetch-retries 10 && \
-    npm config set fetch-retry-factor 1.5 && \
-    npm config set fetch-timeout 300000 && \
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+# Configure npm for faster, more reliable installs
+RUN npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 3 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-timeout 60000 && \
     npm config set registry https://registry.npmjs.org/ && \
-    npm config set prefer-online true
+    npm config set prefer-online true && \
+    npm config set audit false && \
+    npm config set fund false
 
 # Install dependencies
 FROM base AS deps
 COPY package*.json ./
-RUN for strategy in "npm ci" "npm install --no-optional" "npm install --legacy-peer-deps"; do \
-        echo "Trying strategy: $strategy"; \
-        for i in 1 2 3; do \
-            echo "Attempt $i for strategy: $strategy"; \
-            if timeout 600 $strategy; then \
-                echo "Strategy $strategy succeeded on attempt $i"; \
-                break 2; \
-            else \
-                echo "Strategy $strategy attempt $i failed, retrying..."; \
-                sleep 15; \
-            fi; \
-        done; \
-        echo "Strategy $strategy failed all attempts, trying next..."; \
-        sleep 10; \
-    done || (echo "All npm strategies failed, trying with alternative registry..." && \
-             npm config set registry https://registry.npmmirror.com/ && \
-             npm install --no-optional)
+RUN npm ci --no-audit --no-fund || \
+    (echo "npm ci failed, trying npm install..." && \
+     npm install --no-audit --no-fund --no-optional)
 
 # Development stage
 FROM base AS development
@@ -42,24 +33,18 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # Build stage
 FROM base AS build
-COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund || \
+    (echo "npm ci failed, trying npm install..." && \
+     npm install --no-audit --no-fund --no-optional)
 COPY . .
 RUN npm run build
 
 # Production stage
 FROM nginx:alpine AS production
 
-# Install curl for health checks with retry logic and alternative repositories
-RUN for i in 1 2 3; do \
-        apk update --no-cache && \
-        apk add --no-cache curl && \
-        break || \
-        (echo "Attempt $i failed, retrying..." && sleep 5); \
-    done || \
-    (echo "Using alternative repository..." && \
-     sed -i 's/dl-cdn.alpinelinux.org/mirror.yandex.ru\/mirrors\/alpine/g' /etc/apk/repositories && \
-     apk update --no-cache && \
-     apk add --no-cache curl)
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Copy nginx config for SPA
 COPY docker/nginx/admin.conf /etc/nginx/conf.d/default.conf
