@@ -5,6 +5,9 @@
 
 set -e
 
+# Source Docker Compose utilities
+source "$(dirname "$0")/docker-compose-utils.sh"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,7 +41,12 @@ cd /root/soleva || {
 if ! docker ps | grep -q "solevaeg-frontend"; then
     print_error "Frontend container is not running!"
     print_status "Please start the frontend container first:"
-    print_status "docker compose up -d frontend"
+    compose_file=$(detect_docker_compose_file ".")
+    if [ -n "$compose_file" ]; then
+        print_status "$(get_docker_compose_cmd "$compose_file" ".") up -d frontend"
+    else
+        print_status "docker compose up -d frontend"
+    fi
     exit 1
 fi
 

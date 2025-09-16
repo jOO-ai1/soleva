@@ -5,6 +5,9 @@
 
 set -e
 
+# Source Docker Compose utilities
+source "$(dirname "$0")/docker-compose-utils.sh"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -134,7 +137,6 @@ main() {
     # Check for required files
     local required_files=(
         "package.json"
-        "docker compose.yml"
         "vite.config.ts"
         "backend/package.json"
         "admin/package.json"
@@ -147,14 +149,36 @@ main() {
         fi
     done
     
+    # Validate Docker Compose files
+    print_step "Validating Docker Compose files..."
+    if ! validate_docker_compose_files "$PROJECT_ROOT"; then
+        handle_error "Docker Compose file validation failed"
+        exit 1
+    fi
+    
+    # Detect Docker Compose files
+    local compose_file
+    compose_file=$(detect_docker_compose_file "$PROJECT_ROOT")
+    print_success "Using Docker Compose file: $compose_file"
+    
+    # Detect production Docker Compose file
+    local prod_compose_file
+    if prod_compose_file=$(detect_docker_compose_prod_file "$PROJECT_ROOT"); then
+        print_success "Using production Docker Compose file: $prod_compose_file"
+    else
+        print_warning "No production Docker Compose file found"
+    fi
+    
     print_success "Pre-deployment checks passed"
     
     # Step 2: Stop existing services
     print_header "STEP 2: STOPPING EXISTING SERVICES"
     
     print_step "Stopping existing containers..."
-    docker compose down --remove-orphans 2>/dev/null || true
-    docker compose -f docker compose.prod.yml down --remove-orphans 2>/dev/null || true
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") down --remove-orphans 2>/dev/null || true
+    if [ -n "$prod_compose_file" ]; then
+        $(get_docker_compose_cmd "$prod_compose_file" "$PROJECT_ROOT") down --remove-orphans 2>/dev/null || true
+    fi
     
     # Step 3: Clean up old volumes and containers
     print_header "STEP 3: CLEANING UP OLD RESOURCES"
@@ -223,28 +247,28 @@ main() {
     print_header "STEP 6: BUILDING ALL SERVICES"
     
     print_step "Building frontend with --no-cache..."
-    docker compose build --no-cache frontend || {
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") build --no-cache frontend || {
         handle_error "Frontend build failed"
         exit 1
     }
     print_success "Frontend built successfully"
     
     print_step "Building backend with --no-cache..."
-    docker compose build --no-cache backend || {
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") build --no-cache backend || {
         handle_error "Backend build failed"
         exit 1
     }
     print_success "Backend built successfully"
     
     print_step "Building admin with --no-cache..."
-    docker compose build --no-cache admin || {
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") build --no-cache admin || {
         handle_error "Admin build failed"
         exit 1
     }
     print_success "Admin built successfully"
     
     print_step "Building nginx..."
-    docker compose build --no-cache nginx || {
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") build --no-cache nginx || {
         handle_error "Nginx build failed"
         exit 1
     }
@@ -254,39 +278,39 @@ main() {
     print_header "STEP 7: STARTING DATABASE SERVICES"
     
     print_step "Starting PostgreSQL..."
-    docker compose up -d postgres
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d postgres
     wait_for_service "PostgreSQL" "docker exec solevaeg-postgres pg_isready -U solevaeg -d solevaeg_db"
     
     print_step "Starting Redis..."
-    docker compose up -d redis
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d redis
     wait_for_service "Redis" "docker exec solevaeg-redis redis-cli ping"
     
     # Step 8: Start backend
     print_header "STEP 8: STARTING BACKEND"
     
     print_step "Starting backend service..."
-    docker compose up -d backend
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d backend
     wait_for_service "Backend" "curl -f http://localhost:3001/health"
     
     # Step 9: Start frontend (without volume mount)
     print_header "STEP 9: STARTING FRONTEND"
     
     print_step "Starting frontend service..."
-    docker compose up -d frontend
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d frontend
     wait_for_service "Frontend" "curl -f http://localhost:80"
     
     # Step 10: Start admin
     print_header "STEP 10: STARTING ADMIN"
     
     print_step "Starting admin service..."
-    docker compose up -d admin
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d admin
     wait_for_service "Admin" "curl -f http://localhost:3002"
     
     # Step 11: Start nginx
     print_header "STEP 11: STARTING NGINX"
     
     print_step "Starting nginx reverse proxy..."
-    docker compose up -d nginx
+    $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d nginx
     wait_for_service "Nginx" "curl -f http://localhost/health"
     
     # Step 12: Verify asset consistency
@@ -370,7 +394,7 @@ main() {
         
         echo ""
         print_status "Container Status:"
-        docker compose ps
+        $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") ps
         
         echo ""
         print_success "The website should now be fully functional with no white screen or broken assets!"
