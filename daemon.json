@@ -11,6 +11,8 @@
   "ip-forward": true,
   "ip-masq": true,
   "bridge": "docker0",
+  "userland-proxy": false,
+  "experimental": false,
   "default-address-pools": [
     {
       "base": "172.17.0.0/12",
