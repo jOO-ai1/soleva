@@ -46,6 +46,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: ${NODE_ENV:-production}
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     container_name: solevaeg-backend
     restart: unless-stopped
     env_file:
@@ -79,6 +81,8 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
       target: ${NODE_ENV:-production}
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     container_name: solevaeg-frontend
     restart: unless-stopped
     env_file:
@@ -101,6 +105,8 @@ services:
       context: ./admin
       dockerfile: Dockerfile
       target: ${NODE_ENV:-production}
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     container_name: solevaeg-admin
     restart: unless-stopped
     env_file:
@@ -183,3 +189,6 @@ networks:
       com.docker.network.bridge.enable_icc: "true"
       com.docker.network.bridge.enable_ip_masquerade: "true"
       com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
