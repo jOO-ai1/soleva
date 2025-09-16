@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for React Admin Panel
 
-FROM node:18-alpine3.18 AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 
 # Configure npm for better reliability with multiple strategies

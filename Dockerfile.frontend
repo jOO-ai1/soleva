@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for React frontend
 
-# Base stage with Node.js
-FROM node:18-alpine3.18 AS base
+# Base stage with Node.js 20 LTS (fixes react-router-dom@7.7.0 compatibility)
+FROM node:20-alpine AS base
 WORKDIR /app
 
 # Configure npm for better reliability with multiple strategies
