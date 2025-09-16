@@ -52,7 +52,40 @@ EXPOSE 3001
 CMD ["npm", "run", "dev"]
 
 # Build stage
-FROM base AS build
+FROM node:20-alpine3.19 AS build
+WORKDIR /app
+
+# Update Alpine repositories and install build dependencies with robust retry logic
+RUN set -e && \
+    # Try primary repositories first
+    apk update --no-cache && \
+    apk add --no-cache --virtual .build-deps python3 make g++ curl || \
+    (echo "Primary apk add failed, trying alternative mirrors..." && \
+     # Try multiple Alpine mirrors with retries
+     for mirror in "https://dl-cdn.alpinelinux.org/alpine/v3.19" "https://mirror.yandex.ru/mirrors/alpine/v3.19" "https://mirrors.aliyun.com/alpine/v3.19" "https://mirror.leaseweb.com/alpine/v3.19"; do \
+       echo "Trying mirror: $mirror" && \
+       echo "$mirror/main" > /etc/apk/repositories && \
+       echo "$mirror/community" >> /etc/apk/repositories && \
+       if apk update --no-cache && apk add --no-cache --virtual .build-deps python3 make g++ curl; then \
+         echo "Successfully installed packages from $mirror" && \
+         break; \
+       else \
+         echo "Failed to install from $mirror, trying next mirror..." && \
+         sleep 2; \
+       fi; \
+     done)
+
+# Configure npm for faster, more reliable installs
+RUN npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 3 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-timeout 60000 && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set prefer-online true && \
+    npm config set audit false && \
+    npm config set fund false
+
 ENV NODE_ENV=production
 COPY package*.json ./
 # Install all dependencies including devDependencies for build tools like TypeScript
