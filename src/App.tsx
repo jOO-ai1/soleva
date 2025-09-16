@@ -6,6 +6,7 @@ import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import RoutesWrapper from "./components/RoutesWrapper";
+import ErrorBoundary from './components/ErrorBoundary';
 import { setDocumentTitle } from './utils/documentTitle';
 
 export default function App() {
@@ -15,18 +16,20 @@ export default function App() {
   }, []);
 
   return (
-    <LangProvider>
-      <ThemeProvider>
-        <FavoritesProvider>
-          <AuthProvider>
-            <CartProvider>
-              <ToastProvider>
-                <RoutesWrapper />
-              </ToastProvider>
-            </CartProvider>
-          </AuthProvider>
-        </FavoritesProvider>
-      </ThemeProvider>
-    </LangProvider>
+    <ErrorBoundary>
+      <LangProvider>
+        <ThemeProvider>
+          <FavoritesProvider>
+            <AuthProvider>
+              <CartProvider>
+                <ToastProvider>
+                  <RoutesWrapper />
+                </ToastProvider>
+              </CartProvider>
+            </AuthProvider>
+          </FavoritesProvider>
+        </ThemeProvider>
+      </LangProvider>
+    </ErrorBoundary>
   );
 }

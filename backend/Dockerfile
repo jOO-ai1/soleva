@@ -166,6 +166,7 @@ COPY --from=build --chown=backend:nodejs /app/dist ./dist
 COPY --from=base --chown=backend:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=backend:nodejs /app/package.json ./package.json
 COPY --from=build --chown=backend:nodejs /app/prisma ./prisma
+COPY --from=build --chown=backend:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --chown=backend:nodejs start.sh ./start.sh
 
 # Switch to non-root user
