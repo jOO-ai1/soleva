@@ -169,24 +169,7 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
 
 # Install dependencies with enhanced retry logic
 COPY package*.json ./
-RUN for i in {1..3}; do \
-      echo "npm install attempt $i/3"; \
-      if npm ci --omit=dev --no-audit --no-fund; then \
-        echo "npm install successful"; \
-        break; \
-      elif [ $i -lt 3 ]; then \
-        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
-        sleep $((i * 10)); \
-      else \
-        echo "npm ci failed, trying npm install..."; \
-        npm install --omit=dev --no-audit --no-fund --no-optional; \
-      fi; \
-    done
-
-# Development stage
-FROM base AS development
-ENV NODE_ENV=development
-RUN for i in {1..3}; do \
+RUN i=1; while [ $i -le 3 ]; do \
       echo "npm install attempt $i/3"; \
       if npm ci --no-audit --no-fund; then \
         echo "npm install successful"; \
@@ -198,6 +181,25 @@ RUN for i in {1..3}; do \
         echo "npm ci failed, trying npm install..."; \
         npm install --no-audit --no-fund --no-optional; \
       fi; \
+      i=$((i + 1)); \
+    done
+
+# Development stage
+FROM base AS development
+ENV NODE_ENV=development
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "npm install attempt $i/3"; \
+      if npm ci --no-audit --no-fund; then \
+        echo "npm install successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "npm ci failed, trying npm install..."; \
+        npm install --no-audit --no-fund --no-optional; \
+      fi; \
+      i=$((i + 1)); \
     done
 COPY . .
 EXPOSE 3001
@@ -207,7 +209,8 @@ CMD ["npm", "run", "dev"]
 FROM base AS build
 ENV NODE_ENV=production
 COPY package*.json ./
-RUN for i in {1..3}; do \
+# Install ALL dependencies (including devDependencies) for build
+RUN i=1; while [ $i -le 3 ]; do \
       echo "npm install attempt $i/3"; \
       if npm ci --no-audit --no-fund; then \
         echo "npm install successful"; \
@@ -219,6 +222,7 @@ RUN for i in {1..3}; do \
         echo "npm ci failed, trying npm install..."; \
         npm install --no-audit --no-fund --no-optional; \
       fi; \
+      i=$((i + 1)); \
     done
 COPY . .
 RUN npm run build
@@ -228,7 +232,7 @@ FROM node:20-slim AS production
 
 # Install curl with retry logic (DNS is handled by Docker daemon)
 
-RUN for i in {1..5}; do \
+RUN i=1; while [ $i -le 5 ]; do \
       echo "Package installation attempt $i/5"; \
       if apt-get update && apt-get install -y --no-install-recommends curl; then \
         echo "Package installation successful"; \
@@ -240,6 +244,7 @@ RUN for i in {1..5}; do \
         echo "All package installation attempts failed"; \
         exit 1; \
       fi; \
+      i=$((i + 1)); \
     done && \
     rm -rf /var/lib/apt/lists/*
 
@@ -251,10 +256,25 @@ WORKDIR /app
 
 # Copy built application
 COPY --from=build --chown=backend:nodejs /app/dist ./dist
-COPY --from=build --chown=backend:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=backend:nodejs /app/package.json ./package.json
 COPY --from=build --chown=backend:nodejs /app/prisma ./prisma
 COPY --chown=backend:nodejs start.sh ./start.sh
+
+# Install only production dependencies
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "npm install attempt $i/3"; \
+      if npm ci --omit=dev --no-audit --no-fund; then \
+        echo "npm install successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "npm ci failed, trying npm install..."; \
+        npm install --omit=dev --no-audit --no-fund --no-optional; \
+      fi; \
+      i=$((i + 1)); \
+    done
 
 # Create necessary directories
 RUN mkdir -p uploads logs && chown -R backend:nodejs uploads logs
@@ -294,7 +314,7 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
 
 # Install dependencies with enhanced retry logic
 COPY package*.json ./
-RUN for i in {1..3}; do \
+RUN i=1; while [ $i -le 3 ]; do \
       echo "npm install attempt $i/3"; \
       if npm ci --no-audit --no-fund; then \
         echo "npm install successful"; \
@@ -306,12 +326,13 @@ RUN for i in {1..3}; do \
         echo "npm ci failed, trying npm install..."; \
         npm install --no-audit --no-fund --no-optional; \
       fi; \
+      i=$((i + 1)); \
     done
 
 # Development stage
 FROM base AS development
 ENV NODE_ENV=development
-RUN for i in {1..3}; do \
+RUN i=1; while [ $i -le 3 ]; do \
       echo "npm install attempt $i/3"; \
       if npm ci --no-audit --no-fund; then \
         echo "npm install successful"; \
@@ -323,6 +344,7 @@ RUN for i in {1..3}; do \
         echo "npm ci failed, trying npm install..."; \
         npm install --no-audit --no-fund --no-optional; \
       fi; \
+      i=$((i + 1)); \
     done
 COPY . .
 EXPOSE 5173
@@ -339,7 +361,7 @@ FROM nginx:stable AS production
 
 # Install curl with retry logic (DNS is handled by Docker daemon)
 
-RUN for i in {1..5}; do \
+RUN i=1; while [ $i -le 5 ]; do \
       echo "Package installation attempt $i/5"; \
       if apt-get update && apt-get install -y --no-install-recommends curl; then \
         echo "Package installation successful"; \
@@ -351,6 +373,7 @@ RUN for i in {1..5}; do \
         echo "All package installation attempts failed"; \
         exit 1; \
       fi; \
+      i=$((i + 1)); \
     done && \
     rm -rf /var/lib/apt/lists/*
 
@@ -429,7 +452,7 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
 # Install dependencies
 FROM base AS deps
 COPY package*.json ./
-RUN for i in {1..3}; do \
+RUN i=1; while [ $i -le 3 ]; do \
       echo "npm install attempt $i/3"; \
       if npm ci --no-audit --no-fund; then \
         echo "npm install successful"; \
@@ -441,6 +464,7 @@ RUN for i in {1..3}; do \
         echo "npm ci failed, trying npm install..."; \
         npm install --no-audit --no-fund --no-optional; \
       fi; \
+      i=$((i + 1)); \
     done
 
 # Development stage
@@ -453,7 +477,8 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 # Build stage
 FROM base AS build
 COPY package*.json ./
-RUN for i in {1..3}; do \
+# Install ALL dependencies (including devDependencies) for build
+RUN i=1; while [ $i -le 3 ]; do \
       echo "npm install attempt $i/3"; \
       if npm ci --no-audit --no-fund; then \
         echo "npm install successful"; \
@@ -465,6 +490,7 @@ RUN for i in {1..3}; do \
         echo "npm ci failed, trying npm install..."; \
         npm install --no-audit --no-fund --no-optional; \
       fi; \
+      i=$((i + 1)); \
     done
 COPY . .
 RUN npm run build
@@ -474,7 +500,7 @@ FROM nginx:stable AS production
 
 # Install curl with retry logic (DNS is handled by Docker daemon)
 
-RUN for i in {1..5}; do \
+RUN i=1; while [ $i -le 5 ]; do \
       echo "Package installation attempt $i/5"; \
       if apt-get update && apt-get install -y --no-install-recommends curl; then \
         echo "Package installation successful"; \
@@ -486,6 +512,7 @@ RUN for i in {1..5}; do \
         echo "All package installation attempts failed"; \
         exit 1; \
       fi; \
+      i=$((i + 1)); \
     done && \
     rm -rf /var/lib/apt/lists/*
 

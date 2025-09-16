@@ -1,0 +1,168 @@
+# Network-resilient Debian-based Dockerfile for Node.js backend
+# Handles DNS resolution issues and package repository connectivity problems
+
+# Base stage with Node.js 20 - using Debian for better package availability
+FROM node:20-slim AS base
+WORKDIR /app
+
+# Configure package mirrors for better connectivity (DNS is handled by Docker daemon)
+
+# Create a robust package installation script
+RUN echo '#!/bin/bash' > /usr/local/bin/install-packages && \
+    echo 'set -e' >> /usr/local/bin/install-packages && \
+    echo 'MAX_ATTEMPTS=5' >> /usr/local/bin/install-packages && \
+    echo 'ATTEMPT=1' >> /usr/local/bin/install-packages && \
+    echo 'while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do' >> /usr/local/bin/install-packages && \
+    echo '  echo "Package installation attempt $ATTEMPT/$MAX_ATTEMPTS"' >> /usr/local/bin/install-packages && \
+    echo '  if apt-get update && apt-get install -y --no-install-recommends "$@"; then' >> /usr/local/bin/install-packages && \
+    echo '    echo "Package installation successful"' >> /usr/local/bin/install-packages && \
+    echo '    break' >> /usr/local/bin/install-packages && \
+    echo '  else' >> /usr/local/bin/install-packages && \
+    echo '    echo "Package installation failed, attempt $ATTEMPT"' >> /usr/local/bin/install-packages && \
+    echo '    if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then' >> /usr/local/bin/install-packages && \
+    echo '      sleep $((ATTEMPT * 10))' >> /usr/local/bin/install-packages && \
+    echo '    fi' >> /usr/local/bin/install-packages && \
+    echo '  fi' >> /usr/local/bin/install-packages && \
+    echo '  ATTEMPT=$((ATTEMPT + 1))' >> /usr/local/bin/install-packages && \
+    echo 'done' >> /usr/local/bin/install-packages && \
+    echo 'if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then' >> /usr/local/bin/install-packages && \
+    echo '  echo "All package installation attempts failed"' >> /usr/local/bin/install-packages && \
+    echo '  exit 1' >> /usr/local/bin/install-packages && \
+    echo 'fi' >> /usr/local/bin/install-packages && \
+    chmod +x /usr/local/bin/install-packages
+
+# Install build dependencies with retry logic
+RUN /usr/local/bin/install-packages python3 make g++ curl
+
+# Configure npm for faster, more reliable installs with multiple registries
+RUN npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-timeout 60000 && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set prefer-online true && \
+    npm config set audit false && \
+    npm config set fund false
+
+# Install dependencies with enhanced retry logic
+COPY package*.json ./
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "npm install attempt $i/3"; \
+      if npm ci --no-audit --no-fund; then \
+        echo "npm install successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "npm ci failed, trying npm install..."; \
+        npm install --no-audit --no-fund --no-optional; \
+      fi; \
+      i=$((i + 1)); \
+    done
+
+# Development stage
+FROM base AS development
+ENV NODE_ENV=development
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "npm install attempt $i/3"; \
+      if npm ci --no-audit --no-fund; then \
+        echo "npm install successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "npm ci failed, trying npm install..."; \
+        npm install --no-audit --no-fund --no-optional; \
+      fi; \
+      i=$((i + 1)); \
+    done
+COPY . .
+EXPOSE 3001
+CMD ["npm", "run", "dev"]
+
+# Build stage
+FROM base AS build
+ENV NODE_ENV=production
+COPY package*.json ./
+# Install ALL dependencies (including devDependencies) for build
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "npm install attempt $i/3"; \
+      if npm ci --no-audit --no-fund; then \
+        echo "npm install successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "npm ci failed, trying npm install..."; \
+        npm install --no-audit --no-fund --no-optional; \
+      fi; \
+      i=$((i + 1)); \
+    done
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM node:20-slim AS production
+
+# Install curl with retry logic (DNS is handled by Docker daemon)
+
+RUN i=1; while [ $i -le 5 ]; do \
+      echo "Package installation attempt $i/5"; \
+      if apt-get update && apt-get install -y --no-install-recommends curl; then \
+        echo "Package installation successful"; \
+        break; \
+      elif [ $i -lt 5 ]; then \
+        echo "Package installation failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "All package installation attempts failed"; \
+        exit 1; \
+      fi; \
+      i=$((i + 1)); \
+    done && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -g 1001 nodejs && \
+    useradd -r -u 1001 -g nodejs backend
+
+WORKDIR /app
+
+# Copy built application
+COPY --from=build --chown=backend:nodejs /app/dist ./dist
+COPY --from=build --chown=backend:nodejs /app/package.json ./package.json
+COPY --from=build --chown=backend:nodejs /app/prisma ./prisma
+COPY --chown=backend:nodejs start.sh ./start.sh
+
+# Install only production dependencies
+RUN i=1; while [ $i -le 3 ]; do \
+      echo "npm install attempt $i/3"; \
+      if npm ci --omit=dev --no-audit --no-fund; then \
+        echo "npm install successful"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "npm install failed, retrying in $((i * 10)) seconds..."; \
+        sleep $((i * 10)); \
+      else \
+        echo "npm ci failed, trying npm install..."; \
+        npm install --omit=dev --no-audit --no-fund --no-optional; \
+      fi; \
+      i=$((i + 1)); \
+    done
+
+# Create necessary directories
+RUN mkdir -p uploads logs && chown -R backend:nodejs uploads logs
+
+USER backend
+
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+CMD ["./start.sh"]
