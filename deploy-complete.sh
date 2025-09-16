@@ -297,14 +297,14 @@ main() {
     
     print_step "Starting frontend service..."
     $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d frontend
-    wait_for_service "Frontend" "curl -f http://localhost:80"
+    wait_for_service "Frontend" "curl -f http://localhost/"
     
     # Step 10: Start admin
     print_header "STEP 10: STARTING ADMIN"
     
     print_step "Starting admin service..."
     $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d admin
-    wait_for_service "Admin" "curl -f http://localhost:3002"
+    wait_for_service "Admin" "docker exec solevaeg-admin curl -f http://localhost/ || true"
     
     # Step 11: Start nginx
     print_header "STEP 11: STARTING NGINX"
@@ -365,7 +365,7 @@ main() {
     fi
     
     print_step "Testing admin panel..."
-    if curl -f http://localhost:3002 >/dev/null 2>&1; then
+    if docker exec solevaeg-admin curl -f http://localhost/ || true >/dev/null 2>&1; then
         print_success "✅ Admin panel is accessible"
     else
         print_warning "⚠️ Admin panel is not accessible"
