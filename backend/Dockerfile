@@ -4,11 +4,7 @@
 FROM node:20-alpine3.19 AS base
 WORKDIR /app
 
-# Configure DNS for reliable network access during build
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# DNS configuration is handled by docker-compose.yml
 
 # Update Alpine repositories and install build dependencies with robust retry logic
 RUN set -e && \
@@ -63,11 +59,7 @@ CMD ["npm", "run", "dev"]
 FROM node:20-alpine3.19 AS build
 WORKDIR /app
 
-# Configure DNS for reliable network access during build
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# DNS configuration is handled by docker-compose.yml
 
 # Update Alpine repositories and install build dependencies with robust retry logic
 RUN set -e && \
