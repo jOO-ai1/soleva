@@ -55,6 +55,7 @@ CMD ["npm", "run", "dev"]
 FROM base AS build
 ENV NODE_ENV=production
 COPY package*.json ./
+# Install all dependencies including devDependencies for build tools like TypeScript
 RUN npm ci --no-audit --no-fund || \
     (echo "npm ci failed, trying npm install..." && \
      npm install --no-audit --no-fund --no-optional)
