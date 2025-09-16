@@ -157,7 +157,9 @@ RUN set -e && \
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && adduser -S backend -u 1001
-USER backend
+
+# Create directories as root and set proper ownership
+RUN mkdir -p /app/uploads /app/logs && chown -R backend:nodejs /app/uploads /app/logs
 
 # Copy built files
 COPY --from=build --chown=backend:nodejs /app/dist ./dist
@@ -166,8 +168,8 @@ COPY --from=build --chown=backend:nodejs /app/package.json ./package.json
 COPY --from=build --chown=backend:nodejs /app/prisma ./prisma
 COPY --chown=backend:nodejs start.sh ./start.sh
 
-# Create directories
-RUN mkdir -p uploads logs && chown -R backend:nodejs uploads logs
+# Switch to non-root user
+USER backend
 
 EXPOSE 3001
 
