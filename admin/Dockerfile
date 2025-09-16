@@ -35,7 +35,7 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set prefer-online true && \
     npm config set audit false && \
     npm config set fund false && \
-    npm config set maxsockets 15 && \
+    npm config set maxsockets 15
 
 # Install dependencies
 FROM base AS deps
