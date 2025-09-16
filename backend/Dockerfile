@@ -38,16 +38,19 @@ RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set fund false && \
     npm config set maxsockets 15
 
-# Install dependencies
+# Install production dependencies only
 COPY package*.json ./
 RUN npm ci --omit=dev --no-audit --no-fund || npm install --omit=dev --no-audit --no-fund --no-optional
 
-# Build stage
+# Build stage - install all dependencies including devDependencies for build tools
 FROM base AS build
-COPY --from=base /app/node_modules ./node_modules
+COPY package*.json ./
+# Install all dependencies including devDependencies for TypeScript compilation
+RUN npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund --no-optional
 COPY . .
 ENV NODE_ENV=production
-RUN npm run build
+# Verify TypeScript is available and run build
+RUN npx tsc --version && npm run build
 
 # Production stage
 FROM node:20-alpine3.19 AS production
@@ -81,7 +84,7 @@ USER backend
 
 # Copy built files
 COPY --from=build --chown=backend:nodejs /app/dist ./dist
-COPY --from=build --chown=backend:nodejs /app/node_modules ./node_modules
+COPY --from=base --chown=backend:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=backend:nodejs /app/package.json ./package.json
 COPY --from=build --chown=backend:nodejs /app/prisma ./prisma
 COPY --chown=backend:nodejs start.sh ./start.sh
