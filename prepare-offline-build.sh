@@ -17,7 +17,7 @@ download_dependencies() {
     if [ -f "$context/package.json" ]; then
         cd "$context"
         
-        # Create a temporary container to download dependencies
+        # Create a temporary container to download dependencies and generate Prisma client
         docker run --rm \
             --network=host \
             -v "$(pwd):/app" \
@@ -34,7 +34,8 @@ download_dependencies() {
                 npm config set audit false && \
                 npm config set fund false && \
                 npm config set maxsockets 15 && \
-                npm ci --include=dev --no-audit --no-fund
+                npm ci --include=dev --no-audit --no-fund && \
+                (if [ -f prisma/schema.prisma ]; then npx prisma generate; fi)
             "
         
         cd - > /dev/null

@@ -97,6 +97,22 @@ RUN set -e && \
     done
 COPY . .
 ENV NODE_ENV=production
+# Generate Prisma client before building with retry logic
+RUN echo "Generating Prisma client..." && \
+    i=1; while [ $i -le 3 ]; do \
+      echo "Prisma generation attempt $i/3"; \
+      if npx prisma generate; then \
+        echo "Prisma client generated successfully"; \
+        break; \
+      elif [ $i -lt 3 ]; then \
+        echo "Prisma generation failed, retrying in 5 seconds..."; \
+        sleep 5; \
+      else \
+        echo "Prisma generation failed after 3 attempts"; \
+        exit 1; \
+      fi; \
+      i=$((i + 1)); \
+    done
 # Verify TypeScript is available and run build with retry logic
 RUN i=1; while [ $i -le 3 ]; do \
       echo "Build attempt $i/3"; \

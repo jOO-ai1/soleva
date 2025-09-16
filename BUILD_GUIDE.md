@@ -102,6 +102,18 @@ docker-compose build --no-cache
 ./build-with-dns.sh
 ```
 
+### Prisma Client Issues
+```bash
+# Generate Prisma client locally (for testing)
+cd backend && npx prisma generate
+
+# Check Prisma schema
+cat backend/prisma/schema.prisma
+
+# Verify generated client
+ls -la backend/node_modules/@prisma/client/
+```
+
 ## 📁 File Structure
 
 ```
@@ -125,7 +137,7 @@ docker-compose build --no-cache
 
 ### Backend Build
 1. **Base Stage**: Installs production dependencies
-2. **Build Stage**: Installs all dependencies + TypeScript compilation
+2. **Build Stage**: Installs all dependencies + Prisma client generation + TypeScript compilation
 3. **Production Stage**: Runs Node.js application
 
 ### Admin Build
