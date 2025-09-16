@@ -127,11 +127,7 @@ create_network_resilient_dockerfiles() {
 FROM node:20-slim AS base
 WORKDIR /app
 
-# Configure multiple DNS servers and package mirrors for better connectivity
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Configure package mirrors for better connectivity (DNS is handled by Docker daemon)
 
 # Create a robust package installation script
 RUN echo '#!/bin/bash' > /usr/local/bin/install-packages && \
@@ -230,11 +226,7 @@ RUN npm run build
 # Production stage
 FROM node:20-slim AS production
 
-# Configure DNS and install curl with retry logic
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Install curl with retry logic (DNS is handled by Docker daemon)
 
 RUN for i in {1..5}; do \
       echo "Package installation attempt $i/5"; \
@@ -287,11 +279,7 @@ EOF
 FROM node:20-slim AS base
 WORKDIR /app
 
-# Configure multiple DNS servers for better connectivity
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Configure package mirrors for better connectivity (DNS is handled by Docker daemon)
 
 # Configure npm for faster, more reliable installs with multiple registries
 RUN npm config set fetch-retry-mintimeout 10000 && \
@@ -349,11 +337,7 @@ RUN npm run build
 # Production stage with Nginx
 FROM nginx:stable AS production
 
-# Configure DNS and install curl with retry logic
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Install curl with retry logic (DNS is handled by Docker daemon)
 
 RUN for i in {1..5}; do \
       echo "Package installation attempt $i/5"; \
@@ -402,11 +386,7 @@ EOF
 FROM node:20-slim AS base
 WORKDIR /app
 
-# Configure multiple DNS servers for better connectivity
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Configure package mirrors for better connectivity (DNS is handled by Docker daemon)
 
 # Create a robust package installation script
 RUN echo '#!/bin/bash' > /usr/local/bin/install-packages && \
@@ -492,11 +472,7 @@ RUN npm run build
 # Production stage
 FROM nginx:stable AS production
 
-# Configure DNS and install curl with retry logic
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+# Install curl with retry logic (DNS is handled by Docker daemon)
 
 RUN for i in {1..5}; do \
       echo "Package installation attempt $i/5"; \
@@ -743,6 +719,56 @@ EOF
     log_success "Network-resilient docker-compose configuration created"
 }
 
+# Configure Docker daemon DNS settings
+configure_docker_dns() {
+    log_info "🔧 Configuring Docker daemon DNS settings..."
+    
+    # Check if user has sudo access
+    if ! sudo -n true 2>/dev/null; then
+        log_warning "No sudo access available, skipping Docker daemon DNS configuration"
+        log_info "DNS will be configured at the container level instead"
+        return 0
+    fi
+    
+    # Create or update Docker daemon configuration
+    local docker_config_dir="/etc/docker"
+    local docker_config_file="$docker_config_dir/daemon.json"
+    
+    # Create backup if config exists
+    if [ -f "$docker_config_file" ]; then
+        sudo cp "$docker_config_file" "$docker_config_file.backup.$(date +%Y%m%d_%H%M%S)"
+        log_info "Backed up existing Docker daemon configuration"
+    fi
+    
+    # Create Docker config directory if it doesn't exist
+    sudo mkdir -p "$docker_config_dir"
+    
+    # Create new daemon configuration with DNS settings
+    sudo tee "$docker_config_file" > /dev/null << 'EOF'
+{
+  "dns": ["8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1"],
+  "dns-opts": ["ndots:2", "edns0"],
+  "dns-search": [],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
+    
+    log_success "Docker daemon DNS configuration updated"
+    log_info "Restarting Docker daemon to apply DNS settings..."
+    
+    # Restart Docker daemon
+    if command -v systemctl >/dev/null 2>&1; then
+        sudo systemctl restart docker
+        log_success "Docker daemon restarted"
+    else
+        log_warning "systemctl not available, please restart Docker manually"
+    fi
+}
+
 # Enhanced build function with network resilience
 build_with_network_resilience() {
     log_info "🔨 Building Docker images with network resilience..."
@@ -764,7 +790,7 @@ build_with_network_resilience() {
             log_info "Using legacy Docker builder (buildx not available)"
         fi
         
-        # Build with network resilience
+        # Build with network resilience and DNS configuration
         if $COMPOSE_CMD -f "$SCRIPT_DIR/docker-compose.network-resilient.yml" build \
             --no-cache \
             --parallel \
@@ -801,17 +827,20 @@ main() {
         log_warning "DNS resolution issues detected, but proceeding with resilience measures"
     fi
     
-    # 3. Create network-resilient configurations
+    # 3. Configure Docker daemon DNS settings
+    configure_docker_dns
+    
+    # 4. Create network-resilient configurations
     create_network_resilient_dockerfiles
     create_network_resilient_compose
     
-    # 4. Build with network resilience
+    # 5. Build with network resilience
     if ! build_with_network_resilience; then
         log_error "Failed to build images with network resilience"
         exit 1
     fi
     
-    # 5. Deploy using the network-resilient configuration
+    # 6. Deploy using the network-resilient configuration
     log_info "🚀 Starting deployment with network-resilient configuration..."
     
     # Start infrastructure services
