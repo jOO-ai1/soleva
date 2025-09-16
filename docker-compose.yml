@@ -48,6 +48,7 @@ services:
       target: ${NODE_ENV:-production}
       args:
         BUILDKIT_INLINE_CACHE: 1
+      network: host
     container_name: solevaeg-backend
     restart: unless-stopped
     env_file:
@@ -83,6 +84,7 @@ services:
       target: ${NODE_ENV:-production}
       args:
         BUILDKIT_INLINE_CACHE: 1
+      network: host
     container_name: solevaeg-frontend
     restart: unless-stopped
     env_file:
@@ -107,6 +109,7 @@ services:
       target: ${NODE_ENV:-production}
       args:
         BUILDKIT_INLINE_CACHE: 1
+      network: host
     container_name: solevaeg-admin
     restart: unless-stopped
     env_file:

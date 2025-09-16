@@ -5,22 +5,39 @@
 
 set -e
 
-echo "🚀 Starting Docker build with DNS configuration..."
+echo "🚀 Starting Docker build with enhanced network configuration..."
 
 # Set environment variables for build
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 
-# Function to build with DNS configuration
+# Function to build with enhanced network configuration
 build_with_dns() {
     local service=$1
-    echo "📦 Building $service with DNS configuration..."
+    echo "📦 Building $service with host network configuration..."
     
-    # Build with explicit DNS configuration
+    # Build with host network for better connectivity
     docker-compose build \
         --build-arg BUILDKIT_INLINE_CACHE=1 \
         --no-cache \
         $service
+}
+
+# Function to build individual service with host network
+build_service_direct() {
+    local service=$1
+    local context=$2
+    local dockerfile=$3
+    
+    echo "📦 Building $service directly with host network..."
+    
+    docker build \
+        --network=host \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --no-cache \
+        -f "$dockerfile" \
+        -t "solevaeg-$service" \
+        "$context"
 }
 
 # Function to test DNS resolution
@@ -52,17 +69,26 @@ main() {
     # Test DNS resolution first
     test_dns
     
-    # Build services in order
-    echo "🏗️  Building backend service..."
-    build_with_dns backend
+    # Try docker-compose build first
+    echo "🏗️  Attempting docker-compose build..."
+    if docker-compose build --no-cache; then
+        echo "✅ All services built successfully with docker-compose!"
+    else
+        echo "⚠️  docker-compose build failed, trying individual builds with host network..."
+        
+        # Fallback to individual builds with host network
+        echo "🏗️  Building backend service with host network..."
+        build_service_direct backend ./backend Dockerfile
+        
+        echo "🏗️  Building frontend service with host network..."
+        build_service_direct frontend . Dockerfile.frontend
+        
+        echo "🏗️  Building admin service with host network..."
+        build_service_direct admin ./admin Dockerfile
+        
+        echo "✅ All services built successfully with host network!"
+    fi
     
-    echo "🏗️  Building frontend service..."
-    build_with_dns frontend
-    
-    echo "🏗️  Building admin service..."
-    build_with_dns admin
-    
-    echo "✅ All services built successfully!"
     echo "🚀 You can now run: docker-compose up"
 }
 
