@@ -4,6 +4,12 @@
 FROM node:20-alpine3.19 AS base
 WORKDIR /app
 
+# Configure DNS for reliable network access during build
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
+    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+
 # Update Alpine repositories and install build dependencies with robust retry logic
 RUN set -e && \
     # Try primary repositories first
@@ -24,16 +30,18 @@ RUN set -e && \
        fi; \
      done)
 
-# Configure npm for faster, more reliable installs
+# Configure npm for faster, more reliable installs with enhanced network resilience
 RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set fetch-retry-maxtimeout 60000 && \
-    npm config set fetch-retries 3 && \
+    npm config set fetch-retries 5 && \
     npm config set fetch-retry-factor 2 && \
-    npm config set fetch-timeout 60000 && \
+    npm config set fetch-timeout 120000 && \
     npm config set registry https://registry.npmjs.org/ && \
     npm config set prefer-online true && \
     npm config set audit false && \
-    npm config set fund false
+    npm config set fund false && \
+    npm config set maxsockets 15 && \
+    npm config set network-timeout 300000
 
 # Install dependencies with simplified retry logic
 COPY package*.json ./
@@ -55,6 +63,12 @@ CMD ["npm", "run", "dev"]
 FROM node:20-alpine3.19 AS build
 WORKDIR /app
 
+# Configure DNS for reliable network access during build
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
+    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+
 # Update Alpine repositories and install build dependencies with robust retry logic
 RUN set -e && \
     # Try primary repositories first
@@ -75,16 +89,18 @@ RUN set -e && \
        fi; \
      done)
 
-# Configure npm for faster, more reliable installs
+# Configure npm for faster, more reliable installs with enhanced network resilience
 RUN npm config set fetch-retry-mintimeout 10000 && \
     npm config set fetch-retry-maxtimeout 60000 && \
-    npm config set fetch-retries 3 && \
+    npm config set fetch-retries 5 && \
     npm config set fetch-retry-factor 2 && \
-    npm config set fetch-timeout 60000 && \
+    npm config set fetch-timeout 120000 && \
     npm config set registry https://registry.npmjs.org/ && \
     npm config set prefer-online true && \
     npm config set audit false && \
-    npm config set fund false
+    npm config set fund false && \
+    npm config set maxsockets 15 && \
+    npm config set network-timeout 300000
 
 ENV NODE_ENV=production
 COPY package*.json ./
@@ -94,7 +110,7 @@ RUN npm ci --include=dev --no-audit --no-fund || \
      npm install --include=dev --no-audit --no-fund --no-optional)
 
 # Verify TypeScript is installed and accessible
-RUN npx tsc --version || (echo "TypeScript not found, installing globally..." && npm install -g typescript)
+RUN npx tsc --version
 
 COPY . .
 RUN npm run build
