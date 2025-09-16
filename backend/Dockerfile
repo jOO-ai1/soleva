@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Node.js backend
 
-# Base stage with Node.js
-FROM node:18-alpine3.18 AS base
+# Base stage with Node.js 20 LTS (fixes dependency compatibility issues)
+FROM node:20-alpine AS base
 WORKDIR /app
 
 # Configure npm for better reliability with multiple strategies
@@ -79,7 +79,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine3.18 AS production
+FROM node:20-alpine AS production
 
 # Install curl with retry logic and alternative repositories
 RUN for i in 1 2 3; do \
