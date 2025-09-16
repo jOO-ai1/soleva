@@ -66,14 +66,25 @@ get_docker_compose_cmd() {
     local file="${1:-}"
     local project_dir="${2:-.}"
     
+    # Determine which Docker Compose command to use
+    local compose_cmd
+    if docker compose version >/dev/null 2>&1; then
+        compose_cmd="docker compose"
+    elif docker-compose --version >/dev/null 2>&1; then
+        compose_cmd="docker-compose"
+    else
+        echo "docker compose"  # fallback
+        return 1
+    fi
+    
     if [ -n "$file" ]; then
-        echo "docker compose -f $file"
+        echo "$compose_cmd -f $file"
     else
         local detected_file
         if detected_file=$(detect_docker_compose_file "$project_dir"); then
-            echo "docker compose -f $detected_file"
+            echo "$compose_cmd -f $detected_file"
         else
-            echo "docker compose"
+            echo "$compose_cmd"
         fi
     fi
 }
@@ -82,11 +93,22 @@ get_docker_compose_cmd() {
 get_docker_compose_prod_cmd() {
     local project_dir="${1:-.}"
     
+    # Determine which Docker Compose command to use
+    local compose_cmd
+    if docker compose version >/dev/null 2>&1; then
+        compose_cmd="docker compose"
+    elif docker-compose --version >/dev/null 2>&1; then
+        compose_cmd="docker-compose"
+    else
+        echo "docker compose"  # fallback
+        return 1
+    fi
+    
     local detected_file
     if detected_file=$(detect_docker_compose_prod_file "$project_dir"); then
-        echo "docker compose -f $detected_file"
+        echo "$compose_cmd -f $detected_file"
     else
-        echo "docker compose"
+        echo "$compose_cmd"
     fi
 }
 

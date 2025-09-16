@@ -89,6 +89,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
     # Temporarily removed volume mount to allow fresh build files
     # volumes:
     #   - frontend_static:/usr/share/nginx/html:ro
@@ -96,6 +98,11 @@ services:
       - solevaeg-network
     depends_on:
       - backend
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     dns:
       - 8.8.8.8
       - 8.8.4.4

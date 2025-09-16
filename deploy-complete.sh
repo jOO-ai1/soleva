@@ -129,7 +129,7 @@ main() {
     fi
     
     # Check if Docker Compose is available
-    if ! docker compose version >/dev/null 2>&1; then
+    if ! docker compose version >/dev/null 2>&1 && ! docker-compose --version >/dev/null 2>&1; then
         handle_error "Docker Compose is not available"
         exit 1
     fi
@@ -297,7 +297,7 @@ main() {
     
     print_step "Starting frontend service..."
     $(get_docker_compose_cmd "$compose_file" "$PROJECT_ROOT") up -d frontend
-    wait_for_service "Frontend" "curl -f http://localhost/"
+    wait_for_service "Frontend" "curl -f http://localhost:3000/health"
     
     # Step 10: Start admin
     print_header "STEP 10: STARTING ADMIN"
