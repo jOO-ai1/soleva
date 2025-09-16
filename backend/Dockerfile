@@ -91,7 +91,11 @@ COPY package*.json ./
 # Install all dependencies including devDependencies for build tools like TypeScript
 RUN npm ci --include=dev --no-audit --no-fund || \
     (echo "npm ci failed, trying npm install..." && \
-     npm install --no-audit --no-fund --no-optional)
+     npm install --include=dev --no-audit --no-fund --no-optional)
+
+# Verify TypeScript is installed and accessible
+RUN npx tsc --version || (echo "TypeScript not found, installing globally..." && npm install -g typescript)
+
 COPY . .
 RUN npm run build
 
