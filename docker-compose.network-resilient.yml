@@ -1,23 +1,24 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:15
-    container_name: solevaeg-postgres-prod
+    image: postgres:15-alpine
+    container_name: solevaeg-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-solevaeg_db}
+      POSTGRES_USER: ${POSTGRES_USER:-solevaeg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - solevaeg-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-solevaeg} -d ${POSTGRES_DB:-solevaeg_db}"]
+      interval: 30s
+      timeout: 10s
       retries: 5
-      start_period: 30s
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -26,20 +27,23 @@ services:
 
   # Redis Cache
   redis:
-    image: redis:7
-    container_name: solevaeg-redis-prod
+    image: redis:7-alpine
+    container_name: solevaeg-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    command: redis-server --appendonly yes
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
     volumes:
       - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
     networks:
       - solevaeg-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
       retries: 5
-      start_period: 30s
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -50,17 +54,17 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.network-resilient
-      target: production
-      args:
-        BUILDKIT_INLINE_CACHE: 1
-    container_name: solevaeg-backend-prod
+      dockerfile: Dockerfile
+      target: ${NODE_ENV:-production}
+    container_name: solevaeg-backend
     restart: unless-stopped
     env_file:
       - .env.production
     volumes:
       - backend_uploads:/app/uploads
       - backend_logs:/app/logs
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
     networks:
       - solevaeg-network
     depends_on:
@@ -69,26 +73,25 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
     dns:
       - 8.8.8.8
       - 8.8.4.4
       - 1.1.1.1
       - 1.0.0.1
 
-  # Frontend (React) - Production Build
+  # Frontend (React) - Production Build with Network Resilience
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend.network-resilient
-      target: production
+      dockerfile: Dockerfile.frontend
+      target: ${NODE_ENV:-production}
       args:
-        BUILDKIT_INLINE_CACHE: 1
-    container_name: solevaeg-frontend-prod
+        - BUILDKIT_INLINE_CACHE=1
+    container_name: solevaeg-frontend
     restart: unless-stopped
     env_file:
       - .env.production
@@ -98,42 +101,34 @@ services:
       - solevaeg-network
     depends_on:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
     dns:
       - 8.8.8.8
       - 8.8.4.4
       - 1.1.1.1
       - 1.0.0.1
+    # Additional network configuration for better connectivity
+    extra_hosts:
+      - "registry.npmjs.org:104.16.16.35"
+      - "registry.npmmirror.com:47.95.241.102"
 
   # Admin Panel
   admin:
     build:
       context: ./admin
-      dockerfile: Dockerfile.network-resilient
-      target: production
-      args:
-        BUILDKIT_INLINE_CACHE: 1
-    container_name: solevaeg-admin-prod
+      dockerfile: Dockerfile
+      target: ${NODE_ENV:-production}
+    container_name: solevaeg-admin
     restart: unless-stopped
     env_file:
       - .env.production
     volumes:
       - admin_static:/usr/share/nginx/html:ro
+    ports:
+      - "${ADMIN_PORT:-3002}:3000"
     networks:
       - solevaeg-network
     depends_on:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -142,8 +137,8 @@ services:
 
   # Nginx Reverse Proxy
   nginx:
-    image: nginx:stable
-    container_name: solevaeg-nginx-prod
+    image: nginx:alpine
+    container_name: solevaeg-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -155,23 +150,36 @@ services:
       - ./docker/nginx/certbot-webroot:/var/www/certbot:ro
       - backend_uploads:/var/www/uploads:ro
       - frontend_static:/var/www/frontend:ro
-      - admin_static:/var/www/admin:ro
       - nginx_logs:/var/log/nginx
     networks:
       - solevaeg-network
     depends_on:
-      frontend:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-      admin:
-        condition: service_healthy
+      - frontend
+      - backend
+      - admin
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+      - 1.0.0.1
+
+  # Certbot for SSL certificates
+  certbot:
+    image: certbot/certbot
+    container_name: solevaeg-certbot
+    volumes:
+      - ./docker/nginx/ssl:/etc/letsencrypt
+      - ./docker/nginx/certbot-webroot:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${ADMIN_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN} -d www.${DOMAIN} -d api.${DOMAIN} -d admin.${DOMAIN}
+    depends_on:
+      - nginx
+    profiles:
+      - ssl
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -201,3 +209,8 @@ networks:
       com.docker.network.bridge.enable_icc: "true"
       com.docker.network.bridge.enable_ip_masquerade: "true"
       com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+    # Additional network configuration for better connectivity
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
