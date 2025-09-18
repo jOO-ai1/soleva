@@ -205,25 +205,92 @@ export const authApi = {
 };
 
 export const productsApi = {
-  getAll: (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) =>
-  apiClient.get(`${API_ENDPOINTS.PRODUCTS.LIST}${params ? '?' + new URLSearchParams(params as any).toString() : ''}`),
+  getAll: (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) => {
+    // Use Supabase API instead of external API
+    try {
+      const { supabaseProductsApi } = require('./supabaseApi');
+      return supabaseProductsApi.getAll(params);
+    } catch (error) {
+      console.error('API connection error:', error);
+      // Return empty data as fallback
+      return Promise.resolve({
+        data: [],
+        status: 200,
+        success: true
+      });
+    }
+  },
 
-  getById: (id: number) =>
-  apiClient.get(API_ENDPOINTS.PRODUCTS.SHOW(id)),
+  getById: (id: number) => {
+    try {
+      const { supabaseProductsApi } = require('./supabaseApi');
+      return supabaseProductsApi.getById(id);
+    } catch (error) {
+      console.error('API connection error:', error);
+      throw {
+        message: 'Product not found',
+        status: 404
+      } as ApiError;
+    }
+  },
 
-  search: (query: string) =>
-  apiClient.get(`${API_ENDPOINTS.PRODUCTS.SEARCH}?q=${encodeURIComponent(query)}`)
+  search: (query: string) => {
+    try {
+      const { supabaseProductsApi } = require('./supabaseApi');
+      return supabaseProductsApi.getAll({ search: query });
+    } catch (error) {
+      console.error('API connection error:', error);
+      return Promise.resolve({
+        data: [],
+        status: 200,
+        success: true
+      });
+    }
+  }
 };
 
 export const collectionsApi = {
-  getAll: () =>
-  apiClient.get(API_ENDPOINTS.COLLECTIONS.LIST),
+  getAll: () => {
+    try {
+      const { supabaseCollectionsApi } = require('./supabaseApi');
+      return supabaseCollectionsApi.getAll();
+    } catch (error) {
+      console.error('API connection error:', error);
+      return Promise.resolve({
+        data: [],
+        status: 200,
+        success: true
+      });
+    }
+  },
 
-  getById: (id: string) =>
-  apiClient.get(API_ENDPOINTS.COLLECTIONS.SHOW(id)),
+  getById: (id: string) => {
+    try {
+      const { supabaseCollectionsApi } = require('./supabaseApi');
+      return supabaseCollectionsApi.getAll();
+    } catch (error) {
+      console.error('API connection error:', error);
+      return Promise.resolve({
+        data: [],
+        status: 200,
+        success: true
+      });
+    }
+  },
 
-  getProducts: (id: string) =>
-  apiClient.get(API_ENDPOINTS.COLLECTIONS.PRODUCTS(id))
+  getProducts: (id: string) => {
+    try {
+      const { supabaseProductsApi } = require('./supabaseApi');
+      return supabaseProductsApi.getAll({ collection: id });
+    } catch (error) {
+      console.error('API connection error:', error);
+      return Promise.resolve({
+        data: [],
+        status: 200,
+        success: true
+      });
+    }
+  }
 };
 
 export const cartApi = {

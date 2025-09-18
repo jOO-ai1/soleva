@@ -130,24 +130,24 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
-    } finally {setIsLoading(false);}}return (
-    <div className="container mx-auto py-10 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-        className="max-w-md mx-auto">
+    } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
+      <motion.div initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+    className="max-w-md mx-auto">
 
         <GlassCard>
           <div className="text-center mb-8">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
-              className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
+            className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4">
 
               <HiUsers size={32} />
             </motion.div>
@@ -168,18 +168,18 @@ export default function RegisterPage() {
                   <FiUser size={20} />
                 </div>
                 <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('name', e.target.value)}
-                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                  errors.name ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                  }
-                  placeholder={lang === "ar" ? "أدخل اسمك الكامل" : "Enter your full name"} />
+                type="text"
+                value={formData.name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('name', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.name ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أدخل اسمك الكامل" : "Enter your full name"} />
 
               </div>
               {errors.name &&
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              }
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            }
             </div>
 
             {/* Email Field */}
@@ -192,18 +192,18 @@ export default function RegisterPage() {
                   <HiMail size={20} />
                 </div>
                 <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)}
-                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                  errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                  }
-                  placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
+                type="email"
+                value={formData.email}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
 
               </div>
               {errors.email &&
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              }
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            }
             </div>
 
             {/* Phone Number Field */}
@@ -218,18 +218,18 @@ export default function RegisterPage() {
                   </svg>
                 </div>
                 <input
-                  type="tel"
-                  value={formData.phoneNumber}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phoneNumber', e.target.value)}
-                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                  errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                  }
-                  placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"} />
+                type="tel"
+                value={formData.phoneNumber}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phoneNumber', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"} />
 
               </div>
               {errors.phoneNumber &&
-              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-              }
+            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+            }
             </div>
 
             {/* Password Field */}
@@ -242,25 +242,25 @@ export default function RegisterPage() {
                   <HiLockClosed size={20} />
                 </div>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('password', e.target.value)}
-                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                  errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                  }
-                  placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('password', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />
 
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 
                   {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
               {errors.password &&
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              }
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            }
             </div>
 
             {/* Confirm Password Field */}
@@ -273,40 +273,40 @@ export default function RegisterPage() {
                   <HiLockClosed size={20} />
                 </div>
                 <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={formData.confirmPassword}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('confirmPassword', e.target.value)}
-                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                  errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                  }
-                  placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
+                type={showConfirmPassword ? "text" : "password"}
+                value={formData.confirmPassword}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('confirmPassword', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
 
                 <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 
                   {showConfirmPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
               {errors.confirmPassword &&
-              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-              }
+            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+            }
             </div>
 
             <button
-              type="submit"
-              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
-              disabled={isLoading}>
+            type="submit"
+            className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
+            disabled={isLoading}>
 
               {isLoading ?
-              <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
+            <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
 
-              <>
+            <>
                   <HiUsers />
                   {t("createAccount")}
                 </>
-              }
+            }
             </button>
           </form>
 
@@ -317,8 +317,8 @@ export default function RegisterPage() {
               {t("alreadyAccount")}
             </p>
             <Link
-              to="/login"
-              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
+            to="/login"
+            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
 
               {t("login")}
             </Link>
@@ -328,12 +328,12 @@ export default function RegisterPage() {
       
       {/* Auth Warning Modal */}
       <AuthWarningModal
-        isOpen={showWarning}
-        onClose={handleCloseWarning}
-        onLogin={handleLoginClick}
-        onSignUp={handleSignUpClick}
-        type={warningType} />
+      isOpen={showWarning}
+      onClose={handleCloseWarning}
+      onLogin={handleLoginClick}
+      onSignUp={handleSignUpClick}
+      type={warningType} />
 
-    </div>);
+    </div>;
 
 }

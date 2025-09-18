@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "dev:local": "./start-local.sh",
     "stop:local": "./stop-local.sh",
-    "setup:local": "docker-compose -f docker-compose.local.yml up -d && cd backend && npm install && npx prisma generate && npx prisma migrate dev && npx prisma db seed && cd .. && npm install && cd admin && npm install && cd .."
+    "setup:local": "docker-compose -f docker-compose.local.yml up -d \u0026\u0026 cd backend \u0026\u0026 npm install \u0026\u0026 npx prisma generate \u0026\u0026 npx prisma migrate dev \u0026\u0026 npx prisma db seed \u0026\u0026 cd .. \u0026\u0026 npm install \u0026\u0026 cd admin \u0026\u0026 npm install \u0026\u0026 cd .."
   },
   "dependencies": {
     "@radix-ui/react-toast": "^1.2.14",
@@ -22,7 +22,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.7.0"
+    "react-router-dom": "^7.7.0",
+    "@supabase/supabase-js": "^2.39.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

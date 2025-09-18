@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import { LangProvider } from './contexts/LangContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -6,6 +7,7 @@ import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { initializeDatabase, createSampleData } from './utils/initializeDatabase';
 import RoutesWrapper from "./components/RoutesWrapper";
 import AppErrorBoundary from './components/AppErrorBoundary';
 import AppLoader from './components/AppLoader';
@@ -19,6 +21,24 @@ export default function App() {
       console.log('App component mounted');
     }
     setDocumentTitle();
+  }, []);
+
+  // Initialize database on app startup
+  useEffect(() => {
+    const setupDatabase = async () => {
+      try {
+        const isInitialized = await initializeDatabase();
+        if (isInitialized) {
+          // Try to create sample data if it doesn't exist
+          await createSampleData();
+        }
+      } catch (error) {
+        console.warn('Database setup warning:', error);
+        // Continue anyway - the app should still work with empty data
+      }
+    };
+
+    setupDatabase();
   }, []);
 
   try {
