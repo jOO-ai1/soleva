@@ -285,8 +285,8 @@ export interface SystemSettings {
 // Multi-Store Types
 export interface Store {
   id: string;
-  name: string | { en: string; ar?: string } | null;
-  description: string | { en: string; ar?: string } | null;
+  name: string | {en: string;ar?: string;} | null;
+  description: string | {en: string;ar?: string;} | null;
   domain: string;
   subdomain: string;
   logo: string;
@@ -509,8 +509,8 @@ export interface StoreInventory {
 export interface StorePromotion {
   id: string;
   storeId: string;
-  name: string | { en: string; ar?: string } | null;
-  description: string | { en: string; ar?: string } | null;
+  name: string | {en: string;ar?: string;} | null;
+  description: string | {en: string;ar?: string;} | null;
   type: string;
   value: number;
   targetProducts: string[];

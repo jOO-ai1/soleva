@@ -1,7 +1,7 @@
 import { API_CONFIG, API_ENDPOINTS, buildApiUrl, getAuthHeaders } from '../config/api';
 
 // Exponential backoff with jitter
-async function retryWithBackoff<T>(fn: () => Promise<T>, opts?: { retries?: number; baseMs?: number; maxMs?: number }): Promise<T> {
+async function retryWithBackoff<T>(fn: () => Promise<T>, opts?: {retries?: number;baseMs?: number;maxMs?: number;}): Promise<T> {
   const retries = opts?.retries ?? 3;
   const baseMs = opts?.baseMs ?? 300;
   const maxMs = opts?.maxMs ?? 3000;
@@ -53,9 +53,9 @@ export interface ApiError {
 // Generic API client class
 class ApiClient {
   private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+  endpoint: string,
+  options: RequestInit = {})
+  : Promise<ApiResponse<T>> {
     const url = buildApiUrl(endpoint);
     const headers = getAuthHeaders();
 
@@ -63,8 +63,8 @@ class ApiClient {
       ...options,
       headers: {
         ...headers,
-        ...options.headers,
-      },
+        ...options.headers
+      }
     };
 
     try {
@@ -86,9 +86,9 @@ class ApiClient {
             throw new Error(`Server error ${response.status}`);
           }
           throw {
-            message: (data && (data.message || data.error)) || 'An error occurred',
-            errors: (data && data.errors) || {},
-            status: response.status,
+            message: data && (data.message || data.error) || 'An error occurred',
+            errors: data && data.errors || {},
+            status: response.status
           } as ApiError;
         }
 
@@ -96,7 +96,7 @@ class ApiClient {
           data: (data && (data.data || data)) as T,
           message: data?.message,
           status: response.status,
-          success: true,
+          success: true
         } as ApiResponse<T>;
       };
 
@@ -105,13 +105,13 @@ class ApiClient {
       if (error instanceof TypeError) {
         throw {
           message: 'Network error. Please check your connection.',
-          status: 0,
+          status: 0
         } as ApiError;
       }
       if (error instanceof Error && error.message === 'Request timeout') {
         throw {
           message: 'Request timeout. Please try again.',
-          status: 0,
+          status: 0
         } as ApiError;
       }
       throw error;
@@ -125,14 +125,14 @@ class ApiClient {
   async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? JSON.stringify(data) : undefined
     });
   }
 
   async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? JSON.stringify(data) : undefined
     });
   }
 
@@ -143,7 +143,7 @@ class ApiClient {
   async upload<T>(endpoint: string, formData: FormData): Promise<ApiResponse<T>> {
     const url = buildApiUrl(endpoint);
     const token = localStorage.getItem(API_CONFIG.AUTH_TOKEN_KEY);
-    
+
     const headers: Record<string, string> = {};
     if (token) {
       headers.Authorization = `Bearer ${token}`;
@@ -152,7 +152,7 @@ class ApiClient {
     const response = await fetch(url, {
       method: 'POST',
       headers,
-      body: formData,
+      body: formData
     });
 
     const data = await response.json();
@@ -161,7 +161,7 @@ class ApiClient {
       throw {
         message: data.message || 'Upload failed',
         errors: data.errors || {},
-        status: response.status,
+        status: response.status
       } as ApiError;
     }
 
@@ -169,7 +169,7 @@ class ApiClient {
       data: data.data || data,
       message: data.message,
       status: response.status,
-      success: true,
+      success: true
     };
   }
 }
@@ -179,111 +179,111 @@ export const apiClient = new ApiClient();
 
 // Specific API service functions
 export const authApi = {
-  login: (credentials: { email: string; password: string }) =>
-    apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
-  
-  register: (userData: { name: string; email: string; phoneNumber: string; password: string; password_confirmation: string }) =>
-    apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
-  
+  login: (credentials: {email: string;password: string;}) =>
+  apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
+
+  register: (userData: {name: string;email: string;phoneNumber: string;password: string;password_confirmation: string;}) =>
+  apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
+
   logout: () =>
-    apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
-  
+  apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
+
   getProfile: () =>
-    apiClient.get(API_ENDPOINTS.AUTH.PROFILE),
-  
+  apiClient.get(API_ENDPOINTS.AUTH.PROFILE),
+
   updateProfile: (data: any) =>
-    apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
-  
+  apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
+
   disconnectGoogle: () =>
-    apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
-  
-  forgotPassword: (data: { email: string; phoneNumber: string }) =>
-    apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
-  
-  resetPassword: (data: { token: string; newPassword: string }) =>
-    apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
+  apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
+
+  forgotPassword: (data: {email: string;phoneNumber: string;}) =>
+  apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
+
+  resetPassword: (data: {token: string;newPassword: string;}) =>
+  apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data)
 };
 
 export const productsApi = {
-  getAll: (params?: { page?: number; per_page?: number; search?: string; collection?: string }) =>
-    apiClient.get(`${API_ENDPOINTS.PRODUCTS.LIST}${params ? '?' + new URLSearchParams(params as any).toString() : ''}`),
-  
+  getAll: (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) =>
+  apiClient.get(`${API_ENDPOINTS.PRODUCTS.LIST}${params ? '?' + new URLSearchParams(params as any).toString() : ''}`),
+
   getById: (id: number) =>
-    apiClient.get(API_ENDPOINTS.PRODUCTS.SHOW(id)),
-  
+  apiClient.get(API_ENDPOINTS.PRODUCTS.SHOW(id)),
+
   search: (query: string) =>
-    apiClient.get(`${API_ENDPOINTS.PRODUCTS.SEARCH}?q=${encodeURIComponent(query)}`),
+  apiClient.get(`${API_ENDPOINTS.PRODUCTS.SEARCH}?q=${encodeURIComponent(query)}`)
 };
 
 export const collectionsApi = {
   getAll: () =>
-    apiClient.get(API_ENDPOINTS.COLLECTIONS.LIST),
-  
+  apiClient.get(API_ENDPOINTS.COLLECTIONS.LIST),
+
   getById: (id: string) =>
-    apiClient.get(API_ENDPOINTS.COLLECTIONS.SHOW(id)),
-  
+  apiClient.get(API_ENDPOINTS.COLLECTIONS.SHOW(id)),
+
   getProducts: (id: string) =>
-    apiClient.get(API_ENDPOINTS.COLLECTIONS.PRODUCTS(id)),
+  apiClient.get(API_ENDPOINTS.COLLECTIONS.PRODUCTS(id))
 };
 
 export const cartApi = {
   get: () =>
-    apiClient.get(API_ENDPOINTS.CART.GET),
-  
+  apiClient.get(API_ENDPOINTS.CART.GET),
+
   add: (productId: number, color: string, size: number, quantity: number = 1) =>
-    apiClient.post(API_ENDPOINTS.CART.ADD, { product_id: productId, color, size, quantity }),
-  
+  apiClient.post(API_ENDPOINTS.CART.ADD, { product_id: productId, color, size, quantity }),
+
   update: (itemId: number, quantity: number) =>
-    apiClient.put(API_ENDPOINTS.CART.UPDATE, { item_id: itemId, quantity }),
-  
+  apiClient.put(API_ENDPOINTS.CART.UPDATE, { item_id: itemId, quantity }),
+
   remove: (itemId: number) =>
-    apiClient.delete(`${API_ENDPOINTS.CART.REMOVE}/${itemId}`),
-  
+  apiClient.delete(`${API_ENDPOINTS.CART.REMOVE}/${itemId}`),
+
   clear: () =>
-    apiClient.delete(API_ENDPOINTS.CART.CLEAR),
+  apiClient.delete(API_ENDPOINTS.CART.CLEAR)
 };
 
 export const ordersApi = {
-  getAll: (params?: { page?: number; limit?: number }) => {
+  getAll: (params?: {page?: number;limit?: number;}) => {
     const queryParams = params ? '?' + new URLSearchParams(params as any).toString() : '';
     return apiClient.get(API_ENDPOINTS.ORDERS.LIST + queryParams);
   },
-  
+
   getById: (id: string) =>
-    apiClient.get(API_ENDPOINTS.ORDERS.SHOW(id)),
-  
+  apiClient.get(API_ENDPOINTS.ORDERS.SHOW(id)),
+
   create: (orderData: any) =>
-    apiClient.post(API_ENDPOINTS.ORDERS.CREATE, orderData),
-  
+  apiClient.post(API_ENDPOINTS.ORDERS.CREATE, orderData),
+
   track: (identifier: string) =>
-    apiClient.get(API_ENDPOINTS.ORDERS.TRACK(identifier)),
+  apiClient.get(API_ENDPOINTS.ORDERS.TRACK(identifier))
 };
 
 export const favoritesApi = {
   getAll: () =>
-    apiClient.get(API_ENDPOINTS.FAVORITES.LIST),
-  
+  apiClient.get(API_ENDPOINTS.FAVORITES.LIST),
+
   add: (productId: number) =>
-    apiClient.post(API_ENDPOINTS.FAVORITES.ADD, { product_id: productId }),
-  
+  apiClient.post(API_ENDPOINTS.FAVORITES.ADD, { product_id: productId }),
+
   remove: (productId: number) =>
-    apiClient.delete(`${API_ENDPOINTS.FAVORITES.REMOVE}/${productId}`),
-  
+  apiClient.delete(`${API_ENDPOINTS.FAVORITES.REMOVE}/${productId}`),
+
   toggle: (productId: number) =>
-    apiClient.post(API_ENDPOINTS.FAVORITES.TOGGLE, { product_id: productId }),
+  apiClient.post(API_ENDPOINTS.FAVORITES.TOGGLE, { product_id: productId })
 };
 
 export const couponsApi = {
   validate: (code: string) =>
-    apiClient.post(API_ENDPOINTS.COUPONS.VALIDATE, { code }),
-  
+  apiClient.post(API_ENDPOINTS.COUPONS.VALIDATE, { code }),
+
   apply: (code: string, cartTotal: number) =>
-    apiClient.post(API_ENDPOINTS.COUPONS.APPLY, { code, cart_total: cartTotal }),
+  apiClient.post(API_ENDPOINTS.COUPONS.APPLY, { code, cart_total: cartTotal })
 };
 
 export const contactApi = {
-  send: (contactData: { name: string; email: string; subject: string; message: string }) =>
-    apiClient.post(API_ENDPOINTS.CONTACT.SEND, contactData),
+  send: (contactData: {name: string;email: string;subject: string;message: string;}) =>
+  apiClient.post(API_ENDPOINTS.CONTACT.SEND, contactData)
 };
 
 export const uploadApi = {
@@ -292,7 +292,7 @@ export const uploadApi = {
     formData.append('image', file);
     return apiClient.upload(API_ENDPOINTS.UPLOAD.IMAGE, formData);
   },
-  
+
   paymentScreenshot: (file: File, orderId?: number) => {
     const formData = new FormData();
     formData.append('screenshot', file);
@@ -300,5 +300,5 @@ export const uploadApi = {
       formData.append('order_id', orderId.toString());
     }
     return apiClient.upload(API_ENDPOINTS.UPLOAD.PAYMENT_SCREENSHOT, formData);
-  },
+  }
 };

@@ -106,13 +106,13 @@ const emailTemplates = {
             
             <div class="content">
               <h2>${isArabic ? 'تم تأكيد طلبك' : 'Order Confirmed'}</h2>
-              <p>${isArabic ? 
-                `مرحباً ${order.user.name}، تم تأكيد طلبك بنجاح وسيتم معالجته قريباً.` :
-                `Hello ${order.user.name}, your order has been confirmed and will be processed soon.`
-              }</p>
+              <p>${isArabic ?
+      `مرحباً ${order.user.name}، تم تأكيد طلبك بنجاح وسيتم معالجته قريباً.` :
+      `Hello ${order.user.name}, your order has been confirmed and will be processed soon.`}</p>
               
               <div class="order-info">
-                <h3>${isArabic ? 'تفاصيل الطلب' : 'Order Details'}</h3>
+                <h3>${
+      isArabic ? 'تفاصيل الطلب' : 'Order Details'}</h3>
                 <p><strong>${isArabic ? 'رقم الطلب:' : 'Order Number:'}</strong> ${order.orderNumber}</p>
                 <p><strong>${isArabic ? 'التاريخ:' : 'Date:'}</strong> ${new Date(order.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US')}</p>
                 <p><strong>${isArabic ? 'طريقة الدفع:' : 'Payment Method:'}</strong> ${getPaymentMethodText(order.paymentMethod, lang)}</p>
@@ -140,11 +140,11 @@ const emailTemplates = {
               ${order.paymentMethod !== 'CASH_ON_DELIVERY' ? `
                 <div class="order-info">
                   <h3>${isArabic ? 'معلومات الدفع' : 'Payment Information'}</h3>
-                  <p>${isArabic ? 
-                    'يرجى إتمام عملية الدفع ورفع إثبات الدفع من خلال حسابك على الموقع.' :
-                    'Please complete payment and upload proof through your account on the website.'
-                  }</p>
-                  <a href="https://solevaeg.com/orders/${order.id}" class="button">
+                  <p>${isArabic ?
+      'يرجى إتمام عملية الدفع ورفع إثبات الدفع من خلال حسابك على الموقع.' :
+      'Please complete payment and upload proof through your account on the website.'}</p>
+                  <a href="https://solevaeg.com/orders/${
+      order.id}" class="button">
                     ${isArabic ? 'رفع إثبات الدفع' : 'Upload Payment Proof'}
                   </a>
                 </div>
@@ -171,7 +171,7 @@ const emailTemplates = {
       `;
     }
   },
-  
+
   paymentInstructions: {
     subject: {
       ar: 'تعليمات الدفع - طلب رقم {orderNumber}',
@@ -180,7 +180,7 @@ const emailTemplates = {
     template: (order: any, lang: 'ar' | 'en') => {
       const isArabic = lang === 'ar';
       const paymentInfo = getPaymentInformation(order.paymentMethod);
-      
+
       return `
         <!DOCTYPE html>
         <html dir="${isArabic ? 'rtl' : 'ltr'}" lang="${lang}">
@@ -208,14 +208,14 @@ const emailTemplates = {
               <p>${paymentInfo.instructions[lang]}</p>
             </div>
             
-            <p>${isArabic ? 
-              'بعد إتمام عملية التحويل، يرجى رفع صورة من إيصال التحويل من خلال حسابك على الموقع.' :
-              'After completing the transfer, please upload a screenshot of the receipt through your account.'
-            }</p>
+            <p>${isArabic ?
+      'بعد إتمام عملية التحويل، يرجى رفع صورة من إيصال التحويل من خلال حسابك على الموقع.' :
+      'After completing the transfer, please upload a screenshot of the receipt through your account.'}</p>
           </div>
         </body>
         </html>
       `;
+
     }
   }
 };
@@ -251,7 +251,7 @@ const getPaymentInformation = (method: string) => {
       }
     }
   };
-  
+
   return paymentInfo[method] || paymentInfo.BANK_WALLET;
 };
 
@@ -260,14 +260,14 @@ export const sendOrderConfirmationEmail = async (order: any) => {
   try {
     const transporter = createTransporter();
     const lang = 'en'; // Could be determined from user preferences
-    
+
     const mailOptions = {
       from: `"Soleva" <${process.env.EMAIL_SALES}>`,
       to: order.user.email,
       subject: emailTemplates.orderConfirmation.subject[lang].replace('{orderNumber}', order.orderNumber),
       html: emailTemplates.orderConfirmation.template(order, lang)
     };
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Order confirmation email sent to ${order.user.email}`);
   } catch (error) {
@@ -281,17 +281,17 @@ export const sendPaymentInstructionsEmail = async (order: any) => {
     if (order.paymentMethod === 'CASH_ON_DELIVERY') {
       return; // No payment instructions needed for COD
     }
-    
+
     const transporter = createTransporter();
     const lang = 'en'; // Could be determined from user preferences
-    
+
     const mailOptions = {
       from: `"Soleva" <${process.env.EMAIL_SALES}>`,
       to: order.user.email,
       subject: emailTemplates.paymentInstructions.subject[lang].replace('{orderNumber}', order.orderNumber),
       html: emailTemplates.paymentInstructions.template(order, lang)
     };
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Payment instructions email sent to ${order.user.email}`);
   } catch (error) {
@@ -304,7 +304,7 @@ export const sendOrderStatusUpdateEmail = async (order: any, newStatus: string) 
   try {
     const transporter = createTransporter();
     const lang = 'en';
-    
+
     const statusMessages: Record<string, Record<string, string>> = {
       CONFIRMED: {
         ar: 'تم تأكيد طلبك وسيتم تحضيره قريباً',
@@ -323,9 +323,9 @@ export const sendOrderStatusUpdateEmail = async (order: any, newStatus: string) 
         en: 'Your order has been delivered successfully'
       }
     };
-    
+
     const message = statusMessages[newStatus]?.[lang] || `Order status updated to ${newStatus}`;
-    
+
     const mailOptions = {
       from: `"Soleva" <${process.env.EMAIL_SALES}>`,
       to: order.user.email,
@@ -343,7 +343,7 @@ export const sendOrderStatusUpdateEmail = async (order: any, newStatus: string) 
         </div>
       `
     };
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Order status update email sent to ${order.user.email}`);
   } catch (error) {
@@ -361,7 +361,7 @@ export const sendContactFormEmail = async (formData: {
 }) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: `"${formData.name}" <${process.env.EMAIL_INFO}>`,
       to: process.env.EMAIL_SUPPORT,
@@ -380,10 +380,10 @@ export const sendContactFormEmail = async (formData: {
         </div>
       `
     };
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Contact form email sent from ${formData.email}`);
-    
+
     // Send auto-reply to customer
     const autoReplyOptions = {
       from: `"Soleva Support" <${process.env.EMAIL_SUPPORT}>`,
@@ -401,7 +401,7 @@ export const sendContactFormEmail = async (formData: {
         </div>
       `
     };
-    
+
     await transporter.sendMail(autoReplyOptions);
   } catch (error) {
     console.error('Failed to send contact form email:', error);
@@ -409,10 +409,10 @@ export const sendContactFormEmail = async (formData: {
   }
 };
 
-export const sendWelcomeEmail = async (user: { name: string; email: string }) => {
+export const sendWelcomeEmail = async (user: {name: string;email: string;}) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: `"Soleva" <${process.env.EMAIL_INFO}>`,
       to: user.email,
@@ -452,7 +452,7 @@ export const sendWelcomeEmail = async (user: { name: string; email: string }) =>
         </div>
       `
     };
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Welcome email sent to ${user.email}`);
   } catch (error) {
@@ -461,11 +461,11 @@ export const sendWelcomeEmail = async (user: { name: string; email: string }) =>
   }
 };
 
-export const sendPasswordResetEmail = async (user: { name: string; email: string }, resetToken: string) => {
+export const sendPasswordResetEmail = async (user: {name: string;email: string;}, resetToken: string) => {
   try {
     const transporter = createTransporter();
     const resetUrl = `https://solevaeg.com/reset-password?token=${resetToken}`;
-    
+
     const mailOptions = {
       from: `"Soleva" <${process.env.EMAIL_INFO}>`,
       to: user.email,
@@ -490,7 +490,7 @@ export const sendPasswordResetEmail = async (user: { name: string; email: string
         </div>
       `
     };
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Password reset email sent to ${user.email}`);
   } catch (error) {

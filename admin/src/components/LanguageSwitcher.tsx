@@ -7,46 +7,46 @@ const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage, isRTL } = useLanguage();
 
   const languageOptions = [
-    {
-      key: 'en',
-      label: (
-        <Space>
+  {
+    key: 'en',
+    label:
+    <Space>
           <span className="flag-icon">🇺🇸</span>
           English
-        </Space>
-      ),
-      onClick: () => setLanguage('en'),
-    },
-    {
-      key: 'ar',
-      label: (
-        <Space>
+        </Space>,
+
+    onClick: () => setLanguage('en')
+  },
+  {
+    key: 'ar',
+    label:
+    <Space>
           <span className="flag-icon">🇪🇬</span>
           العربية
-        </Space>
-      ),
-      onClick: () => setLanguage('ar'),
-    },
-  ];
+        </Space>,
 
-  const currentLanguageLabel = language === 'ar' ? (
-    <Space>
+    onClick: () => setLanguage('ar')
+  }];
+
+
+  const currentLanguageLabel = language === 'ar' ?
+  <Space>
       <span className="flag-icon">🇪🇬</span>
       العربية
-    </Space>
-  ) : (
-    <Space>
+    </Space> :
+
+  <Space>
       <span className="flag-icon">🇺🇸</span>
       English
-    </Space>
-  );
+    </Space>;
+
 
   return (
     <Dropdown
       menu={{ items: languageOptions }}
       trigger={['click']}
-      placement={isRTL ? 'bottomLeft' : 'bottomRight'}
-    >
+      placement={isRTL ? 'bottomLeft' : 'bottomRight'}>
+
       <Button
         type="text"
         icon={<GlobalOutlined />}
@@ -60,15 +60,15 @@ const LanguageSwitcher: React.FC = () => {
           border: 'none',
           background: 'transparent',
           color: 'var(--text-primary)',
-          transition: 'all var(--transition-normal)',
-        }}
-      >
+          transition: 'all var(--transition-normal)'
+        }}>
+
         <span className="language-label">
           {currentLanguageLabel}
         </span>
       </Button>
-    </Dropdown>
-  );
+    </Dropdown>);
+
 };
 
 export default LanguageSwitcher;

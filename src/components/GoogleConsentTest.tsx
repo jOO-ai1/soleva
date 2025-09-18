@@ -29,7 +29,7 @@ const GoogleConsentTest: React.FC = () => {
     try {
       // Revoke Google consent
       await revokeGoogleConsent(user.email);
-      
+
       // Disconnect Google account from backend
       const response = await authApi.disconnectGoogle();
       if (response.success) {
@@ -65,8 +65,8 @@ const GoogleConsentTest: React.FC = () => {
         <p className="text-yellow-800">
           {lang === 'ar' ? 'يرجى تسجيل الدخول أولاً لاختبار إلغاء موافقة جوجل' : 'Please log in first to test Google consent revocation'}
         </p>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -87,45 +87,45 @@ const GoogleConsentTest: React.FC = () => {
           <button
             onClick={handleRevokeConsent}
             disabled={loading}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? (
-              lang === 'ar' ? 'جاري المعالجة...' : 'Processing...'
-            ) : (
-              lang === 'ar' ? 'إلغاء موافقة جوجل' : 'Revoke Google Consent'
-            )}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+
+            {loading ?
+            lang === 'ar' ? 'جاري المعالجة...' : 'Processing...' :
+
+            lang === 'ar' ? 'إلغاء موافقة جوجل' : 'Revoke Google Consent'
+            }
           </button>
 
           <button
             onClick={handleLogoutWithRevocation}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? (
-              lang === 'ar' ? 'جاري المعالجة...' : 'Processing...'
-            ) : (
-              lang === 'ar' ? 'تسجيل الخروج مع إلغاء الموافقة' : 'Logout with Consent Revocation'
-            )}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+
+            {loading ?
+            lang === 'ar' ? 'جاري المعالجة...' : 'Processing...' :
+
+            lang === 'ar' ? 'تسجيل الخروج مع إلغاء الموافقة' : 'Logout with Consent Revocation'
+            }
           </button>
         </div>
 
         <div className="text-xs text-gray-500 space-y-1">
           <p>
-            {lang === 'ar' 
-              ? '• الزر الأول يلغي موافقة جوجل فقط' 
-              : '• First button revokes Google consent only'
+            {lang === 'ar' ?
+            '• الزر الأول يلغي موافقة جوجل فقط' :
+            '• First button revokes Google consent only'
             }
           </p>
           <p>
-            {lang === 'ar' 
-              ? '• الزر الثاني يسجل الخروج مع إلغاء الموافقة تلقائياً' 
-              : '• Second button logs out with automatic consent revocation'
+            {lang === 'ar' ?
+            '• الزر الثاني يسجل الخروج مع إلغاء الموافقة تلقائياً' :
+            '• Second button logs out with automatic consent revocation'
             }
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default GoogleConsentTest;

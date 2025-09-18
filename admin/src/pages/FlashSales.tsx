@@ -19,8 +19,8 @@ import {
   Col,
   Typography,
   Divider,
-  Switch,
-} from 'antd';
+  Switch } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -30,8 +30,8 @@ import {
   SearchOutlined,
   FilterOutlined,
   ClockCircleOutlined,
-  FireOutlined,
-} from '@ant-design/icons';
+  FireOutlined } from
+'@ant-design/icons';
 import { flashSalesAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import type { FlashSale } from '../types/api';
@@ -78,7 +78,7 @@ const FlashSales = () => {
     try {
       setLoading(true);
       const response = await flashSalesAPI.getAll();
-      
+
       if (response.success && response.data) {
         setFlashSales(response.data as FlashSale[]);
       }
@@ -110,7 +110,7 @@ const FlashSales = () => {
       endDate: dayjs(sale.endDate),
       isActive: sale.isActive,
       isFeatured: sale.isFeatured,
-      countdownEnabled: sale.countdownEnabled,
+      countdownEnabled: sale.countdownEnabled
     });
     setModalVisible(true);
   };
@@ -135,7 +135,7 @@ const FlashSales = () => {
         ...values,
         startDate: dayjs(values.startDate).toISOString(),
         endDate: dayjs(values.endDate).toISOString(),
-        bannerImage: uploadedImage,
+        bannerImage: uploadedImage
       };
 
       let response;
@@ -162,7 +162,7 @@ const FlashSales = () => {
       setUploading(true);
       const response = await flashSalesAPI.uploadImage(file);
       if (response.success && response.data) {
-        setUploadedImage((response.data as { url: string }).url);
+        setUploadedImage((response.data as {url: string;}).url);
         message.success('Image uploaded successfully');
       } else {
         message.error('Failed to upload image');
@@ -204,72 +204,72 @@ const FlashSales = () => {
     if (diff <= 0) return 'Expired';
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const hours = Math.floor(diff % (1000 * 60 * 60 * 24) / (1000 * 60 * 60));
+    const minutes = Math.floor(diff % (1000 * 60 * 60) / (1000 * 60));
 
     return `${days}d ${hours}h ${minutes}m`;
   };
 
-  const filteredSales = flashSales.filter(sale => {
-    const matchesSearch = !searchText || 
-      sale.name.toLowerCase().includes(searchText.toLowerCase());
-    
-    const matchesStatus = !filterStatus || 
-      (filterStatus === 'active' && sale.isActive && new Date() >= new Date(sale.startDate) && new Date() <= new Date(sale.endDate)) ||
-      (filterStatus === 'scheduled' && sale.isActive && new Date() < new Date(sale.startDate)) ||
-      (filterStatus === 'expired' && new Date() > new Date(sale.endDate)) ||
-      (filterStatus === 'inactive' && !sale.isActive);
-    
+  const filteredSales = flashSales.filter((sale) => {
+    const matchesSearch = !searchText ||
+    sale.name.toLowerCase().includes(searchText.toLowerCase());
+
+    const matchesStatus = !filterStatus ||
+    filterStatus === 'active' && sale.isActive && new Date() >= new Date(sale.startDate) && new Date() <= new Date(sale.endDate) ||
+    filterStatus === 'scheduled' && sale.isActive && new Date() < new Date(sale.startDate) ||
+    filterStatus === 'expired' && new Date() > new Date(sale.endDate) ||
+    filterStatus === 'inactive' && !sale.isActive;
+
     return matchesSearch && matchesStatus;
   });
 
   const columns: ColumnsType<FlashSale> = [
-    {
-      title: 'Banner',
-      dataIndex: 'bannerImage',
-      key: 'bannerImage',
-      width: 80,
-      render: (image: string) => (
-        <Image
-          width={50}
-          height={50}
-          src={image || '/placeholder-image.jpg'}
-          style={{ objectFit: 'cover', borderRadius: 4 }}
-        />
-      ),
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toString().toLowerCase()),
-    },
-    {
-      title: 'Discount',
-      key: 'discount',
-      render: (_, record) => (
-        <div>
+  {
+    title: 'Banner',
+    dataIndex: 'bannerImage',
+    key: 'bannerImage',
+    width: 80,
+    render: (image: string) =>
+    <Image
+      width={50}
+      height={50}
+      src={image || '/placeholder-image.jpg'}
+      style={{ objectFit: 'cover', borderRadius: 4 }} />
+
+
+  },
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    filteredValue: searchText ? [searchText] : null,
+    onFilter: (value, record) =>
+    record.name.toLowerCase().includes(value.toString().toLowerCase())
+  },
+  {
+    title: 'Discount',
+    key: 'discount',
+    render: (_, record) =>
+    <div>
           <div className="font-medium">
-            {record.discountType === 'PERCENTAGE' 
-              ? `${record.discountValue}%` 
-              : `$${record.discountValue}`
-            }
+            {record.discountType === 'PERCENTAGE' ?
+        `${record.discountValue}%` :
+        `$${record.discountValue}`
+        }
           </div>
-          {record.maxDiscount && (
-            <div className="text-xs text-gray-500">
+          {record.maxDiscount &&
+      <div className="text-xs text-gray-500">
               Max: ${record.maxDiscount}
             </div>
-          )}
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Duration',
-      key: 'duration',
-      render: (_, record) => (
-        <div>
+
+  },
+  {
+    title: 'Duration',
+    key: 'duration',
+    render: (_, record) =>
+    <div>
           <div className="text-sm">
             {dayjs(record.startDate).format('MMM DD, YYYY')}
           </div>
@@ -277,87 +277,87 @@ const FlashSales = () => {
             to {dayjs(record.endDate).format('MMM DD, YYYY')}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (_, record) => {
-        const status = getStatusText(record);
-        const color = getStatusColor(record);
-        return (
-          <div>
+
+  },
+  {
+    title: 'Status',
+    key: 'status',
+    render: (_, record) => {
+      const status = getStatusText(record);
+      const color = getStatusColor(record);
+      return (
+        <div>
             <Tag color={color}>{status}</Tag>
-            {status === 'Active' && record.countdownEnabled && (
-              <div className="text-xs text-gray-500 mt-1">
+            {status === 'Active' && record.countdownEnabled &&
+          <div className="text-xs text-gray-500 mt-1">
                 <ClockCircleOutlined /> {getTimeRemaining(record)}
               </div>
-            )}
-          </div>
-        );
-      },
-      filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Scheduled', value: 'scheduled' },
-        { text: 'Expired', value: 'expired' },
-        { text: 'Inactive', value: 'inactive' },
-      ],
-      onFilter: (value, record) => {
-        const now = new Date();
-        const start = new Date(record.startDate);
-        const end = new Date(record.endDate);
+          }
+          </div>);
 
-        if (value === 'active') return record.isActive && now >= start && now <= end;
-        if (value === 'scheduled') return record.isActive && now < start;
-        if (value === 'expired') return now > end;
-        if (value === 'inactive') return !record.isActive;
-        return true;
-      },
     },
-    {
-      title: 'Stats',
-      key: 'stats',
-      render: (_, record) => (
-        <div className="text-center">
+    filters: [
+    { text: 'Active', value: 'active' },
+    { text: 'Scheduled', value: 'scheduled' },
+    { text: 'Expired', value: 'expired' },
+    { text: 'Inactive', value: 'inactive' }],
+
+    onFilter: (value, record) => {
+      const now = new Date();
+      const start = new Date(record.startDate);
+      const end = new Date(record.endDate);
+
+      if (value === 'active') return record.isActive && now >= start && now <= end;
+      if (value === 'scheduled') return record.isActive && now < start;
+      if (value === 'expired') return now > end;
+      if (value === 'inactive') return !record.isActive;
+      return true;
+    }
+  },
+  {
+    title: 'Stats',
+    key: 'stats',
+    render: (_, record) =>
+    <div className="text-center">
           <div className="text-sm font-medium">{record.productsCount}</div>
           <div className="text-xs text-gray-500">Products</div>
           <div className="text-sm font-medium">{record.ordersCount}</div>
           <div className="text-xs text-gray-500">Orders</div>
         </div>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space>
+
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (_, record) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this flash sale?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this flash sale?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   return (
     <div className="p-6">
@@ -369,8 +369,8 @@ const FlashSales = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
+          onClick={handleAdd}>
+
           Create Flash Sale
         </Button>
       </div>
@@ -383,8 +383,8 @@ const FlashSales = () => {
                 placeholder="Search flash sales..."
                 prefix={<SearchOutlined />}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
+                onChange={(e) => setSearchText(e.target.value)} />
+
             </Col>
             <Col span={8}>
               <Select
@@ -392,8 +392,8 @@ const FlashSales = () => {
                 style={{ width: '100%' }}
                 value={filterStatus}
                 onChange={setFilterStatus}
-                allowClear
-              >
+                allowClear>
+
                 <Option value="active">Active</Option>
                 <Option value="scheduled">Scheduled</Option>
                 <Option value="expired">Expired</Option>
@@ -404,8 +404,8 @@ const FlashSales = () => {
               <Button
                 icon={<FilterOutlined />}
                 onClick={fetchFlashSales}
-                style={{ width: '100%' }}
-              >
+                style={{ width: '100%' }}>
+
                 Apply Filters
               </Button>
             </Col>
@@ -422,10 +422,10 @@ const FlashSales = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} flash sales`,
+            `${range[0]}-${range[1]} of ${total} flash sales`
           }}
-          scroll={{ x: 1000 }}
-        />
+          scroll={{ x: 1000 }} />
+
       </Card>
 
       <Modal
@@ -433,20 +433,20 @@ const FlashSales = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={800}
-      >
+        width={800}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="name"
                 label="Sale Name"
-                rules={[{ required: true, message: 'Please enter sale name' }]}
-              >
+                rules={[{ required: true, message: 'Please enter sale name' }]}>
+
                 <Input placeholder="Enter sale name" />
               </Form.Item>
             </Col>
@@ -454,8 +454,8 @@ const FlashSales = () => {
               <Form.Item
                 name="discountType"
                 label="Discount Type"
-                rules={[{ required: true, message: 'Please select discount type' }]}
-              >
+                rules={[{ required: true, message: 'Please select discount type' }]}>
+
                 <Select placeholder="Select discount type">
                   <Option value="PERCENTAGE">Percentage</Option>
                   <Option value="FIXED_AMOUNT">Fixed Amount</Option>
@@ -466,8 +466,8 @@ const FlashSales = () => {
 
           <Form.Item
             name="description"
-            label="Description"
-          >
+            label="Description">
+
             <TextArea rows={3} placeholder="Enter sale description" />
           </Form.Item>
 
@@ -476,40 +476,40 @@ const FlashSales = () => {
               <Form.Item
                 name="discountValue"
                 label="Discount Value"
-                rules={[{ required: true, message: 'Please enter discount value' }]}
-              >
+                rules={[{ required: true, message: 'Please enter discount value' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0"
                   min={0}
-                  step={0.01}
-                />
+                  step={0.01} />
+
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
                 name="maxDiscount"
-                label="Max Discount"
-              >
+                label="Max Discount">
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="No limit"
                   min={0}
-                  step={0.01}
-                />
+                  step={0.01} />
+
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
                 name="minOrderValue"
-                label="Min Order Value"
-              >
+                label="Min Order Value">
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="No minimum"
                   min={0}
-                  step={0.01}
-                />
+                  step={0.01} />
+
               </Form.Item>
             </Col>
           </Row>
@@ -519,71 +519,71 @@ const FlashSales = () => {
               <Form.Item
                 name="startDate"
                 label="Start Date"
-                rules={[{ required: true, message: 'Please select start date' }]}
-              >
+                rules={[{ required: true, message: 'Please select start date' }]}>
+
                 <DatePicker
                   style={{ width: '100%' }}
                   showTime
-                  format="YYYY-MM-DD HH:mm"
-                />
+                  format="YYYY-MM-DD HH:mm" />
+
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="endDate"
                 label="End Date"
-                rules={[{ required: true, message: 'Please select end date' }]}
-              >
+                rules={[{ required: true, message: 'Please select end date' }]}>
+
                 <DatePicker
                   style={{ width: '100%' }}
                   showTime
-                  format="YYYY-MM-DD HH:mm"
-                />
+                  format="YYYY-MM-DD HH:mm" />
+
               </Form.Item>
             </Col>
           </Row>
 
           <Form.Item
             name="bannerImage"
-            label="Banner Image"
-          >
+            label="Banner Image">
+
             <div className="mb-4">
               <Upload
                 beforeUpload={handleImageUpload}
                 showUploadList={false}
-                accept="image/*"
-              >
+                accept="image/*">
+
                 <Button
                   icon={<UploadOutlined />}
-                  loading={uploading}
-                >
+                  loading={uploading}>
+
                   Upload Banner
                 </Button>
               </Upload>
             </div>
 
-            {uploadedImage && (
-              <div className="relative inline-block">
+            {uploadedImage &&
+            <div className="relative inline-block">
                 <Image
-                  width={200}
-                  height={100}
-                  src={uploadedImage}
-                  style={{ objectFit: 'cover', borderRadius: 8 }}
-                />
+                width={200}
+                height={100}
+                src={uploadedImage}
+                style={{ objectFit: 'cover', borderRadius: 8 }} />
+
                 <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => setUploadedImage('')}
-                  style={{
-                    position: 'absolute',
-                    top: 4,
-                    right: 4,
-                    background: 'rgba(255, 255, 255, 0.8)',
-                  }}
-                />
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => setUploadedImage('')}
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  right: 4,
+                  background: 'rgba(255, 255, 255, 0.8)'
+                }} />
+
               </div>
-            )}
+            }
           </Form.Item>
 
           <Row gutter={16}>
@@ -591,8 +591,8 @@ const FlashSales = () => {
               <Form.Item
                 name="isActive"
                 label="Status"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
               </Form.Item>
             </Col>
@@ -600,8 +600,8 @@ const FlashSales = () => {
               <Form.Item
                 name="isFeatured"
                 label="Featured"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Yes" unCheckedChildren="No" />
               </Form.Item>
             </Col>
@@ -609,8 +609,8 @@ const FlashSales = () => {
               <Form.Item
                 name="countdownEnabled"
                 label="Countdown Timer"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Yes" unCheckedChildren="No" />
               </Form.Item>
             </Col>
@@ -628,8 +628,8 @@ const FlashSales = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FlashSales;

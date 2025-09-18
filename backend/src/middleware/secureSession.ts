@@ -21,10 +21,10 @@ export const generateSecureToken = (user: {
   email: string;
   role: string;
   preferredLanguage: string;
-}): { token: string; refreshToken: string; expiresIn: number } => {
+}): {token: string;refreshToken: string;expiresIn: number;} => {
   const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const jti = `jwt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   const payload: Omit<SecureTokenPayload, 'iat' | 'exp'> = {
     userId: user.id,
     email: user.email,
@@ -33,7 +33,7 @@ export const generateSecureToken = (user: {
     sessionId,
     jti
   };
-  
+
   // Access token (short-lived)
   const token = jwt.sign(payload, process.env.JWT_SECRET!, {
     expiresIn: '15m', // 15 minutes
@@ -41,23 +41,23 @@ export const generateSecureToken = (user: {
     audience: 'solevaeg.com',
     jwtid: jti
   });
-  
+
   // Refresh token (longer-lived)
   const refreshToken = jwt.sign(
-    { 
-      userId: user.id, 
-      sessionId, 
+    {
+      userId: user.id,
+      sessionId,
       type: 'refresh',
       jti: `refresh_${jti}`
-    }, 
-    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET!, 
+    },
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET!,
     {
       expiresIn: '7d', // 7 days
       issuer: 'solevaeg.com',
       audience: 'solevaeg.com'
     }
   );
-  
+
   return {
     token,
     refreshToken,
@@ -70,7 +70,7 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
   try {
     const authHeader = req.header('Authorization');
     const token = authHeader?.replace('Bearer ', '');
-    
+
     if (!token) {
       res.status(401).json({
         success: false,
@@ -79,13 +79,13 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
       });
       return;
     }
-    
+
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET!, {
       issuer: 'solevaeg.com',
       audience: 'solevaeg.com'
     }) as SecureTokenPayload;
-    
+
     // Check if token is blacklisted (for logout)
     const isBlacklisted = await checkTokenBlacklist(decoded.jti);
     if (isBlacklisted) {
@@ -96,7 +96,7 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
       });
       return;
     }
-    
+
     // Get fresh user data
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -110,7 +110,7 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
         preferredLanguage: true
       }
     });
-    
+
     if (!user || !user.isActive) {
       res.status(401).json({
         success: false,
@@ -119,21 +119,21 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
       });
       return;
     }
-    
+
     // Check if token is close to expiry (within 5 minutes)
     const now = Math.floor(Date.now() / 1000);
     const timeUntilExpiry = decoded.exp - now;
-    
-    if (timeUntilExpiry < 300) { // Less than 5 minutes
+
+    if (timeUntilExpiry < 300) {// Less than 5 minutes
       // Generate new token
       const newTokens = generateSecureToken(user);
-      
+
       // Add new token to response headers
       res.setHeader('X-New-Token', newTokens.token);
       res.setHeader('X-New-Refresh-Token', newTokens.refreshToken);
       res.setHeader('X-Token-Expires-In', newTokens.expiresIn.toString());
     }
-    
+
     // Add user info to request
     req.user = {
       userId: user.id,
@@ -143,7 +143,7 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
       role: user.role as UserRole,
       preferredLanguage: user.preferredLanguage
     };
-    
+
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -154,7 +154,7 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
       });
       return;
     }
-    
+
     console.error('Token verification error:', error);
     res.status(500).json({
       success: false,
@@ -168,7 +168,7 @@ export const verifyAndRefreshToken = async (req: Request, res: Response, next: N
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
   try {
     const { refresh_token } = req.body;
-    
+
     if (!refresh_token) {
       res.status(400).json({
         success: false,
@@ -177,13 +177,13 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       });
       return;
     }
-    
+
     // Verify refresh token
     const decoded = jwt.verify(refresh_token, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET!, {
       issuer: 'solevaeg.com',
       audience: 'solevaeg.com'
     }) as any;
-    
+
     if (decoded.type !== 'refresh') {
       res.status(401).json({
         success: false,
@@ -192,7 +192,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       });
       return;
     }
-    
+
     // Get user data
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -206,7 +206,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
         preferredLanguage: true
       }
     });
-    
+
     if (!user || !user.isActive) {
       res.status(401).json({
         success: false,
@@ -215,10 +215,10 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       });
       return;
     }
-    
+
     // Generate new tokens
     const newTokens = generateSecureToken(user);
-    
+
     res.json({
       success: true,
       token: newTokens.token,
@@ -241,7 +241,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       });
       return;
     }
-    
+
     console.error('Token refresh error:', error);
     res.status(500).json({
       success: false,

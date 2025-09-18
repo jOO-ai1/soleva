@@ -13,7 +13,7 @@ export function useAuthGuard() {
   const isAuthenticated = auth?.isAuthenticated || false;
   const user = auth?.user;
   const navigate = useNavigate();
-  
+
   const [showWarning, setShowWarning] = useState(false);
   const [warningType, setWarningType] = useState<'login_required' | 'account_not_found'>('login_required');
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
@@ -75,7 +75,7 @@ export function useAuthGuard() {
     actionDescription,
     isAuthenticated,
     user,
-    
+
     // Actions
     requireAuth,
     handleLoginClick,
@@ -83,7 +83,7 @@ export function useAuthGuard() {
     handleCloseWarning,
     handleInvalidAccount,
     executePendingAction,
-    
+
     // Utilities
     setShowWarning
   };

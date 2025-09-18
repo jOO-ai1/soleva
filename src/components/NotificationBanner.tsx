@@ -21,7 +21,7 @@ const NotificationBanner: React.FC<NotificationBannerProps> = ({
   message,
   duration = 6000,
   onClose,
-  persistent = false,
+  persistent = false
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -62,35 +62,35 @@ const NotificationBanner: React.FC<NotificationBannerProps> = ({
           bg: 'bg-green-50 border-green-200',
           text: 'text-green-800',
           icon: 'text-green-600',
-          button: 'text-green-600 hover:text-green-800 hover:bg-green-100',
+          button: 'text-green-600 hover:text-green-800 hover:bg-green-100'
         };
       case 'error':
         return {
           bg: 'bg-red-50 border-red-200',
           text: 'text-red-800',
           icon: 'text-red-600',
-          button: 'text-red-600 hover:text-red-800 hover:bg-red-100',
+          button: 'text-red-600 hover:text-red-800 hover:bg-red-100'
         };
       case 'warning':
         return {
           bg: 'bg-yellow-50 border-yellow-200',
           text: 'text-yellow-800',
           icon: 'text-yellow-600',
-          button: 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100',
+          button: 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100'
         };
       case 'info':
         return {
           bg: 'bg-blue-50 border-blue-200',
           text: 'text-blue-800',
           icon: 'text-blue-600',
-          button: 'text-blue-600 hover:text-blue-800 hover:bg-blue-100',
+          button: 'text-blue-600 hover:text-blue-800 hover:bg-blue-100'
         };
       default:
         return {
           bg: 'bg-gray-50 border-gray-200',
           text: 'text-gray-800',
           icon: 'text-gray-600',
-          button: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
+          button: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
         };
     }
   };
@@ -99,16 +99,16 @@ const NotificationBanner: React.FC<NotificationBannerProps> = ({
 
   return (
     <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className={`fixed top-0 left-0 right-0 z-50 ${colors.bg} border-b shadow-lg`}
-          role="alert"
-          aria-live="polite"
-        >
+      {isVisible &&
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -100, opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className={`fixed top-0 left-0 right-0 z-50 ${colors.bg} border-b shadow-lg`}
+        role="alert"
+        aria-live="polite">
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -126,20 +126,20 @@ const NotificationBanner: React.FC<NotificationBannerProps> = ({
               </div>
               <div className="flex-shrink-0">
                 <button
-                  type="button"
-                  onClick={handleClose}
-                  className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors duration-200 ${colors.button}`}
-                  aria-label="Close notification"
-                >
+                type="button"
+                onClick={handleClose}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors duration-200 ${colors.button}`}
+                aria-label="Close notification">
+
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
-  );
+      }
+    </AnimatePresence>);
+
 };
 
 export default NotificationBanner;

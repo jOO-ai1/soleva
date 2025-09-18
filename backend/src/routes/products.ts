@@ -37,9 +37,9 @@ router.get('/categories', async (_req, res) => {
     const categories = await prisma.category.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-      include: { 
+      include: {
         parent: true,
-        _count: { select: { products: true } } as any 
+        _count: { select: { products: true } } as any
       }
     } as any);
 
@@ -55,7 +55,7 @@ router.get('/categories', async (_req, res) => {
       sortOrder: c.sortOrder,
       productsCount: c._count?.products || 0,
       createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
+      updatedAt: c.updatedAt
     }));
 
     res.json({
@@ -77,8 +77,8 @@ router.get('/collections', async (_req, res) => {
     const collections = await prisma.collection.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-      include: { 
-        _count: { select: { products: true } } as any 
+      include: {
+        _count: { select: { products: true } } as any
       }
     } as any);
 
@@ -95,7 +95,7 @@ router.get('/collections', async (_req, res) => {
       endDate: c.endDate,
       productsCount: c._count?.products || 0,
       createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
+      updatedAt: c.updatedAt
     }));
 
     res.json({

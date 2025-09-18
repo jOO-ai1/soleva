@@ -35,7 +35,7 @@ export const generateTwoFactorSecret = (email: string) => {
   });
 
   const backupCodes = Array.from({ length: 10 }, () =>
-    Math.random().toString(36).substring(2, 8).toUpperCase()
+  Math.random().toString(36).substring(2, 8).toUpperCase()
   );
 
   return {
@@ -48,7 +48,7 @@ export const generateTwoFactorSecret = (email: string) => {
 // Generate backup codes
 export const generateBackupCodes = (): string[] => {
   return Array.from({ length: 10 }, () =>
-    Math.random().toString(36).substring(2, 8).toUpperCase()
+  Math.random().toString(36).substring(2, 8).toUpperCase()
   );
 };
 
@@ -79,8 +79,8 @@ export const generate2FASecret = async (req: AuthenticatedRequest, res: Response
     });
 
     // Generate backup codes
-    const backupCodes = Array.from({ length: 8 }, () => 
-      Math.random().toString(36).substr(2, 8).toUpperCase()
+    const backupCodes = Array.from({ length: 8 }, () =>
+    Math.random().toString(36).substr(2, 8).toUpperCase()
     );
 
     // Generate QR code
@@ -126,7 +126,7 @@ export const enable2FA = async (req: AuthenticatedRequest, res: Response): Promi
       });
     }
 
-    const { token }: { token: string } = req.body;
+    const { token }: {token: string;} = req.body;
 
     if (!token) {
       return res.status(400).json({
@@ -210,7 +210,7 @@ export const disable2FA = async (req: AuthenticatedRequest, res: Response): Prom
       });
     }
 
-    const { token, password }: { token?: string; password: string } = req.body;
+    const { token, password }: {token?: string;password: string;} = req.body;
 
     if (!password) {
       return res.status(400).json({
@@ -232,7 +232,7 @@ export const disable2FA = async (req: AuthenticatedRequest, res: Response): Prom
       }
     });
 
-    if (!userWithPassword || !await bcrypt.compare(password, userWithPassword.password)) {
+    if (!userWithPassword || !(await bcrypt.compare(password, userWithPassword.password))) {
       return res.status(400).json({
         success: false,
         message: 'Invalid password'
@@ -299,10 +299,10 @@ export const disable2FA = async (req: AuthenticatedRequest, res: Response): Prom
 
 // Verify 2FA token during login
 export const verify2FAToken = async (
-  userId: string, 
-  token: string, 
-  backupCode?: string
-): Promise<boolean> => {
+userId: string,
+token: string,
+backupCode?: string)
+: Promise<boolean> => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -320,8 +320,8 @@ export const verify2FAToken = async (
     // Try backup code first if provided
     if (backupCode && user.backupCodes) {
       const backupCodes = user.backupCodes;
-      const codeIndex = backupCodes.findIndex(code => code === backupCode.toUpperCase());
-      
+      const codeIndex = backupCodes.findIndex((code) => code === backupCode.toUpperCase());
+
       if (codeIndex !== -1) {
         // Remove used backup code
         backupCodes.splice(codeIndex, 1);
@@ -331,7 +331,7 @@ export const verify2FAToken = async (
             backupCodes: backupCodes
           }
         });
-        
+
         // Log backup code usage
         await prisma.auditLog.create({
           data: {
@@ -341,7 +341,7 @@ export const verify2FAToken = async (
             resourceId: userId
           }
         });
-        
+
         return true;
       }
     }
@@ -365,7 +365,7 @@ export const verify2FAToken = async (
             resourceId: userId
           }
         });
-        
+
         return true;
       }
     }
@@ -447,9 +447,9 @@ export const get2FAStatus = async (req: AuthenticatedRequest, res: Response): Pr
       }
     });
 
-    const backupCodesCount = userWith2FA?.backupCodes 
-      ? userWith2FA.backupCodes.length 
-      : 0;
+    const backupCodesCount = userWith2FA?.backupCodes ?
+    userWith2FA.backupCodes.length :
+    0;
 
     res.json({
       success: true,
@@ -480,7 +480,7 @@ export const generateNewBackupCodes = async (req: AuthenticatedRequest, res: Res
       });
     }
 
-    const { token }: { token: string } = req.body;
+    const { token }: {token: string;} = req.body;
 
     if (!token) {
       return res.status(400).json({
@@ -499,8 +499,8 @@ export const generateNewBackupCodes = async (req: AuthenticatedRequest, res: Res
     }
 
     // Generate new backup codes
-    const backupCodes = Array.from({ length: 8 }, () => 
-      Math.random().toString(36).substr(2, 8).toUpperCase()
+    const backupCodes = Array.from({ length: 8 }, () =>
+    Math.random().toString(36).substr(2, 8).toUpperCase()
     );
 
     await prisma.user.update({

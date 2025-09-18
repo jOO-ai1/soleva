@@ -4,16 +4,16 @@ import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
-import { 
-  checkAccountLockout
-} from '../middleware/validation';
-import { 
-  generateEmailVerificationToken, 
-  sendVerificationEmail
-} from '../middleware/emailVerification';
-import { 
-  generateSecureToken
-} from '../middleware/secureSession';
+import {
+  checkAccountLockout } from
+'../middleware/validation';
+import {
+  generateEmailVerificationToken,
+  sendVerificationEmail } from
+'../middleware/emailVerification';
+import {
+  generateSecureToken } from
+'../middleware/secureSession';
 
 const prisma = new PrismaClient();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -35,7 +35,7 @@ export const customerLogin = async (req: Request, res: Response): Promise<Respon
 
     // Find customer user
     const user = await prisma.user.findUnique({
-      where: { 
+      where: {
         email: email.toLowerCase().trim(),
         role: 'CUSTOMER'
       }
@@ -184,7 +184,7 @@ export const customerRegister = async (req: Request, res: Response): Promise<Res
 
     // Generate email verification token
     const verificationToken = generateEmailVerificationToken(user.id, user.email);
-    
+
     // Send verification email
     await sendVerificationEmail(user.email, verificationToken, user.name);
 
@@ -315,9 +315,9 @@ export const googleLogin = async (req: Request, res: Response): Promise<Response
     let user = await prisma.user.findFirst({
       where: {
         OR: [
-          { email },
-          { googleId }
-        ]
+        { email },
+        { googleId }]
+
       }
     });
 
@@ -335,7 +335,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<Response
       if (!user.googleId) {
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { 
+          data: {
             googleId,
             avatar: picture || user.avatar,
             isVerified: true, // Google emails are pre-verified
@@ -411,8 +411,8 @@ export const googleLogin = async (req: Request, res: Response): Promise<Response
 export const facebookLogin = async (req: Request, res: Response): Promise<Response | void> => {
   try {
     // Check if Facebook login is enabled
-    if (!process.env.FACEBOOK_APP_ID || !process.env.FACEBOOK_APP_SECRET || 
-        process.env.FACEBOOK_APP_ID.trim() === '' || process.env.FACEBOOK_APP_SECRET.trim() === '') {
+    if (!process.env.FACEBOOK_APP_ID || !process.env.FACEBOOK_APP_SECRET ||
+    process.env.FACEBOOK_APP_ID.trim() === '' || process.env.FACEBOOK_APP_SECRET.trim() === '') {
       return res.status(503).json({
         success: false,
         message: 'Facebook login is temporarily disabled'
@@ -452,9 +452,9 @@ export const facebookLogin = async (req: Request, res: Response): Promise<Respon
     let user = await prisma.user.findFirst({
       where: {
         OR: [
-          { email },
-          { facebookId }
-        ]
+        { email },
+        { facebookId }]
+
       }
     });
 
@@ -463,7 +463,7 @@ export const facebookLogin = async (req: Request, res: Response): Promise<Respon
       if (!user.facebookId) {
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { 
+          data: {
             facebookId,
             avatar: picture?.data?.url || user.avatar,
             lastLoginAt: new Date()
@@ -643,7 +643,7 @@ export const logout = async (_req: Request, res: Response): Promise<Response | v
   try {
     // In a real implementation, you might want to blacklist the JWT token
     // For now, we'll just return success
-    
+
     res.json({
       success: true,
       message: 'Logged out successfully'
@@ -662,7 +662,7 @@ export const logout = async (_req: Request, res: Response): Promise<Response | v
 export const disconnectGoogleAccount = async (req: AuthenticatedRequest, res: Response): Promise<Response | void> => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -702,7 +702,7 @@ export const disconnectGoogleAccount = async (req: AuthenticatedRequest, res: Re
     await prisma.user.update({
       where: { id: userId },
       data: {
-        googleId: null,
+        googleId: null
         // Optionally remove avatar if it was from Google
         // avatar: user.avatar?.includes('googleusercontent.com') ? null : user.avatar
       }

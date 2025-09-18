@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
   const auth = useAuthSafe();
   const forgotPassword = auth?.forgotPassword;
   const resetPassword = auth?.resetPassword;
-  
+
   const [step, setStep] = useState<'request' | 'reset'>('request');
   const [formData, setFormData] = useState({
     email: "",
@@ -37,13 +37,13 @@ export default function ForgotPasswordPage() {
 
   function validateRequestForm() {
     const newErrors: any = {};
-    
+
     if (!formData.email) {
       newErrors.email = t("requiredField");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = lang === "ar" ? "البريد الإلكتروني غير صحيح" : "Invalid email format";
     }
-    
+
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = t("requiredField");
     } else {
@@ -53,30 +53,30 @@ export default function ForgotPasswordPage() {
         newErrors.phoneNumber = lang === "ar" ? "رقم الهاتف غير صحيح" : "Invalid phone number format";
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
 
   function validateResetForm() {
     const newErrors: any = {};
-    
+
     if (!formData.token) {
       newErrors.token = t("requiredField");
     }
-    
+
     if (!formData.newPassword) {
       newErrors.newPassword = t("requiredField");
     } else if (formData.newPassword.length < 8) {
       newErrors.newPassword = lang === "ar" ? "كلمة المرور يجب أن تكون 8 أحرف على الأقل" : "Password must be at least 8 characters";
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = t("requiredField");
     } else if (formData.newPassword !== formData.confirmPassword) {
       newErrors.confirmPassword = lang === "ar" ? "كلمة المرور غير متطابقة" : "Passwords don't match";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -90,19 +90,19 @@ export default function ForgotPasswordPage() {
 
   async function handleRequestReset(e: React.FormEvent) {
     e.preventDefault();
-    
+
     if (!validateRequestForm()) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       if (!forgotPassword) {
         showToast(lang === "ar" ? "خطأ في النظام" : "System error");
         return;
       }
-      
+
       const response = await forgotPassword(formData.email, formData.phoneNumber);
-      
+
       if (response.success) {
         showToast(lang === "ar" ? "تم التحقق من البيانات، يمكنك الآن تعيين كلمة مرور جديدة" : "Verification successful. You can now set a new password");
         setStep('reset');
@@ -119,19 +119,19 @@ export default function ForgotPasswordPage() {
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
-    
+
     if (!validateResetForm()) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       if (!resetPassword) {
         showToast(lang === "ar" ? "خطأ في النظام" : "System error");
         return;
       }
-      
+
       const response = await resetPassword(formData.token, formData.newPassword);
-      
+
       if (response.success) {
         showToast(lang === "ar" ? "تم تغيير كلمة المرور بنجاح" : "Password changed successfully");
         // Redirect to login page
@@ -153,34 +153,34 @@ export default function ForgotPasswordPage() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-        className="max-w-md mx-auto"
-      >
+        className="max-w-md mx-auto">
+
         <GlassCard>
           <div className="text-center mb-8">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
-              className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
+              className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+
               <HiLockClosed size={32} />
             </motion.div>
             <h1 className="text-3xl font-bold mb-2 text-[#111]">
-              {step === 'request' 
-                ? (lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot Password?")
-                : (lang === "ar" ? "تعيين كلمة مرور جديدة" : "Set New Password")
+              {step === 'request' ?
+              lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot Password?" :
+              lang === "ar" ? "تعيين كلمة مرور جديدة" : "Set New Password"
               }
             </h1>
             <p className="text-gray-600">
-              {step === 'request' 
-                ? (lang === "ar" ? "أدخل بريدك الإلكتروني ورقم هاتفك لإعادة تعيين كلمة المرور" : "Enter your email and phone number to reset your password")
-                : (lang === "ar" ? "أدخل الرمز وكلمة المرور الجديدة" : "Enter the code and your new password")
+              {step === 'request' ?
+              lang === "ar" ? "أدخل بريدك الإلكتروني ورقم هاتفك لإعادة تعيين كلمة المرور" : "Enter your email and phone number to reset your password" :
+              lang === "ar" ? "أدخل الرمز وكلمة المرور الجديدة" : "Enter the code and your new password"
               }
             </p>
           </div>
 
-          {step === 'request' ? (
-            <form onSubmit={handleRequestReset} className="space-y-6">
+          {step === 'request' ?
+          <form onSubmit={handleRequestReset} className="space-y-6">
               {/* Email Field */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -191,18 +191,18 @@ export default function ForgotPasswordPage() {
                     <HiMail size={20} />
                   </div>
                   <input
-                    type="email"
-                    value={formData.email}
-                    onChange={e => handleInputChange('email', e.target.value)}
-                    className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                      errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'
-                    }`}
-                    placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"}
-                  />
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
+
                 </div>
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                )}
+                {errors.email &&
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              }
               </div>
 
               {/* Phone Number Field */}
@@ -217,37 +217,37 @@ export default function ForgotPasswordPage() {
                     </svg>
                   </div>
                   <input
-                    type="tel"
-                    value={formData.phoneNumber}
-                    onChange={e => handleInputChange('phoneNumber', e.target.value)}
-                    className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                      errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'
-                    }`}
-                    placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"}
-                  />
+                  type="tel"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"} />
+
                 </div>
-                {errors.phoneNumber && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-                )}
+                {errors.phoneNumber &&
+              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+              }
               </div>
 
-              <button 
-                type="submit"
-                className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <>
+              <button
+              type="submit"
+              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
+              disabled={isLoading}>
+
+                {isLoading ?
+              <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
+
+              <>
                     <HiLockClosed />
                     {lang === "ar" ? "تحقق من البيانات" : "Verify Information"}
                   </>
-                )}
+              }
               </button>
-            </form>
-          ) : (
-            <form onSubmit={handleResetPassword} className="space-y-6">
+            </form> :
+
+          <form onSubmit={handleResetPassword} className="space-y-6">
               {/* Reset Token Field */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -258,18 +258,18 @@ export default function ForgotPasswordPage() {
                     <HiLockClosed size={20} />
                   </div>
                   <input
-                    type="text"
-                    value={formData.token}
-                    onChange={e => handleInputChange('token', e.target.value)}
-                    className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                      errors.token ? 'border-red-400' : 'border-[#d1b16a]/40'
-                    }`}
-                    placeholder={lang === "ar" ? "أدخل رمز إعادة التعيين" : "Enter reset code"}
-                  />
+                  type="text"
+                  value={formData.token}
+                  onChange={(e) => handleInputChange('token', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.token ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل رمز إعادة التعيين" : "Enter reset code"} />
+
                 </div>
-                {errors.token && (
-                  <p className="text-red-500 text-sm mt-1">{errors.token}</p>
-                )}
+                {errors.token &&
+              <p className="text-red-500 text-sm mt-1">{errors.token}</p>
+              }
               </div>
 
               {/* New Password Field */}
@@ -282,25 +282,25 @@ export default function ForgotPasswordPage() {
                     <HiLockClosed size={20} />
                   </div>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    value={formData.newPassword}
-                    onChange={e => handleInputChange('newPassword', e.target.value)}
-                    className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                      errors.newPassword ? 'border-red-400' : 'border-[#d1b16a]/40'
-                    }`}
-                    placeholder={lang === "ar" ? "أدخل كلمة المرور الجديدة" : "Enter new password"}
-                  />
+                  type={showPassword ? "text" : "password"}
+                  value={formData.newPassword}
+                  onChange={(e) => handleInputChange('newPassword', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.newPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل كلمة المرور الجديدة" : "Enter new password"} />
+
                   <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                     {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                   </button>
                 </div>
-                {errors.newPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
-                )}
+                {errors.newPassword &&
+              <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
+              }
               </div>
 
               {/* Confirm Password Field */}
@@ -313,55 +313,55 @@ export default function ForgotPasswordPage() {
                     <HiLockClosed size={20} />
                   </div>
                   <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={formData.confirmPassword}
-                    onChange={e => handleInputChange('confirmPassword', e.target.value)}
-                    className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                      errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'
-                    }`}
-                    placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"}
-                  />
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
+
                   <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                     {showConfirmPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-                )}
+                {errors.confirmPassword &&
+              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+              }
               </div>
 
-              <button 
-                type="submit"
-                className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <>
+              <button
+              type="submit"
+              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
+              disabled={isLoading}>
+
+                {isLoading ?
+              <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
+
+              <>
                     <HiLockClosed />
                     {lang === "ar" ? "تغيير كلمة المرور" : "Change Password"}
                   </>
-                )}
+              }
               </button>
             </form>
-          )}
+          }
 
           <div className="mt-8 text-center">
-            <Link 
-              to="/login" 
-              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors flex items-center justify-center gap-2"
-            >
+            <Link
+              to="/login"
+              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors flex items-center justify-center gap-2">
+
               <HiArrowLeft />
               {lang === "ar" ? "العودة لتسجيل الدخول" : "Back to Login"}
             </Link>
           </div>
         </GlassCard>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 }

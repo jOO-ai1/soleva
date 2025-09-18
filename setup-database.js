@@ -24,7 +24,7 @@ if (!fs.existsSync(backendPath)) {
 const envPath = path.join(backendPath, '.env');
 if (!fs.existsSync(envPath)) {
   console.log('⚠️  No .env file found. Creating a basic one...');
-  
+
   const envContent = `# Database Configuration
 DATABASE_URL="postgresql://postgres:password@localhost:5432/solevaeg_db?schema=public"
 
@@ -88,21 +88,21 @@ try {
     stdio: 'inherit'
   });
   console.log('✅ Migration completed successfully!\n');
-  
+
   console.log('🔄 Generating Prisma client...');
   execSync('npx prisma generate', {
     cwd: backendPath,
     stdio: 'inherit'
   });
   console.log('✅ Prisma client generated!\n');
-  
+
   console.log('🎉 Database setup completed successfully!');
   console.log('\n📋 Next steps:');
   console.log('1. Uncomment the password reset token operations in backend/src/routes/auth.ts');
   console.log('2. Test the registration with phone number');
   console.log('3. Test the forgot password flow');
   console.log('\n✨ Your phone-based password recovery system is ready to use!');
-  
+
 } catch (error) {
   console.error('❌ Database setup failed:', error.message);
   console.log('\n🔧 Troubleshooting:');

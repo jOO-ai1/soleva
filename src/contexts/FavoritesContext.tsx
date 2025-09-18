@@ -14,7 +14,7 @@ interface FavoritesContextType {
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
-export function FavoritesProvider({ children }: { children: React.ReactNode }) {
+export function FavoritesProvider({ children }: {children: React.ReactNode;}) {
   const auth = useAuthSafe();
   const isAuthenticated = auth?.isAuthenticated || false;
   const user = auth?.user;
@@ -23,24 +23,24 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : [];
   });
   const [isGuestFavorites, setIsGuestFavorites] = useState(!isAuthenticated);
-  
+
   // Define before effects to avoid "used before declaration" error
   const syncFavoritesWithServer = useCallback(async () => {
     if (!isAuthenticated || !user) return;
-    
+
     try {
       // Get server favorites
       const serverResponse = await favoritesApi.getAll();
-      const serverFavorites: any[] = (serverResponse.data as any[]) || [];
-      
+      const serverFavorites: any[] = serverResponse.data as any[] || [];
+
       // Merge guest favorites with server favorites
       const guestFavorites = favorites;
-      
+
       // Add guest favorites that don't exist on server
-      const newFavorites = guestFavorites.filter(guestId => 
-        !serverFavorites.some((serverFav: any) => serverFav.productId === guestId)
+      const newFavorites = guestFavorites.filter((guestId) =>
+      !serverFavorites.some((serverFav: any) => serverFav.productId === guestId)
       );
-      
+
       // Add new favorites to server
       for (const productId of newFavorites) {
         try {
@@ -49,7 +49,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
           console.error(`Failed to add favorite ${productId} to server:`, error);
         }
       }
-      
+
       // Update local favorites with server data
       const updatedFavorites: number[] = serverFavorites.map((fav: any) => fav.productId);
       setFavorites(updatedFavorites);
@@ -58,7 +58,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to sync favorites with server:', error);
     }
   }, [isAuthenticated, user, favorites]);
-  
+
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
@@ -70,10 +70,10 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
     setIsGuestFavorites(!isAuthenticated);
   }, [isAuthenticated, user, isGuestFavorites, syncFavoritesWithServer]);
-  
+
   const addToFavorites = async (productId: number) => {
-    setFavorites(prev => prev.includes(productId) ? prev : [...prev, productId]);
-    
+    setFavorites((prev) => prev.includes(productId) ? prev : [...prev, productId]);
+
     // If authenticated, also add to server
     if (isAuthenticated) {
       try {
@@ -81,14 +81,14 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Failed to add favorite to server:', error);
         // Revert local change if server fails
-        setFavorites(prev => prev.filter(id => id !== productId));
+        setFavorites((prev) => prev.filter((id) => id !== productId));
       }
     }
   };
-  
+
   const removeFromFavorites = async (productId: number) => {
-    setFavorites(prev => prev.filter(id => id !== productId));
-    
+    setFavorites((prev) => prev.filter((id) => id !== productId));
+
     // If authenticated, also remove from server
     if (isAuthenticated) {
       try {
@@ -96,15 +96,15 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Failed to remove favorite from server:', error);
         // Revert local change if server fails
-        setFavorites(prev => [...prev, productId]);
+        setFavorites((prev) => [...prev, productId]);
       }
     }
   };
-  
+
   const isFavorite = (productId: number) => {
     return favorites.includes(productId);
   };
-  
+
   const toggleFavorite = async (productId: number) => {
     if (isFavorite(productId)) {
       await removeFromFavorites(productId);
@@ -113,21 +113,21 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  
-  
+
+
   return (
-    <FavoritesContext.Provider value={{ 
-      favorites, 
-      addToFavorites, 
-      removeFromFavorites, 
-      isFavorite, 
+    <FavoritesContext.Provider value={{
+      favorites,
+      addToFavorites,
+      removeFromFavorites,
+      isFavorite,
       toggleFavorite,
       syncFavoritesWithServer,
       isGuestFavorites
     }}>
       {children}
-    </FavoritesContext.Provider>
-  );
+    </FavoritesContext.Provider>);
+
 }
 
 export function useFavorites() {

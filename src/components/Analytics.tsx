@@ -26,7 +26,7 @@ const Analytics = ({ children }: AnalyticsProps) => {
 
   const initializeGA4 = useCallback(() => {
     const GA4_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID;
-    
+
     if (!GA4_ID || GA4_ID === 'G-XXXXXXXXXX') {
       // GA4 not configured
       return;
@@ -40,7 +40,7 @@ const Analytics = ({ children }: AnalyticsProps) => {
 
     // Initialize dataLayer and gtag
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function(...args: unknown[]) {
+    window.gtag = function (...args: unknown[]) {
       window.dataLayer.push(args);
     };
 
@@ -69,7 +69,7 @@ const Analytics = ({ children }: AnalyticsProps) => {
 
   const initializeFacebookPixel = useCallback(() => {
     const PIXEL_ID = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
-    
+
     if (!PIXEL_ID || PIXEL_ID === 'CHANGE_THIS_PIXEL_ID' || PIXEL_ID.trim() === '') {
       // Facebook Pixel not configured or temporarily disabled
       console.log('Facebook Pixel initialization skipped - PIXEL_ID not configured');
@@ -77,12 +77,12 @@ const Analytics = ({ children }: AnalyticsProps) => {
     }
 
     // Facebook Pixel Code
-    (function(f: Window, b: Document, e: string, v: string, n?: any, t?: HTMLScriptElement, s?: Element) {
-      if((f as any).fbq) return;
-      n = f.fbq = function(...args: any[]) {
+    (function (f: Window, b: Document, e: string, v: string, n?: any, t?: HTMLScriptElement, s?: Element) {
+      if ((f as any).fbq) return;
+      n = f.fbq = function (...args: any[]) {
         n.callMethod ? n.callMethod(...args) : n.queue.push(args);
       };
-      if(!(f as any)._fbq) (f as any)._fbq = n;
+      if (!(f as any)._fbq) (f as any)._fbq = n;
       n.push = n;
       n.loaded = !0;
       n.version = '2.0';
@@ -109,14 +109,14 @@ const Analytics = ({ children }: AnalyticsProps) => {
 
   const initializeGTM = () => {
     const GTM_ID = import.meta.env.VITE_GTM_CONTAINER_ID;
-    
+
     if (!GTM_ID || GTM_ID === 'GTM-XXXXXXX') {
       // GTM not configured
       return;
     }
 
     // Google Tag Manager
-    (function(w: Window, d: Document, s: string, l: string, i: string) {
+    (function (w: Window, d: Document, s: string, l: string, i: string) {
       (w as any)[l] = (w as any)[l] || [];
       (w as any)[l].push({
         'gtm.start': new Date().getTime(),
@@ -194,7 +194,7 @@ export const trackPurchase = (orderId: string, value: number, currency: string =
       transaction_id: orderId,
       value: value,
       currency: currency,
-      items: items.map(item => ({
+      items: items.map((item) => ({
         item_id: item.id,
         item_name: item.name,
         item_category: item.category,
@@ -209,7 +209,7 @@ export const trackPurchase = (orderId: string, value: number, currency: string =
     window.fbq('track', 'Purchase', {
       value: value,
       currency: currency,
-      content_ids: items.map(item => item.id),
+      content_ids: items.map((item) => item.id),
       content_type: 'product'
     });
   }
@@ -347,7 +347,7 @@ export const trackBeginCheckout = (items: PurchaseItem[], value: number) => {
     window.gtag('event', 'begin_checkout', {
       currency: 'EGP',
       value: value,
-      items: items.map(item => ({
+      items: items.map((item) => ({
         item_id: item.id,
         item_name: item.name,
         item_category: item.category,
@@ -362,7 +362,7 @@ export const trackBeginCheckout = (items: PurchaseItem[], value: number) => {
     window.fbq('track', 'InitiateCheckout', {
       value: value,
       currency: 'EGP',
-      content_ids: items.map(item => item.id),
+      content_ids: items.map((item) => item.id),
       content_type: 'product',
       num_items: items.length
     });
@@ -404,7 +404,7 @@ export const trackLogin = (userId: string, method: string) => {
     window.gtag('event', 'login', {
       method: method
     });
-    
+
     // Set user ID
     window.gtag('config', import.meta.env.VITE_GA4_MEASUREMENT_ID, {
       user_id: userId

@@ -15,8 +15,8 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spin size="large" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!isAuthenticated) {

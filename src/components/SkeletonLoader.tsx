@@ -7,20 +7,20 @@ interface SkeletonProps {
   rounded?: boolean;
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className = '', 
-  width = '100%', 
-  height = '1rem', 
-  rounded = false 
-}) => (
-  <div
-    className={`bg-gray-200 animate-pulse ${rounded ? 'rounded-full' : 'rounded'} ${className}`}
-    style={{ width, height }}
-  />
-);
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className = '',
+  width = '100%',
+  height = '1rem',
+  rounded = false
+}) =>
+<div
+  className={`bg-gray-200 animate-pulse ${rounded ? 'rounded-full' : 'rounded'} ${className}`}
+  style={{ width, height }} />;
 
-export const ProductCardSkeleton: React.FC = () => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+
+
+export const ProductCardSkeleton: React.FC = () =>
+<div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
     <Skeleton height="200px" className="w-full" />
     <div className="p-4 space-y-3">
       <Skeleton height="1.25rem" width="80%" />
@@ -30,11 +30,11 @@ export const ProductCardSkeleton: React.FC = () => (
         <Skeleton height="2rem" width="3rem" rounded />
       </div>
     </div>
-  </div>
-);
+  </div>;
 
-export const HomePageSkeleton: React.FC = () => (
-  <div className="min-h-screen bg-gray-50">
+
+export const HomePageSkeleton: React.FC = () =>
+<div className="min-h-screen bg-gray-50">
     {/* Header skeleton */}
     <div className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,12 +62,12 @@ export const HomePageSkeleton: React.FC = () => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Skeleton height="2.5rem" width="16rem" className="mb-8" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <ProductCardSkeleton key={i} />
-        ))}
+        {Array.from({ length: 8 }).map((_, i) =>
+      <ProductCardSkeleton key={i} />
+      )}
       </div>
     </div>
-  </div>
-);
+  </div>;
+
 
 export default Skeleton;

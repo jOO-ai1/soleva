@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  FiArrowLeft, 
-  FiPackage, 
-  FiCamera, 
-  FiUpload, 
+import {
+  FiArrowLeft,
+  FiPackage,
+  FiCamera,
+  FiUpload,
   FiCheck,
   FiAlertCircle,
-  FiInfo
-} from 'react-icons/fi';
+  FiInfo } from
+'react-icons/fi';
 import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang, useTranslation } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';
@@ -60,7 +60,7 @@ interface ReturnFormData {
 }
 
 const ReturnRequestPage: React.FC = () => {
-  const { orderId } = useParams<{ orderId: string }>();
+  const { orderId } = useParams<{orderId: string;}>();
   const navigate = useNavigate();
   const auth = useAuthSafe();
   const user = auth?.user;
@@ -80,22 +80,22 @@ const ReturnRequestPage: React.FC = () => {
   });
 
   const returnReasons = [
-    { value: 'DEFECTIVE', label: { ar: 'عيب في المنتج', en: 'Defective Product' } },
-    { value: 'WRONG_SIZE', label: { ar: 'مقاس خاطئ', en: 'Wrong Size' } },
-    { value: 'WRONG_COLOR', label: { ar: 'لون خاطئ', en: 'Wrong Color' } },
-    { value: 'NOT_AS_DESCRIBED', label: { ar: 'لا يطابق الوصف', en: 'Not as Described' } },
-    { value: 'DAMAGED_SHIPPING', label: { ar: 'تلف أثناء الشحن', en: 'Damaged During Shipping' } },
-    { value: 'CHANGED_MIND', label: { ar: 'غيرت رأيي', en: 'Changed Mind' } },
-    { value: 'OTHER', label: { ar: 'أخرى', en: 'Other' } }
-  ];
+  { value: 'DEFECTIVE', label: { ar: 'عيب في المنتج', en: 'Defective Product' } },
+  { value: 'WRONG_SIZE', label: { ar: 'مقاس خاطئ', en: 'Wrong Size' } },
+  { value: 'WRONG_COLOR', label: { ar: 'لون خاطئ', en: 'Wrong Color' } },
+  { value: 'NOT_AS_DESCRIBED', label: { ar: 'لا يطابق الوصف', en: 'Not as Described' } },
+  { value: 'DAMAGED_SHIPPING', label: { ar: 'تلف أثناء الشحن', en: 'Damaged During Shipping' } },
+  { value: 'CHANGED_MIND', label: { ar: 'غيرت رأيي', en: 'Changed Mind' } },
+  { value: 'OTHER', label: { ar: 'أخرى', en: 'Other' } }];
+
 
   const conditionOptions = [
-    { value: 'NEW', label: { ar: 'جديد مع العلبة', en: 'New with Box' } },
-    { value: 'LIKE_NEW', label: { ar: 'جديد بدون علبة', en: 'Like New without Box' } },
-    { value: 'WORN_ONCE', label: { ar: 'تم ارتداؤه مرة واحدة', en: 'Worn Once' } },
-    { value: 'LIGHTLY_USED', label: { ar: 'استخدام خفيف', en: 'Lightly Used' } },
-    { value: 'DAMAGED', label: { ar: 'تالف', en: 'Damaged' } }
-  ];
+  { value: 'NEW', label: { ar: 'جديد مع العلبة', en: 'New with Box' } },
+  { value: 'LIKE_NEW', label: { ar: 'جديد بدون علبة', en: 'Like New without Box' } },
+  { value: 'WORN_ONCE', label: { ar: 'تم ارتداؤه مرة واحدة', en: 'Worn Once' } },
+  { value: 'LIGHTLY_USED', label: { ar: 'استخدام خفيف', en: 'Lightly Used' } },
+  { value: 'DAMAGED', label: { ar: 'تالف', en: 'Damaged' } }];
+
 
   useEffect(() => {
     if (orderId) {
@@ -115,19 +115,19 @@ const ReturnRequestPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setOrder(data.data);
-        
+
         // Initialize form with returnable items
-        const returnableItems = data.data.items
-          .filter((item: OrderItem) => item.canReturn)
-          .map((item: OrderItem) => ({
-            orderItemId: item.id,
-            quantity: 1,
-            reason: '',
-            condition: 'NEW',
-            description: ''
-          }));
-        
-        setFormData(prev => ({
+        const returnableItems = data.data.items.
+        filter((item: OrderItem) => item.canReturn).
+        map((item: OrderItem) => ({
+          orderItemId: item.id,
+          quantity: 1,
+          reason: '',
+          condition: 'NEW',
+          description: ''
+        }));
+
+        setFormData((prev) => ({
           ...prev,
           items: returnableItems
         }));
@@ -150,21 +150,21 @@ const ReturnRequestPage: React.FC = () => {
   };
 
   const updateItemReturn = (orderItemId: string, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: prev.items.map(item =>
-        item.orderItemId === orderItemId
-          ? { ...item, [field]: value }
-          : item
+      items: prev.items.map((item) =>
+      item.orderItemId === orderItemId ?
+      { ...item, [field]: value } :
+      item
       )
     }));
   };
 
   const toggleItemReturn = (orderItemId: string, checked: boolean) => {
     if (checked) {
-      const orderItem = order?.items.find(item => item.id === orderItemId);
+      const orderItem = order?.items.find((item) => item.id === orderItemId);
       if (orderItem) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           items: [...prev.items, {
             orderItemId,
@@ -176,9 +176,9 @@ const ReturnRequestPage: React.FC = () => {
         }));
       }
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        items: prev.items.filter(item => item.orderItemId !== orderItemId)
+        items: prev.items.filter((item) => item.orderItemId !== orderItemId)
       }));
     }
   };
@@ -186,27 +186,27 @@ const ReturnRequestPage: React.FC = () => {
   const handleImageUpload = (files: FileList | null) => {
     if (!files) return;
 
-    const validFiles = Array.from(files).filter(file => {
+    const validFiles = Array.from(files).filter((file) => {
       const isValid = file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024; // 10MB
       if (!isValid) {
         showToast(
-          lang === 'ar' 
-            ? 'يجب أن تكون الصور أقل من 10 ميجابايت'
-            : 'Images must be less than 10MB',
+          lang === 'ar' ?
+          'يجب أن تكون الصور أقل من 10 ميجابايت' :
+          'Images must be less than 10MB',
           'error'
         );
       }
       return isValid;
     });
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...validFiles].slice(0, 5) // Max 5 images
     }));
   };
 
   const removeImage = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }));
@@ -217,7 +217,7 @@ const ReturnRequestPage: React.FC = () => {
       case 1:
         return formData.items.length > 0;
       case 2:
-        return formData.items.every(item => item.reason && item.condition);
+        return formData.items.every((item) => item.reason && item.condition);
       case 3:
         return formData.returnMethod !== undefined;
       default:
@@ -262,9 +262,9 @@ const ReturnRequestPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         showToast(
-          lang === 'ar' 
-            ? `تم إنشاء طلب الإرجاع بنجاح. رقم المرجع: ${data.data.returnNumber}`
-            : `Return request created successfully. Reference: ${data.data.returnNumber}`,
+          lang === 'ar' ?
+          `تم إنشاء طلب الإرجاع بنجاح. رقم المرجع: ${data.data.returnNumber}` :
+          `Return request created successfully. Reference: ${data.data.returnNumber}`,
           'success'
         );
         navigate(`/account/returns/${data.data.id}`);
@@ -292,8 +292,8 @@ const ReturnRequestPage: React.FC = () => {
             <p>{lang === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
           </div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!order) {
@@ -304,9 +304,9 @@ const ReturnRequestPage: React.FC = () => {
             <FiAlertCircle size={48} />
             <h2>{lang === 'ar' ? 'الطلب غير موجود' : 'Order Not Found'}</h2>
             <p>
-              {lang === 'ar' 
-                ? 'لم يتم العثور على الطلب المطلوب'
-                : 'The requested order could not be found'
+              {lang === 'ar' ?
+              'لم يتم العثور على الطلب المطلوب' :
+              'The requested order could not be found'
               }
             </p>
             <GlassButton onClick={() => navigate('/account/orders')}>
@@ -314,8 +314,8 @@ const ReturnRequestPage: React.FC = () => {
             </GlassButton>
           </GlassCard>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const renderStepContent = () => {
@@ -325,23 +325,23 @@ const ReturnRequestPage: React.FC = () => {
           <div className="step-content">
             <h3>{lang === 'ar' ? 'اختر المنتجات للإرجاع' : 'Select Items to Return'}</h3>
             <p className="step-description">
-              {lang === 'ar' 
-                ? 'اختر المنتجات التي تريد إرجاعها من طلبك'
-                : 'Choose the items you want to return from your order'
+              {lang === 'ar' ?
+              'اختر المنتجات التي تريد إرجاعها من طلبك' :
+              'Choose the items you want to return from your order'
               }
             </p>
 
             <div className="order-items">
-              {order.items.map(item => (
-                <div key={item.id} className="order-item">
+              {order.items.map((item) =>
+              <div key={item.id} className="order-item">
                   <div className="item-checkbox">
                     <input
-                      type="checkbox"
-                      id={`item-${item.id}`}
-                      checked={formData.items.some(returnItem => returnItem.orderItemId === item.id)}
-                      onChange={(e) => toggleItemReturn(item.id, e.target.checked)}
-                      disabled={!item.canReturn}
-                    />
+                    type="checkbox"
+                    id={`item-${item.id}`}
+                    checked={formData.items.some((returnItem) => returnItem.orderItemId === item.id)}
+                    onChange={(e) => toggleItemReturn(item.id, e.target.checked)}
+                    disabled={!item.canReturn} />
+
                   </div>
                   
                   <div className="item-image">
@@ -359,47 +359,47 @@ const ReturnRequestPage: React.FC = () => {
                       {lang === 'ar' ? 'الكمية:' : 'Quantity:'} {item.quantity}
                     </div>
                     
-                    {!item.canReturn && (
-                      <div className="cannot-return">
+                    {!item.canReturn &&
+                  <div className="cannot-return">
                         <FiInfo size={16} />
                         <span>
                           {lang === 'ar' ? 'لا يمكن إرجاع هذا المنتج' : 'This item cannot be returned'}
                         </span>
                       </div>
-                    )}
+                  }
                   </div>
                 </div>
-              ))}
+              )}
             </div>
 
-            {formData.items.length === 0 && (
-              <div className="no-items-selected">
+            {formData.items.length === 0 &&
+            <div className="no-items-selected">
                 <FiPackage size={48} />
                 <p>
-                  {lang === 'ar' 
-                    ? 'لم تختر أي منتجات للإرجاع بعد'
-                    : 'No items selected for return yet'
-                  }
+                  {lang === 'ar' ?
+                'لم تختر أي منتجات للإرجاع بعد' :
+                'No items selected for return yet'
+                }
                 </p>
               </div>
-            )}
-          </div>
-        );
+            }
+          </div>);
+
 
       case 2:
         return (
           <div className="step-content">
             <h3>{lang === 'ar' ? 'تفاصيل الإرجاع' : 'Return Details'}</h3>
             <p className="step-description">
-              {lang === 'ar' 
-                ? 'أدخل سبب الإرجاع وحالة المنتج لكل عنصر'
-                : 'Enter the reason for return and condition for each item'
+              {lang === 'ar' ?
+              'أدخل سبب الإرجاع وحالة المنتج لكل عنصر' :
+              'Enter the reason for return and condition for each item'
               }
             </p>
 
             <div className="return-items">
-              {formData.items.map(returnItem => {
-                const orderItem = order.items.find(item => item.id === returnItem.orderItemId);
+              {formData.items.map((returnItem) => {
+                const orderItem = order.items.find((item) => item.id === returnItem.orderItemId);
                 if (!orderItem) return null;
 
                 return (
@@ -420,11 +420,11 @@ const ReturnRequestPage: React.FC = () => {
                         <label>{lang === 'ar' ? 'الكمية المرجعة' : 'Return Quantity'}</label>
                         <select
                           value={returnItem.quantity}
-                          onChange={(e) => updateItemReturn(returnItem.orderItemId, 'quantity', parseInt(e.target.value))}
-                        >
-                          {Array.from({ length: orderItem.quantity }, (_, i) => i + 1).map(qty => (
-                            <option key={qty} value={qty}>{qty}</option>
-                          ))}
+                          onChange={(e) => updateItemReturn(returnItem.orderItemId, 'quantity', parseInt(e.target.value))}>
+
+                          {Array.from({ length: orderItem.quantity }, (_, i) => i + 1).map((qty) =>
+                          <option key={qty} value={qty}>{qty}</option>
+                          )}
                         </select>
                       </div>
 
@@ -433,16 +433,16 @@ const ReturnRequestPage: React.FC = () => {
                         <select
                           value={returnItem.reason}
                           onChange={(e) => updateItemReturn(returnItem.orderItemId, 'reason', e.target.value)}
-                          required
-                        >
+                          required>
+
                           <option value="">
                             {lang === 'ar' ? 'اختر السبب' : 'Select Reason'}
                           </option>
-                          {returnReasons.map(reason => (
-                            <option key={reason.value} value={reason.value}>
+                          {returnReasons.map((reason) =>
+                          <option key={reason.value} value={reason.value}>
                               {reason.label[lang]}
                             </option>
-                          ))}
+                          )}
                         </select>
                       </div>
 
@@ -451,13 +451,13 @@ const ReturnRequestPage: React.FC = () => {
                         <select
                           value={returnItem.condition}
                           onChange={(e) => updateItemReturn(returnItem.orderItemId, 'condition', e.target.value)}
-                          required
-                        >
-                          {conditionOptions.map(condition => (
-                            <option key={condition.value} value={condition.value}>
+                          required>
+
+                          {conditionOptions.map((condition) =>
+                          <option key={condition.value} value={condition.value}>
                               {condition.label[lang]}
                             </option>
-                          ))}
+                          )}
                         </select>
                       </div>
 
@@ -466,16 +466,16 @@ const ReturnRequestPage: React.FC = () => {
                         <textarea
                           value={returnItem.description}
                           onChange={(e) => updateItemReturn(returnItem.orderItemId, 'description', e.target.value)}
-                          placeholder={lang === 'ar' 
-                            ? 'أضف أي تفاصيل إضافية...'
-                            : 'Add any additional details...'
+                          placeholder={lang === 'ar' ?
+                          'أضف أي تفاصيل إضافية...' :
+                          'Add any additional details...'
                           }
-                          rows={3}
-                        />
+                          rows={3} />
+
                       </div>
                     </div>
-                  </div>
-                );
+                  </div>);
+
               })}
             </div>
 
@@ -483,9 +483,9 @@ const ReturnRequestPage: React.FC = () => {
             <div className="image-upload-section">
               <h4>{lang === 'ar' ? 'صور المنتجات (اختياري)' : 'Product Images (Optional)'}</h4>
               <p>
-                {lang === 'ar' 
-                  ? 'أضف صور للمنتجات لتسريع عملية المراجعة'
-                  : 'Add product images to speed up the review process'
+                {lang === 'ar' ?
+                'أضف صور للمنتجات لتسريع عملية المراجعة' :
+                'Add product images to speed up the review process'
                 }
               </p>
 
@@ -496,8 +496,8 @@ const ReturnRequestPage: React.FC = () => {
                   multiple
                   accept="image/*"
                   onChange={(e) => handleImageUpload(e.target.files)}
-                  style={{ display: 'none' }}
-                />
+                  style={{ display: 'none' }} />
+
                 <label htmlFor="images" className="upload-button">
                   <FiUpload />
                   {lang === 'ar' ? 'رفع الصور' : 'Upload Images'}
@@ -507,34 +507,34 @@ const ReturnRequestPage: React.FC = () => {
                 </span>
               </div>
 
-              {formData.images.length > 0 && (
-                <div className="uploaded-images">
-                  {formData.images.map((image, index) => (
-                    <div key={index} className="uploaded-image">
+              {formData.images.length > 0 &&
+              <div className="uploaded-images">
+                  {formData.images.map((image, index) =>
+                <div key={index} className="uploaded-image">
                       <img src={URL.createObjectURL(image)} alt={`Upload ${index + 1}`} />
                       <button
-                        type="button"
-                        className="remove-image"
-                        onClick={() => removeImage(index)}
-                      >
+                    type="button"
+                    className="remove-image"
+                    onClick={() => removeImage(index)}>
+
                         ×
                       </button>
                     </div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </div>
-          </div>
-        );
+          </div>);
+
 
       case 3:
         return (
           <div className="step-content">
             <h3>{lang === 'ar' ? 'طريقة الإرجاع' : 'Return Method'}</h3>
             <p className="step-description">
-              {lang === 'ar' 
-                ? 'اختر كيف تريد إرجاع المنتجات'
-                : 'Choose how you want to return the products'
+              {lang === 'ar' ?
+              'اختر كيف تريد إرجاع المنتجات' :
+              'Choose how you want to return the products'
               }
             </p>
 
@@ -546,8 +546,8 @@ const ReturnRequestPage: React.FC = () => {
                   name="returnMethod"
                   value="PICKUP"
                   checked={formData.returnMethod === 'PICKUP'}
-                  onChange={(e) => setFormData(prev => ({ ...prev, returnMethod: e.target.value as 'PICKUP' | 'DROP_OFF' }))}
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, returnMethod: e.target.value as 'PICKUP' | 'DROP_OFF' }))} />
+
                 <label htmlFor="pickup" className="method-card">
                   <div className="method-icon">
                     <FiPackage />
@@ -555,9 +555,9 @@ const ReturnRequestPage: React.FC = () => {
                   <div className="method-details">
                     <h4>{lang === 'ar' ? 'استلام من المنزل' : 'Home Pickup'}</h4>
                     <p>
-                      {lang === 'ar' 
-                        ? 'سنأتي لاستلام المنتجات من عنوانك (مجاناً)'
-                        : 'We will pick up the products from your address (Free)'
+                      {lang === 'ar' ?
+                      'سنأتي لاستلام المنتجات من عنوانك (مجاناً)' :
+                      'We will pick up the products from your address (Free)'
                       }
                     </p>
                   </div>
@@ -571,8 +571,8 @@ const ReturnRequestPage: React.FC = () => {
                   name="returnMethod"
                   value="DROP_OFF"
                   checked={formData.returnMethod === 'DROP_OFF'}
-                  onChange={(e) => setFormData(prev => ({ ...prev, returnMethod: e.target.value as 'PICKUP' | 'DROP_OFF' }))}
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, returnMethod: e.target.value as 'PICKUP' | 'DROP_OFF' }))} />
+
                 <label htmlFor="drop_off" className="method-card">
                   <div className="method-icon">
                     <FiCamera />
@@ -580,9 +580,9 @@ const ReturnRequestPage: React.FC = () => {
                   <div className="method-details">
                     <h4>{lang === 'ar' ? 'التسليم في المتجر' : 'Store Drop-off'}</h4>
                     <p>
-                      {lang === 'ar' 
-                        ? 'احضر المنتجات إلى متجرنا في القاهرة'
-                        : 'Bring the products to our store in Cairo'
+                      {lang === 'ar' ?
+                      'احضر المنتجات إلى متجرنا في القاهرة' :
+                      'Bring the products to our store in Cairo'
                       }
                     </p>
                   </div>
@@ -594,9 +594,9 @@ const ReturnRequestPage: React.FC = () => {
             <div className="bank-details-section">
               <h4>{lang === 'ar' ? 'بيانات الحساب البنكي للاسترداد' : 'Bank Account for Refund'}</h4>
               <p>
-                {lang === 'ar' 
-                  ? 'أدخل بيانات حسابك البنكي لاسترداد المبلغ'
-                  : 'Enter your bank account details for refund'
+                {lang === 'ar' ?
+                'أدخل بيانات حسابك البنكي لاسترداد المبلغ' :
+                'Enter your bank account details for refund'
                 }
               </p>
 
@@ -606,7 +606,7 @@ const ReturnRequestPage: React.FC = () => {
                   <input
                     type="text"
                     value={formData.bankDetails?.accountNumber || ''}
-                    onChange={(e) => setFormData(prev => ({
+                    onChange={(e) => setFormData((prev) => ({
                       ...prev,
                       bankDetails: {
                         ...prev.bankDetails,
@@ -616,8 +616,8 @@ const ReturnRequestPage: React.FC = () => {
                       }
                     }))}
                     placeholder={lang === 'ar' ? 'أدخل رقم الحساب' : 'Enter account number'}
-                    required
-                  />
+                    required />
+
                 </div>
 
                 <div className="form-group">
@@ -625,7 +625,7 @@ const ReturnRequestPage: React.FC = () => {
                   <input
                     type="text"
                     value={formData.bankDetails?.accountName || ''}
-                    onChange={(e) => setFormData(prev => ({
+                    onChange={(e) => setFormData((prev) => ({
                       ...prev,
                       bankDetails: {
                         ...prev.bankDetails,
@@ -635,8 +635,8 @@ const ReturnRequestPage: React.FC = () => {
                       }
                     }))}
                     placeholder={lang === 'ar' ? 'أدخل اسم صاحب الحساب' : 'Enter account holder name'}
-                    required
-                  />
+                    required />
+
                 </div>
 
                 <div className="form-group">
@@ -644,7 +644,7 @@ const ReturnRequestPage: React.FC = () => {
                   <input
                     type="text"
                     value={formData.bankDetails?.bankName || ''}
-                    onChange={(e) => setFormData(prev => ({
+                    onChange={(e) => setFormData((prev) => ({
                       ...prev,
                       bankDetails: {
                         ...prev.bankDetails,
@@ -654,8 +654,8 @@ const ReturnRequestPage: React.FC = () => {
                       }
                     }))}
                     placeholder={lang === 'ar' ? 'أدخل اسم البنك' : 'Enter bank name'}
-                    required
-                  />
+                    required />
+
                 </div>
 
                 <div className="form-group">
@@ -663,7 +663,7 @@ const ReturnRequestPage: React.FC = () => {
                   <input
                     type="text"
                     value={formData.bankDetails?.iban || ''}
-                    onChange={(e) => setFormData(prev => ({
+                    onChange={(e) => setFormData((prev) => ({
                       ...prev,
                       bankDetails: {
                         ...prev.bankDetails,
@@ -673,13 +673,13 @@ const ReturnRequestPage: React.FC = () => {
                         bankName: prev.bankDetails?.bankName || ''
                       }
                     }))}
-                    placeholder={lang === 'ar' ? 'أدخل رقم الآيبان' : 'Enter IBAN'}
-                  />
+                    placeholder={lang === 'ar' ? 'أدخل رقم الآيبان' : 'Enter IBAN'} />
+
                 </div>
               </div>
             </div>
-          </div>
-        );
+          </div>);
+
 
       default:
         return null;
@@ -706,11 +706,11 @@ const ReturnRequestPage: React.FC = () => {
 
         {/* Progress Steps */}
         <div className="progress-steps">
-          {[1, 2, 3].map(stepNumber => (
-            <div
-              key={stepNumber}
-              className={`progress-step ${step >= stepNumber ? 'active' : ''} ${step > stepNumber ? 'completed' : ''}`}
-            >
+          {[1, 2, 3].map((stepNumber) =>
+          <div
+            key={stepNumber}
+            className={`progress-step ${step >= stepNumber ? 'active' : ''} ${step > stepNumber ? 'completed' : ''}`}>
+
               <div className="step-circle">
                 {step > stepNumber ? <FiCheck /> : stepNumber}
               </div>
@@ -720,7 +720,7 @@ const ReturnRequestPage: React.FC = () => {
                 {stepNumber === 3 && (lang === 'ar' ? 'طريقة الإرجاع' : 'Return Method')}
               </div>
             </div>
-          ))}
+          )}
         </div>
 
         {/* Step Content */}
@@ -730,36 +730,36 @@ const ReturnRequestPage: React.FC = () => {
 
         {/* Navigation */}
         <div className="step-navigation">
-          {step > 1 && (
-            <GlassButton
-              variant="secondary"
-              onClick={() => setStep(step - 1)}
-            >
+          {step > 1 &&
+          <GlassButton
+            variant="secondary"
+            onClick={() => setStep(step - 1)}>
+
               {lang === 'ar' ? 'السابق' : 'Previous'}
             </GlassButton>
-          )}
+          }
 
-          {step < 3 ? (
-            <GlassButton
-              variant="primary"
-              onClick={() => setStep(step + 1)}
-              disabled={!validateStep(step)}
-            >
+          {step < 3 ?
+          <GlassButton
+            variant="primary"
+            onClick={() => setStep(step + 1)}
+            disabled={!validateStep(step)}>
+
               {lang === 'ar' ? 'التالي' : 'Next'}
+            </GlassButton> :
+
+          <GlassButton
+            variant="primary"
+            onClick={submitReturn}
+            loading={submitting}
+            disabled={!validateStep(step)}>
+
+              {submitting ?
+            lang === 'ar' ? 'جاري الإرسال...' : 'Submitting...' :
+            lang === 'ar' ? 'إرسال طلب الإرجاع' : 'Submit Return Request'
+            }
             </GlassButton>
-          ) : (
-            <GlassButton
-              variant="primary"
-              onClick={submitReturn}
-              loading={submitting}
-              disabled={!validateStep(step)}
-            >
-              {submitting 
-                ? (lang === 'ar' ? 'جاري الإرسال...' : 'Submitting...')
-                : (lang === 'ar' ? 'إرسال طلب الإرجاع' : 'Submit Return Request')
-              }
-            </GlassButton>
-          )}
+          }
         </div>
       </div>
 
@@ -1289,8 +1289,8 @@ const ReturnRequestPage: React.FC = () => {
           }
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ReturnRequestPage;

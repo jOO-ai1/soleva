@@ -47,38 +47,38 @@ router.get('/user', auth, asyncHandler(async (req: AuthenticatedRequest, res: Re
   const skip = (page - 1) * limit;
 
   const [orders, total] = await Promise.all([
-    prisma.order.findMany({
-      where: { userId },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                images: true
-              }
-            },
-            variant: {
-              select: {
-                color: true,
-                size: true
-              }
+  prisma.order.findMany({
+    where: { userId },
+    include: {
+      items: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              images: true
+            }
+          },
+          variant: {
+            select: {
+              color: true,
+              size: true
             }
           }
-        },
-        address: true,
-        timeline: {
-          orderBy: { timestamp: 'desc' },
-          take: 1
         }
       },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit
-    }),
-    prisma.order.count({ where: { userId } })
-  ]);
+      address: true,
+      timeline: {
+        orderBy: { timestamp: 'desc' },
+        take: 1
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: limit
+  }),
+  prisma.order.count({ where: { userId } })]
+  );
 
   res.json({
     success: true,
@@ -106,9 +106,9 @@ router.get('/:id', auth, asyncHandler(async (req: AuthenticatedRequest, res: Res
   }
 
   const order = await prisma.order.findFirst({
-    where: { 
+    where: {
       id: orderId,
-      userId 
+      userId
     },
     include: {
       user: {

@@ -3,11 +3,11 @@ import { Helmet } from 'react-helmet-async';
 
 interface Product {
   id: string;
-  name: { ar: string; en: string };
+  name: {ar: string;en: string;};
   price: number;
   image: string;
-  desc: { ar: string; en: string };
-  specs: { ar: string; en: string };
+  desc: {ar: string;en: string;};
+  specs: {ar: string;en: string;};
   collection: string;
   colors: string[];
   sizes: string[];
@@ -17,7 +17,7 @@ interface StructuredDataProps {
   type: 'organization' | 'product' | 'breadcrumb' | 'website';
   data?: any;
   product?: Product;
-  breadcrumbs?: Array<{ name: string; url: string }>;
+  breadcrumbs?: Array<{name: string;url: string;}>;
 }
 
 const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, breadcrumbs }) => {
@@ -35,31 +35,31 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
         "@value": "Premium luxury shoe brand offering exclusive footwear collections with sophisticated design and exceptional quality."
       },
       "sameAs": [
-        "https://www.facebook.com/solevaeg",
-        "https://www.instagram.com/soleva.eg/"
-        // Twitter hidden but kept for future use
-        // "https://twitter.com/solevaeg"
+      "https://www.facebook.com/solevaeg",
+      "https://www.instagram.com/soleva.eg/"
+      // Twitter hidden but kept for future use
+      // "https://twitter.com/solevaeg"
       ],
       "contactPoint": [
-        {
-          "@type": "ContactPoint",
-          "email": "support@solevaeg.com",
-          "contactType": "customer service",
-          "availableLanguage": ["English", "Arabic"]
-        },
-        {
-          "@type": "ContactPoint",
-          "email": "sales@solevaeg.com",
-          "contactType": "sales",
-          "availableLanguage": ["English", "Arabic"]
-        },
-        {
-          "@type": "ContactPoint",
-          "email": "business@solevaeg.com",
-          "contactType": "business partnerships",
-          "availableLanguage": ["English", "Arabic"]
-        }
-      ],
+      {
+        "@type": "ContactPoint",
+        "email": "support@solevaeg.com",
+        "contactType": "customer service",
+        "availableLanguage": ["English", "Arabic"]
+      },
+      {
+        "@type": "ContactPoint",
+        "email": "sales@solevaeg.com",
+        "contactType": "sales",
+        "availableLanguage": ["English", "Arabic"]
+      },
+      {
+        "@type": "ContactPoint",
+        "email": "business@solevaeg.com",
+        "contactType": "business partnerships",
+        "availableLanguage": ["English", "Arabic"]
+      }],
+
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "EG",
@@ -96,10 +96,10 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
       "name": productName,
       "description": productDescription,
       "image": [
-        `https://solevaeg.com${product.image}`,
-        `https://solevaeg.com${product.image.replace('.jpg', '_2.jpg')}`,
-        `https://solevaeg.com${product.image.replace('.jpg', '_3.jpg')}`
-      ],
+      `https://solevaeg.com${product.image}`,
+      `https://solevaeg.com${product.image.replace('.jpg', '_2.jpg')}`,
+      `https://solevaeg.com${product.image.replace('.jpg', '_3.jpg')}`],
+
       "sku": product.id,
       "mpn": product.id,
       "brand": {
@@ -166,40 +166,40 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
         "worstRating": "1"
       },
       "review": [
-        {
-          "@type": "Review",
-          "reviewRating": {
-            "@type": "Rating",
-            "ratingValue": "5",
-            "bestRating": "5"
-          },
-          "author": {
-            "@type": "Person",
-            "name": "Ahmed M."
-          },
-          "reviewBody": currentLang === 'ar' 
-            ? "جودة ممتازة وتصميم أنيق جداً. أنصح بالشراء."
-            : "Excellent quality and very elegant design. Highly recommend.",
-          "datePublished": "2024-01-15"
-        }
-      ],
+      {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Ahmed M."
+        },
+        "reviewBody": currentLang === 'ar' ?
+        "جودة ممتازة وتصميم أنيق جداً. أنصح بالشراء." :
+        "Excellent quality and very elegant design. Highly recommend.",
+        "datePublished": "2024-01-15"
+      }],
+
       "additionalProperty": [
-        {
-          "@type": "PropertyValue",
-          "name": "Collection",
-          "value": product.collection
-        },
-        {
-          "@type": "PropertyValue", 
-          "name": "Gender",
-          "value": "Unisex"
-        },
-        {
-          "@type": "PropertyValue",
-          "name": "Season",
-          "value": "All Season"
-        }
-      ]
+      {
+        "@type": "PropertyValue",
+        "name": "Collection",
+        "value": product.collection
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Gender",
+        "value": "Unisex"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Season",
+        "value": "All Season"
+      }]
+
     };
   };
 
@@ -231,20 +231,20 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
         "name": "Soleva"
       },
       "potentialAction": [
-        {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://solevaeg.com/search?q={search_term_string}"
-          },
-          "query-input": "required name=search_term_string"
-        }
-      ],
+      {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://solevaeg.com/search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }],
+
       "sameAs": [
-        "https://www.facebook.com/solevaeg",
-        "https://www.instagram.com/soleva.eg/"
-        // Twitter hidden but kept for future use
-        // "https://twitter.com/solevaeg"
+      "https://www.facebook.com/solevaeg",
+      "https://www.instagram.com/soleva.eg/"
+      // Twitter hidden but kept for future use
+      // "https://twitter.com/solevaeg"
       ]
     };
   };
@@ -258,10 +258,10 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
       "description": "Premium luxury shoes online store in Egypt",
       "currenciesAccepted": "EGP",
       "paymentAccepted": [
-        "Cash on Delivery",
-        "Bank Transfer", 
-        "Digital Wallet"
-      ],
+      "Cash on Delivery",
+      "Bank Transfer",
+      "Digital Wallet"],
+
       "areaServed": {
         "@type": "Country",
         "name": "Egypt"
@@ -270,22 +270,22 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
         "@type": "OfferCatalog",
         "name": "Soleva Product Catalog",
         "itemListElement": [
-          {
-            "@type": "OfferCatalog",
-            "name": "Men's Shoes",
-            "itemListElement": []
-          },
-          {
-            "@type": "OfferCatalog", 
-            "name": "Women's Shoes",
-            "itemListElement": []
-          },
-          {
-            "@type": "OfferCatalog",
-            "name": "Luxury Collection",
-            "itemListElement": []
-          }
-        ]
+        {
+          "@type": "OfferCatalog",
+          "name": "Men's Shoes",
+          "itemListElement": []
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "Women's Shoes",
+          "itemListElement": []
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "Luxury Collection",
+          "itemListElement": []
+        }]
+
       }
     };
   };
@@ -295,39 +295,39 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What payment methods do you accept?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "We accept Cash on Delivery (COD), Bank Wallet Transfer, and Digital Wallets like Vodafone Cash."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you offer free shipping?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, we offer free shipping on orders over 500 EGP to all governorates in Egypt."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is your return policy?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "We offer 14-day returns for unworn items in original packaging. Returns are free of charge."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How long does delivery take?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Delivery typically takes 2-7 business days depending on your location in Egypt."
-          }
+      {
+        "@type": "Question",
+        "name": "What payment methods do you accept?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We accept Cash on Delivery (COD), Bank Wallet Transfer, and Digital Wallets like Vodafone Cash."
         }
-      ]
+      },
+      {
+        "@type": "Question",
+        "name": "Do you offer free shipping?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we offer free shipping on orders over 500 EGP to all governorates in Egypt."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is your return policy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We offer 14-day returns for unworn items in original packaging. Returns are free of charge."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does delivery take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Delivery typically takes 2-7 business days depending on your location in Egypt."
+        }
+      }]
+
     };
   };
 
@@ -347,24 +347,24 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
   };
 
   const schema = getSchema();
-  
+
   if (!schema) return null;
 
   const schemaArray = Array.isArray(schema) ? schema : [schema];
 
   return (
     <Helmet>
-      {schemaArray.map((schemaItem, index) => (
-        <script
-          key={index}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(schemaItem, null, 2)
-          }}
-        />
-      ))}
-    </Helmet>
-  );
+      {schemaArray.map((schemaItem, index) =>
+      <script
+        key={index}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(schemaItem, null, 2)
+        }} />
+
+      )}
+    </Helmet>);
+
 };
 
 export default StructuredData;

@@ -17,7 +17,7 @@ export default function CartSummary() {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = useTranslation();
-  
+
   const {
     showWarning,
     warningType,
@@ -32,7 +32,7 @@ export default function CartSummary() {
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
 
   const handleApplyCoupon = () => {
-    const found = COUPONS.find(c => c.code.toUpperCase() === coupon.trim().toUpperCase());
+    const found = COUPONS.find((c) => c.code.toUpperCase() === coupon.trim().toUpperCase());
     if (!found) {
       showToast(t("invalidCoupon"));
       setApplied(null);
@@ -57,7 +57,7 @@ export default function CartSummary() {
     navigate("/checkout", { state: { appliedCoupon: applied } });
   };
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const discount = applied?.discount ? Math.min(Math.floor((subtotal * applied.discount) / 100), applied.maxDiscount || Infinity) : 0;
+  const discount = applied?.discount ? Math.min(Math.floor(subtotal * applied.discount / 100), applied.maxDiscount || Infinity) : 0;
   const shipping = applied?.freeShipping ? 0 : 60;
   const total = subtotal - discount + (cart.length > 0 ? shipping : 0);
 
@@ -70,25 +70,25 @@ export default function CartSummary() {
       <div className="mb-6">
         <div className="flex flex-col gap-3 mb-3">
           <input
-            className="w-full glass border border-[#d1b16a]/40 px-4 py-3 rounded-xl font-montserrat text-base min-h-[52px] focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all"
-            placeholder={lang === 'ar' ? "أدخل كود الكوبون" : "Enter coupon code"}
-            value={coupon}
-            onChange={e => setCoupon(e.target.value)}
-            disabled={!!applied}
-          />
-          <GlassButton 
-            onClick={handleApplyCoupon}
-            className="w-full"
-            disabled={!!applied}
-          >
+              className="w-full glass border border-[#d1b16a]/40 px-4 py-3 rounded-xl font-montserrat text-base min-h-[52px] focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all"
+              placeholder={lang === 'ar' ? "أدخل كود الكوبون" : "Enter coupon code"}
+              value={coupon}
+              onChange={(e) => setCoupon(e.target.value)}
+              disabled={!!applied} />
+
+          <GlassButton
+              onClick={handleApplyCoupon}
+              className="w-full"
+              disabled={!!applied}>
+
             {applied ? t("applied") : t("applyCoupon")}
           </GlassButton>
         </div>
-        {applied && (
+        {applied &&
           <div className="text-green-600 font-semibold text-sm bg-green-50 p-2 rounded-lg">
             ✓ {applied.desc[lang]}
           </div>
-        )}
+          }
       </div>
 
       {/* Prices */}
@@ -97,12 +97,12 @@ export default function CartSummary() {
           <span>{lang === "ar" ? "الإجمالي قبل الخصم" : "Subtotal"}:</span>
           <span className="font-bold">{subtotal} {t("egp")}</span>
         </div>
-        {discount > 0 && (
+        {discount > 0 &&
           <div className="flex justify-between text-green-600">
             <span>{t("couponDiscount")}:</span>
             <span className="font-bold">-{discount} {t("egp")}</span>
           </div>
-        )}
+          }
         <div className="flex justify-between">
           <span>{t("shipping")}:</span>
           <span className="font-bold">
@@ -119,18 +119,18 @@ export default function CartSummary() {
 
       {/* Actions */}
       <div className="space-y-3">
-        <GlassButton 
-          onClick={handleCheckout}
-          className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80"
-        >
+        <GlassButton
+            onClick={handleCheckout}
+            className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80">
+
           <FiCreditCard />
           {t("checkout")}
         </GlassButton>
 
-        <GlassButton 
-          className="w-full bg-red-500 text-white hover:bg-red-600 border-none" 
-          onClick={handleEmptyCart}
-        >
+        <GlassButton
+            className="w-full bg-red-500 text-white hover:bg-red-600 border-none"
+            onClick={handleEmptyCart}>
+
           <FiTrash2 />
           {t("emptyCart")}
         </GlassButton>
@@ -138,12 +138,12 @@ export default function CartSummary() {
       </GlassCard>
 
       {/* Empty Cart Confirmation Modal */}
-      {showEmptyConfirm && (
-        <EmptyCartConfirmModal 
-          onCancel={() => setShowEmptyConfirm(false)} 
-          onConfirm={confirmEmptyCart} 
-        />
-      )}
+      {showEmptyConfirm &&
+      <EmptyCartConfirmModal
+        onCancel={() => setShowEmptyConfirm(false)}
+        onConfirm={confirmEmptyCart} />
+
+      }
       
       {/* Auth Warning Modal */}
       <AuthWarningModal
@@ -152,8 +152,8 @@ export default function CartSummary() {
         onLogin={handleLoginClick}
         onSignUp={handleSignUpClick}
         type={warningType}
-        action={actionDescription}
-      />
-    </>
-  );
+        action={actionDescription} />
+
+    </>);
+
 }

@@ -34,7 +34,7 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
     if (saved && (saved === 'en' || saved === 'ar')) {
       return saved;
     }
-    
+
     // Detect browser language
     const browserLang = navigator.language.toLowerCase();
     if (browserLang.startsWith('ar')) {
@@ -47,21 +47,21 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
 
   const t = (key: TranslationKey, params?: Record<string, string | number>): string => {
     let translation = translations[language][key] || translations.en[key] || key;
-    
+
     // Replace parameters in translation
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {
         translation = translation.replace(`{${paramKey}}`, String(value));
       });
     }
-    
+
     return translation;
   };
 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem('admin_language', lang);
-    
+
     // Update document attributes for RTL support
     document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
     document.documentElement.setAttribute('lang', lang);
@@ -74,13 +74,13 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   }, [language, isRTL]);
 
   return (
-    <LanguageContext.Provider value={{ 
-      language, 
-      setLanguage: handleSetLanguage, 
-      t, 
-      isRTL 
+    <LanguageContext.Provider value={{
+      language,
+      setLanguage: handleSetLanguage,
+      t,
+      isRTL
     }}>
       {children}
-    </LanguageContext.Provider>
-  );
+    </LanguageContext.Provider>);
+
 };

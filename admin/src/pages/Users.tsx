@@ -15,8 +15,8 @@ import {
   message,
   Popconfirm,
   Avatar,
-  Switch,
-} from 'antd';
+  Switch } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -24,8 +24,8 @@ import {
   SearchOutlined,
   FilterOutlined,
   UserOutlined,
-  LockOutlined,
-} from '@ant-design/icons';
+  LockOutlined } from
+'@ant-design/icons';
 import { usersAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -63,12 +63,12 @@ const Users: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('');
 
   const roles = [
-    { value: 'OWNER', label: 'Owner', color: 'red' },
-    { value: 'ADMIN', label: 'Admin', color: 'blue' },
-    { value: 'MANAGER', label: 'Manager', color: 'green' },
-    { value: 'CONTENT', label: 'Content Manager', color: 'orange' },
-    { value: 'SUPPORT', label: 'Support', color: 'purple' },
-  ];
+  { value: 'OWNER', label: 'Owner', color: 'red' },
+  { value: 'ADMIN', label: 'Admin', color: 'blue' },
+  { value: 'MANAGER', label: 'Manager', color: 'green' },
+  { value: 'CONTENT', label: 'Content Manager', color: 'orange' },
+  { value: 'SUPPORT', label: 'Support', color: 'purple' }];
+
 
   useEffect(() => {
     fetchUsers();
@@ -79,9 +79,9 @@ const Users: React.FC = () => {
       setLoading(true);
       const response = await usersAPI.getAll({
         search: searchText,
-        role: filterRole,
+        role: filterRole
       });
-      
+
       if (response.success && response.data) {
         setUsers(response.data);
       }
@@ -104,7 +104,7 @@ const Users: React.FC = () => {
       name: user.name,
       email: user.email,
       role: user.role,
-      isActive: user.isActive,
+      isActive: user.isActive
     });
     setModalVisible(true);
   };
@@ -145,118 +145,118 @@ const Users: React.FC = () => {
   };
 
   const getRoleColor = (role: string) => {
-    const roleConfig = roles.find(r => r.value === role);
+    const roleConfig = roles.find((r) => r.value === role);
     return roleConfig?.color || 'default';
   };
 
   const columns: ColumnsType<AdminUser> = [
-    {
-      title: 'User',
-      key: 'user',
-      render: (_, record) => (
-        <div className="flex items-center space-x-3">
+  {
+    title: 'User',
+    key: 'user',
+    render: (_, record) =>
+    <div className="flex items-center space-x-3">
           <Avatar
-            size={40}
-            src={record.avatar}
-            icon={<UserOutlined />}
-          />
+        size={40}
+        src={record.avatar}
+        icon={<UserOutlined />} />
+
           <div>
             <div className="font-medium">{record.name}</div>
             <div className="text-sm text-gray-500">{record.email}</div>
           </div>
-        </div>
-      ),
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toString().toLowerCase()) ||
-        record.email.toLowerCase().includes(value.toString().toLowerCase()),
-    },
-    {
-      title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
-      render: (role: string) => {
-        const roleConfig = roles.find(r => r.value === role);
-        return (
-          <Tag color={getRoleColor(role)}>
+        </div>,
+
+    filteredValue: searchText ? [searchText] : null,
+    onFilter: (value, record) =>
+    record.name.toLowerCase().includes(value.toString().toLowerCase()) ||
+    record.email.toLowerCase().includes(value.toString().toLowerCase())
+  },
+  {
+    title: 'Role',
+    dataIndex: 'role',
+    key: 'role',
+    render: (role: string) => {
+      const roleConfig = roles.find((r) => r.value === role);
+      return (
+        <Tag color={getRoleColor(role)}>
             {roleConfig?.label || role}
-          </Tag>
-        );
-      },
-      filters: roles.map(role => ({ text: role.label, value: role.value })),
-      onFilter: (value, record) => record.role === value,
+          </Tag>);
+
     },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
+    filters: roles.map((role) => ({ text: role.label, value: role.value })),
+    onFilter: (value, record) => record.role === value
+  },
+  {
+    title: 'Status',
+    dataIndex: 'isActive',
+    key: 'isActive',
+    render: (isActive: boolean) =>
+    <Tag color={isActive ? 'green' : 'red'}>
           {isActive ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Active', value: true },
-        { text: 'Inactive', value: false },
-      ],
-      onFilter: (value, record) => record.isActive === value,
-    },
-    {
-      title: '2FA',
-      dataIndex: 'twoFactorEnabled',
-      key: 'twoFactorEnabled',
-      render: (enabled: boolean) => (
-        <Tag color={enabled ? 'green' : 'default'}>
+        </Tag>,
+
+    filters: [
+    { text: 'Active', value: true },
+    { text: 'Inactive', value: false }],
+
+    onFilter: (value, record) => record.isActive === value
+  },
+  {
+    title: '2FA',
+    dataIndex: 'twoFactorEnabled',
+    key: 'twoFactorEnabled',
+    render: (enabled: boolean) =>
+    <Tag color={enabled ? 'green' : 'default'}>
           {enabled ? 'Enabled' : 'Disabled'}
         </Tag>
-      ),
-    },
-    {
-      title: 'Last Login',
-      dataIndex: 'lastLoginAt',
-      key: 'lastLoginAt',
-      render: (date: string) => date ? new Date(date).toLocaleDateString() : 'Never',
-      sorter: (a, b) => {
-        if (!a.lastLoginAt && !b.lastLoginAt) return 0;
-        if (!a.lastLoginAt) return 1;
-        if (!b.lastLoginAt) return -1;
-        return new Date(a.lastLoginAt).getTime() - new Date(b.lastLoginAt).getTime();
-      },
-    },
-    {
-      title: 'Created',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-      sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space>
+
+  },
+  {
+    title: 'Last Login',
+    dataIndex: 'lastLoginAt',
+    key: 'lastLoginAt',
+    render: (date: string) => date ? new Date(date).toLocaleDateString() : 'Never',
+    sorter: (a, b) => {
+      if (!a.lastLoginAt && !b.lastLoginAt) return 0;
+      if (!a.lastLoginAt) return 1;
+      if (!b.lastLoginAt) return -1;
+      return new Date(a.lastLoginAt).getTime() - new Date(b.lastLoginAt).getTime();
+    }
+  },
+  {
+    title: 'Created',
+    dataIndex: 'createdAt',
+    key: 'createdAt',
+    render: (date: string) => new Date(date).toLocaleDateString(),
+    sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (_, record) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this user?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this user?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   return (
     <div className="p-6">
@@ -265,8 +265,8 @@ const Users: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
+          onClick={handleAdd}>
+
           Add User
         </Button>
       </div>
@@ -280,8 +280,8 @@ const Users: React.FC = () => {
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                onPressEnter={fetchUsers}
-              />
+                onPressEnter={fetchUsers} />
+
             </Col>
             <Col span={6}>
               <Select
@@ -289,11 +289,11 @@ const Users: React.FC = () => {
                 style={{ width: '100%' }}
                 value={filterRole}
                 onChange={setFilterRole}
-                allowClear
-              >
-                {roles.map(role => (
-                  <Option key={role.value} value={role.value}>{role.label}</Option>
-                ))}
+                allowClear>
+
+                {roles.map((role) =>
+                <Option key={role.value} value={role.value}>{role.label}</Option>
+                )}
               </Select>
             </Col>
             <Col span={6}>
@@ -302,8 +302,8 @@ const Users: React.FC = () => {
                 style={{ width: '100%' }}
                 value={filterStatus}
                 onChange={setFilterStatus}
-                allowClear
-              >
+                allowClear>
+
                 <Option value="active">Active</Option>
                 <Option value="inactive">Inactive</Option>
               </Select>
@@ -312,8 +312,8 @@ const Users: React.FC = () => {
               <Button
                 icon={<FilterOutlined />}
                 onClick={fetchUsers}
-                style={{ width: '100%' }}
-              >
+                style={{ width: '100%' }}>
+
                 Apply Filters
               </Button>
             </Col>
@@ -330,10 +330,10 @@ const Users: React.FC = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} users`,
+            `${range[0]}-${range[1]} of ${total} users`
           }}
-          scroll={{ x: 1000 }}
-        />
+          scroll={{ x: 1000 }} />
+
       </Card>
 
       <Modal
@@ -341,18 +341,18 @@ const Users: React.FC = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={600}
-      >
+        width={600}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Form.Item
             name="name"
             label="Full Name"
-            rules={[{ required: true, message: 'Please enter full name' }]}
-          >
+            rules={[{ required: true, message: 'Please enter full name' }]}>
+
             <Input placeholder="Enter full name" />
           </Form.Item>
 
@@ -360,47 +360,47 @@ const Users: React.FC = () => {
             name="email"
             label="Email"
             rules={[
-              { required: true, message: 'Please enter email' },
-              { type: 'email', message: 'Please enter valid email' }
-            ]}
-          >
+            { required: true, message: 'Please enter email' },
+            { type: 'email', message: 'Please enter valid email' }]
+            }>
+
             <Input placeholder="Enter email" />
           </Form.Item>
 
-          {!editingUser && (
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                { required: true, message: 'Please enter password' },
-                { min: 8, message: 'Password must be at least 8 characters' }
-              ]}
-            >
+          {!editingUser &&
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+            { required: true, message: 'Please enter password' },
+            { min: 8, message: 'Password must be at least 8 characters' }]
+            }>
+
               <Input.Password placeholder="Enter password" />
             </Form.Item>
-          )}
+          }
 
           <Form.Item
             name="role"
             label="Role"
-            rules={[{ required: true, message: 'Please select role' }]}
-          >
+            rules={[{ required: true, message: 'Please select role' }]}>
+
             <Select placeholder="Select role">
-              {roles.map(role => (
-                <Option key={role.value} value={role.value}>
+              {roles.map((role) =>
+              <Option key={role.value} value={role.value}>
                   <Tag color={role.color} style={{ marginRight: 8 }}>
                     {role.label}
                   </Tag>
                 </Option>
-              ))}
+              )}
             </Select>
           </Form.Item>
 
           <Form.Item
             name="isActive"
             label="Status"
-            valuePropName="checked"
-          >
+            valuePropName="checked">
+
             <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
           </Form.Item>
 
@@ -414,8 +414,8 @@ const Users: React.FC = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Users;

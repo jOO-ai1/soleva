@@ -38,15 +38,15 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
       }
     });
   } catch (error) {
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
-  }
-};
-
-/**
+  }}; /**
  * Get audit logs with filtering and pagination
- */
-export const getAuditLogs = async (filters: {
+ */export const getAuditLogs = async (filters: {
   userId?: string;
   adminId?: string;
   action?: string;
@@ -83,31 +83,31 @@ export const getAuditLogs = async (filters: {
   }
 
   const [logs, total] = await Promise.all([
-    prisma.auditLog.findMany({
-      where,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        },
-        admin: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
+  prisma.auditLog.findMany({
+    where,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
         }
       },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit
-    }),
-    prisma.auditLog.count({ where })
-  ]);
+      admin: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: limit
+  }),
+  prisma.auditLog.count({ where })]
+  );
 
   return {
     logs,
@@ -124,9 +124,9 @@ export const getAuditLogs = async (filters: {
  * Get audit trail for a specific resource
  */
 export const getResourceAuditTrail = async (
-  resource: string,
-  resourceId: string
-) => {
+resource: string,
+resourceId: string) =>
+{
   return await prisma.auditLog.findMany({
     where: {
       resource,
@@ -170,62 +170,62 @@ export const getAuditStatistics = async (filters: {
   }
 
   const [
-    totalLogs,
-    actionStats,
-    resourceStats,
-    adminStats,
-    dailyStats
-  ] = await Promise.all([
-    // Total logs count
-    prisma.auditLog.count({ where }),
+  totalLogs,
+  actionStats,
+  resourceStats,
+  adminStats,
+  dailyStats] =
+  await Promise.all([
+  // Total logs count
+  prisma.auditLog.count({ where }),
 
-    // Actions breakdown
-    prisma.auditLog.groupBy({
-      by: ['action'],
-      where,
+  // Actions breakdown
+  prisma.auditLog.groupBy({
+    by: ['action'],
+    where,
+    _count: {
+      action: true
+    },
+    orderBy: {
       _count: {
-        action: true
-      },
-      orderBy: {
-        _count: {
-          action: 'desc'
-        }
+        action: 'desc'
       }
-    }),
+    }
+  }),
 
-    // Resources breakdown
-    prisma.auditLog.groupBy({
-      by: ['resource'],
-      where,
+  // Resources breakdown
+  prisma.auditLog.groupBy({
+    by: ['resource'],
+    where,
+    _count: {
+      resource: true
+    },
+    orderBy: {
       _count: {
-        resource: true
-      },
-      orderBy: {
-        _count: {
-          resource: 'desc'
-        }
+        resource: 'desc'
       }
-    }),
+    }
+  }),
 
-    // Admin activity
-    prisma.auditLog.groupBy({
-      by: ['adminId'],
-      where: {
-        ...where,
-        adminId: { not: null }
-      },
+  // Admin activity
+  prisma.auditLog.groupBy({
+    by: ['adminId'],
+    where: {
+      ...where,
+      adminId: { not: null }
+    },
+    _count: {
+      adminId: true
+    },
+    orderBy: {
       _count: {
-        adminId: true
-      },
-      orderBy: {
-        _count: {
-          adminId: 'desc'
-        }
+        adminId: 'desc'
       }
-    }),
+    }
+  }),
 
-    // Daily activity (last 30 days)
-    prisma.$queryRaw`
+  // Daily activity (last 30 days)
+  prisma.$queryRaw`
       SELECT 
         DATE(created_at) as date,
         COUNT(*) as count
@@ -235,8 +235,8 @@ export const getAuditStatistics = async (filters: {
       ${where.createdAt?.lte ? `AND created_at <= ${where.createdAt.lte}` : ''}
       GROUP BY DATE(created_at)
       ORDER BY date DESC
-    `
-  ]);
+    `]
+  );
 
   // Get admin details for admin stats
   const adminIds = adminStats.map((stat: any) => stat.adminId).filter(Boolean);
@@ -343,37 +343,37 @@ export const exportAuditLogs = async (filters: {
 
   // Convert to CSV format
   const csvHeaders = [
-    'Timestamp',
-    'Action',
-    'Resource',
-    'Resource ID',
-    'User Name',
-    'User Email',
-    'Admin Name',
-    'Admin Email',
-    'Admin Role',
-    'IP Address',
-    'User Agent'
-  ];
+  'Timestamp',
+  'Action',
+  'Resource',
+  'Resource ID',
+  'User Name',
+  'User Email',
+  'Admin Name',
+  'Admin Email',
+  'Admin Role',
+  'IP Address',
+  'User Agent'];
+
 
   const csvRows = logs.map((log: any) => [
-    log.createdAt.toISOString(),
-    log.action,
-    log.resource,
-    log.resourceId || '',
-    log.user?.name || '',
-    log.user?.email || '',
-    log.admin?.name || '',
-    log.admin?.email || '',
-    log.admin?.role?.toString() || '',
-    log.ipAddress || '',
-    log.userAgent || ''
-  ]);
+  log.createdAt.toISOString(),
+  log.action,
+  log.resource,
+  log.resourceId || '',
+  log.user?.name || '',
+  log.user?.email || '',
+  log.admin?.name || '',
+  log.admin?.email || '',
+  log.admin?.role?.toString() || '',
+  log.ipAddress || '',
+  log.userAgent || '']
+  );
 
   const csvContent = [
-    csvHeaders.join(','),
-    ...csvRows.map((row: any) => row.map((cell: any) => `"${cell}"`).join(','))
-  ].join('\n');
+  csvHeaders.join(','),
+  ...csvRows.map((row: any) => row.map((cell: any) => `"${cell}"`).join(','))].
+  join('\n');
 
   return csvContent;
 };
@@ -384,13 +384,13 @@ export const exportAuditLogs = async (filters: {
 export const auditMiddleware = (resource: string) => {
   return async (req: any, res: any, next: any) => {
     const originalJson = res.json;
-    
-    res.json = function(body: any) {
+
+    res.json = function (body: any) {
       // Only audit successful operations
       if (res.statusCode >= 200 && res.statusCode < 300) {
         const action = getActionFromMethod(req.method);
         const resourceId = req.params.id || body?.data?.id;
-        
+
         // Create audit log asynchronously
         createAuditLog({
           userId: req.user?.id,
@@ -405,10 +405,10 @@ export const auditMiddleware = (resource: string) => {
           method: req.method
         });
       }
-      
+
       return originalJson.call(this, body);
     };
-    
+
     next();
   };
 };
@@ -436,11 +436,11 @@ const getActionFromMethod = (method: string): AuditLogData['action'] => {
  * Track user login/logout events
  */
 export const trackAuthEvent = async (
-  userId: string,
-  action: 'LOGIN' | 'LOGOUT',
-  ipAddress?: string,
-  userAgent?: string
-) => {
+userId: string,
+action: 'LOGIN' | 'LOGOUT',
+ipAddress?: string,
+userAgent?: string) =>
+{
   await createAuditLog({
     userId,
     action,
@@ -454,12 +454,12 @@ export const trackAuthEvent = async (
  * Track sensitive operations
  */
 export const trackSensitiveOperation = async (
-  adminId: string,
-  operation: string,
-  details: any,
-  ipAddress?: string,
-  userAgent?: string
-) => {
+adminId: string,
+operation: string,
+details: any,
+ipAddress?: string,
+userAgent?: string) =>
+{
   await createAuditLog({
     adminId,
     action: 'UPDATE',

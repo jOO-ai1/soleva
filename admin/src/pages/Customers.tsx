@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Card, 
+  Card,
   Table,
   Button,
   Space,
   Input,
   Select,
   Tag,
-  Modal, 
-  Form, 
+  Modal,
+  Form,
   Popconfirm,
   Typography,
   Row,
@@ -17,8 +17,8 @@ import {
   Badge,
   Descriptions,
   Avatar,
-  Tabs
-} from 'antd';
+  Tabs } from
+'antd';
 import {
   SearchOutlined,
   EyeOutlined,
@@ -30,8 +30,8 @@ import {
   ShoppingOutlined,
   DollarOutlined,
   CalendarOutlined,
-  StarOutlined,
-} from '@ant-design/icons';
+  StarOutlined } from
+'@ant-design/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useNotification } from '../components/NotificationSystem';
 import { customersAPI } from '../services/api';
@@ -98,15 +98,15 @@ const Customers: React.FC = () => {
     let filtered = customers;
 
     if (searchText) {
-      filtered = filtered.filter(customer =>
-        customer.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchText.toLowerCase()) ||
-        customer.phone.toLowerCase().includes(searchText.toLowerCase())
+      filtered = filtered.filter((customer) =>
+      customer.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchText.toLowerCase()) ||
+      customer.phone.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
     if (selectedStatus) {
-      filtered = filtered.filter(customer => customer.status === selectedStatus);
+      filtered = filtered.filter((customer) => customer.status === selectedStatus);
     }
 
     setFilteredCustomers(filtered);
@@ -157,25 +157,25 @@ const Customers: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'success';
-      case 'inactive': return 'warning';
-      case 'suspended': return 'error';
-      default: return 'default';
+      case 'active':return 'success';
+      case 'inactive':return 'warning';
+      case 'suspended':return 'error';
+      default:return 'default';
     }
   };
 
   const columns = [
-    {
-      title: t('customer'),
-      dataIndex: 'name',
-      key: 'customer',
-      render: (text: string, record: Customer) => (
-        <Space>
-          <Avatar 
-            src={record.avatar} 
-            icon={<UserOutlined />}
-            style={{ backgroundColor: 'var(--primary)' }}
-          />
+  {
+    title: t('customer'),
+    dataIndex: 'name',
+    key: 'customer',
+    render: (text: string, record: Customer) =>
+    <Space>
+          <Avatar
+        src={record.avatar}
+        icon={<UserOutlined />}
+        style={{ backgroundColor: 'var(--primary)' }} />
+
           <div>
             <Text strong>{text}</Text>
             <div>
@@ -185,109 +185,109 @@ const Customers: React.FC = () => {
             </div>
           </div>
         </Space>
-      ),
-    },
-    {
-      title: t('phone'),
-      dataIndex: 'phone',
-      key: 'phone',
-      render: (phone: string) => (
-        <Space>
+
+  },
+  {
+    title: t('phone'),
+    dataIndex: 'phone',
+    key: 'phone',
+    render: (phone: string) =>
+    <Space>
           <PhoneOutlined />
           <Text>{phone}</Text>
         </Space>
-      ),
-    },
-    {
-      title: t('customerTotalOrders'),
-      dataIndex: 'totalOrders',
-      key: 'totalOrders',
-      render: (orders: number) => (
-        <Badge count={orders} style={{ backgroundColor: 'var(--primary)' }} />
-      ),
-    },
-    {
-      title: t('totalSpent'),
-      dataIndex: 'totalSpent',
-      key: 'totalSpent',
-      render: (amount: number) => (
-        <Text strong style={{ color: 'var(--success)' }}>
+
+  },
+  {
+    title: t('customerTotalOrders'),
+    dataIndex: 'totalOrders',
+    key: 'totalOrders',
+    render: (orders: number) =>
+    <Badge count={orders} style={{ backgroundColor: 'var(--primary)' }} />
+
+  },
+  {
+    title: t('totalSpent'),
+    dataIndex: 'totalSpent',
+    key: 'totalSpent',
+    render: (amount: number) =>
+    <Text strong style={{ color: 'var(--success)' }}>
           ${amount.toFixed(2)}
         </Text>
-      ),
-    },
-    {
-      title: t('loyaltyPoints'),
-      dataIndex: 'loyaltyPoints',
-      key: 'loyaltyPoints',
-      render: (points: number) => (
-        <Space>
+
+  },
+  {
+    title: t('loyaltyPoints'),
+    dataIndex: 'loyaltyPoints',
+    key: 'loyaltyPoints',
+    render: (points: number) =>
+    <Space>
           <StarOutlined style={{ color: 'var(--warning)' }} />
           <Text>{points}</Text>
         </Space>
-      ),
-    },
-    {
-      title: t('status'),
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
+
+  },
+  {
+    title: t('status'),
+    dataIndex: 'status',
+    key: 'status',
+    render: (status: string) =>
+    <Tag color={getStatusColor(status)}>
           {t(status as any)}
             </Tag>
-      ),
-    },
-    {
-      title: t('registrationDate'),
-      dataIndex: 'registrationDate',
-      key: 'registrationDate',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: t('actions'),
-      key: 'actions',
-      render: (_, record: Customer) => (
-        <Space>
+
+  },
+  {
+    title: t('registrationDate'),
+    dataIndex: 'registrationDate',
+    key: 'registrationDate',
+    render: (date: string) => new Date(date).toLocaleDateString()
+  },
+  {
+    title: t('actions'),
+    key: 'actions',
+    render: (_, record: Customer) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            size="small"
-            onClick={() => handleViewCustomer(record)}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        size="small"
+        onClick={() => handleViewCustomer(record)} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleViewCustomer(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        size="small"
+        onClick={() => handleViewCustomer(record)} />
+
           <Popconfirm
-            title={t('confirmDelete')}
-            onConfirm={() => handleDeleteCustomer(record.id)}
-            okText={t('delete')}
-            cancelText={t('cancel')}
-          >
+        title={t('confirmDelete')}
+        onConfirm={() => handleDeleteCustomer(record.id)}
+        okText={t('delete')}
+        cancelText={t('cancel')}>
+
             <Button
-              type="text"
-              icon={<DeleteOutlined />} 
-              size="small"
-              danger
-            />
+          type="text"
+          icon={<DeleteOutlined />}
+          size="small"
+          danger />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const stats = {
     totalCustomers: customers.length,
-    activeCustomers: customers.filter(c => c.status === 'active').length,
-    newCustomers: customers.filter(c => {
+    activeCustomers: customers.filter((c) => c.status === 'active').length,
+    newCustomers: customers.filter((c) => {
       const regDate = new Date(c.registrationDate);
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       return regDate > thirtyDaysAgo;
     }).length,
-    totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0),
+    totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0)
   };
 
   return (
@@ -309,8 +309,8 @@ const Customers: React.FC = () => {
               title={t('totalCustomers')}
               value={stats.totalCustomers}
               prefix={<UserOutlined style={{ color: 'var(--primary)' }} />}
-              valueStyle={{ color: 'var(--primary)' }}
-            />
+              valueStyle={{ color: 'var(--primary)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -319,8 +319,8 @@ const Customers: React.FC = () => {
               title={t('activeCustomers')}
               value={stats.activeCustomers}
               prefix={<UserOutlined style={{ color: 'var(--success)' }} />}
-              valueStyle={{ color: 'var(--success)' }}
-            />
+              valueStyle={{ color: 'var(--success)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -329,8 +329,8 @@ const Customers: React.FC = () => {
               title={t('newCustomers')}
               value={stats.newCustomers}
               prefix={<UserOutlined style={{ color: 'var(--info)' }} />}
-              valueStyle={{ color: 'var(--info)' }}
-            />
+              valueStyle={{ color: 'var(--info)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -340,8 +340,8 @@ const Customers: React.FC = () => {
               value={stats.totalRevenue}
               prefix={<DollarOutlined style={{ color: 'var(--success)' }} />}
               valueStyle={{ color: 'var(--success)' }}
-              precision={2}
-            />
+              precision={2} />
+
           </Card>
         </Col>
       </Row>
@@ -352,20 +352,20 @@ const Customers: React.FC = () => {
           <Col xs={24} sm={12} md={8}>
             <Search
               placeholder={t('searchCustomers')}
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
               prefix={<SearchOutlined />}
-              style={{ width: '100%' }}
-                  />
+              style={{ width: '100%' }} />
+
                 </Col>
           <Col xs={24} sm={12} md={6}>
                   <Select
               placeholder={t('status')}
               value={selectedStatus}
               onChange={setSelectedStatus}
-                    style={{ width: '100%' }}
-                    allowClear
-                  >
+              style={{ width: '100%' }}
+              allowClear>
+
               <Option value="active">{t('active')}</Option>
               <Option value="inactive">{t('inactive')}</Option>
               <Option value="suspended">{t('suspended')}</Option>
@@ -378,18 +378,18 @@ const Customers: React.FC = () => {
       <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             <Table
           columns={columns}
-              dataSource={filteredCustomers}
-              rowKey="id"
-              loading={loading}
-              pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} ${t('customers')}`,
-              }}
-          scroll={{ x: 1000 }}
-            />
+          dataSource={filteredCustomers}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} ${t('customers')}`
+          }}
+          scroll={{ x: 1000 }} />
+
           </Card>
 
       {/* Customer Details Modal */}
@@ -399,20 +399,20 @@ const Customers: React.FC = () => {
         onCancel={() => setIsModalVisible(false)}
         width={800}
         className="glass"
-        footer={null}
-      >
-        {selectedCustomer && (
-          <Tabs defaultActiveKey="profile">
+        footer={null}>
+
+        {selectedCustomer &&
+        <Tabs defaultActiveKey="profile">
             <TabPane tab={t('profile')} key="profile">
               <Row gutter={[24, 24]}>
                 <Col span={8}>
                   <div style={{ textAlign: 'center' }}>
-                    <Avatar 
-                      size={100} 
-                      src={selectedCustomer.avatar} 
-                      icon={<UserOutlined />}
-                      style={{ backgroundColor: 'var(--primary)' }}
-                    />
+                    <Avatar
+                    size={100}
+                    src={selectedCustomer.avatar}
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: 'var(--primary)' }} />
+
                     <Title level={4} style={{ marginTop: 'var(--space-4)' }}>
                       {selectedCustomer.name}
                     </Title>
@@ -457,25 +457,25 @@ const Customers: React.FC = () => {
                 <Row gutter={[16, 16]}>
             <Col span={8}>
                     <Statistic
-                      title={t('customerTotalOrders')}
-                      value={selectedCustomer.totalOrders}
-                      prefix={<ShoppingOutlined />}
-                    />
+                    title={t('customerTotalOrders')}
+                    value={selectedCustomer.totalOrders}
+                    prefix={<ShoppingOutlined />} />
+
             </Col>
             <Col span={8}>
                     <Statistic
-                      title={t('totalSpent')}
-                      value={selectedCustomer.totalSpent}
-                      prefix={<DollarOutlined />}
-                      precision={2}
-                    />
+                    title={t('totalSpent')}
+                    value={selectedCustomer.totalSpent}
+                    prefix={<DollarOutlined />}
+                    precision={2} />
+
             </Col>
             <Col span={8}>
                     <Statistic
-                      title={t('loyaltyPoints')}
-                      value={selectedCustomer.loyaltyPoints}
-                      prefix={<StarOutlined />}
-                    />
+                    title={t('loyaltyPoints')}
+                    value={selectedCustomer.loyaltyPoints}
+                    prefix={<StarOutlined />} />
+
             </Col>
           </Row>
               </Card>
@@ -503,10 +503,10 @@ const Customers: React.FC = () => {
               </Card>
             </TabPane>
           </Tabs>
-        )}
+        }
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Customers;

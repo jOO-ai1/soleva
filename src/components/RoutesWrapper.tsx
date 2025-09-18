@@ -37,20 +37,20 @@ const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
 const TermsPage = lazy(() => import('../pages/TermsPage'));
 
 // Loading fallback component
-const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
+const LoadingFallback = () =>
+<div className="min-h-screen flex items-center justify-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
+  </div>;
+
 
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
-  
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
-  
+
   return null;
 }
 
@@ -59,19 +59,19 @@ export default function RoutesWrapper() {
   const safeLang = ["ar", "en"].includes(lang) ? lang : "en";
 
   return (
-    <div 
-      dir={safeLang === "ar" ? "rtl" : "ltr"} 
+    <div
+      dir={safeLang === "ar" ? "rtl" : "ltr"}
       className={`${safeLang === "ar" ? "font-arabic" : "font-montserrat"} min-h-screen optimize-text`}
-      lang={safeLang}
-    >
+      lang={safeLang}>
+
       <Router>
         <ScrollToTop />
         <AppHeader />
-        <main 
-          role="main" 
+        <main
+          role="main"
           className="pt-20 sm:pt-24 lg:pt-28 min-h-[calc(100vh-60px)] bg-app"
-          id="main-content"
-        >
+          id="main-content">
+
           <Suspense fallback={<LoadingFallback />}>
             <AnimatePresence mode="wait">
               <Routes>
@@ -91,11 +91,11 @@ export default function RoutesWrapper() {
                 <Route
                   path="/checkout"
                   element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <CheckoutPage />
                     </ProtectedRoute>
-                  }
-                />
+                  } />
+
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
@@ -110,7 +110,6 @@ export default function RoutesWrapper() {
         <AppFooter />
         <ChatWidget />
       </Router>
-    </div>
-  );
-}
+    </div>);
 
+}

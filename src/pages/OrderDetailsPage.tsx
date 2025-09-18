@@ -98,7 +98,7 @@ const getStatusColor = (status: string) => {
 export default function OrderDetailsPage() {
   const auth = useAuthSafe();
   const user = auth?.user;
-  const { orderId } = useParams<{ orderId: string }>();
+  const { orderId } = useParams<{orderId: string;}>();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +114,7 @@ export default function OrderDetailsPage() {
       setLoading(true);
       setError(null);
       const response = await ordersApi.getById(orderId!);
-      
+
       if (response.success) {
         setOrder(response.data as Order);
       } else {
@@ -173,16 +173,16 @@ export default function OrderDetailsPage() {
             <FiPackage size={64} className="mx-auto mb-4 text-[#d1b16a]" />
             <h1 className="text-2xl font-bold mb-4">Order Details</h1>
             <p className="text-gray-600 mb-6">Please log in to view order details</p>
-            <Link 
-              to="/login" 
-              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-            >
+            <Link
+              to="/login"
+              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
               Login
             </Link>
           </div>
         </GlassCard>
-      </div>
-    );
+      </div>);
+
   }
 
   if (loading) {
@@ -192,8 +192,8 @@ export default function OrderDetailsPage() {
           <FiRefreshCw className="animate-spin text-[#d1b16a] text-2xl mr-3" />
           <span className="text-gray-600">Loading order details...</span>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (error || !order) {
@@ -205,28 +205,28 @@ export default function OrderDetailsPage() {
             <h1 className="text-2xl font-bold mb-4 text-red-600">Order Not Found</h1>
             <p className="text-gray-600 mb-6">We couldn't find the order you're looking for.</p>
             <div className="space-x-4">
-              <Link 
-                to="/orders" 
-                className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-              >
+              <Link
+                to="/orders"
+                className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
                 <FiArrowLeft className="mr-2" />
                 Back to Orders
               </Link>
             </div>
           </div>
         </GlassCard>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-4xl">
       {/* Header */}
       <div className="mb-8">
-        <Link 
-          to="/orders" 
-          className="inline-flex items-center text-[#d1b16a] hover:underline mb-4"
-        >
+        <Link
+          to="/orders"
+          className="inline-flex items-center text-[#d1b16a] hover:underline mb-4">
+
           <FiArrowLeft className="mr-2" />
           Back to Orders
         </Link>
@@ -259,30 +259,30 @@ export default function OrderDetailsPage() {
           <div className="mb-6">
             <h3 className="font-semibold mb-4">Order Items</h3>
             <div className="space-y-4">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  {item.product.images[0] && (
-                    <img 
-                      src={item.product.images[0]} 
-                      alt={item.product.name}
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                  )}
+              {order.items.map((item) =>
+              <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                  {item.product.images[0] &&
+                <img
+                  src={item.product.images[0]}
+                  alt={item.product.name}
+                  className="w-20 h-20 object-cover rounded" />
+
+                }
                   <div className="flex-1">
                     <h4 className="font-medium text-lg">{item.product.name}</h4>
                     <p className="text-sm text-gray-600 mb-2">
                       {item.variant.color} • Size {item.variant.size} • Quantity: {item.quantity}
                     </p>
-                    {item.product.description && (
-                      <p className="text-sm text-gray-500">{item.product.description}</p>
-                    )}
+                    {item.product.description &&
+                  <p className="text-sm text-gray-500">{item.product.description}</p>
+                  }
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-lg">{formatPrice(Number(item.price))}</p>
                     <p className="text-sm text-gray-600">each</p>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -294,22 +294,22 @@ export default function OrderDetailsPage() {
                 <span>Subtotal:</span>
                 <span>{formatPrice(Number(order.subtotal))}</span>
               </div>
-              {Number(order.discountAmount) > 0 && (
-                <div className="flex justify-between text-green-600">
+              {Number(order.discountAmount) > 0 &&
+              <div className="flex justify-between text-green-600">
                   <span>Discount:</span>
                   <span>-{formatPrice(Number(order.discountAmount))}</span>
                 </div>
-              )}
+              }
               <div className="flex justify-between">
                 <span>Shipping:</span>
                 <span>{formatPrice(Number(order.shippingCost))}</span>
               </div>
-              {Number(order.taxAmount) > 0 && (
-                <div className="flex justify-between">
+              {Number(order.taxAmount) > 0 &&
+              <div className="flex justify-between">
                   <span>Tax:</span>
                   <span>{formatPrice(Number(order.taxAmount))}</span>
                 </div>
-              )}
+              }
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total:</span>
                 <span>{formatPrice(Number(order.totalAmount))}</span>
@@ -341,24 +341,24 @@ export default function OrderDetailsPage() {
                   {order.shippingStatus.replace('_', ' ')}
                 </span>
               </div>
-              {order.trackingNumber && (
-                <div>
+              {order.trackingNumber &&
+              <div>
                   <p className="font-medium">Tracking Number</p>
                   <p className="text-gray-600 font-mono">{order.trackingNumber}</p>
                 </div>
-              )}
-              {order.estimatedDelivery && (
-                <div>
+              }
+              {order.estimatedDelivery &&
+              <div>
                   <p className="font-medium">Estimated Delivery</p>
                   <p className="text-gray-600">{formatDate(order.estimatedDelivery)}</p>
                 </div>
-              )}
-              {order.actualDelivery && (
-                <div>
+              }
+              {order.actualDelivery &&
+              <div>
                   <p className="font-medium">Delivered On</p>
                   <p className="text-gray-600">{formatDate(order.actualDelivery)}</p>
                 </div>
-              )}
+              }
             </div>
           </GlassCard>
 
@@ -379,20 +379,20 @@ export default function OrderDetailsPage() {
                   {order.paymentStatus.replace('_', ' ')}
                 </span>
               </div>
-              {order.paymentProofUrl && (
-                <div>
+              {order.paymentProofUrl &&
+              <div>
                   <p className="font-medium">Payment Proof</p>
-                  <a 
-                    href={order.paymentProofUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-[#d1b16a] hover:underline"
-                  >
+                  <a
+                  href={order.paymentProofUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-[#d1b16a] hover:underline">
+
                     <FiDownload className="mr-1" />
                     Download Receipt
                   </a>
                 </div>
-              )}
+              }
             </div>
           </GlassCard>
         </div>
@@ -404,7 +404,7 @@ export default function OrderDetailsPage() {
             {order.timeline.map((event, index) => {
               const statusInfo = getTimelineStatus(event.status);
               const isLast = index === order.timeline.length - 1;
-              
+
               return (
                 <div key={event.id} className="flex items-start space-x-4">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${statusInfo.color} bg-white border-2 border-current`}>
@@ -419,42 +419,42 @@ export default function OrderDetailsPage() {
                         {formatDate(event.timestamp)}
                       </p>
                     </div>
-                    {!isLast && (
-                      <div className="mt-2 ml-4 border-l-2 border-gray-200 h-6"></div>
-                    )}
+                    {!isLast &&
+                    <div className="mt-2 ml-4 border-l-2 border-gray-200 h-6"></div>
+                    }
                   </div>
-                </div>
-              );
+                </div>);
+
             })}
           </div>
         </GlassCard>
 
         {/* Customer Notes */}
-        {order.customerNotes && (
-          <GlassCard className="p-6">
+        {order.customerNotes &&
+        <GlassCard className="p-6">
             <h3 className="font-semibold mb-4">Customer Notes</h3>
             <p className="text-gray-600">{order.customerNotes}</p>
           </GlassCard>
-        )}
+        }
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link 
+          <Link
             to={`/track/${order.orderNumber}`}
-            className="inline-flex items-center justify-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-          >
+            className="inline-flex items-center justify-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
             <FiTruck className="mr-2" />
             Track Order
           </Link>
-          <Link 
+          <Link
             to="/orders"
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
+            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+
             <FiArrowLeft className="mr-2" />
             Back to Orders
           </Link>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

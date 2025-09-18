@@ -21,9 +21,9 @@ router.get('/:identifier', asyncHandler(async (req: Request, res: Response): Pro
   const order = await prisma.order.findFirst({
     where: {
       OR: [
-        { orderNumber: identifier },
-        { id: identifier }
-      ]
+      { orderNumber: identifier },
+      { id: identifier }]
+
     },
     include: {
       user: {

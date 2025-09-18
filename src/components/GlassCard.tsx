@@ -9,8 +9,8 @@ interface GlassCardProps {
   modern?: boolean;
 }
 
-export default function GlassCard({ 
-  children, 
+export default function GlassCard({
+  children,
   className = '',
   variant = 'default',
   hover = true,
@@ -23,16 +23,16 @@ export default function GlassCard({
   };
 
   return (
-    <div 
+    <div
       className={clsx(
         modern ? 'modern-glass-card' : variantClasses[variant],
         {
           'hover:transform hover:scale-[1.02]': hover
         },
         className
-      )}
-    >
+      )}>
+
       {children}
-    </div>
-  );
+    </div>);
+
 }

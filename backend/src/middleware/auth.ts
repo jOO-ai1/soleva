@@ -16,10 +16,10 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export const auth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+req: Request,
+res: Response,
+next: NextFunction)
+: Promise<void> => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -39,7 +39,7 @@ export const auth = async (
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    
+
     // Get fresh user data from database
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -68,7 +68,7 @@ export const auth = async (
       data: { lastLoginAt: new Date() }
     });
 
-    (req as AuthenticatedRequest).user = { 
+    (req as AuthenticatedRequest).user = {
       userId: user.id,
       id: user.id,
       email: user.email,
@@ -118,30 +118,30 @@ export const requireRole = (allowedRoles: UserRole[]) => {
 };
 
 export const requireAdmin = requireRole([
-  UserRole.ADMIN,
-  UserRole.OWNER
-]);
+UserRole.ADMIN,
+UserRole.OWNER]
+);
 
 export const requireManager = requireRole([
-  UserRole.MANAGER,
-  UserRole.ADMIN,
-  UserRole.OWNER
-]);
+UserRole.MANAGER,
+UserRole.ADMIN,
+UserRole.OWNER]
+);
 
 export const requireSupport = requireRole([
-  UserRole.SUPPORT,
-  UserRole.CONTENT,
-  UserRole.MANAGER,
-  UserRole.ADMIN,
-  UserRole.OWNER
-]);
+UserRole.SUPPORT,
+UserRole.CONTENT,
+UserRole.MANAGER,
+UserRole.ADMIN,
+UserRole.OWNER]
+);
 
 // Optional authentication - doesn't fail if no token provided
 export const optionalAuth = async (
-  req: AuthenticatedRequest,
-  _res: Response,
-  next: NextFunction
-): Promise<void> => {
+req: AuthenticatedRequest,
+_res: Response,
+next: NextFunction)
+: Promise<void> => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -151,7 +151,7 @@ export const optionalAuth = async (
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
@@ -165,8 +165,8 @@ export const optionalAuth = async (
     });
 
     if (user && user.isActive) {
-      (req as AuthenticatedRequest).user = { 
-        ...user, 
+      (req as AuthenticatedRequest).user = {
+        ...user,
         userId: user.id,
         preferredLanguage: user.preferredLanguage || 'en'
       };

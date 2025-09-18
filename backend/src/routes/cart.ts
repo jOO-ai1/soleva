@@ -114,10 +114,10 @@ router.post('/guest/:sessionId', async (req: Request, res): Promise<Response | v
     const { productId, variantId, quantity, product } = req.body;
 
     const guestCart = guestCarts.get(sessionId) || [];
-    
+
     // Check if item already exists
-    const existingItemIndex = guestCart.findIndex(item => 
-      item.productId === productId && item.variantId === variantId
+    const existingItemIndex = guestCart.findIndex((item) =>
+    item.productId === productId && item.variantId === variantId
     );
 
     if (existingItemIndex >= 0) {
@@ -163,7 +163,7 @@ router.put('/guest/:sessionId/:itemId', async (req: Request, res): Promise<Respo
     const { quantity } = req.body;
 
     const guestCart = guestCarts.get(sessionId) || [];
-    const itemIndex = guestCart.findIndex(item => item.id === itemId);
+    const itemIndex = guestCart.findIndex((item) => item.id === itemId);
 
     if (itemIndex >= 0) {
       guestCart[itemIndex].quantity = Math.max(1, quantity);
@@ -195,7 +195,7 @@ router.delete('/guest/:sessionId/:itemId', async (req: Request, res): Promise<Re
     }
 
     const guestCart = guestCarts.get(sessionId) || [];
-    const updatedGuestCart = guestCart.filter(item => item.id !== itemId);
+    const updatedGuestCart = guestCart.filter((item) => item.id !== itemId);
     guestCarts.set(sessionId, updatedGuestCart);
 
     res.json({

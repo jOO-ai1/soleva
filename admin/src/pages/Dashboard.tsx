@@ -8,8 +8,8 @@ import {
   EyeOutlined,
   EditOutlined,
   PlusOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons';
+  FileTextOutlined } from
+'@ant-design/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { dashboardAPI } from '../services/api';
 
@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
     totalCustomers: 0,
     totalProducts: 0,
     revenue: 0,
-    growth: 0,
+    growth: 0
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
           totalCustomers: statsResponse.data.totalCustomers || 0,
           totalProducts: 0, // This would need a separate API call
           revenue: statsResponse.data.totalRevenue || 0,
-          growth: statsResponse.data.revenueGrowth || 0,
+          growth: statsResponse.data.revenueGrowth || 0
         });
       }
 
@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
           customerName: order.customerName || order.customer?.name || 'Unknown Customer',
           total: order.total || order.amount || 0,
           status: order.status || 'pending',
-          date: order.createdAt || order.date || new Date().toISOString(),
+          date: order.createdAt || order.date || new Date().toISOString()
         })));
       }
 
@@ -93,7 +93,7 @@ const Dashboard: React.FC = () => {
           name: product.productName || product.name || 'Unknown Product',
           sales: product.sales || 0,
           revenue: product.revenue || 0,
-          growth: product.growth || 0,
+          growth: product.growth || 0
         })));
       }
     } catch (err) {
@@ -109,119 +109,119 @@ const Dashboard: React.FC = () => {
   }, [fetchDashboardData]);
 
   const recentOrdersColumns = [
-    {
-      title: t('orderNumber'),
-      dataIndex: 'id',
-      key: 'id',
-      render: (id: string) => <Text code>#{id.slice(-8)}</Text>,
-    },
-    {
-      title: t('customerName'),
-      dataIndex: 'customerName',
-      key: 'customerName',
-    },
-    {
-      title: t('orderTotal'),
-      dataIndex: 'total',
-      key: 'total',
-      render: (total: number) => (
-        <Text strong style={{ color: 'var(--primary)' }}>
+  {
+    title: t('orderNumber'),
+    dataIndex: 'id',
+    key: 'id',
+    render: (id: string) => <Text code>#{id.slice(-8)}</Text>
+  },
+  {
+    title: t('customerName'),
+    dataIndex: 'customerName',
+    key: 'customerName'
+  },
+  {
+    title: t('orderTotal'),
+    dataIndex: 'total',
+    key: 'total',
+    render: (total: number) =>
+    <Text strong style={{ color: 'var(--primary)' }}>
           ${total.toFixed(2)}
         </Text>
-      ),
-    },
-    {
-      title: t('orderStatus'),
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <span
-          style={{
-            padding: '4px 8px',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: 'var(--text-xs)',
-            fontWeight: '500',
-            background: status === 'completed' ? 'var(--success)' : 'var(--warning)',
-            color: 'white',
-          }}
-        >
+
+  },
+  {
+    title: t('orderStatus'),
+    dataIndex: 'status',
+    key: 'status',
+    render: (status: string) =>
+    <span
+      style={{
+        padding: '4px 8px',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: 'var(--text-xs)',
+        fontWeight: '500',
+        background: status === 'completed' ? 'var(--success)' : 'var(--warning)',
+        color: 'white'
+      }}>
+
           {t(status as any)}
         </span>
-      ),
-    },
-    {
-      title: t('orderDate'),
-      dataIndex: 'date',
-      key: 'date',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: t('actions'),
-      key: 'actions',
-      render: () => (
-        <Space>
+
+  },
+  {
+    title: t('orderDate'),
+    dataIndex: 'date',
+    key: 'date',
+    render: (date: string) => new Date(date).toLocaleDateString()
+  },
+  {
+    title: t('actions'),
+    key: 'actions',
+    render: () =>
+    <Space>
           <Button type="text" icon={<EyeOutlined />} size="small" />
           <Button type="text" icon={<EditOutlined />} size="small" />
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const topProductsColumns = [
-    {
-      title: t('productName'),
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: t('sales'),
-      dataIndex: 'sales',
-      key: 'sales',
-      render: (sales: number) => (
-        <Text strong>{sales.toLocaleString()}</Text>
-      ),
-    },
-    {
-      title: t('revenue'),
-      dataIndex: 'revenue',
-      key: 'revenue',
-      render: (revenue: number) => (
-        <Text strong style={{ color: 'var(--primary)' }}>
+  {
+    title: t('productName'),
+    dataIndex: 'name',
+    key: 'name'
+  },
+  {
+    title: t('sales'),
+    dataIndex: 'sales',
+    key: 'sales',
+    render: (sales: number) =>
+    <Text strong>{sales.toLocaleString()}</Text>
+
+  },
+  {
+    title: t('revenue'),
+    dataIndex: 'revenue',
+    key: 'revenue',
+    render: (revenue: number) =>
+    <Text strong style={{ color: 'var(--primary)' }}>
           ${revenue.toFixed(2)}
         </Text>
-      ),
-    },
-    {
-      title: t('growth'),
-      dataIndex: 'growth',
-      key: 'growth',
-      render: (growth: number) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+  },
+  {
+    title: t('growth'),
+    dataIndex: 'growth',
+    key: 'growth',
+    render: (growth: number) =>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Progress
-            percent={Math.abs(growth)}
-            size="small"
-            status={growth >= 0 ? 'success' : 'exception'}
-            style={{ width: '60px' }}
-          />
+        percent={Math.abs(growth)}
+        size="small"
+        status={growth >= 0 ? 'success' : 'exception'}
+        style={{ width: '60px' }} />
+
           <Text style={{ color: growth >= 0 ? 'var(--success)' : 'var(--error)' }}>
             {growth >= 0 ? '+' : ''}{growth.toFixed(1)}%
           </Text>
         </div>
-      ),
-    },
-  ];
+
+  }];
+
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '400px' 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px'
       }}>
         <Spin size="large" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (error) {
@@ -232,12 +232,12 @@ const Dashboard: React.FC = () => {
         type="error"
         showIcon
         action={
-          <Button size="small" onClick={fetchDashboardData}>
+        <Button size="small" onClick={fetchDashboardData}>
             {t('refresh')}
           </Button>
-        }
-      />
-    );
+        } />);
+
+
   }
 
   return (
@@ -259,8 +259,8 @@ const Dashboard: React.FC = () => {
               title={t('totalSales')}
               value={stats.totalSales}
               prefix={<ShoppingOutlined style={{ color: 'var(--primary)' }} />}
-              valueStyle={{ color: 'var(--primary)' }}
-            />
+              valueStyle={{ color: 'var(--primary)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -269,8 +269,8 @@ const Dashboard: React.FC = () => {
               title={t('totalOrders')}
               value={stats.totalOrders}
               prefix={<FileTextOutlined style={{ color: 'var(--info)' }} />}
-              valueStyle={{ color: 'var(--info)' }}
-            />
+              valueStyle={{ color: 'var(--info)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -279,8 +279,8 @@ const Dashboard: React.FC = () => {
               title={t('totalCustomers')}
               value={stats.totalCustomers}
               prefix={<UserOutlined style={{ color: 'var(--success)' }} />}
-              valueStyle={{ color: 'var(--success)' }}
-            />
+              valueStyle={{ color: 'var(--success)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -290,8 +290,8 @@ const Dashboard: React.FC = () => {
               value={stats.revenue}
               prefix={<DollarOutlined style={{ color: 'var(--warning)' }} />}
               valueStyle={{ color: 'var(--warning)' }}
-              precision={2}
-            />
+              precision={2} />
+
           </Card>
         </Col>
       </Row>
@@ -299,11 +299,11 @@ const Dashboard: React.FC = () => {
       {/* Charts and Tables */}
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}>
-          <Card 
-            className="glass animate-fade-in-up" 
+          <Card
+            className="glass animate-fade-in-up"
             style={{ animationDelay: '0.5s' }}
             title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
                   {t('recentOrders')}
                 </Title>
@@ -311,35 +311,35 @@ const Dashboard: React.FC = () => {
                   {t('create')}
                 </Button>
               </div>
-            }
-          >
+            }>
+
             <Table
               columns={recentOrdersColumns}
               dataSource={recentOrders}
               rowKey="id"
               pagination={{ pageSize: 5 }}
-              size="small"
-            />
+              size="small" />
+
           </Card>
         </Col>
         
         <Col xs={24} lg={8}>
-          <Card 
-            className="glass animate-fade-in-up" 
+          <Card
+            className="glass animate-fade-in-up"
             style={{ animationDelay: '0.6s' }}
             title={
-              <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+            <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
                 {t('topProducts')}
               </Title>
-            }
-          >
+            }>
+
             <Table
               columns={topProductsColumns}
               dataSource={topProducts}
               rowKey="id"
               pagination={false}
-              size="small"
-            />
+              size="small" />
+
           </Card>
         </Col>
       </Row>
@@ -347,23 +347,23 @@ const Dashboard: React.FC = () => {
       {/* Growth Chart Placeholder */}
       <Row gutter={[24, 24]} style={{ marginTop: 'var(--space-6)' }}>
         <Col span={24}>
-          <Card 
-            className="glass animate-fade-in-up" 
+          <Card
+            className="glass animate-fade-in-up"
             style={{ animationDelay: '0.7s' }}
             title={
-              <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+            <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
                 {t('salesChart')}
               </Title>
-            }
-          >
-            <div style={{ 
-              height: '300px', 
-              display: 'flex', 
-              alignItems: 'center', 
+            }>
+
+            <div style={{
+              height: '300px',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
               background: 'linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%)',
               borderRadius: 'var(--radius-lg)',
-              border: '2px dashed var(--primary-200)',
+              border: '2px dashed var(--primary-200)'
             }}>
               <div style={{ textAlign: 'center' }}>
                 <RiseOutlined style={{ fontSize: '48px', color: 'var(--primary)', marginBottom: 'var(--space-4)' }} />
@@ -375,8 +375,8 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Dashboard;

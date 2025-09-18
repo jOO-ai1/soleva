@@ -24,7 +24,7 @@ class EncryptionService {
 
   constructor() {
     this.masterKey = process.env.ENCRYPTION_MASTER_KEY || this.generateKey();
-    
+
     if (!process.env.ENCRYPTION_MASTER_KEY) {
       console.warn('⚠️ ENCRYPTION_MASTER_KEY not set. Using generated key. Set this in production!');
       console.log('Generated key:', this.masterKey);
@@ -81,7 +81,7 @@ class EncryptionService {
   decrypt(encryptedData: EncryptedData, options: EncryptionOptions = {}): string {
     try {
       const { encrypted, iv, salt, tag } = encryptedData;
-      
+
       const saltBuffer = Buffer.from(salt, 'hex');
       const ivBuffer = Buffer.from(iv, 'hex');
       const tagBuffer = Buffer.from(tag, 'hex');
@@ -105,12 +105,12 @@ class EncryptionService {
    * Encrypt PII data with field-specific keys
    */
   encryptPII(data: string, fieldType: string, userId?: string): string {
-    const fieldSalt = crypto.createHash('sha256')
-      .update(`${fieldType}:${userId || 'anonymous'}`)
-      .digest('hex');
-    
+    const fieldSalt = crypto.createHash('sha256').
+    update(`${fieldType}:${userId || 'anonymous'}`).
+    digest('hex');
+
     const encryptedData = this.encrypt(data, { key: fieldSalt });
-    
+
     // Store as JSON string for database
     return JSON.stringify(encryptedData);
   }
@@ -119,22 +119,22 @@ class EncryptionService {
    * Decrypt PII data with field-specific keys
    */
   decryptPII(encryptedJson: string, fieldType: string, userId?: string): string {
-    const fieldSalt = crypto.createHash('sha256')
-      .update(`${fieldType}:${userId || 'anonymous'}`)
-      .digest('hex');
-    
+    const fieldSalt = crypto.createHash('sha256').
+    update(`${fieldType}:${userId || 'anonymous'}`).
+    digest('hex');
+
     const encryptedData = JSON.parse(encryptedJson) as EncryptedData;
-    
+
     return this.decrypt(encryptedData, { key: fieldSalt });
   }
 
   /**
    * Hash sensitive data (one-way)
    */
-  hash(data: string, salt?: string): { hash: string; salt: string } {
+  hash(data: string, salt?: string): {hash: string;salt: string;} {
     const saltBuffer = salt ? Buffer.from(salt, 'hex') : crypto.randomBytes(SALT_LENGTH);
     const hash = crypto.pbkdf2Sync(data, saltBuffer, 100000, 64, 'sha512');
-    
+
     return {
       hash: hash.toString('hex'),
       salt: saltBuffer.toString('hex')
@@ -177,22 +177,22 @@ class EncryptionService {
     cipher.setAAD(salt);
 
     const encrypted = Buffer.concat([
-      cipher.update(fileBuffer),
-      cipher.final()
-    ]);
+    cipher.update(fileBuffer),
+    cipher.final()]
+    );
 
     const tag = cipher.getAuthTag();
 
     // Combine salt, iv, tag, and encrypted data
     return Buffer.concat([
-      Buffer.from([SALT_LENGTH]), // Salt length indicator
-      salt,
-      Buffer.from([IV_LENGTH]), // IV length indicator  
-      iv,
-      Buffer.from([TAG_LENGTH]), // Tag length indicator
-      tag,
-      encrypted
-    ]);
+    Buffer.from([SALT_LENGTH]), // Salt length indicator
+    salt,
+    Buffer.from([IV_LENGTH]), // IV length indicator  
+    iv,
+    Buffer.from([TAG_LENGTH]), // Tag length indicator
+    tag,
+    encrypted]
+    );
   }
 
   /**
@@ -225,9 +225,9 @@ class EncryptionService {
     decipher.setAuthTag(tag);
 
     return Buffer.concat([
-      decipher.update(encrypted),
-      decipher.final()
-    ]);
+    decipher.update(encrypted),
+    decipher.final()]
+    );
   }
 
   /**
@@ -254,11 +254,11 @@ class EncryptionService {
     if (data.length <= visibleChars * 2) {
       return '*'.repeat(data.length);
     }
-    
+
     const start = data.substring(0, visibleChars);
     const end = data.substring(data.length - visibleChars);
-    const middle = '*'.repeat(data.length - (visibleChars * 2));
-    
+    const middle = '*'.repeat(data.length - visibleChars * 2);
+
     return `${start}${middle}${end}`;
   }
 }

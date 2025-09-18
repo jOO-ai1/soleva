@@ -5,35 +5,35 @@ import React from 'react';
 
 // Placeholder service for when Sentry is disabled
 class PlaceholderSentryService {
-  init() { 
+  init() {
+
+
     // Sentry initialization disabled
-  }
-  
-  captureException(_error: Error, _context?: Record<string, any>) { 
+  }captureException(_error: Error, _context?: Record<string, any>) {
+
+
     // Error tracking disabled
-  }
-  
-  captureMessage(_message: string, _level?: string, _context?: Record<string, any>) { 
+  }captureMessage(_message: string, _level?: string, _context?: Record<string, any>) {
+
+
     // Message tracking disabled
-  }
-  
-  capturePerformance(_name: string, _duration: number, _context?: Record<string, any>) { 
+  }capturePerformance(_name: string, _duration: number, _context?: Record<string, any>) {
+
+
     // Performance tracking disabled
-  }
-  
-  setUser(_user: { id: string; email?: string; name?: string }) { 
+  }setUser(_user: {id: string;email?: string;name?: string;}) {
+
+
     // User tracking disabled
-  }
-  
-  clearUser() { 
+  }clearUser() {
+
+
     // User clearing disabled
-  }
-  
-  addBreadcrumb(_breadcrumb: { message: string; category?: string; level?: string }) { 
+  }addBreadcrumb(_breadcrumb: {message: string;category?: string;level?: string;}) {
+
+
     // Breadcrumb tracking disabled
-  }
-  
-  startTransaction(_name: string, _op: string) { 
+  }startTransaction(_name: string, _op: string) {
     // Transaction tracking disabled
     return {
       setTag: () => {},
@@ -44,6 +44,6 @@ class PlaceholderSentryService {
 }
 
 // React Error Boundary component
-export const SentryErrorBoundary = ({ children }: { children: React.ReactNode }) => children;
+export const SentryErrorBoundary = ({ children }: {children: React.ReactNode;}) => children;
 
 export default new PlaceholderSentryService();

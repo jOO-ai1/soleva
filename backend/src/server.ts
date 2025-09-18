@@ -56,13 +56,13 @@ const swaggerOptions = {
       }
     },
     servers: [
-      {
-        url: process.env.NODE_ENV === 'production' 
-          ? 'https://api.solevaeg.com'
-          : `http://localhost:${port}`,
-        description: process.env.NODE_ENV === 'production' ? 'Production' : 'Development'
-      }
-    ],
+    {
+      url: process.env.NODE_ENV === 'production' ?
+      'https://api.solevaeg.com' :
+      `http://localhost:${port}`,
+      description: process.env.NODE_ENV === 'production' ? 'Production' : 'Development'
+    }],
+
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -84,56 +84,56 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: [
-        "'self'", 
-        "'unsafe-inline'", 
-        "https://fonts.googleapis.com",
-        "https://cdn.jsdelivr.net"
-      ],
+      "'self'",
+      "'unsafe-inline'",
+      "https://fonts.googleapis.com",
+      "https://cdn.jsdelivr.net"],
+
       scriptSrc: [
-        "'self'", 
-        "'unsafe-inline'", 
-        "'unsafe-eval'",
-        "https://accounts.google.com",
-        "https://www.googletagmanager.com",
-        "https://www.google-analytics.com",
-        "https://www.gstatic.com",
-        "https://connect.facebook.net",
-        "https://cdn.jsdelivr.net"
-      ],
+      "'self'",
+      "'unsafe-inline'",
+      "'unsafe-eval'",
+      "https://accounts.google.com",
+      "https://www.googletagmanager.com",
+      "https://www.google-analytics.com",
+      "https://www.gstatic.com",
+      "https://connect.facebook.net",
+      "https://cdn.jsdelivr.net"],
+
       imgSrc: [
-        "'self'", 
-        "data:", 
-        "https:", 
-        "blob:",
-        "https://www.google-analytics.com",
-        "https://www.googletagmanager.com"
-      ],
+      "'self'",
+      "data:",
+      "https:",
+      "blob:",
+      "https://www.google-analytics.com",
+      "https://www.googletagmanager.com"],
+
       connectSrc: [
-        "'self'", 
-        "https://api.solevaeg.com", 
-        "https://solevaeg.com",
-        "https://www.google-analytics.com",
-        "https://analytics.google.com",
-        "https://accounts.google.com",
-        "https://www.googletagmanager.com",
-        "https://connect.facebook.net",
-        "https://graph.facebook.com"
-      ],
+      "'self'",
+      "https://api.solevaeg.com",
+      "https://solevaeg.com",
+      "https://www.google-analytics.com",
+      "https://analytics.google.com",
+      "https://accounts.google.com",
+      "https://www.googletagmanager.com",
+      "https://connect.facebook.net",
+      "https://graph.facebook.com"],
+
       fontSrc: [
-        "'self'", 
-        "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net"
-      ],
+      "'self'",
+      "https://fonts.gstatic.com",
+      "https://cdn.jsdelivr.net"],
+
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: [
-        "'self'",
-        "https://accounts.google.com",
-        "https://www.facebook.com"
-      ],
+      "'self'",
+      "https://accounts.google.com",
+      "https://www.facebook.com"],
+
       baseUri: ["'self'"],
-      formAction: ["'self'"],
-    },
+      formAction: ["'self'"]
+    }
   },
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -190,22 +190,22 @@ export { authLimiter, registrationLimiter };
 // CORS configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || [
-    'http://localhost:5173', 
-    'http://localhost:3002',
-    'https://solevaeg.com',
-    'https://www.solevaeg.com',
-    'https://admin.solevaeg.com',
-    'http://solevaeg.com',
-    'http://www.solevaeg.com',
-    'http://admin.solevaeg.com',
-    // Temporary fix for incorrect domain
-    'https://solevaeq.com',
-    'https://www.solevaeq.com',
-    'https://admin.solevaeq.com',
-    'http://solevaeq.com',
-    'http://www.solevaeq.com',
-    'http://admin.solevaeq.com'
-  ],
+  'http://localhost:5173',
+  'http://localhost:3002',
+  'https://solevaeg.com',
+  'https://www.solevaeg.com',
+  'https://admin.solevaeg.com',
+  'http://solevaeg.com',
+  'http://www.solevaeg.com',
+  'http://admin.solevaeg.com',
+  // Temporary fix for incorrect domain
+  'https://solevaeq.com',
+  'https://www.solevaeq.com',
+  'https://admin.solevaeq.com',
+  'http://solevaeq.com',
+  'http://www.solevaeq.com',
+  'http://admin.solevaeq.com'],
+
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -240,9 +240,9 @@ apiRouter.get('/categories', async (_req, res) => {
     const categories = await prisma.category.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-      include: { 
+      include: {
         parent: true,
-        _count: { select: { products: true } } as any 
+        _count: { select: { products: true } } as any
       }
     } as any);
 
@@ -258,7 +258,7 @@ apiRouter.get('/categories', async (_req, res) => {
       sortOrder: c.sortOrder,
       productsCount: c._count?.products || 0,
       createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
+      updatedAt: c.updatedAt
     }));
 
     res.json({
@@ -279,8 +279,8 @@ apiRouter.get('/collections', async (_req, res) => {
     const collections = await prisma.collection.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-      include: { 
-        _count: { select: { products: true } } as any 
+      include: {
+        _count: { select: { products: true } } as any
       }
     } as any);
 
@@ -297,7 +297,7 @@ apiRouter.get('/collections', async (_req, res) => {
       endDate: c.endDate,
       productsCount: c._count?.products || 0,
       createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
+      updatedAt: c.updatedAt
     }));
 
     res.json({
@@ -319,20 +319,20 @@ apiRouter.get('/config', async (_req, res) => {
     // Get store settings from database
     let storeSettings = null;
     let integrationSettings = null;
-    
+
     try {
       storeSettings = await prisma.storeSettings.findFirst();
     } catch (dbError) {
+
+
       // Continue with default settings
-    }
-    
-    try {
+    }try {
       integrationSettings = await prisma.integrationSettings.findFirst();
     } catch (dbError) {
-      // Continue with default settings
-    }
 
-    // Default configuration if no settings found
+
+      // Continue with default settings
+    } // Default configuration if no settings found
     const defaultConfig = {
       store: {
         name: { en: 'Soleva', ar: 'سوليفا' },
@@ -416,10 +416,10 @@ apiRouter.get('/health', async (_req, res) => {
   try {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
-    
+
     // Check Redis connection
     const redisStatus = redis.status;
-    
+
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -462,10 +462,10 @@ app.get('/health', async (_req, res) => {
   try {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
-    
+
     // Check Redis connection
     const redisStatus = redis.status;
-    
+
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -489,9 +489,9 @@ app.get('/', (_req, res) => {
   res.json({
     message: 'Soleva E-commerce API',
     version: '1.0.0',
-    docs: process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true' 
-      ? '/docs' 
-      : 'Documentation not available in production',
+    docs: process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true' ?
+    '/docs' :
+    'Documentation not available in production',
     health: '/health'
   });
 });
@@ -515,31 +515,31 @@ app.use(errorHandler);
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
-  
+
   // Stop uptime monitoring
   uptimeService.stop();
-  
+
   // Close database connections
   await prisma.$disconnect();
-  
+
   // Close Redis connection
   redis.disconnect();
-  
+
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
-  
+
   // Stop uptime monitoring
   uptimeService.stop();
-  
+
   // Close database connections
   await prisma.$disconnect();
-  
+
   // Close Redis connection
   redis.disconnect();
-  
+
   process.exit(0);
 });
 

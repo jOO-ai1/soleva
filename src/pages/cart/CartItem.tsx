@@ -5,7 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useLang, useTranslation } from '../../contexts/LangContext';
 
-export default function CartItem({ item, index, onRemove }: { item: any, index: number, onRemove: (item: any) => void }) {
+export default function CartItem({ item, index, onRemove }: {item: any;index: number;onRemove: (item: any) => void;}) {
   const { updateQty } = useCart();
   const { showToast } = useToast();
   const { lang } = useLang();
@@ -32,8 +32,8 @@ export default function CartItem({ item, index, onRemove }: { item: any, index: 
       transition={{ delay: index * 0.1, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -3, scale: 1.02 }}
       className="cart-item flex flex-col sm:flex-row items-start sm:items-center gap-4 modern-glass-card rounded-xl border border-[var(--border-secondary)] hover:shadow-lg transition-all duration-300 p-4 sm:p-5"
-      data-item-id={`${item.id}-${item.color}-${item.size}`}
-    >
+      data-item-id={`${item.id}-${item.color}-${item.size}`}>
+
       <img
         src={item.image}
         alt={item.name[lang]}
@@ -41,8 +41,8 @@ export default function CartItem({ item, index, onRemove }: { item: any, index: 
         loading="lazy"
         decoding="async"
         width="96"
-        height="96"
-      />
+        height="96" />
+
 
       <div className="flex-1 min-w-0 w-full">
         <h3 className="font-semibold text-base sm:text-lg text-[var(--text-primary)] line-clamp-2 mb-2">{item.name[lang]}</h3>
@@ -63,8 +63,8 @@ export default function CartItem({ item, index, onRemove }: { item: any, index: 
             onClick={() => handleQty(-1)}
             className="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={item.qty <= 1}
-            aria-label="Decrease quantity"
-          >
+            aria-label="Decrease quantity">
+
             <FiMinus />
           </button>
 
@@ -73,8 +73,8 @@ export default function CartItem({ item, index, onRemove }: { item: any, index: 
           <button
             onClick={() => handleQty(1)}
             className="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300"
-            aria-label="Increase quantity"
-          >
+            aria-label="Increase quantity">
+
             <FiPlus />
           </button>
         </div>
@@ -83,11 +83,11 @@ export default function CartItem({ item, index, onRemove }: { item: any, index: 
         <button
           onClick={() => onRemove(item)}
           className="remove-btn w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center glass border border-red-200/50 rounded-xl bg-red-50/80 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 hover:scale-110 hover:shadow-lg transition-all duration-300"
-          aria-label="Remove item from cart"
-        >
+          aria-label="Remove item from cart">
+
           <FiTrash2 size={22} />
         </button>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }

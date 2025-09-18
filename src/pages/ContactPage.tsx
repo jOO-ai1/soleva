@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FiMail, 
-  FiMapPin, 
-  FiClock, 
+import {
+  FiMail,
+  FiMapPin,
+  FiClock,
   FiSend,
   FiUser,
   FiMessageSquare,
   FiShoppingBag,
   FiMessageCircle,
   FiFacebook,
-  FiInstagram
-} from 'react-icons/fi';
+  FiInstagram } from
+'react-icons/fi';
 import { useLang } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';
 import GlassCard from '../components/GlassCard';
@@ -35,11 +35,11 @@ const ContactPage: React.FC = () => {
     orderNumber: '',
     honeypot: ''
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
-  
+
   const { lang } = useLang();
   const { showToast } = useToast();
 
@@ -62,22 +62,22 @@ const ContactPage: React.FC = () => {
     },
     socialMedia: {
       facebook: 'https://www.facebook.com/solevaeg',
-      instagram: 'https://www.instagram.com/soleva.eg/',
+      instagram: 'https://www.instagram.com/soleva.eg/'
       // Twitter hidden but kept for future use
       // twitter: 'https://twitter.com/soleva'
     }
   };
 
   const subjectOptions = [
-    { value: 'general', label: { ar: 'استفسار عام', en: 'General Inquiry' } },
-    { value: 'order', label: { ar: 'استفسار عن طلب', en: 'Order Inquiry' } },
-    { value: 'product', label: { ar: 'استفسار عن منتج', en: 'Product Inquiry' } },
-    { value: 'shipping', label: { ar: 'الشحن والتوصيل', en: 'Shipping & Delivery' } },
-    { value: 'return', label: { ar: 'إرجاع أو استبدال', en: 'Return or Exchange' } },
-    { value: 'technical', label: { ar: 'مشكلة تقنية', en: 'Technical Issue' } },
-    { value: 'partnership', label: { ar: 'شراكة تجارية', en: 'Business Partnership' } },
-    { value: 'complaint', label: { ar: 'شكوى', en: 'Complaint' } }
-  ];
+  { value: 'general', label: { ar: 'استفسار عام', en: 'General Inquiry' } },
+  { value: 'order', label: { ar: 'استفسار عن طلب', en: 'Order Inquiry' } },
+  { value: 'product', label: { ar: 'استفسار عن منتج', en: 'Product Inquiry' } },
+  { value: 'shipping', label: { ar: 'الشحن والتوصيل', en: 'Shipping & Delivery' } },
+  { value: 'return', label: { ar: 'إرجاع أو استبدال', en: 'Return or Exchange' } },
+  { value: 'technical', label: { ar: 'مشكلة تقنية', en: 'Technical Issue' } },
+  { value: 'partnership', label: { ar: 'شراكة تجارية', en: 'Business Partnership' } },
+  { value: 'complaint', label: { ar: 'شكوى', en: 'Complaint' } }];
+
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -121,7 +121,7 @@ const ContactPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       showToast(
         lang === 'ar' ? 'يرجى تصحيح الأخطاء في النموذج' : 'Please correct the errors in the form'
@@ -155,11 +155,11 @@ const ContactPage: React.FC = () => {
       if (response.ok) {
         setSubmitted(true);
         showToast(
-          lang === 'ar' 
-            ? `تم إرسال رسالتك بنجاح. رقم المرجع: ${data.data.ticketNumber}`
-            : `Your message has been sent successfully. Reference number: ${data.data.ticketNumber}`
+          lang === 'ar' ?
+          `تم إرسال رسالتك بنجاح. رقم المرجع: ${data.data.ticketNumber}` :
+          `Your message has been sent successfully. Reference number: ${data.data.ticketNumber}`
         );
-        
+
         // Reset form
         setFormData({
           name: '',
@@ -174,9 +174,9 @@ const ContactPage: React.FC = () => {
       }
     } catch (error: any) {
       showToast(
-        lang === 'ar' 
-          ? 'فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.'
-          : 'Failed to send message. Please try again.'
+        lang === 'ar' ?
+        'فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.' :
+        'Failed to send message. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -184,11 +184,11 @@ const ContactPage: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -198,17 +198,17 @@ const ContactPage: React.FC = () => {
       <section className="hero-section">
         <div className="container">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="hero-content"
-          >
+            className="hero-content">
+
             <SectionTitle>
               <h1>{lang === 'ar' ? 'تواصل معنا' : 'Contact Us'}</h1>
-              <p>{lang === 'ar' 
-                ? 'نحن هنا لمساعدتك. تواصل معنا في أي وقت'
-                : 'We\'re here to help. Reach out to us anytime'
-              }</p>
+              <p>{lang === 'ar' ?
+                'نحن هنا لمساعدتك. تواصل معنا في أي وقت' :
+                'We\'re here to help. Reach out to us anytime'
+                }</p>
             </SectionTitle>
       </motion.div>
         </div>
@@ -218,11 +218,11 @@ const ContactPage: React.FC = () => {
         <div className="contact-content">
         {/* Contact Information */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="contact-info"
-          >
+            className="contact-info">
+
             <GlassCard className="info-card">
               <h3 className="info-title">
                 {lang === 'ar' ? 'معلومات التواصل' : 'Contact Information'}
@@ -315,21 +315,21 @@ const ContactPage: React.FC = () => {
                 <div className="contact-details">
                   <h4>{lang === 'ar' ? 'وسائل التواصل الاجتماعي' : 'Social Media'}</h4>
                   <div className="social-links">
-                    <a 
-                      href={contactInfo.socialMedia.facebook} 
-                      target="_blank" 
+                    <a
+                      href={contactInfo.socialMedia.facebook}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="social-link"
-                    >
+                      className="social-link">
+
                       <FiFacebook size={16} />
                       <span>Facebook</span>
                     </a>
-                    <a 
-                      href={contactInfo.socialMedia.instagram} 
-                      target="_blank" 
+                    <a
+                      href={contactInfo.socialMedia.instagram}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="social-link"
-                    >
+                      className="social-link">
+
                       <FiInstagram size={16} />
                       <span>Instagram</span>
                     </a>
@@ -341,48 +341,48 @@ const ContactPage: React.FC = () => {
 
         {/* Contact Form */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="contact-form-container"
-          >
+            className="contact-form-container">
+
             <GlassCard className="form-card">
-              {submitted ? (
-                <div className="success-message">
+              {submitted ?
+              <div className="success-message">
                   <div className="success-icon">✅</div>
                   <h3>
                     {lang === 'ar' ? 'تم إرسال رسالتك!' : 'Message Sent!'}
                   </h3>
                   <p>
-                    {lang === 'ar'
-                      ? 'شكراً لتواصلك معنا. سنقوم بالرد عليك في أقرب وقت ممكن.'
-                      : 'Thank you for contacting us. We\'ll get back to you as soon as possible.'
-                    }
+                    {lang === 'ar' ?
+                  'شكراً لتواصلك معنا. سنقوم بالرد عليك في أقرب وقت ممكن.' :
+                  'Thank you for contacting us. We\'ll get back to you as soon as possible.'
+                  }
                   </p>
                   <button
-                    onClick={() => setSubmitted(false)}
-                    className="btn btn-primary px-6 py-3 text-base min-h-[44px]"
-                    type="button"
-                  >
+                  onClick={() => setSubmitted(false)}
+                  className="btn btn-primary px-6 py-3 text-base min-h-[44px]"
+                  type="button">
+
                     {lang === 'ar' ? 'إرسال رسالة أخرى' : 'Send Another Message'}
                   </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="contact-form">
+                </div> :
+
+              <form onSubmit={handleSubmit} className="contact-form">
                   <h3 className="form-title">
                     {lang === 'ar' ? 'أرسل لنا رسالة' : 'Send us a Message'}
                   </h3>
 
                   {/* Anti-spam honeypot field (hidden) */}
                   <input
-                    type="text"
-                    name="website"
-                    value={formData.honeypot}
-                    onChange={(e) => handleInputChange('honeypot', e.target.value)}
-                    style={{ display: 'none' }}
-                    tabIndex={-1}
-                    autoComplete="off"
-                  />
+                  type="text"
+                  name="website"
+                  value={formData.honeypot}
+                  onChange={(e) => handleInputChange('honeypot', e.target.value)}
+                  style={{ display: 'none' }}
+                  tabIndex={-1}
+                  autoComplete="off" />
+
 
                   <div className="form-grid">
                     {/* Name */}
@@ -392,13 +392,13 @@ const ContactPage: React.FC = () => {
                         {lang === 'ar' ? 'الاسم' : 'Name'} *
                       </label>
                       <input
-                        type="text"
-                        className={`form-input ${errors.name ? 'error' : ''}`}
-                        value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                        placeholder={lang === 'ar' ? 'أدخل اسمك' : 'Enter your name'}
-                        required
-                      />
+                      type="text"
+                      className={`form-input ${errors.name ? 'error' : ''}`}
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder={lang === 'ar' ? 'أدخل اسمك' : 'Enter your name'}
+                      required />
+
                       {errors.name && <span className="error-text">{errors.name}</span>}
                 </div>
 
@@ -409,13 +409,13 @@ const ContactPage: React.FC = () => {
                         {lang === 'ar' ? 'البريد الإلكتروني' : 'Email'} *
                   </label>
                   <input
-                    type="email"
-                        className={`form-input ${errors.email ? 'error' : ''}`}
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
-                    required
-                      />
+                      type="email"
+                      className={`form-input ${errors.email ? 'error' : ''}`}
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder={lang === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                      required />
+
                       {errors.email && <span className="error-text">{errors.email}</span>}
                     </div>
 
@@ -427,40 +427,40 @@ const ContactPage: React.FC = () => {
                         {lang === 'ar' ? 'الموضوع' : 'Subject'} *
                       </label>
                       <select
-                        className={`form-input ${errors.subject ? 'error' : ''}`}
-                        value={formData.subject}
-                        onChange={(e) => handleInputChange('subject', e.target.value)}
-                        required
-                      >
+                      className={`form-input ${errors.subject ? 'error' : ''}`}
+                      value={formData.subject}
+                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      required>
+
                         <option value="">
                           {lang === 'ar' ? 'اختر الموضوع' : 'Select Subject'}
                         </option>
-                        {subjectOptions.map(option => (
-                          <option key={option.value} value={option.value}>
+                        {subjectOptions.map((option) =>
+                      <option key={option.value} value={option.value}>
                             {option.label[lang as 'ar' | 'en']}
                           </option>
-                        ))}
+                      )}
                       </select>
                       {errors.subject && <span className="error-text">{errors.subject}</span>}
               </div>
 
                     {/* Order Number (conditional) */}
-                    {formData.subject === 'order' && (
-                      <div className="form-group full-width">
+                    {formData.subject === 'order' &&
+                  <div className="form-group full-width">
                         <label className="form-label">
                           <FiShoppingBag />
                           {lang === 'ar' ? 'رقم الطلب' : 'Order Number'} *
                 </label>
                 <input
-                  type="text"
-                          className={`form-input ${errors.orderNumber ? 'error' : ''}`}
-                          value={formData.orderNumber}
-                          onChange={(e) => handleInputChange('orderNumber', e.target.value)}
-                          placeholder={lang === 'ar' ? 'SOL-20240101-12345' : 'SOL-20240101-12345'}
-                        />
+                      type="text"
+                      className={`form-input ${errors.orderNumber ? 'error' : ''}`}
+                      value={formData.orderNumber}
+                      onChange={(e) => handleInputChange('orderNumber', e.target.value)}
+                      placeholder={lang === 'ar' ? 'SOL-20240101-12345' : 'SOL-20240101-12345'} />
+
                         {errors.orderNumber && <span className="error-text">{errors.orderNumber}</span>}
               </div>
-                    )}
+                  }
 
                     {/* Message */}
                     <div className="form-group full-width">
@@ -469,35 +469,35 @@ const ContactPage: React.FC = () => {
                         {lang === 'ar' ? 'الرسالة' : 'Message'} *
                 </label>
                 <textarea
-                        className={`form-input ${errors.message ? 'error' : ''}`}
-                        rows={5}
-                        value={formData.message}
-                        onChange={(e) => handleInputChange('message', e.target.value)}
-                        placeholder={lang === 'ar' 
-                          ? 'اكتب رسالتك هنا...'
-                          : 'Write your message here...'
-                        }
-                  required
-                />
+                      className={`form-input ${errors.message ? 'error' : ''}`}
+                      rows={5}
+                      value={formData.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      placeholder={lang === 'ar' ?
+                      'اكتب رسالتك هنا...' :
+                      'Write your message here...'
+                      }
+                      required />
+
                       {errors.message && <span className="error-text">{errors.message}</span>}
                     </div>
               </div>
 
                   <div className="form-actions">
               <button
-                type="submit"
-                className="btn btn-primary px-6 py-3 text-base min-h-[44px] submit-button gap-2 flex items-center justify-center"
-                disabled={loading}
-              >
+                    type="submit"
+                    className="btn btn-primary px-6 py-3 text-base min-h-[44px] submit-button gap-2 flex items-center justify-center"
+                    disabled={loading}>
+
                     <FiSend />
-                      {loading 
-                        ? (lang === 'ar' ? 'جاري الإرسال...' : 'Sending...')
-                        : (lang === 'ar' ? 'إرسال الرسالة' : 'Send Message')
-                      }
+                      {loading ?
+                    lang === 'ar' ? 'جاري الإرسال...' : 'Sending...' :
+                    lang === 'ar' ? 'إرسال الرسالة' : 'Send Message'
+                    }
                     </button>
                   </div>
             </form>
-              )}
+              }
           </GlassCard>
         </motion.div>
       </div>
@@ -749,8 +749,8 @@ const ContactPage: React.FC = () => {
           }
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ContactPage;

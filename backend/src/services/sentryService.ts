@@ -17,7 +17,7 @@ export const initializeSentry = (_sentryConfig: SentryConfig) => {
     console.log('Sentry initialization skipped - SENTRY_DSN not configured');
     return;
   }
-  
+
   console.log('Sentry initialization disabled - requires API update to v8');
   // TODO: Implement with @sentry/node v8+ API
 };
@@ -52,7 +52,7 @@ export class SentryService {
       this.initialized = false;
       return;
     }
-    
+
     console.log('SentryService initialize disabled - requires API update to v8');
     this.initialized = false;
   }
@@ -67,7 +67,7 @@ export class SentryService {
     // TODO: Implement with @sentry/node v8+ API
   }
 
-  setUser(user: { id: string; email?: string; role?: string }) {
+  setUser(user: {id: string;email?: string;role?: string;}) {
     console.log('Set user (Sentry disabled):', user.id);
     // TODO: Implement with @sentry/node v8+ API
   }
@@ -77,7 +77,7 @@ export class SentryService {
     // TODO: Implement with @sentry/node v8+ API
   }
 
-  addBreadcrumb(breadcrumb: { message: string; category?: string; level?: string; data?: any }) {
+  addBreadcrumb(breadcrumb: {message: string;category?: string;level?: string;data?: any;}) {
     console.log('Breadcrumb (Sentry disabled):', breadcrumb.message);
     // TODO: Implement with @sentry/node v8+ API
   }

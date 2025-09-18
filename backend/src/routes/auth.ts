@@ -5,21 +5,21 @@ import { PrismaClient } from '@prisma/client';
 import { auth } from '../middleware/auth';
 import { validateTwoFactor, generateTwoFactorSecret, generateBackupCodes } from '../middleware/twoFactor';
 import { AuthenticatedRequest } from '../middleware/auth';
-import { 
-  customerLogin, 
-  customerRegister, 
-  googleLogin, 
-  facebookLogin, 
-  getCustomerProfile, 
-  updateCustomerProfile, 
+import {
+  customerLogin,
+  customerRegister,
+  googleLogin,
+  facebookLogin,
+  getCustomerProfile,
+  updateCustomerProfile,
   logout as customerLogout,
-  disconnectGoogleAccount
-} from '../controllers/authController';
-import { 
-  verifyEmailVerificationToken, 
-  markEmailAsVerified, 
-  resendVerificationEmail 
-} from '../middleware/emailVerification';
+  disconnectGoogleAccount } from
+'../controllers/authController';
+import {
+  verifyEmailVerificationToken,
+  markEmailAsVerified,
+  resendVerificationEmail } from
+'../middleware/emailVerification';
 import { validateRegistration, validateLogin } from '../middleware/validation';
 import { validateRecaptcha } from '../middleware/captcha';
 import { refreshToken } from '../middleware/secureSession';
@@ -76,7 +76,7 @@ router.post('/customer/disconnect-google', auth, disconnectGoogleAccount);
 router.post('/verify-email', async (req, res): Promise<void> => {
   try {
     const { token } = req.body;
-    
+
     if (!token) {
       res.status(400).json({
         success: false,
@@ -84,7 +84,7 @@ router.post('/verify-email', async (req, res): Promise<void> => {
       });
       return;
     }
-    
+
     const decoded = verifyEmailVerificationToken(token);
     if (!decoded) {
       res.status(400).json({
@@ -93,7 +93,7 @@ router.post('/verify-email', async (req, res): Promise<void> => {
       });
       return;
     }
-    
+
     const success = await markEmailAsVerified(decoded.userId);
     if (success) {
       res.json({
@@ -119,7 +119,7 @@ router.post('/verify-email', async (req, res): Promise<void> => {
 router.post('/resend-verification', async (req, res): Promise<void> => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       res.status(400).json({
         success: false,
@@ -127,7 +127,7 @@ router.post('/resend-verification', async (req, res): Promise<void> => {
       });
       return;
     }
-    
+
     const result = await resendVerificationEmail(email);
     res.status(result.success ? 200 : 400).json(result);
   } catch (error) {
@@ -154,7 +154,7 @@ router.post('/admin/login', async (req, res): Promise<Response | void> => {
 
     // Find admin user
     const user = await prisma.user.findUnique({
-      where: { 
+      where: {
         email,
         role: { in: ['ADMIN', 'OWNER', 'MANAGER', 'CONTENT', 'SUPPORT'] }
       }
@@ -222,7 +222,7 @@ router.post('/admin/login', async (req, res): Promise<Response | void> => {
 
     // Generate JWT
     const token = jwt.sign(
-      { 
+      {
         userId: user.id,
         email: user.email,
         role: user.role,
@@ -483,7 +483,7 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req: any, res: Res
       // Generate password reset token
       const resetToken = crypto.randomBytes(32).toString('hex');
       const resetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-      
+
       // Log token generation for debugging (remove in production)
       console.log(`Password reset token generated for user ${user.id}: ${resetToken.substring(0, 8)}... (expires: ${resetExpiry.toISOString()})`);
 
@@ -572,7 +572,7 @@ router.post('/reset-password', async (req: any, res: Response): Promise<Response
       where: { id: user.id },
       data: { password: hashedPassword }
     });
-    
+
     // TODO: Mark token as used after migration
     // await prisma.passwordResetToken.update({
     //   where: { id: resetTokenRecord.id },
@@ -873,7 +873,7 @@ router.post('/logout', auth, async (_req, res) => {
   try {
     // In a real implementation, you might want to blacklist the JWT token
     // For now, we'll just return success
-    
+
     res.json({
       success: true,
       message: 'Logged out successfully'

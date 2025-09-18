@@ -18,8 +18,8 @@ import {
   Tag,
   Popconfirm,
   Tabs,
-  Badge,
-} from 'antd';
+  Badge } from
+'antd';
 import {
   ShopOutlined,
   PlusOutlined,
@@ -31,8 +31,8 @@ import {
   InboxOutlined,
   GiftOutlined,
   BarChartOutlined,
-  CheckCircleOutlined,
-} from '@ant-design/icons';
+  CheckCircleOutlined } from
+'@ant-design/icons';
 import { multiStoreAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import type { Store, StoreProduct, StoreInventory, StorePromotion } from '../types/api';
@@ -67,11 +67,11 @@ const MultiStore = () => {
     try {
       setLoading(true);
       const [storesRes, productsRes, inventoryRes, promotionsRes] = await Promise.all([
-        multiStoreAPI.getStores(),
-        multiStoreAPI.getStoreProducts(),
-        multiStoreAPI.getStoreInventory(),
-        multiStoreAPI.getStorePromotions(),
-      ]);
+      multiStoreAPI.getStores(),
+      multiStoreAPI.getStoreProducts(),
+      multiStoreAPI.getStoreInventory(),
+      multiStoreAPI.getStorePromotions()]
+      );
 
       if (storesRes.success) setStores(storesRes.data as Store[]);
       if (productsRes.success) setStoreProducts(productsRes.data as StoreProduct[]);
@@ -104,7 +104,7 @@ const MultiStore = () => {
       timezone: store.timezone,
       language: store.language,
       isActive: store.isActive,
-      isDefault: store.isDefault,
+      isDefault: store.isDefault
     });
     setModalVisible(true);
   };
@@ -145,70 +145,70 @@ const MultiStore = () => {
   };
 
   const storeColumns: ColumnsType<Store> = [
-    {
-      title: 'Store',
-      key: 'store',
-      render: (record, _) => (
-        <div className="flex items-center space-x-3">
-          {record.logo ? (
-            <Image
-              width={40}
-              height={40}
-              src={record.logo}
-              style={{ objectFit: 'contain' }}
-            />
-          ) : (
-            <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+  {
+    title: 'Store',
+    key: 'store',
+    render: (record, _) =>
+    <div className="flex items-center space-x-3">
+          {record.logo ?
+      <Image
+        width={40}
+        height={40}
+        src={record.logo}
+        style={{ objectFit: 'contain' }} /> :
+
+
+      <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
               <ShopOutlined />
             </div>
-          )}
+      }
           <div>
             <div className="font-medium">
-              {record.name ? (typeof record.name === 'object' ? (record.name!.en || 'Unnamed Store') : record.name) : 'Unnamed Store'}
+              {record.name ? typeof record.name === 'object' ? record.name!.en || 'Unnamed Store' : record.name : 'Unnamed Store'}
             </div>
             <div className="text-sm text-gray-500">{record.domain}</div>
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Domain',
-      key: 'domain',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Domain',
+    key: 'domain',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">{record.domain}</div>
           <div className="text-sm text-gray-500">{record.subdomain}.soleva.com</div>
         </div>
-      ),
-    },
-    {
-      title: 'Contact',
-      key: 'contact',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Contact',
+    key: 'contact',
+    render: (record, _) =>
+    <div>
           <div className="text-sm">{record.email}</div>
           <div className="text-sm text-gray-500">{record.phone}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Settings',
-      key: 'settings',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Settings',
+    key: 'settings',
+    render: (record, _) =>
+    <div>
           <div className="flex items-center space-x-2">
             <Tag color="blue">{record.currency}</Tag>
             <Tag color="green">{record.language.toUpperCase()}</Tag>
           </div>
           <div className="text-sm text-gray-500 mt-1">{record.timezone}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Stats',
-      key: 'stats',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Stats',
+    key: 'stats',
+    render: (record, _) =>
+    <div>
           <div className="text-sm">
             <Badge count={record.productsCount} style={{ backgroundColor: '#1890ff' }} />
             <span className="ml-2">Products</span>
@@ -219,96 +219,96 @@ const MultiStore = () => {
           </div>
           <div className="text-sm font-medium">${record.revenue.toFixed(2)}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Status',
+    key: 'status',
+    render: (record, _) =>
+    <div>
           <div className="flex items-center space-x-2">
             <Tag color={record.isActive ? 'green' : 'red'}>
               {record.isActive ? 'Active' : 'Inactive'}
             </Tag>
-            {record.isDefault && (
-              <Tag color="blue" icon={<CheckCircleOutlined />}>Default</Tag>
-            )}
+            {record.isDefault &&
+        <Tag color="blue" icon={<CheckCircleOutlined />}>Default</Tag>
+        }
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (record, _) => (
-        <Space>
+
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    render: (record, _) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => window.open(`https://${record.domain}`, '_blank')}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => window.open(`https://${record.domain}`, '_blank')} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Button
-            type="text"
-            icon={<SettingOutlined />}
-            onClick={() => setSelectedStore(record.id)}
-          />
+        type="text"
+        icon={<SettingOutlined />}
+        onClick={() => setSelectedStore(record.id)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this store?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this store?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const productColumns: ColumnsType<StoreProduct> = [
-    {
-      title: 'Product',
-      key: 'product',
-      render: (record, _) => (
-        <div>
+  {
+    title: 'Product',
+    key: 'product',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">{record.productName}</div>
           <div className="text-sm text-gray-500">Store: {record.storeId}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Pricing',
-      key: 'pricing',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Pricing',
+    key: 'pricing',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">${record.price.toFixed(2)}</div>
-          {record.comparePrice && (
-            <div className="text-sm text-gray-500 line-through">
+          {record.comparePrice &&
+      <div className="text-sm text-gray-500 line-through">
               ${record.comparePrice.toFixed(2)}
             </div>
-          )}
-          {record.costPrice && (
-            <div className="text-sm text-green-600">
+      }
+          {record.costPrice &&
+      <div className="text-sm text-green-600">
               Cost: ${record.costPrice.toFixed(2)}
             </div>
-          )}
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Inventory',
-      key: 'inventory',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Inventory',
+    key: 'inventory',
+    render: (record, _) =>
+    <div>
           <div className="flex items-center space-x-2">
             <Badge count={record.stockQuantity} style={{ backgroundColor: '#52c41a' }} />
             <span>Stock</span>
@@ -317,55 +317,55 @@ const MultiStore = () => {
             Low: {record.lowStockThreshold}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Settings',
-      key: 'settings',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Settings',
+    key: 'settings',
+    render: (record, _) =>
+    <div>
           <div className="flex items-center space-x-2">
             <Tag color={record.isActive ? 'green' : 'red'}>
               {record.isActive ? 'Active' : 'Inactive'}
             </Tag>
-            {record.isFeatured && (
-              <Tag color="blue">Featured</Tag>
-            )}
+            {record.isFeatured &&
+        <Tag color="blue">Featured</Tag>
+        }
           </div>
           <div className="text-sm text-gray-500">Order: {record.sortOrder}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (record, _) => (
-        <Space>
+
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    render: (record, _) =>
+    <Space>
           <Button type="text" icon={<EditOutlined />} size="small" />
           <Button type="text" icon={<DeleteOutlined />} size="small" danger />
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const inventoryColumns: ColumnsType<StoreInventory> = [
-    {
-      title: 'Product',
-      key: 'product',
-      render: (record, _) => (
-        <div>
+  {
+    title: 'Product',
+    key: 'product',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">{record.productName}</div>
-          {record.variantName && (
-            <div className="text-sm text-gray-500">{record.variantName}</div>
-          )}
+          {record.variantName &&
+      <div className="text-sm text-gray-500">{record.variantName}</div>
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Stock',
-      key: 'stock',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Stock',
+    key: 'stock',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">{record.stockQuantity}</div>
           <div className="text-sm text-gray-500">
             Available: {record.availableQuantity}
@@ -374,127 +374,127 @@ const MultiStore = () => {
             Reserved: {record.reservedQuantity}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Location',
-      key: 'location',
-      render: (record, _) => (
-        <div>
-          {record.warehouse && (
-            <div className="text-sm">{record.warehouse}</div>
-          )}
-          {record.shelf && (
-            <div className="text-sm text-gray-500">Shelf: {record.shelf}</div>
-          )}
-          {record.bin && (
-            <div className="text-sm text-gray-500">Bin: {record.bin}</div>
-          )}
+
+  },
+  {
+    title: 'Location',
+    key: 'location',
+    render: (record, _) =>
+    <div>
+          {record.warehouse &&
+      <div className="text-sm">{record.warehouse}</div>
+      }
+          {record.shelf &&
+      <div className="text-sm text-gray-500">Shelf: {record.shelf}</div>
+      }
+          {record.bin &&
+      <div className="text-sm text-gray-500">Bin: {record.bin}</div>
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (record, _) => (
-        <Tag color={
-          record.status === 'IN_STOCK' ? 'green' :
-          record.status === 'LOW_STOCK' ? 'orange' : 'red'
-        }>
+
+  },
+  {
+    title: 'Status',
+    key: 'status',
+    render: (record, _) =>
+    <Tag color={
+    record.status === 'IN_STOCK' ? 'green' :
+    record.status === 'LOW_STOCK' ? 'orange' : 'red'
+    }>
           {record.status.replace('_', ' ')}
         </Tag>
-      ),
-    },
-    {
-      title: 'Threshold',
-      dataIndex: 'lowStockThreshold',
-      key: 'lowStockThreshold',
-      render: (threshold: number) => (
-        <Badge count={threshold} style={{ backgroundColor: '#faad14' }} />
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (record, _) => (
-        <Space>
+
+  },
+  {
+    title: 'Threshold',
+    dataIndex: 'lowStockThreshold',
+    key: 'lowStockThreshold',
+    render: (threshold: number) =>
+    <Badge count={threshold} style={{ backgroundColor: '#faad14' }} />
+
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    render: (record, _) =>
+    <Space>
           <Button type="text" icon={<EditOutlined />} size="small" />
           <Button type="text" icon={<InboxOutlined />} size="small" />
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const promotionColumns: ColumnsType<StorePromotion> = [
-    {
-      title: 'Promotion',
-      key: 'promotion',
-      render: (record, _) => (
-        <div>
+  {
+    title: 'Promotion',
+    key: 'promotion',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">
-            {record.name ? (typeof record.name === 'object' ? (record.name!.en || 'Unnamed Promotion') : record.name) : 'Unnamed Promotion'}
+            {record.name ? typeof record.name === 'object' ? record.name!.en || 'Unnamed Promotion' : record.name : 'Unnamed Promotion'}
           </div>
           <div className="text-sm text-gray-500">
-            {record.description ? (typeof record.description === 'object' ? (record.description!.en || 'No description') : record.description) : 'No description'}
+            {record.description ? typeof record.description === 'object' ? record.description!.en || 'No description' : record.description : 'No description'}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Type & Value',
-      key: 'type',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Type & Value',
+    key: 'type',
+    render: (record, _) =>
+    <div>
           <Tag color="blue">{record.type.replace('_', ' ')}</Tag>
           <div className="font-medium">${record.value.toFixed(2)}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Usage',
-      key: 'usage',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Usage',
+    key: 'usage',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">{record.usageCount}</div>
-          {record.maxUsage && (
-            <div className="text-sm text-gray-500">/ {record.maxUsage}</div>
-          )}
+          {record.maxUsage &&
+      <div className="text-sm text-gray-500">/ {record.maxUsage}</div>
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Period',
-      key: 'period',
-      render: (record, _) => (
-        <div>
+
+  },
+  {
+    title: 'Period',
+    key: 'period',
+    render: (record, _) =>
+    <div>
           <div className="text-sm">{dayjs(record.startDate).format('MMM DD')}</div>
           <div className="text-sm text-gray-500">
             to {record.endDate ? dayjs(record.endDate).format('MMM DD') : '∞'}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
+
+  },
+  {
+    title: 'Status',
+    dataIndex: 'isActive',
+    key: 'isActive',
+    render: (isActive: boolean) =>
+    <Tag color={isActive ? 'green' : 'red'}>
           {isActive ? 'Active' : 'Inactive'}
         </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (record, _) => (
-        <Space>
+
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    render: (record, _) =>
+    <Space>
           <Button type="text" icon={<EditOutlined />} size="small" />
           <Button type="text" icon={<DeleteOutlined />} size="small" danger />
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   return (
     <div className="p-6">
@@ -526,10 +526,10 @@ const MultiStore = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} stores`,
+                `${range[0]}-${range[1]} of ${total} stores`
               }}
-              scroll={{ x: 1200 }}
-            />
+              scroll={{ x: 1200 }} />
+
           </Card>
         </TabPane>
 
@@ -541,19 +541,19 @@ const MultiStore = () => {
                 style={{ width: 200 }}
                 value={selectedStore}
                 onChange={setSelectedStore}
-                allowClear
-              >
-                {stores.map(store => (
-                  <Option key={store.id} value={store.id}>
-                    {store.name ? (typeof store.name === 'object' ? (store.name!.en || 'Unnamed Store') : store.name) : 'Unnamed Store'}
+                allowClear>
+
+                {stores.map((store) =>
+                <Option key={store.id} value={store.id}>
+                    {store.name ? typeof store.name === 'object' ? store.name!.en || 'Unnamed Store' : store.name : 'Unnamed Store'}
                   </Option>
-                ))}
+                )}
               </Select>
             </div>
 
             <Table
               columns={productColumns}
-              dataSource={storeProducts.filter(p => !selectedStore || p.storeId === selectedStore)}
+              dataSource={storeProducts.filter((p) => !selectedStore || p.storeId === selectedStore)}
               rowKey="id"
               loading={loading}
               pagination={{
@@ -561,9 +561,9 @@ const MultiStore = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} products`,
-              }}
-            />
+                `${range[0]}-${range[1]} of ${total} products`
+              }} />
+
           </Card>
         </TabPane>
 
@@ -575,19 +575,19 @@ const MultiStore = () => {
                 style={{ width: 200 }}
                 value={selectedStore}
                 onChange={setSelectedStore}
-                allowClear
-              >
-                {stores.map(store => (
-                  <Option key={store.id} value={store.id}>
-                    {store.name ? (typeof store.name === 'object' ? (store.name!.en || 'Unnamed Store') : store.name) : 'Unnamed Store'}
+                allowClear>
+
+                {stores.map((store) =>
+                <Option key={store.id} value={store.id}>
+                    {store.name ? typeof store.name === 'object' ? store.name!.en || 'Unnamed Store' : store.name : 'Unnamed Store'}
                   </Option>
-                ))}
+                )}
               </Select>
             </div>
 
             <Table
               columns={inventoryColumns}
-              dataSource={storeInventory.filter(i => !selectedStore || i.storeId === selectedStore)}
+              dataSource={storeInventory.filter((i) => !selectedStore || i.storeId === selectedStore)}
               rowKey="id"
               loading={loading}
               pagination={{
@@ -595,9 +595,9 @@ const MultiStore = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`,
-              }}
-            />
+                `${range[0]}-${range[1]} of ${total} items`
+              }} />
+
           </Card>
         </TabPane>
 
@@ -609,19 +609,19 @@ const MultiStore = () => {
                 style={{ width: 200 }}
                 value={selectedStore}
                 onChange={setSelectedStore}
-                allowClear
-              >
-                {stores.map(store => (
-                  <Option key={store.id} value={store.id}>
-                    {store.name ? (typeof store.name === 'object' ? (store.name!.en || 'Unnamed Store') : store.name) : 'Unnamed Store'}
+                allowClear>
+
+                {stores.map((store) =>
+                <Option key={store.id} value={store.id}>
+                    {store.name ? typeof store.name === 'object' ? store.name!.en || 'Unnamed Store' : store.name : 'Unnamed Store'}
                   </Option>
-                ))}
+                )}
               </Select>
             </div>
 
             <Table
               columns={promotionColumns}
-              dataSource={storePromotions.filter(p => !selectedStore || p.storeId === selectedStore)}
+              dataSource={storePromotions.filter((p) => !selectedStore || p.storeId === selectedStore)}
               rowKey="id"
               loading={loading}
               pagination={{
@@ -629,9 +629,9 @@ const MultiStore = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} promotions`,
-              }}
-            />
+                `${range[0]}-${range[1]} of ${total} promotions`
+              }} />
+
           </Card>
         </TabPane>
       </Tabs>
@@ -642,20 +642,20 @@ const MultiStore = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={800}
-      >
+        width={800}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="name"
                 label="Store Name"
-                rules={[{ required: true, message: 'Please enter store name' }]}
-              >
+                rules={[{ required: true, message: 'Please enter store name' }]}>
+
                 <Input placeholder="Enter store name" />
               </Form.Item>
             </Col>
@@ -663,8 +663,8 @@ const MultiStore = () => {
               <Form.Item
                 name="domain"
                 label="Domain"
-                rules={[{ required: true, message: 'Please enter domain' }]}
-              >
+                rules={[{ required: true, message: 'Please enter domain' }]}>
+
                 <Input placeholder="cairo.soleva.com" />
               </Form.Item>
             </Col>
@@ -675,8 +675,8 @@ const MultiStore = () => {
               <Form.Item
                 name="subdomain"
                 label="Subdomain"
-                rules={[{ required: true, message: 'Please enter subdomain' }]}
-              >
+                rules={[{ required: true, message: 'Please enter subdomain' }]}>
+
                 <Input placeholder="cairo" />
               </Form.Item>
             </Col>
@@ -685,10 +685,10 @@ const MultiStore = () => {
                 name="email"
                 label="Contact Email"
                 rules={[
-                  { required: true, message: 'Please enter email' },
-                  { type: 'email', message: 'Please enter a valid email' }
-                ]}
-              >
+                { required: true, message: 'Please enter email' },
+                { type: 'email', message: 'Please enter a valid email' }]
+                }>
+
                 <Input placeholder="Enter contact email" />
               </Form.Item>
             </Col>
@@ -699,8 +699,8 @@ const MultiStore = () => {
               <Form.Item
                 name="currency"
                 label="Currency"
-                rules={[{ required: true, message: 'Please select currency' }]}
-              >
+                rules={[{ required: true, message: 'Please select currency' }]}>
+
                 <Select placeholder="Select currency">
                   <Option value="EGP">Egyptian Pound (EGP)</Option>
                   <Option value="USD">US Dollar (USD)</Option>
@@ -712,8 +712,8 @@ const MultiStore = () => {
               <Form.Item
                 name="timezone"
                 label="Timezone"
-                rules={[{ required: true, message: 'Please select timezone' }]}
-              >
+                rules={[{ required: true, message: 'Please select timezone' }]}>
+
                 <Select placeholder="Select timezone">
                   <Option value="Africa/Cairo">Africa/Cairo</Option>
                   <Option value="UTC">UTC</Option>
@@ -725,8 +725,8 @@ const MultiStore = () => {
               <Form.Item
                 name="language"
                 label="Language"
-                rules={[{ required: true, message: 'Please select language' }]}
-              >
+                rules={[{ required: true, message: 'Please select language' }]}>
+
                 <Select placeholder="Select language">
                   <Option value="en">English</Option>
                   <Option value="ar">Arabic</Option>
@@ -737,8 +737,8 @@ const MultiStore = () => {
 
           <Form.Item
             name="description"
-            label="Description"
-          >
+            label="Description">
+
             <TextArea rows={3} placeholder="Enter store description" />
           </Form.Item>
 
@@ -747,8 +747,8 @@ const MultiStore = () => {
               <Form.Item
                 name="isActive"
                 label="Status"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
               </Form.Item>
             </Col>
@@ -756,8 +756,8 @@ const MultiStore = () => {
               <Form.Item
                 name="isDefault"
                 label="Default Store"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Yes" unCheckedChildren="No" />
               </Form.Item>
             </Col>
@@ -775,8 +775,8 @@ const MultiStore = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default MultiStore;

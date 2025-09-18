@@ -99,16 +99,16 @@ const deviceLogSchema = z.object({
  */
 router.post('/device-log', optionalAuth, asyncHandler(async (req: AuthenticatedRequest, res: any) => {
   const validatedData = deviceLogSchema.parse(req.body);
-  
+
   // Map string performance level to enum
   const performanceLevelMap = {
     'LOW': PerformanceLevel.LOW,
     'MEDIUM': PerformanceLevel.MEDIUM,
     'HIGH': PerformanceLevel.HIGH
   };
-  
+
   const performanceLevel = performanceLevelMap[validatedData.performanceLevel.toUpperCase() as keyof typeof performanceLevelMap];
-  
+
   await prisma.deviceLog.create({
     data: {
       userId: req.user?.userId || null,
@@ -160,110 +160,110 @@ router.post('/device-log', optionalAuth, asyncHandler(async (req: AuthenticatedR
  *         description: Device statistics retrieved successfully
  */
 router.get('/device-stats', asyncHandler(async (req: any, res: any) => {
-  const days = parseInt((req.query?.days as string) || '30') || 30;
+  const days = parseInt(req.query?.days as string || '30') || 30;
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
   const [
-    totalLogs,
-    deviceTypeStats,
-    performanceStats,
-    adaptiveModeStats,
-    countryStats,
-    averageMetrics
-  ] = await Promise.all([
-    // Total device logs
-    prisma.deviceLog.count({
-      where: {
-        createdAt: { gte: startDate }
-      }
-    }),
+  totalLogs,
+  deviceTypeStats,
+  performanceStats,
+  adaptiveModeStats,
+  countryStats,
+  averageMetrics] =
+  await Promise.all([
+  // Total device logs
+  prisma.deviceLog.count({
+    where: {
+      createdAt: { gte: startDate }
+    }
+  }),
 
-    // Device type breakdown
-    prisma.deviceLog.groupBy({
-      by: ['deviceType'],
-      where: {
-        createdAt: { gte: startDate }
-      },
+  // Device type breakdown
+  prisma.deviceLog.groupBy({
+    by: ['deviceType'],
+    where: {
+      createdAt: { gte: startDate }
+    },
+    _count: {
+      deviceType: true
+    }
+  }),
+
+  // Performance level breakdown
+  prisma.deviceLog.groupBy({
+    by: ['performanceLevel'],
+    where: {
+      createdAt: { gte: startDate }
+    },
+    _count: {
+      performanceLevel: true
+    }
+  }),
+
+  // Adaptive mode usage
+  prisma.deviceLog.groupBy({
+    by: ['adaptiveModeEnabled'],
+    where: {
+      createdAt: { gte: startDate }
+    },
+    _count: {
+      adaptiveModeEnabled: true
+    }
+  }),
+
+  // Top countries
+  prisma.deviceLog.groupBy({
+    by: ['country'],
+    where: {
+      createdAt: { gte: startDate },
+      country: { not: null }
+    },
+    _count: {
+      country: true
+    },
+    orderBy: {
       _count: {
-        deviceType: true
+        country: 'desc'
       }
-    }),
+    },
+    take: 10
+  }),
 
-    // Performance level breakdown
-    prisma.deviceLog.groupBy({
-      by: ['performanceLevel'],
-      where: {
-        createdAt: { gte: startDate }
-      },
-      _count: {
-        performanceLevel: true
-      }
-    }),
-
-    // Adaptive mode usage
-    prisma.deviceLog.groupBy({
-      by: ['adaptiveModeEnabled'],
-      where: {
-        createdAt: { gte: startDate }
-      },
-      _count: {
-        adaptiveModeEnabled: true
-      }
-    }),
-
-    // Top countries
-    prisma.deviceLog.groupBy({
-      by: ['country'],
-      where: {
-        createdAt: { gte: startDate },
-        country: { not: null }
-      },
-      _count: {
-        country: true
-      },
-      orderBy: {
-        _count: {
-          country: 'desc'
-        }
-      },
-      take: 10
-    }),
-
-    // Average performance metrics
-    prisma.deviceLog.aggregate({
-      where: {
-        createdAt: { gte: startDate }
-      },
-      _avg: {
-        pageLoadTime: true,
-        fcp: true,
-        lcp: true,
-        inp: true,
-        cls: true,
-        screenWidth: true,
-        screenHeight: true,
-        cpuCores: true,
-        memoryGB: true
-      }
-    })
-  ]);
+  // Average performance metrics
+  prisma.deviceLog.aggregate({
+    where: {
+      createdAt: { gte: startDate }
+    },
+    _avg: {
+      pageLoadTime: true,
+      fcp: true,
+      lcp: true,
+      inp: true,
+      cls: true,
+      screenWidth: true,
+      screenHeight: true,
+      cpuCores: true,
+      memoryGB: true
+    }
+  })]
+  );
 
   // Calculate percentages
-  const deviceTypePercentages = deviceTypeStats.map(stat => ({
+  const deviceTypePercentages = deviceTypeStats.map((stat) => ({
     ...stat,
-    percentage: ((stat._count.deviceType / totalLogs) * 100).toFixed(1)
+    percentage: (stat._count.deviceType / totalLogs * 100).toFixed(1)
   }));
 
-  const performancePercentages = performanceStats.map(stat => ({
+  const performancePercentages = performanceStats.map((stat) => ({
     ...stat,
-    percentage: ((stat._count.performanceLevel / totalLogs) * 100).toFixed(1)
+    percentage: (stat._count.performanceLevel / totalLogs * 100).toFixed(1)
   }));
 
-  const adaptiveModePercentages = adaptiveModeStats.map(stat => ({
+  const adaptiveModePercentages = adaptiveModeStats.map((stat) => ({
     enabled: stat.adaptiveModeEnabled,
     count: stat._count.adaptiveModeEnabled,
-    percentage: ((stat._count.adaptiveModeEnabled / totalLogs) * 100).toFixed(1)
+    percentage: (stat._count.adaptiveModeEnabled / totalLogs * 100).toFixed(1)
   }));
 
   res.json({
@@ -314,8 +314,8 @@ router.get('/device-stats', asyncHandler(async (req: any, res: any) => {
  *         description: Performance trends retrieved successfully
  */
 router.get('/performance-trends', asyncHandler(async (req: any, res: any) => {
-  const days = parseInt((req.query?.days as string) || '30') || 30;
-  
+  const days = parseInt(req.query?.days as string || '30') || 30;
+
   const trends = await prisma.$queryRaw`
     SELECT 
       DATE(created_at) as date,
@@ -355,84 +355,84 @@ router.get('/daily-summary', asyncHandler(async (_req: any, res: any) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   yesterday.setHours(0, 0, 0, 0);
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const [
-    dailyStats,
-    topDevices,
-    performanceIssues,
-    newCountries
-  ] = await Promise.all([
-    // Yesterday's stats
-    prisma.deviceLog.aggregate({
-      where: {
-        createdAt: {
-          gte: yesterday,
-          lt: today
-        }
-      },
+  dailyStats,
+  topDevices,
+  performanceIssues,
+  newCountries] =
+  await Promise.all([
+  // Yesterday's stats
+  prisma.deviceLog.aggregate({
+    where: {
+      createdAt: {
+        gte: yesterday,
+        lt: today
+      }
+    },
+    _count: {
+      id: true
+    },
+    _avg: {
+      pageLoadTime: true,
+      lcp: true,
+      cls: true
+    }
+  }),
+
+  // Top device types
+  prisma.deviceLog.groupBy({
+    by: ['deviceType'],
+    where: {
+      createdAt: {
+        gte: yesterday,
+        lt: today
+      }
+    },
+    _count: {
+      deviceType: true
+    },
+    orderBy: {
       _count: {
-        id: true
-      },
-      _avg: {
-        pageLoadTime: true,
-        lcp: true,
-        cls: true
+        deviceType: 'desc'
       }
-    }),
+    }
+  }),
 
-    // Top device types
-    prisma.deviceLog.groupBy({
-      by: ['deviceType'],
-      where: {
-        createdAt: {
-          gte: yesterday,
-          lt: today
-        }
+  // Performance issues (slow sessions)
+  prisma.deviceLog.count({
+    where: {
+      createdAt: {
+        gte: yesterday,
+        lt: today
       },
-      _count: {
-        deviceType: true
-      },
-      orderBy: {
-        _count: {
-          deviceType: 'desc'
-        }
-      }
-    }),
+      OR: [
+      { pageLoadTime: { gt: 5000 } }, // > 5 seconds
+      { lcp: { gt: 4000 } }, // > 4 seconds
+      { cls: { gt: 0.25 } } // > 0.25 CLS
+      ]
+    }
+  }),
 
-    // Performance issues (slow sessions)
-    prisma.deviceLog.count({
-      where: {
-        createdAt: {
-          gte: yesterday,
-          lt: today
-        },
-        OR: [
-          { pageLoadTime: { gt: 5000 } }, // > 5 seconds
-          { lcp: { gt: 4000 } }, // > 4 seconds
-          { cls: { gt: 0.25 } } // > 0.25 CLS
-        ]
-      }
-    }),
-
-    // New countries detected
-    prisma.deviceLog.findMany({
-      where: {
-        createdAt: {
-          gte: yesterday,
-          lt: today
-        },
-        country: { not: null }
+  // New countries detected
+  prisma.deviceLog.findMany({
+    where: {
+      createdAt: {
+        gte: yesterday,
+        lt: today
       },
-      select: {
-        country: true,
-        city: true
-      },
-      distinct: ['country']
-    })
-  ]);
+      country: { not: null }
+    },
+    select: {
+      country: true,
+      city: true
+    },
+    distinct: ['country']
+  })]
+  );
 
   const adaptiveModeUsage = await prisma.deviceLog.count({
     where: {
@@ -453,12 +453,12 @@ router.get('/daily-summary', asyncHandler(async (_req: any, res: any) => {
       averageLCP: Math.round(dailyStats._avg.lcp || 0),
       averageCLS: Number((dailyStats._avg.cls || 0).toFixed(3)),
       adaptiveModeSessions: adaptiveModeUsage,
-      adaptiveModePercentage: dailyStats._count.id > 0 
-        ? ((adaptiveModeUsage / dailyStats._count.id) * 100).toFixed(1)
-        : '0',
+      adaptiveModePercentage: dailyStats._count.id > 0 ?
+      (adaptiveModeUsage / dailyStats._count.id * 100).toFixed(1) :
+      '0',
       topDeviceTypes: topDevices,
       performanceIssues,
-      newCountries: newCountries.map(item => item.country).filter(Boolean),
+      newCountries: newCountries.map((item) => item.country).filter(Boolean),
       insights: generateInsights({
         totalSessions: dailyStats._count.id,
         avgLoadTime: dailyStats._avg.pageLoadTime || 0,
@@ -482,7 +482,7 @@ const generateInsights = (data: {
 
   if (data.totalSessions > 0) {
     insights.push(`📊 ${data.totalSessions} user sessions recorded yesterday`);
-    
+
     if (data.avgLoadTime > 3000) {
       insights.push(`⚠️ Average load time is ${Math.round(data.avgLoadTime)}ms - consider optimization`);
     } else {
@@ -490,7 +490,7 @@ const generateInsights = (data: {
     }
 
     if (data.adaptiveUsage > 0) {
-      const percentage = ((data.adaptiveUsage / data.totalSessions) * 100).toFixed(1);
+      const percentage = (data.adaptiveUsage / data.totalSessions * 100).toFixed(1);
       insights.push(`🎯 ${data.adaptiveUsage} sessions (${percentage}%) used adaptive mode`);
     }
 

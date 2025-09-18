@@ -18,7 +18,7 @@ export const generateEmailVerificationToken = (userId: string, email: string): s
     email,
     purpose: 'email_verification'
   };
-  
+
   return jwt.sign(payload, process.env.JWT_SECRET!, {
     expiresIn: '24h', // 24 hours for email verification
     issuer: 'solevaeg.com',
@@ -33,11 +33,11 @@ export const verifyEmailVerificationToken = (token: string): EmailVerificationTo
       issuer: 'solevaeg.com',
       audience: 'solevaeg.com'
     }) as EmailVerificationToken;
-    
+
     if (decoded.purpose !== 'email_verification') {
       return null;
     }
-    
+
     return decoded;
   } catch (error) {
     console.error('Email verification token error:', error);
@@ -50,7 +50,7 @@ export const markEmailAsVerified = async (userId: string): Promise<boolean> => {
   try {
     await prisma.user.update({
       where: { id: userId },
-      data: { 
+      data: {
         isVerified: true,
         emailVerifiedAt: new Date()
       }
@@ -69,7 +69,7 @@ export const isEmailVerified = async (userId: string): Promise<boolean> => {
       where: { id: userId },
       select: { isVerified: true }
     });
-    
+
     return user?.isVerified || false;
   } catch (error) {
     console.error('Error checking email verification status:', error);
@@ -83,17 +83,17 @@ export const sendVerificationEmail = async (email: string, token: string, name: 
     // TODO: Implement actual email sending with your email service
     // This is a placeholder that logs the verification link
     const verificationUrl = `${process.env.FRONTEND_URL || 'https://solevaeg.com'}/verify-email?token=${token}`;
-    
+
     console.log(`Verification email for ${email}:`);
     console.log(`Verification URL: ${verificationUrl}`);
     console.log(`Name: ${name}`);
-    
+
     // In production, you would:
     // 1. Use your email service (SendGrid, AWS SES, etc.)
     // 2. Send a properly formatted HTML email
     // 3. Include the verification link
     // 4. Handle email delivery failures
-    
+
     return true;
   } catch (error) {
     console.error('Error sending verification email:', error);
@@ -102,29 +102,29 @@ export const sendVerificationEmail = async (email: string, token: string, name: 
 };
 
 // Resend verification email
-export const resendVerificationEmail = async (email: string): Promise<{ success: boolean; message: string }> => {
+export const resendVerificationEmail = async (email: string): Promise<{success: boolean;message: string;}> => {
   try {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() }
     });
-    
+
     if (!user) {
       return {
         success: false,
         message: 'No account found with this email address'
       };
     }
-    
+
     if (user.isVerified) {
       return {
         success: false,
         message: 'Email is already verified'
       };
     }
-    
+
     const token = generateEmailVerificationToken(user.id, user.email);
     const emailSent = await sendVerificationEmail(user.email, token, user.name);
-    
+
     if (emailSent) {
       return {
         success: true,

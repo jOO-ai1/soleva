@@ -11,15 +11,15 @@ interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   modern?: boolean;
 }
 
-export default function GlassButton({ 
-  children, 
+export default function GlassButton({
+  children,
   variant = 'secondary',
   size = 'md',
-  className = '', 
+  className = '',
   loading = false,
   disabled,
   modern = false,
-  ...props 
+  ...props
 }: GlassButtonProps) {
   const sizeClasses = {
     sm: 'px-4 py-2 text-sm min-h-[40px]',
@@ -29,7 +29,7 @@ export default function GlassButton({
 
   const variantClasses = {
     primary: 'btn-primary text-[#000000]',
-    secondary: modern ? 'modern-glass-button' : 'btn-secondary', 
+    secondary: modern ? 'modern-glass-button' : 'btn-secondary',
     ghost: 'btn-ghost'
   };
 
@@ -49,16 +49,16 @@ export default function GlassButton({
         className
       )}
       disabled={disabled || loading}
-      {...props}
-    >
-      {loading ? (
-        <>
+      {...props}>
+
+      {loading ?
+      <>
           <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
           <span>Loading...</span>
-        </>
-      ) : (
-        children
-      )}
-    </motion.button>
-  );
+        </> :
+
+      children
+      }
+    </motion.button>);
+
 }

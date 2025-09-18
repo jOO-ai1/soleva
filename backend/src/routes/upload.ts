@@ -61,63 +61,63 @@ const prisma = new PrismaClient();
  *       404:
  *         description: Order not found
  */
-router.post('/payment-proof/:orderId', 
-  auth,
-  scanFile,
-  uploadPaymentProof,
-  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
-    const { orderId } = req.params;
-    const userId = req.user!.id;
+router.post('/payment-proof/:orderId',
+auth,
+scanFile,
+uploadPaymentProof,
+asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+  const { orderId } = req.params;
+  const userId = req.user!.id;
 
-    if (!req.file) {
-      throw new ValidationError('Payment proof file is required');
+  if (!req.file) {
+    throw new ValidationError('Payment proof file is required');
+  }
+
+  // Verify order belongs to user and requires payment proof
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId || '',
+      userId,
+      paymentMethod: { in: ['BANK_WALLET', 'DIGITAL_WALLET'] },
+      paymentStatus: { in: ['AWAITING_PROOF', 'UNDER_REVIEW'] }
     }
+  });
 
-    // Verify order belongs to user and requires payment proof
-    const order = await prisma.order.findFirst({
-      where: {
-        id: orderId || '',
-        userId,
-        paymentMethod: { in: ['BANK_WALLET', 'DIGITAL_WALLET'] },
-        paymentStatus: { in: ['AWAITING_PROOF', 'UNDER_REVIEW'] }
-      }
-    });
+  if (!order) {
+    throw new ValidationError('Order not found or payment proof not required');
+  }
 
-    if (!order) {
-      throw new ValidationError('Order not found or payment proof not required');
+  // Update order with payment proof URL
+  await prisma.order.update({
+    where: { id: orderId || '' },
+    data: {
+      paymentProofUrl: req.file.path,
+      paymentStatus: 'UNDER_REVIEW'
     }
+  });
 
-    // Update order with payment proof URL
-    await prisma.order.update({
-      where: { id: orderId || '' },
-      data: {
-        paymentProofUrl: req.file.path,
-        paymentStatus: 'UNDER_REVIEW'
+  // Add timeline entry
+  await prisma.orderTimeline.create({
+    data: {
+      orderId: orderId || '',
+      status: 'PAYMENT_PROOF_UPLOADED',
+      description: {
+        ar: 'تم رفع إثبات الدفع',
+        en: 'Payment proof uploaded'
       }
-    });
+    }
+  });
 
-    // Add timeline entry
-    await prisma.orderTimeline.create({
-      data: {
-        orderId: orderId || '',
-        status: 'PAYMENT_PROOF_UPLOADED',
-        description: {
-          ar: 'تم رفع إثبات الدفع',
-          en: 'Payment proof uploaded'
-        }
-      }
-    });
-
-    res.json({
-      success: true,
-      message: 'Payment proof uploaded successfully',
-      data: {
-        filename: req.file.filename,
-        url: `/uploads/payment-proofs/${req.file.filename}`,
-        size: req.file.size
-      }
-    });
-  })
+  res.json({
+    success: true,
+    message: 'Payment proof uploaded successfully',
+    data: {
+      filename: req.file.filename,
+      url: `/uploads/payment-proofs/${req.file.filename}`,
+      size: req.file.size
+    }
+  });
+})
 );
 
 /**
@@ -168,23 +168,23 @@ router.post('/payment-proof/:orderId',
  *         description: Authentication required
  */
 router.post('/image',
-  auth,
-  scanFile,
-  uploadSingleImage,
-  processSingleImage,
-  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
-    if (!req.file) {
-      throw new ValidationError('Image file is required');
-    }
+auth,
+scanFile,
+uploadSingleImage,
+processSingleImage,
+asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+  if (!req.file) {
+    throw new ValidationError('Image file is required');
+  }
 
-    const processedImage = (req as any).processedImage;
+  const processedImage = (req as any).processedImage;
 
-    res.json({
-      success: true,
-      message: 'Image uploaded successfully',
-      data: processedImage
-    });
-  })
+  res.json({
+    success: true,
+    message: 'Image uploaded successfully',
+    data: processedImage
+  });
+})
 );
 
 /**
@@ -229,33 +229,33 @@ router.post('/image',
  *         description: Authentication required
  */
 router.post('/avatar',
-  auth,
-  scanFile,
-  uploadSingleImage,
-  processSingleImage,
-  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
-    const userId = req.user!.id;
+auth,
+scanFile,
+uploadSingleImage,
+processSingleImage,
+asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+  const userId = req.user!.id;
 
-    if (!req.file) {
-      throw new ValidationError('Avatar file is required');
+  if (!req.file) {
+    throw new ValidationError('Avatar file is required');
+  }
+
+  const processedImage = (req as any).processedImage;
+
+  // Update user avatar
+  await prisma.user.update({
+    where: { id: userId },
+    data: { avatar: processedImage.url }
+  });
+
+  res.json({
+    success: true,
+    message: 'Avatar uploaded successfully',
+    data: {
+      avatarUrl: processedImage.url
     }
-
-    const processedImage = (req as any).processedImage;
-
-    // Update user avatar
-    await prisma.user.update({
-      where: { id: userId },
-      data: { avatar: processedImage.url }
-    });
-
-    res.json({
-      success: true,
-      message: 'Avatar uploaded successfully',
-      data: {
-        avatarUrl: processedImage.url
-      }
-    });
-  })
+  });
+})
 );
 
 /**
@@ -332,23 +332,23 @@ router.post('/avatar',
  *                       type: string
  */
 router.post('/product',
-  auth,
-  scanFile,
-  uploadSingleImage,
-  processSingleImage,
-  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
-    if (!req.file) {
-      throw new ValidationError('Image file is required');
-    }
+auth,
+scanFile,
+uploadSingleImage,
+processSingleImage,
+asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+  if (!req.file) {
+    throw new ValidationError('Image file is required');
+  }
 
-    const processedImage = (req as any).processedImage;
+  const processedImage = (req as any).processedImage;
 
-    res.json({
-      success: true,
-      message: 'Product image uploaded successfully',
-      data: processedImage
-    });
-  })
+  res.json({
+    success: true,
+    message: 'Product image uploaded successfully',
+    data: processedImage
+  });
+})
 );
 
 /**
@@ -389,23 +389,23 @@ router.post('/product',
  *                       type: string
  */
 router.post('/category',
-  auth,
-  scanFile,
-  uploadSingleImage,
-  processSingleImage,
-  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
-    if (!req.file) {
-      throw new ValidationError('Image file is required');
-    }
+auth,
+scanFile,
+uploadSingleImage,
+processSingleImage,
+asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+  if (!req.file) {
+    throw new ValidationError('Image file is required');
+  }
 
-    const processedImage = (req as any).processedImage;
+  const processedImage = (req as any).processedImage;
 
-    res.json({
-      success: true,
-      message: 'Category image uploaded successfully',
-      data: processedImage
-    });
-  })
+  res.json({
+    success: true,
+    message: 'Category image uploaded successfully',
+    data: processedImage
+  });
+})
 );
 
 /**
@@ -446,23 +446,23 @@ router.post('/category',
  *                       type: string
  */
 router.post('/flash-sale',
-  auth,
-  scanFile,
-  uploadSingleImage,
-  processSingleImage,
-  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
-    if (!req.file) {
-      throw new ValidationError('Image file is required');
-    }
+auth,
+scanFile,
+uploadSingleImage,
+processSingleImage,
+asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+  if (!req.file) {
+    throw new ValidationError('Image file is required');
+  }
 
-    const processedImage = (req as any).processedImage;
+  const processedImage = (req as any).processedImage;
 
-    res.json({
-      success: true,
-      message: 'Flash sale banner uploaded successfully',
-      data: processedImage
-    });
-  })
+  res.json({
+    success: true,
+    message: 'Flash sale banner uploaded successfully',
+    data: processedImage
+  });
+})
 );
 
 router.post('/validate', asyncHandler(async (req: any, res: any) => {
@@ -470,7 +470,7 @@ router.post('/validate', asyncHandler(async (req: any, res: any) => {
   const errors: string[] = [];
 
   // Validate file type
-  const allowedMimeTypes = (process.env.ALLOWED_FILE_TYPES?.split(',') || ['image/jpeg', 'image/png', 'image/webp', 'image/heic']);
+  const allowedMimeTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
   if (!allowedMimeTypes.includes(mimetype)) {
     errors.push(`File type ${mimetype} is not allowed. Allowed types: ${allowedMimeTypes.join(', ')}`);
   }

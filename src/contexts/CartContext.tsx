@@ -8,7 +8,7 @@ import { cartApi } from '../services/api';
 
 interface CartItem {
   id: number;
-  name: { ar: string; en: string };
+  name: {ar: string;en: string;};
   price: number;
   image: string;
   color: string;
@@ -18,7 +18,7 @@ interface CartItem {
 
 interface Product {
   id: number;
-  name: { ar: string; en: string };
+  name: {ar: string;en: string;};
   price: number;
   image: string;
 }
@@ -35,7 +35,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children }: {children: React.ReactNode;}) {
   const auth = useAuthSafe();
   const isAuthenticated = auth?.isAuthenticated || false;
   const user = auth?.user;
@@ -47,15 +47,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       // Fetch current server cart
       const serverResponse = await cartApi.get();
-      const serverCart: any[] = (serverResponse.data as any[]) || [];
+      const serverCart: any[] = serverResponse.data as any[] || [];
 
       // Merge guest cart with server cart
       const guestCart = cart;
       guestCart.forEach((guestItem: CartItem) => {
         const existsOnServer = serverCart.some((serverItem: any) =>
-          (serverItem.productId === String(guestItem.id)) &&
-          (serverItem.variant?.color === guestItem.color) &&
-          (serverItem.variant?.size === guestItem.size)
+        serverItem.productId === String(guestItem.id) &&
+        serverItem.variant?.color === guestItem.color &&
+        serverItem.variant?.size === guestItem.size
         );
 
         if (!existsOnServer) {
@@ -71,7 +71,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         image: serverItem.product?.images?.[0] || '',
         color: serverItem.variant?.color || '',
         size: serverItem.variant?.size || 0,
-        qty: serverItem.quantity ?? 1,
+        qty: serverItem.quantity ?? 1
       }));
 
       setCart(updatedCart);
@@ -92,48 +92,48 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     setIsGuestCart(!isAuthenticated);
   }, [isAuthenticated, user, isGuestCart, syncCartWithServer]);
-  
+
   const addToCart = (product: Product, color: string, size: number) => {
     setCart((prev: CartItem[]) => {
       const exist = prev.find((item: CartItem) => item.id === product.id && item.color === color && item.size === size);
       if (exist) {
         return prev.map((item: CartItem) =>
-          (item.id === product.id && item.color === color && item.size === size)
-            ? { ...item, qty: item.qty + 1 }
-            : item
+        item.id === product.id && item.color === color && item.size === size ?
+        { ...item, qty: item.qty + 1 } :
+        item
         );
       }
       return [...prev, { ...product, color, size, qty: 1 }];
     });
   };
-  
+
   const removeFromCart = (id: number, color: string, size: number) =>
-    setCart((prev: CartItem[]) => prev.filter((item: CartItem) => !(item.id === id && item.color === color && item.size === size)));
-  
+  setCart((prev: CartItem[]) => prev.filter((item: CartItem) => !(item.id === id && item.color === color && item.size === size)));
+
   const updateQty = (id: number, color: string, size: number, qty: number) =>
-    setCart((prev: CartItem[]) => prev.map((item: CartItem) =>
-      (item.id === id && item.color === color && item.size === size)
-        ? { ...item, qty: Math.max(1, qty) }
-        : item
-    ));
-  
+  setCart((prev: CartItem[]) => prev.map((item: CartItem) =>
+  item.id === id && item.color === color && item.size === size ?
+  { ...item, qty: Math.max(1, qty) } :
+  item
+  ));
+
   const clearCart = () => setCart([]);
 
-  
-  
+
+
   return (
-    <CartContext.Provider value={{ 
-      cart, 
-      addToCart, 
-      removeFromCart, 
-      updateQty, 
-      clearCart, 
+    <CartContext.Provider value={{
+      cart,
+      addToCart,
+      removeFromCart,
+      updateQty,
+      clearCart,
       syncCartWithServer,
-      isGuestCart 
+      isGuestCart
     }}>
       {children}
-    </CartContext.Provider>
-  );
+    </CartContext.Provider>);
+
 }
 
 export function useCart() {

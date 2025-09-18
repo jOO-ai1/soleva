@@ -7,8 +7,8 @@ const AuditLogs: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <p>Audit Logs - Coming soon</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuditLogs;

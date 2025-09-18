@@ -15,13 +15,13 @@ export interface ShippingCalculation {
  * Calculate shipping cost based on location and order total
  */
 export const calculateShippingCost = async (
-  governorate: string,
-  orderTotal: number,
-  center?: string,
-  village?: string
-): Promise<number> => {
+governorate: string,
+orderTotal: number,
+center?: string,
+village?: string)
+: Promise<number> => {
   const freeShippingThreshold = parseFloat(process.env.SHIPPING_FREE_THRESHOLD || '500');
-  
+
   // Check if order qualifies for free shipping
   if (orderTotal >= freeShippingThreshold) {
     return 0;
@@ -37,9 +37,9 @@ export const calculateShippingCost = async (
         isActive: true,
         effectiveFrom: { lte: new Date() },
         OR: [
-          { effectiveTo: null },
-          { effectiveTo: { gte: new Date() } }
-        ]
+        { effectiveTo: null },
+        { effectiveTo: { gte: new Date() } }]
+
       },
       include: {
         village: {
@@ -62,9 +62,9 @@ export const calculateShippingCost = async (
         isActive: true,
         effectiveFrom: { lte: new Date() },
         OR: [
-          { effectiveTo: null },
-          { effectiveTo: { gte: new Date() } }
-        ]
+        { effectiveTo: null },
+        { effectiveTo: { gte: new Date() } }]
+
       },
       include: {
         center: {
@@ -83,9 +83,9 @@ export const calculateShippingCost = async (
         isActive: true,
         effectiveFrom: { lte: new Date() },
         OR: [
-          { effectiveTo: null },
-          { effectiveTo: { gte: new Date() } }
-        ]
+        { effectiveTo: null },
+        { effectiveTo: { gte: new Date() } }]
+
       },
       include: {
         governorate: true
@@ -110,14 +110,14 @@ export const calculateShippingCost = async (
  * Get detailed shipping calculation with breakdown
  */
 export const getShippingCalculation = async (
-  governorate: string,
-  orderTotal: number,
-  center?: string,
-  village?: string
-): Promise<ShippingCalculation> => {
+governorate: string,
+orderTotal: number,
+center?: string,
+village?: string)
+: Promise<ShippingCalculation> => {
   const freeShippingThreshold = parseFloat(process.env.SHIPPING_FREE_THRESHOLD || '500');
   const cost = await calculateShippingCost(governorate, orderTotal, center, village);
-  
+
   return {
     cost,
     isFree: cost === 0,
@@ -140,9 +140,9 @@ export const getGovernoratesWithShipping = async () => {
           isActive: true,
           effectiveFrom: { lte: new Date() },
           OR: [
-            { effectiveTo: null },
-            { effectiveTo: { gte: new Date() } }
-          ]
+          { effectiveTo: null },
+          { effectiveTo: { gte: new Date() } }]
+
         },
         take: 1,
         orderBy: { createdAt: 'desc' }
@@ -161,17 +161,17 @@ export const getGovernoratesWithShipping = async () => {
     orderBy: { name: 'asc' }
   });
 
-  return governorates.map(gov => ({
+  return governorates.map((gov) => ({
     id: gov.id,
     name: gov.name,
     code: gov.code,
     shippingCost: gov.shippingRates[0]?.cost || gov.shippingCost,
-    centers: gov.centers.map(center => ({
+    centers: gov.centers.map((center) => ({
       id: center.id,
       name: center.name,
       code: center.code,
       shippingCost: center.shippingCost,
-      villages: center.villages.map(village => ({
+      villages: center.villages.map((village) => ({
         id: village.id,
         name: village.name,
         code: village.code,
@@ -189,7 +189,7 @@ export const getShippingZones = async () => {
   const governorates = await getGovernoratesWithShipping();
   const zones: Record<number, any[]> = {};
 
-  governorates.forEach(gov => {
+  governorates.forEach((gov) => {
     const cost = Number(gov.shippingCost);
     if (!zones[cost]) {
       zones[cost] = [];
@@ -207,10 +207,10 @@ export const getShippingZones = async () => {
  * Validate shipping address
  */
 export const validateShippingAddress = async (
-  governorateId: string,
-  centerId?: string,
-  villageId?: string
-): Promise<boolean> => {
+governorateId: string,
+centerId?: string,
+villageId?: string)
+: Promise<boolean> => {
   // Check governorate exists and is active
   const governorate = await prisma.governorate.findFirst({
     where: { id: governorateId, isActive: true }
@@ -223,10 +223,10 @@ export const validateShippingAddress = async (
   // Check center if provided
   if (centerId) {
     const center = await prisma.centers.findFirst({
-      where: { 
-        id: centerId, 
+      where: {
+        id: centerId,
         governorateId,
-        isActive: true 
+        isActive: true
       }
     });
 
@@ -237,10 +237,10 @@ export const validateShippingAddress = async (
     // Check village if provided
     if (villageId) {
       const village = await prisma.village.findFirst({
-        where: { 
-          id: villageId, 
+        where: {
+          id: villageId,
           centerId,
-          isActive: true 
+          isActive: true
         }
       });
 
@@ -255,10 +255,10 @@ export const validateShippingAddress = async (
  * Get estimated delivery time
  */
 export const getEstimatedDeliveryTime = async (
-  governorate: string,
-  _center?: string,
-  _village?: string
-): Promise<{ min: number; max: number; unit: string }> => {
+governorate: string,
+_center?: string,
+_village?: string)
+: Promise<{min: number;max: number;unit: string;}> => {
   // Default delivery times (in days)
   const defaultTimes = {
     cairo: { min: 1, max: 2, unit: 'days' },
@@ -274,7 +274,7 @@ export const getEstimatedDeliveryTime = async (
   });
 
   const govCode = gov?.code.toLowerCase();
-  
+
   if (govCode && defaultTimes[govCode as keyof typeof defaultTimes]) {
     return defaultTimes[govCode as keyof typeof defaultTimes];
   }
@@ -286,10 +286,10 @@ export const getEstimatedDeliveryTime = async (
  * Check if location supports cash on delivery
  */
 export const supportsCashOnDelivery = async (
-  _governorate: string,
-  _center?: string,
-  _village?: string
-): Promise<boolean> => {
+_governorate: string,
+_center?: string,
+_village?: string)
+: Promise<boolean> => {
   // For now, all locations support COD
   // In the future, this could be configurable per location
   return true;
@@ -299,13 +299,13 @@ export const supportsCashOnDelivery = async (
  * Get shipping providers for location
  */
 export const getShippingProviders = async (
-  _governorate: string,
-  _center?: string,
-  _village?: string
-): Promise<string[]> => {
+_governorate: string,
+_center?: string,
+_village?: string)
+: Promise<string[]> => {
   // Default shipping providers
   const providers = ['Soleva Express', 'Aramex', 'Bosta'];
-  
+
   // Could be extended to check provider coverage per location
   return providers;
 };

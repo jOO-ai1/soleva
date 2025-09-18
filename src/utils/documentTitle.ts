@@ -47,7 +47,7 @@ export const PAGE_TITLES = {
   FAVORITES: 'My Favorites',
   ORDER_TRACKING: 'Track Order',
   ORDER_CONFIRMATION: 'Order Confirmation',
-  COLLECTION: 'Collection',
+  COLLECTION: 'Collection'
 } as const;
 
 /**

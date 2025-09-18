@@ -8,20 +8,20 @@ interface LangContextType {
 
 const LangContext = createContext<LangContextType | undefined>(undefined);
 
-export function LangProvider({ children }: { children: React.ReactNode }) {
+export function LangProvider({ children }: {children: React.ReactNode;}) {
   const getDefaultLang = () => {
     const navLang = (navigator.language || "en").toLowerCase();
     if (navLang.startsWith("ar")) return "ar";
     return "en";
   };
-  
+
   const [lang, setLang] = useState(getDefaultLang);
-  
+
   return (
     <LangContext.Provider value={{ lang, setLang }}>
       {children}
-    </LangContext.Provider>
-  );
+    </LangContext.Provider>);
+
 }
 
 export function useLang() {

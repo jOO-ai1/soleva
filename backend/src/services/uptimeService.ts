@@ -34,10 +34,10 @@ class UptimeService {
     }
 
     console.log('Starting uptime monitoring...');
-    
+
     // Send initial heartbeat
     this.sendHeartbeat();
-    
+
     // Set up interval
     this.intervalId = setInterval(() => {
       this.sendHeartbeat();

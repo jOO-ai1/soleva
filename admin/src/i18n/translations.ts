@@ -18,7 +18,7 @@ export const translations = {
     multiStore: 'Multi-Store',
     auditLogs: 'Audit Logs',
     settings: 'Settings',
-    
+
     // Common Actions
     create: 'Create',
     edit: 'Edit',
@@ -33,7 +33,7 @@ export const translations = {
     loading: 'Loading...',
     noData: 'No data available',
     actions: 'Actions',
-    
+
     // Status
     active: 'Active',
     inactive: 'Inactive',
@@ -42,7 +42,7 @@ export const translations = {
     cancelled: 'Cancelled',
     draft: 'Draft',
     published: 'Published',
-    
+
     // Messages
     success: 'Success',
     error: 'Error',
@@ -53,7 +53,7 @@ export const translations = {
     saveSuccess: 'Changes saved successfully',
     updateSuccess: 'Updated successfully',
     createSuccess: 'Created successfully',
-    
+
     // Forms
     name: 'Name',
     email: 'Email',
@@ -67,7 +67,7 @@ export const translations = {
     required: 'This field is required',
     invalidEmail: 'Please enter a valid email',
     minLength: 'Minimum length is {min} characters',
-    
+
     // Dashboard
     totalSales: 'Total Sales',
     totalOrders: 'Total Orders',
@@ -78,7 +78,7 @@ export const translations = {
     salesChart: 'Sales Chart',
     revenue: 'Revenue',
     growth: 'Growth',
-    
+
     // Products
     productName: 'Product Name',
     productDescription: 'Product Description',
@@ -90,7 +90,7 @@ export const translations = {
     lowStock: 'Low Stock',
     outOfStock: 'Out of Stock',
     sales: 'Sales',
-    
+
     // Orders
     orderNumber: 'Order Number',
     customerName: 'Customer Name',
@@ -100,7 +100,7 @@ export const translations = {
     paymentStatus: 'Payment Status',
     shippingAddress: 'Shipping Address',
     orderItems: 'Order Items',
-    
+
     // Customers
     customerEmail: 'Customer Email',
     customerPhone: 'Customer Phone',
@@ -109,13 +109,13 @@ export const translations = {
     lastLogin: 'Last Login',
     customerTotalOrders: 'Total Orders',
     totalSpent: 'Total Spent',
-    
+
     // Settings
     generalSettings: 'General Settings',
     paymentSettings: 'Payment Settings',
     shippingSettings: 'Shipping Settings',
     emailSettings: 'Email Settings',
-    
+
     // Auth
     login: 'Login',
     logout: 'Logout',
@@ -124,14 +124,14 @@ export const translations = {
     invalidCredentials: 'Invalid credentials',
     accessDenied: 'Access denied',
     sessionExpired: 'Session expired',
-    
+
     // Roles
     owner: 'Owner',
     admin: 'Admin',
     manager: 'Manager',
     support: 'Support',
     content: 'Content',
-    
+
     // Time
     today: 'Today',
     yesterday: 'Yesterday',
@@ -139,12 +139,12 @@ export const translations = {
     thisYear: 'This Year',
     lastWeek: 'Last Week',
     lastMonth: 'Last Month',
-    
+
     // Additional Dashboard
     welcomeBack: 'Welcome back',
     chartPlaceholder: 'Sales chart will be displayed here',
     profile: 'Profile',
-    
+
     // Login
     signInToAccount: 'Sign in to your account',
     twoFactorRequired: 'Please enter your 2FA code',
@@ -152,7 +152,7 @@ export const translations = {
     invalidTwoFactorCode: 'Invalid 2FA code',
     unexpectedError: 'An unexpected error occurred',
     enterPassword: 'Enter your password',
-    
+
     // Products
     manageProductsDescription: 'Manage your product catalog, inventory, and pricing',
     searchProducts: 'Search products...',
@@ -171,7 +171,7 @@ export const translations = {
     updateError: 'Failed to update product',
     createError: 'Failed to create product',
     saveError: 'Failed to save product',
-    
+
     // Orders
     manageOrdersDescription: 'Track and manage customer orders, payments, and shipping',
     searchOrders: 'Search orders...',
@@ -192,7 +192,7 @@ export const translations = {
     shipped: 'Shipped',
     delivered: 'Delivered',
     refunded: 'Refunded',
-    
+
     // Customers
     manageCustomersDescription: 'Manage customer profiles, orders, and loyalty programs',
     searchCustomers: 'Search customers...',
@@ -214,7 +214,7 @@ export const translations = {
     activeProducts: 'Active Products',
     lowStockProducts: 'Low Stock Products',
     totalValue: 'Total Value',
-    
+
     // Reports
     analyticsDescription: 'Comprehensive analytics and reporting for your business insights',
     last7Days: 'Last 7 Days',
@@ -224,7 +224,7 @@ export const translations = {
     averageOrderValue: 'Average Order Value',
     customerBreakdown: 'Customer Breakdown',
     returningCustomers: 'Returning Customers',
-    
+
     // Settings
     settingsDescription: 'Manage your store settings, security, and user permissions',
     storeSettings: 'Store Settings',
@@ -261,7 +261,7 @@ export const translations = {
     enterRoleName: 'Enter role name',
     enterRoleDescription: 'Enter role description',
     selectPermissions: 'Select Permissions',
-    fetchSettingsError: 'Failed to fetch settings',
+    fetchSettingsError: 'Failed to fetch settings'
   },
   ar: {
     // Navigation
@@ -282,7 +282,7 @@ export const translations = {
     multiStore: 'متعدد المتاجر',
     auditLogs: 'سجل التدقيق',
     settings: 'الإعدادات',
-    
+
     // Common Actions
     create: 'إنشاء',
     edit: 'تعديل',
@@ -297,7 +297,7 @@ export const translations = {
     loading: 'جاري التحميل...',
     noData: 'لا توجد بيانات متاحة',
     actions: 'الإجراءات',
-    
+
     // Status
     active: 'نشط',
     inactive: 'غير نشط',
@@ -306,7 +306,7 @@ export const translations = {
     cancelled: 'ملغي',
     draft: 'مسودة',
     published: 'منشور',
-    
+
     // Messages
     success: 'نجح',
     error: 'خطأ',
@@ -317,7 +317,7 @@ export const translations = {
     saveSuccess: 'تم حفظ التغييرات بنجاح',
     updateSuccess: 'تم التحديث بنجاح',
     createSuccess: 'تم الإنشاء بنجاح',
-    
+
     // Forms
     name: 'الاسم',
     email: 'البريد الإلكتروني',
@@ -331,7 +331,7 @@ export const translations = {
     required: 'هذا الحقل مطلوب',
     invalidEmail: 'يرجى إدخال بريد إلكتروني صحيح',
     minLength: 'الحد الأدنى للطول هو {min} أحرف',
-    
+
     // Dashboard
     totalSales: 'إجمالي المبيعات',
     totalOrders: 'إجمالي الطلبات',
@@ -342,7 +342,7 @@ export const translations = {
     salesChart: 'رسم بياني للمبيعات',
     revenue: 'الإيرادات',
     growth: 'النمو',
-    
+
     // Products
     productName: 'اسم المنتج',
     productDescription: 'وصف المنتج',
@@ -354,7 +354,7 @@ export const translations = {
     lowStock: 'مخزون منخفض',
     outOfStock: 'نفد المخزون',
     sales: 'المبيعات',
-    
+
     // Orders
     orderNumber: 'رقم الطلب',
     customerName: 'اسم العميل',
@@ -364,7 +364,7 @@ export const translations = {
     paymentStatus: 'حالة الدفع',
     shippingAddress: 'عنوان الشحن',
     orderItems: 'عناصر الطلب',
-    
+
     // Customers
     customerEmail: 'بريد العميل الإلكتروني',
     customerPhone: 'هاتف العميل',
@@ -373,13 +373,13 @@ export const translations = {
     lastLogin: 'آخر تسجيل دخول',
     customerTotalOrders: 'إجمالي الطلبات',
     totalSpent: 'إجمالي المبلغ المنفق',
-    
+
     // Settings
     generalSettings: 'الإعدادات العامة',
     paymentSettings: 'إعدادات الدفع',
     shippingSettings: 'إعدادات الشحن',
     emailSettings: 'إعدادات البريد الإلكتروني',
-    
+
     // Auth
     login: 'تسجيل الدخول',
     logout: 'تسجيل الخروج',
@@ -388,14 +388,14 @@ export const translations = {
     invalidCredentials: 'بيانات اعتماد غير صحيحة',
     accessDenied: 'تم رفض الوصول',
     sessionExpired: 'انتهت صلاحية الجلسة',
-    
+
     // Roles
     owner: 'المالك',
     admin: 'مدير',
     manager: 'مدير تنفيذي',
     support: 'دعم',
     content: 'محتوى',
-    
+
     // Time
     today: 'اليوم',
     yesterday: 'أمس',
@@ -403,12 +403,12 @@ export const translations = {
     thisYear: 'هذا العام',
     lastWeek: 'الأسبوع الماضي',
     lastMonth: 'الشهر الماضي',
-    
+
     // Additional Dashboard
     welcomeBack: 'مرحباً بعودتك',
     chartPlaceholder: 'سيتم عرض الرسم البياني للمبيعات هنا',
     profile: 'الملف الشخصي',
-    
+
     // Login
     signInToAccount: 'تسجيل الدخول إلى حسابك',
     twoFactorRequired: 'يرجى إدخال رمز المصادقة الثنائية',
@@ -416,7 +416,7 @@ export const translations = {
     invalidTwoFactorCode: 'رمز المصادقة الثنائية غير صحيح',
     unexpectedError: 'حدث خطأ غير متوقع',
     enterPassword: 'أدخل كلمة المرور',
-    
+
     // Products
     manageProductsDescription: 'إدارة كتالوج المنتجات والمخزون والأسعار',
     searchProducts: 'البحث في المنتجات...',
@@ -435,7 +435,7 @@ export const translations = {
     updateError: 'فشل في تحديث المنتج',
     createError: 'فشل في إنشاء المنتج',
     saveError: 'فشل في حفظ المنتج',
-    
+
     // Orders
     manageOrdersDescription: 'تتبع وإدارة طلبات العملاء والمدفوعات والشحن',
     searchOrders: 'البحث في الطلبات...',
@@ -456,7 +456,7 @@ export const translations = {
     shipped: 'تم الشحن',
     delivered: 'تم التسليم',
     refunded: 'تم الاسترداد',
-    
+
     // Customers
     manageCustomersDescription: 'إدارة ملفات العملاء والطلبات وبرامج الولاء',
     searchCustomers: 'البحث في العملاء...',
@@ -478,7 +478,7 @@ export const translations = {
     activeProducts: 'المنتجات النشطة',
     lowStockProducts: 'منتجات المخزون المنخفض',
     totalValue: 'القيمة الإجمالية',
-    
+
     // Reports
     analyticsDescription: 'تحليلات شاملة وتقارير لرؤى عملك',
     last7Days: 'آخر 7 أيام',
@@ -488,7 +488,7 @@ export const translations = {
     averageOrderValue: 'متوسط قيمة الطلب',
     customerBreakdown: 'توزيع العملاء',
     returningCustomers: 'العملاء العائدون',
-    
+
     // Settings
     settingsDescription: 'إدارة إعدادات المتجر والأمان وصلاحيات المستخدمين',
     storeSettings: 'إعدادات المتجر',
@@ -525,7 +525,7 @@ export const translations = {
     enterRoleName: 'أدخل اسم الدور',
     enterRoleDescription: 'أدخل وصف الدور',
     selectPermissions: 'اختر الصلاحيات',
-    fetchSettingsError: 'فشل في جلب الإعدادات',
+    fetchSettingsError: 'فشل في جلب الإعدادات'
   }
 };
 

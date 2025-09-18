@@ -18,8 +18,8 @@ import {
   Divider,
   Switch,
   Select,
-  InputNumber,
-} from 'antd';
+  InputNumber } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -29,8 +29,8 @@ import {
   SearchOutlined,
   FilterOutlined,
   ArrowUpOutlined,
-  ArrowDownOutlined,
-} from '@ant-design/icons';
+  ArrowDownOutlined } from
+'@ant-design/icons';
 import { categoriesAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import type { Category } from '../types/api';
@@ -72,7 +72,7 @@ const Categories = () => {
     try {
       setLoading(true);
       const response = await categoriesAPI.getAll();
-      
+
       if (response.success && response.data) {
         setCategories(response.data as Category[]);
       }
@@ -100,7 +100,7 @@ const Categories = () => {
       parentId: category.parentId,
       isActive: category.isActive,
       sortOrder: category.sortOrder,
-      slug: category.slug,
+      slug: category.slug
     });
     setModalVisible(true);
   };
@@ -123,7 +123,7 @@ const Categories = () => {
     try {
       const categoryData = {
         ...values,
-        image: uploadedImage,
+        image: uploadedImage
       };
 
       let response;
@@ -150,7 +150,7 @@ const Categories = () => {
       setUploading(true);
       const response = await categoriesAPI.uploadImage(file);
       if (response.success && response.data) {
-        setUploadedImage((response.data as { url: string }).url);
+        setUploadedImage((response.data as {url: string;}).url);
         message.success('Image uploaded successfully');
       } else {
         message.error('Failed to upload image');
@@ -199,127 +199,127 @@ const Categories = () => {
     }
   };
 
-  const filteredCategories = categories.filter(category => {
-    const matchesSearch = !searchText || 
-      category.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      category.slug.toLowerCase().includes(searchText.toLowerCase());
-    
-    const matchesParent = !filterParent || 
-      (filterParent === 'root' ? !category.parentId : category.parentId === filterParent);
-    
+  const filteredCategories = categories.filter((category) => {
+    const matchesSearch = !searchText ||
+    category.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    category.slug.toLowerCase().includes(searchText.toLowerCase());
+
+    const matchesParent = !filterParent || (
+    filterParent === 'root' ? !category.parentId : category.parentId === filterParent);
+
     return matchesSearch && matchesParent;
   });
 
   const columns: ColumnsType<Category> = [
-    {
-      title: 'Order',
-      key: 'order',
-      width: 80,
-      render: (_, record, index) => (
-        <Space>
+  {
+    title: 'Order',
+    key: 'order',
+    width: 80,
+    render: (_, record, index) =>
+    <Space>
           <Button
-            type="text"
-            icon={<ArrowUpOutlined />}
-            size="small"
-            disabled={index === 0}
-            onClick={() => moveUp(index)}
-          />
+        type="text"
+        icon={<ArrowUpOutlined />}
+        size="small"
+        disabled={index === 0}
+        onClick={() => moveUp(index)} />
+
           <Button
-            type="text"
-            icon={<ArrowDownOutlined />}
-            size="small"
-            disabled={index === filteredCategories.length - 1}
-            onClick={() => moveDown(index)}
-          />
+        type="text"
+        icon={<ArrowDownOutlined />}
+        size="small"
+        disabled={index === filteredCategories.length - 1}
+        onClick={() => moveDown(index)} />
+
         </Space>
-      ),
-    },
-    {
-      title: 'Image',
-      dataIndex: 'image',
-      key: 'image',
-      width: 80,
-      render: (image: string) => (
-        <Image
-          width={50}
-          height={50}
-          src={image || '/placeholder-image.jpg'}
-          style={{ objectFit: 'cover', borderRadius: 4 }}
-        />
-      ),
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toString().toLowerCase()),
-    },
-    {
-      title: 'Parent',
-      dataIndex: 'parentName',
-      key: 'parentName',
-      render: (parentName: string) => parentName || <Tag color="blue">Root</Tag>,
-    },
-    {
-      title: 'Products',
-      dataIndex: 'productsCount',
-      key: 'productsCount',
-      render: (count: number) => (
-        <Tag color={count > 0 ? 'green' : 'default'}>{count}</Tag>
-      ),
-      sorter: (a, b) => a.productsCount - b.productsCount,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
+
+  },
+  {
+    title: 'Image',
+    dataIndex: 'image',
+    key: 'image',
+    width: 80,
+    render: (image: string) =>
+    <Image
+      width={50}
+      height={50}
+      src={image || '/placeholder-image.jpg'}
+      style={{ objectFit: 'cover', borderRadius: 4 }} />
+
+
+  },
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    filteredValue: searchText ? [searchText] : null,
+    onFilter: (value, record) =>
+    record.name.toLowerCase().includes(value.toString().toLowerCase())
+  },
+  {
+    title: 'Parent',
+    dataIndex: 'parentName',
+    key: 'parentName',
+    render: (parentName: string) => parentName || <Tag color="blue">Root</Tag>
+  },
+  {
+    title: 'Products',
+    dataIndex: 'productsCount',
+    key: 'productsCount',
+    render: (count: number) =>
+    <Tag color={count > 0 ? 'green' : 'default'}>{count}</Tag>,
+
+    sorter: (a, b) => a.productsCount - b.productsCount
+  },
+  {
+    title: 'Status',
+    dataIndex: 'isActive',
+    key: 'isActive',
+    render: (isActive: boolean) =>
+    <Tag color={isActive ? 'green' : 'red'}>
           {isActive ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Active', value: true },
-        { text: 'Inactive', value: false },
-      ],
-      onFilter: (value, record) => record.isActive === value,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space>
+        </Tag>,
+
+    filters: [
+    { text: 'Active', value: true },
+    { text: 'Inactive', value: false }],
+
+    onFilter: (value, record) => record.isActive === value
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (_, record) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this category?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this category?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
 
-  const parentCategories = categories.filter(cat => !cat.parentId);
+  }];
+
+
+  const parentCategories = categories.filter((cat) => !cat.parentId);
 
   return (
     <div className="p-6">
@@ -328,8 +328,8 @@ const Categories = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
+          onClick={handleAdd}>
+
           Add Category
         </Button>
       </div>
@@ -342,8 +342,8 @@ const Categories = () => {
                 placeholder="Search categories..."
                 prefix={<SearchOutlined />}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
+                onChange={(e) => setSearchText(e.target.value)} />
+
             </Col>
             <Col span={8}>
               <Select
@@ -351,20 +351,20 @@ const Categories = () => {
                 style={{ width: '100%' }}
                 value={filterParent}
                 onChange={setFilterParent}
-                allowClear
-              >
+                allowClear>
+
                 <Option value="root">Root Categories</Option>
-                {parentCategories.map(cat => (
-                  <Option key={cat.id} value={cat.id}>{cat.name}</Option>
-                ))}
+                {parentCategories.map((cat) =>
+                <Option key={cat.id} value={cat.id}>{cat.name}</Option>
+                )}
               </Select>
             </Col>
             <Col span={4}>
               <Button
                 icon={<FilterOutlined />}
                 onClick={fetchCategories}
-                style={{ width: '100%' }}
-              >
+                style={{ width: '100%' }}>
+
                 Apply Filters
               </Button>
             </Col>
@@ -381,10 +381,10 @@ const Categories = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} categories`,
+            `${range[0]}-${range[1]} of ${total} categories`
           }}
-          scroll={{ x: 1000 }}
-        />
+          scroll={{ x: 1000 }} />
+
       </Card>
 
       <Modal
@@ -392,20 +392,20 @@ const Categories = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={600}
-      >
+        width={600}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="name"
                 label="Category Name"
-                rules={[{ required: true, message: 'Please enter category name' }]}
-              >
+                rules={[{ required: true, message: 'Please enter category name' }]}>
+
                 <Input placeholder="Enter category name" />
               </Form.Item>
             </Col>
@@ -413,8 +413,8 @@ const Categories = () => {
               <Form.Item
                 name="slug"
                 label="Slug"
-                rules={[{ required: true, message: 'Please enter slug' }]}
-              >
+                rules={[{ required: true, message: 'Please enter slug' }]}>
+
                 <Input placeholder="category-slug" />
               </Form.Item>
             </Col>
@@ -422,8 +422,8 @@ const Categories = () => {
 
           <Form.Item
             name="description"
-            label="Description"
-          >
+            label="Description">
+
             <TextArea rows={3} placeholder="Enter category description" />
           </Form.Item>
 
@@ -431,78 +431,78 @@ const Categories = () => {
             <Col span={12}>
               <Form.Item
                 name="parentId"
-                label="Parent Category"
-              >
+                label="Parent Category">
+
                 <Select placeholder="Select parent category" allowClear>
-                  {parentCategories.map(cat => (
-                    <Option key={cat.id} value={cat.id}>{cat.name}</Option>
-                  ))}
+                  {parentCategories.map((cat) =>
+                  <Option key={cat.id} value={cat.id}>{cat.name}</Option>
+                  )}
                 </Select>
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="sortOrder"
-                label="Sort Order"
-              >
+                label="Sort Order">
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0"
-                  min={0}
-                />
+                  min={0} />
+
               </Form.Item>
             </Col>
           </Row>
 
           <Form.Item
             name="image"
-            label="Category Image"
-          >
+            label="Category Image">
+
             <div className="mb-4">
               <Upload
                 beforeUpload={handleImageUpload}
                 showUploadList={false}
-                accept="image/*"
-              >
+                accept="image/*">
+
                 <Button
                   icon={<UploadOutlined />}
-                  loading={uploading}
-                >
+                  loading={uploading}>
+
                   Upload Image
                 </Button>
               </Upload>
             </div>
 
-            {uploadedImage && (
-              <div className="relative inline-block">
+            {uploadedImage &&
+            <div className="relative inline-block">
                 <Image
-                  width={150}
-                  height={150}
-                  src={uploadedImage}
-                  style={{ objectFit: 'cover', borderRadius: 8 }}
-                />
+                width={150}
+                height={150}
+                src={uploadedImage}
+                style={{ objectFit: 'cover', borderRadius: 8 }} />
+
                 <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => setUploadedImage('')}
-                  style={{
-                    position: 'absolute',
-                    top: 4,
-                    right: 4,
-                    background: 'rgba(255, 255, 255, 0.8)',
-                  }}
-                />
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => setUploadedImage('')}
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  right: 4,
+                  background: 'rgba(255, 255, 255, 0.8)'
+                }} />
+
               </div>
-            )}
+            }
           </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="metaTitle"
-                label="Meta Title"
-              >
+                label="Meta Title">
+
                 <Input placeholder="SEO meta title" />
               </Form.Item>
             </Col>
@@ -510,8 +510,8 @@ const Categories = () => {
               <Form.Item
                 name="isActive"
                 label="Status"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
               </Form.Item>
             </Col>
@@ -519,8 +519,8 @@ const Categories = () => {
 
           <Form.Item
             name="metaDescription"
-            label="Meta Description"
-          >
+            label="Meta Description">
+
             <TextArea rows={2} placeholder="SEO meta description" />
           </Form.Item>
 
@@ -536,8 +536,8 @@ const Categories = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Categories;

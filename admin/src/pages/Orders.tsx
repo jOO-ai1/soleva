@@ -1,28 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Space, 
-  Input, 
-  Select, 
-  Tag, 
-  Modal, 
-  Form, 
+import {
+  Card,
+  Table,
+  Button,
+  Space,
+  Input,
+  Select,
+  Tag,
+  Modal,
+  Form,
   Typography,
   Row,
   Col,
   Statistic,
-  Descriptions
-} from 'antd';
+  Descriptions } from
+'antd';
 import {
   SearchOutlined,
   EyeOutlined,
   TruckOutlined,
   DollarOutlined,
   ShoppingOutlined,
-  ClockCircleOutlined,
-} from '@ant-design/icons';
+  ClockCircleOutlined } from
+'@ant-design/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useNotification } from '../components/NotificationSystem';
 import { ordersAPI } from '../services/api';
@@ -91,19 +91,19 @@ const Orders: React.FC = () => {
     let filtered = orders;
 
     if (searchText) {
-      filtered = filtered.filter(order =>
-        order.orderNumber.toLowerCase().includes(searchText.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
-        order.customerEmail.toLowerCase().includes(searchText.toLowerCase())
+      filtered = filtered.filter((order) =>
+      order.orderNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.customerEmail.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
     if (selectedStatus) {
-      filtered = filtered.filter(order => order.status === selectedStatus);
+      filtered = filtered.filter((order) => order.status === selectedStatus);
     }
 
     if (selectedPaymentStatus) {
-      filtered = filtered.filter(order => order.paymentStatus === selectedPaymentStatus);
+      filtered = filtered.filter((order) => order.paymentStatus === selectedPaymentStatus);
     }
 
     setFilteredOrders(filtered);
@@ -154,41 +154,41 @@ const Orders: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'warning';
-      case 'processing': return 'processing';
-      case 'shipped': return 'blue';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'error';
-      case 'refunded': return 'default';
-      default: return 'default';
+      case 'pending':return 'warning';
+      case 'processing':return 'processing';
+      case 'shipped':return 'blue';
+      case 'delivered':return 'success';
+      case 'cancelled':return 'error';
+      case 'refunded':return 'default';
+      default:return 'default';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'warning';
-      case 'paid': return 'success';
-      case 'failed': return 'error';
-      case 'refunded': return 'default';
-      default: return 'default';
+      case 'pending':return 'warning';
+      case 'paid':return 'success';
+      case 'failed':return 'error';
+      case 'refunded':return 'default';
+      default:return 'default';
     }
   };
 
   const columns = [
-    {
-      title: t('orderNumber'),
-      dataIndex: 'orderNumber',
-      key: 'orderNumber',
-      render: (text: string) => (
-        <Text strong style={{ color: 'var(--primary)' }}>{text}</Text>
-      ),
-    },
-    {
-      title: t('customerName'),
-      dataIndex: 'customerName',
-      key: 'customerName',
-      render: (text: string, record: Order) => (
-        <div>
+  {
+    title: t('orderNumber'),
+    dataIndex: 'orderNumber',
+    key: 'orderNumber',
+    render: (text: string) =>
+    <Text strong style={{ color: 'var(--primary)' }}>{text}</Text>
+
+  },
+  {
+    title: t('customerName'),
+    dataIndex: 'customerName',
+    key: 'customerName',
+    render: (text: string, record: Order) =>
+    <div>
           <Text strong>{text}</Text>
           <div>
             <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
@@ -196,61 +196,61 @@ const Orders: React.FC = () => {
             </Text>
           </div>
         </div>
-      ),
-    },
-    {
-      title: t('total'),
-      dataIndex: 'total',
-      key: 'total',
-      render: (total: number) => (
-        <Text strong style={{ color: 'var(--primary)' }}>
+
+  },
+  {
+    title: t('total'),
+    dataIndex: 'total',
+    key: 'total',
+    render: (total: number) =>
+    <Text strong style={{ color: 'var(--primary)' }}>
           ${total.toFixed(2)}
         </Text>
-      ),
-    },
-    {
-      title: t('orderStatus'),
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
+
+  },
+  {
+    title: t('orderStatus'),
+    dataIndex: 'status',
+    key: 'status',
+    render: (status: string) =>
+    <Tag color={getStatusColor(status)}>
           {t(status as any)}
         </Tag>
-      ),
-    },
-    {
-      title: t('paymentStatus'),
-      dataIndex: 'paymentStatus',
-      key: 'paymentStatus',
-      render: (status: string) => (
-        <Tag color={getPaymentStatusColor(status)}>
+
+  },
+  {
+    title: t('paymentStatus'),
+    dataIndex: 'paymentStatus',
+    key: 'paymentStatus',
+    render: (status: string) =>
+    <Tag color={getPaymentStatusColor(status)}>
           {t(status as any)}
         </Tag>
-      ),
-    },
-    {
-      title: t('orderDate'),
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: t('actions'),
-      key: 'actions',
-      render: (_, record: Order) => (
-        <Space>
-          <Button 
-            type="text" 
-            icon={<EyeOutlined />} 
-            size="small"
-            onClick={() => handleViewOrder(record)}
-          />
+
+  },
+  {
+    title: t('orderDate'),
+    dataIndex: 'createdAt',
+    key: 'createdAt',
+    render: (date: string) => new Date(date).toLocaleDateString()
+  },
+  {
+    title: t('actions'),
+    key: 'actions',
+    render: (_, record: Order) =>
+    <Space>
+          <Button
+        type="text"
+        icon={<EyeOutlined />}
+        size="small"
+        onClick={() => handleViewOrder(record)} />
+
           <Select
-            size="small"
-            value={record.status}
-            onChange={(value) => handleUpdateStatus(record.id, value)}
-            style={{ width: 120 }}
-          >
+        size="small"
+        value={record.status}
+        onChange={(value) => handleUpdateStatus(record.id, value)}
+        style={{ width: 120 }}>
+
             <Option value="pending">{t('pending')}</Option>
             <Option value="processing">{t('processing')}</Option>
             <Option value="shipped">{t('shipped')}</Option>
@@ -258,15 +258,15 @@ const Orders: React.FC = () => {
             <Option value="cancelled">{t('cancelled')}</Option>
           </Select>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const stats = {
     totalOrders: orders.length,
-    pendingOrders: orders.filter(o => o.status === 'pending').length,
-    processingOrders: orders.filter(o => o.status === 'processing').length,
-    totalRevenue: orders.reduce((sum, o) => sum + o.total, 0),
+    pendingOrders: orders.filter((o) => o.status === 'pending').length,
+    processingOrders: orders.filter((o) => o.status === 'processing').length,
+    totalRevenue: orders.reduce((sum, o) => sum + o.total, 0)
   };
 
   return (
@@ -288,8 +288,8 @@ const Orders: React.FC = () => {
               title={t('totalOrders')}
               value={stats.totalOrders}
               prefix={<ShoppingOutlined style={{ color: 'var(--primary)' }} />}
-              valueStyle={{ color: 'var(--primary)' }}
-            />
+              valueStyle={{ color: 'var(--primary)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -298,8 +298,8 @@ const Orders: React.FC = () => {
               title={t('pendingOrders')}
               value={stats.pendingOrders}
               prefix={<ClockCircleOutlined style={{ color: 'var(--warning)' }} />}
-              valueStyle={{ color: 'var(--warning)' }}
-            />
+              valueStyle={{ color: 'var(--warning)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -308,8 +308,8 @@ const Orders: React.FC = () => {
               title={t('processingOrders')}
               value={stats.processingOrders}
               prefix={<TruckOutlined style={{ color: 'var(--info)' }} />}
-              valueStyle={{ color: 'var(--info)' }}
-            />
+              valueStyle={{ color: 'var(--info)' }} />
+
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -319,8 +319,8 @@ const Orders: React.FC = () => {
               value={stats.totalRevenue}
               prefix={<DollarOutlined style={{ color: 'var(--success)' }} />}
               valueStyle={{ color: 'var(--success)' }}
-              precision={2}
-            />
+              precision={2} />
+
           </Card>
         </Col>
       </Row>
@@ -334,8 +334,8 @@ const Orders: React.FC = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               prefix={<SearchOutlined />}
-              style={{ width: '100%' }}
-            />
+              style={{ width: '100%' }} />
+
           </Col>
           <Col xs={24} sm={12} md={6}>
             <Select
@@ -343,8 +343,8 @@ const Orders: React.FC = () => {
               value={selectedStatus}
               onChange={setSelectedStatus}
               style={{ width: '100%' }}
-              allowClear
-            >
+              allowClear>
+
               <Option value="pending">{t('pending')}</Option>
               <Option value="processing">{t('processing')}</Option>
               <Option value="shipped">{t('shipped')}</Option>
@@ -359,8 +359,8 @@ const Orders: React.FC = () => {
               value={selectedPaymentStatus}
               onChange={setSelectedPaymentStatus}
               style={{ width: '100%' }}
-              allowClear
-            >
+              allowClear>
+
               <Option value="pending">{t('pending')}</Option>
               <Option value="paid">{t('paid')}</Option>
               <Option value="failed">{t('failed')}</Option>
@@ -381,11 +381,11 @@ const Orders: React.FC = () => {
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} of ${total} ${t('orders')}`,
+            showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} ${t('orders')}`
           }}
-          scroll={{ x: 1000 }}
-        />
+          scroll={{ x: 1000 }} />
+
       </Card>
 
       {/* Order Details Modal */}
@@ -395,10 +395,10 @@ const Orders: React.FC = () => {
         onCancel={() => setIsModalVisible(false)}
         width={800}
         className="glass"
-        footer={null}
-      >
-        {selectedOrder && (
-          <div>
+        footer={null}>
+
+        {selectedOrder &&
+        <div>
             <Row gutter={[24, 24]}>
               <Col span={12}>
                 <Card title={t('customerInfo')} size="small">
@@ -444,20 +444,20 @@ const Orders: React.FC = () => {
 
             <Card title={t('orderItems')} size="small" style={{ marginTop: 'var(--space-4)' }}>
               <Table
-                dataSource={selectedOrder.items}
-                columns={[
-                  { title: t('productName'), dataIndex: 'name', key: 'name' },
-                  { title: t('quantity'), dataIndex: 'quantity', key: 'quantity' },
-                  { 
-                    title: t('price'), 
-                    dataIndex: 'price', 
-                    key: 'price',
-                    render: (price: number) => `$${price.toFixed(2)}`
-                  },
-                ]}
-                pagination={false}
-                size="small"
-              />
+              dataSource={selectedOrder.items}
+              columns={[
+              { title: t('productName'), dataIndex: 'name', key: 'name' },
+              { title: t('quantity'), dataIndex: 'quantity', key: 'quantity' },
+              {
+                title: t('price'),
+                dataIndex: 'price',
+                key: 'price',
+                render: (price: number) => `$${price.toFixed(2)}`
+              }]
+              }
+              pagination={false}
+              size="small" />
+
             </Card>
 
             <div style={{ marginTop: 'var(--space-4)', textAlign: 'right' }}>
@@ -465,21 +465,21 @@ const Orders: React.FC = () => {
                 <Button onClick={() => setIsModalVisible(false)}>
                   {t('close')}
                 </Button>
-                {selectedOrder.status !== 'delivered' && selectedOrder.status !== 'cancelled' && (
-                  <Button
-                    type="primary"
-                    onClick={() => handleUpdateStatus(selectedOrder.id, 'delivered')}
-                  >
+                {selectedOrder.status !== 'delivered' && selectedOrder.status !== 'cancelled' &&
+              <Button
+                type="primary"
+                onClick={() => handleUpdateStatus(selectedOrder.id, 'delivered')}>
+
                     {t('markAsDelivered')}
                   </Button>
-                )}
+              }
               </Space>
             </div>
           </div>
-        )}
+        }
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Orders;

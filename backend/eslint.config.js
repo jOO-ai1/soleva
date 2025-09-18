@@ -2,15 +2,15 @@ const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 
 module.exports = tseslint.config(
-  { 
+  {
     ignores: [
-      'dist',
-      'node_modules',
-      'uploads',
-      'logs',
-      '*.js',
-      '**/*.d.ts',
-    ] 
+    'dist',
+    'node_modules',
+    'uploads',
+    'logs',
+    '*.js',
+    '**/*.d.ts']
+
   },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -26,18 +26,18 @@ module.exports = tseslint.config(
         require: 'readonly',
         module: 'readonly',
         exports: 'readonly',
-        global: 'readonly',
+        global: 'readonly'
       },
       parserOptions: {
         sourceType: 'module',
-        project: './tsconfig.json',
-      },
+        project: './tsconfig.json'
+      }
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-expressions': 'off',
-      'no-console': 'off',
-    },
+      'no-console': 'off'
+    }
   }
 );

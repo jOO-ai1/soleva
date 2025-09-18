@@ -104,7 +104,7 @@ export default function OrdersPage() {
       setLoading(true);
       setError(null);
       const response = await ordersApi.getAll({ page: currentPage, limit: 10 });
-      
+
       if (response.success) {
         setOrders(response.data as Order[]);
         const pages = (response as any).pagination?.pages as number | undefined;
@@ -142,16 +142,16 @@ export default function OrdersPage() {
             <FiFileText size={64} className="mx-auto mb-4 text-[#d1b16a]" />
             <h1 className="text-2xl font-bold mb-4">{t("orders")}</h1>
             <p className="text-gray-600 mb-6">Please log in to view your orders</p>
-            <Link 
-              to="/login" 
-              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-            >
+            <Link
+              to="/login"
+              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
               Login
             </Link>
           </div>
         </GlassCard>
-      </div>
-    );
+      </div>);
+
   }
 
   if (loading) {
@@ -161,8 +161,8 @@ export default function OrdersPage() {
           <FiRefreshCw className="animate-spin text-[#d1b16a] text-2xl" />
           <span className="ml-2 text-gray-600">Loading orders...</span>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (error) {
@@ -173,17 +173,17 @@ export default function OrdersPage() {
             <FiXCircle size={64} className="mx-auto mb-4 text-red-500" />
             <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
             <p className="text-gray-600 mb-6">{error}</p>
-            <button 
+            <button
               onClick={fetchOrders}
-              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-            >
+              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
               <FiRefreshCw className="mr-2" />
               Try Again
             </button>
           </div>
         </GlassCard>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -193,24 +193,24 @@ export default function OrdersPage() {
         <p className="text-gray-600">Track and manage your orders</p>
       </div>
 
-      {orders.length === 0 ? (
-        <GlassCard>
+      {orders.length === 0 ?
+      <GlassCard>
           <div className="text-center py-12">
             <FiFileText size={64} className="mx-auto mb-4 text-[#d1b16a]" />
             <h2 className="text-xl font-semibold mb-2">No orders yet</h2>
             <p className="text-gray-600 mb-6">You have no previous orders yet.</p>
-            <Link 
-              to="/products" 
-              className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-            >
+            <Link
+            to="/products"
+            className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
               Start Shopping
             </Link>
           </div>
-        </GlassCard>
-      ) : (
-        <div className="space-y-6">
-          {orders.map((order) => (
-            <GlassCard key={order.id} className="p-6">
+        </GlassCard> :
+
+      <div className="space-y-6">
+          {orders.map((order) =>
+        <GlassCard key={order.id} className="p-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                 <div className="flex items-center space-x-4 mb-4 lg:mb-0">
                   {getStatusIcon(order.orderStatus)}
@@ -232,15 +232,15 @@ export default function OrdersPage() {
               <div className="mb-4">
                 <h4 className="font-medium mb-2">Items ({order.items.length})</h4>
                 <div className="space-y-2">
-                  {order.items.slice(0, 3).map((item) => (
-                    <div key={item.id} className="flex items-center space-x-3">
-                      {item.product.images[0] && (
-                        <img 
-                          src={item.product.images[0]} 
-                          alt={item.product.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      )}
+                  {order.items.slice(0, 3).map((item) =>
+              <div key={item.id} className="flex items-center space-x-3">
+                      {item.product.images[0] &&
+                <img
+                  src={item.product.images[0]}
+                  alt={item.product.name}
+                  className="w-12 h-12 object-cover rounded" />
+
+                }
                       <div className="flex-1">
                         <p className="font-medium">{item.product.name}</p>
                         <p className="text-sm text-gray-600">
@@ -249,10 +249,10 @@ export default function OrdersPage() {
                       </div>
                       <span className="font-medium">{formatPrice(Number(item.price))}</span>
                     </div>
-                  ))}
-                  {order.items.length > 3 && (
-                    <p className="text-sm text-gray-600">+{order.items.length - 3} more items</p>
-                  )}
+              )}
+                  {order.items.length > 3 &&
+              <p className="text-sm text-gray-600">+{order.items.length - 3} more items</p>
+              }
                 </div>
               </div>
 
@@ -261,46 +261,46 @@ export default function OrdersPage() {
                   <p>Shipping to: {order.address.city}, {order.address.country}</p>
                 </div>
                 <div className="flex space-x-2">
-                  <Link 
-                    to={`/orders/${order.id}`}
-                    className="inline-flex items-center px-4 py-2 border border-[#d1b16a] text-[#d1b16a] rounded-lg hover:bg-[#d1b16a] hover:text-white transition-colors"
-                  >
+                  <Link
+                to={`/orders/${order.id}`}
+                className="inline-flex items-center px-4 py-2 border border-[#d1b16a] text-[#d1b16a] rounded-lg hover:bg-[#d1b16a] hover:text-white transition-colors">
+
                     View Details
                   </Link>
-                  <Link 
-                    to={`/track/${order.orderNumber}`}
-                    className="inline-flex items-center px-4 py-2 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
-                  >
+                  <Link
+                to={`/track/${order.orderNumber}`}
+                className="inline-flex items-center px-4 py-2 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors">
+
                     Track Order
                   </Link>
                 </div>
               </div>
             </GlassCard>
-          ))}
+        )}
 
-          {totalPages > 1 && (
-            <div className="flex justify-center space-x-2 mt-8">
+          {totalPages > 1 &&
+        <div className="flex justify-center space-x-2 mt-8">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-              >
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+
                 Previous
               </button>
               <span className="px-4 py-2">
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-              >
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+
                 Next
               </button>
             </div>
-          )}
+        }
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }

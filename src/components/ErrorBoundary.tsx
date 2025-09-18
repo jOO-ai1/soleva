@@ -48,19 +48,19 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <div className="flex space-x-3">
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
+                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+
                 Refresh Page
               </button>
               <button
                 onClick={() => (this as any).setState({ hasError: false, error: undefined, errorInfo: undefined })}
-                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-              >
+                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+
                 Try Again
               </button>
             </div>
-            {import.meta.env.DEV && this.state.error && (
-              <details className="mt-4 p-3 bg-gray-100 rounded-md">
+            {import.meta.env.DEV && this.state.error &&
+            <details className="mt-4 p-3 bg-gray-100 rounded-md">
                 <summary className="cursor-pointer text-sm font-medium text-gray-700">
                   Error Details (Development)
                 </summary>
@@ -69,10 +69,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
                   {this.state.errorInfo?.componentStack}
                 </pre>
               </details>
-            )}
+            }
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     return (this as any).props.children;
@@ -119,24 +119,24 @@ export function ApiErrorDisplay({ error, onRetry, className = '' }: ApiErrorDisp
           <div className="mt-2 text-sm text-red-700">
             <p>{getErrorMessage(error)}</p>
           </div>
-          {onRetry && isRetryable(error) && (
-            <div className="mt-4">
+          {onRetry && isRetryable(error) &&
+          <div className="mt-4">
               <button
-                onClick={onRetry}
-                className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm font-medium hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              >
+              onClick={onRetry}
+              className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm font-medium hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+
                 Try Again
               </button>
             </div>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 // Loading Component
-export function LoadingSpinner({ className = '', size = 'md' }: { className?: string; size?: 'sm' | 'md' | 'lg' }) {
+export function LoadingSpinner({ className = '', size = 'md' }: {className?: string;size?: 'sm' | 'md' | 'lg';}) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
@@ -146,12 +146,12 @@ export function LoadingSpinner({ className = '', size = 'md' }: { className?: st
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <div className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses[size]}`}></div>
-    </div>
-  );
+    </div>);
+
 }
 
 // Service Unavailable Component
-export function ServiceUnavailable({ onRetry, className = '' }: { onRetry?: () => void; className?: string }) {
+export function ServiceUnavailable({ onRetry, className = '' }: {onRetry?: () => void;className?: string;}) {
   return (
     <div className={`bg-yellow-50 border border-yellow-200 rounded-md p-6 text-center ${className}`}>
       <div className="flex items-center justify-center w-12 h-12 mx-auto bg-yellow-100 rounded-full mb-4">
@@ -165,14 +165,14 @@ export function ServiceUnavailable({ onRetry, className = '' }: { onRetry?: () =
       <p className="text-sm text-yellow-700 mb-4">
         We're experiencing some technical difficulties. Please try again in a few moments.
       </p>
-      {onRetry && (
-        <button
-          onClick={onRetry}
-          className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-        >
+      {onRetry &&
+      <button
+        onClick={onRetry}
+        className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
+
           Try Again
         </button>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }

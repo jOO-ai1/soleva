@@ -3,15 +3,15 @@ import { ApiResponse, ApiError, productsApi, collectionsApi, favoritesApi, order
 
 // Generic hook for API calls with enhanced error handling
 export function useApi<T>(
-  apiCall: () => Promise<ApiResponse<T>>,
-  dependencies: any[] = [],
-  options: {
-    retryOnError?: boolean;
-    maxRetries?: number;
-    retryDelay?: number;
-    onError?: (error: ApiError) => void;
-  } = {}
-) {
+apiCall: () => Promise<ApiResponse<T>>,
+dependencies: any[] = [],
+options: {
+  retryOnError?: boolean;
+  maxRetries?: number;
+  retryDelay?: number;
+  onError?: (error: ApiError) => void;
+} = {})
+{
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
@@ -31,7 +31,7 @@ export function useApi<T>(
         setError(null);
         setRetryCount(0);
       }
-      
+
       const response = await apiCall();
       setData(response.data);
       setError(null);
@@ -39,7 +39,7 @@ export function useApi<T>(
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError);
-      
+
       // Call error callback if provided
       if (onError) {
         onError(apiError);
@@ -47,10 +47,10 @@ export function useApi<T>(
 
       // Retry logic for network errors and server errors
       if (retryOnError && retryCount < maxRetries && (
-        apiError.status === 0 || // Network error
-        apiError.status >= 500   // Server error
+      apiError.status === 0 || // Network error
+      apiError.status >= 500 // Server error
       )) {
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         setTimeout(() => {
           fetchData(true);
         }, retryDelay * Math.pow(2, retryCount)); // Exponential backoff
@@ -74,11 +74,11 @@ export function useApi<T>(
     fetchData();
   }, [fetchData]);
 
-  return { 
-    data, 
-    loading, 
-    error, 
-    refetch, 
+  return {
+    data,
+    loading,
+    error,
+    refetch,
     retry,
     isRetrying: retryCount > 0,
     retryCount
@@ -87,8 +87,8 @@ export function useApi<T>(
 
 // Hook for mutations (POST, PUT, DELETE)
 export function useMutation<T, P = any>(
-  apiCall: (params: P) => Promise<ApiResponse<T>>
-) {
+apiCall: (params: P) => Promise<ApiResponse<T>>)
+{
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);

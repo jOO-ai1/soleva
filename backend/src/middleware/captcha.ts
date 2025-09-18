@@ -14,7 +14,7 @@ export interface CaptchaValidationResult {
 export const validateRecaptcha = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { recaptcha_token } = req.body;
-    
+
     // Skip CAPTCHA validation if secret key is not configured
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
     if (!secretKey || secretKey.trim() === '') {
@@ -22,13 +22,13 @@ export const validateRecaptcha = async (req: Request, res: Response, next: NextF
       next();
       return;
     }
-    
+
     // Skip CAPTCHA validation in development if token is not provided
     if (process.env.NODE_ENV === 'development' && !recaptcha_token) {
       next();
       return;
     }
-    
+
     if (!recaptcha_token) {
       res.status(400).json({
         success: false,
@@ -37,7 +37,7 @@ export const validateRecaptcha = async (req: Request, res: Response, next: NextF
       });
       return;
     }
-    
+
     // Verify with Google reCAPTCHA
     const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
       params: {
@@ -47,9 +47,9 @@ export const validateRecaptcha = async (req: Request, res: Response, next: NextF
       },
       timeout: 5000
     });
-    
+
     const result: CaptchaValidationResult = response.data;
-    
+
     if (!result.success) {
       res.status(400).json({
         success: false,
@@ -59,7 +59,7 @@ export const validateRecaptcha = async (req: Request, res: Response, next: NextF
       });
       return;
     }
-    
+
     // Check score for reCAPTCHA v3 (0.0 to 1.0, higher is better)
     if (result.score !== undefined && result.score < 0.5) {
       res.status(400).json({
@@ -70,20 +70,20 @@ export const validateRecaptcha = async (req: Request, res: Response, next: NextF
       });
       return;
     }
-    
+
     // Store CAPTCHA result in request for logging
     req.captchaResult = result;
     next();
   } catch (error) {
     console.error('CAPTCHA validation error:', error);
-    
+
     // In case of network error, allow request to proceed with warning
     if (process.env.NODE_ENV === 'development') {
       console.warn('CAPTCHA validation failed, allowing request in development');
       next();
       return;
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'CAPTCHA verification service unavailable',
@@ -96,7 +96,7 @@ export const validateRecaptcha = async (req: Request, res: Response, next: NextF
 export const validateHcaptcha = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { hcaptcha_token } = req.body;
-    
+
     if (!hcaptcha_token) {
       res.status(400).json({
         success: false,
@@ -105,14 +105,14 @@ export const validateHcaptcha = async (req: Request, res: Response, next: NextFu
       });
       return;
     }
-    
+
     const secretKey = process.env.HCAPTCHA_SECRET_KEY;
     if (!secretKey) {
       console.warn('hCaptcha secret key not configured, skipping validation');
       next();
       return;
     }
-    
+
     // Verify with hCaptcha
     const response = await axios.post('https://hcaptcha.com/siteverify', null, {
       params: {
@@ -122,9 +122,9 @@ export const validateHcaptcha = async (req: Request, res: Response, next: NextFu
       },
       timeout: 5000
     });
-    
+
     const result = response.data;
-    
+
     if (!result.success) {
       res.status(400).json({
         success: false,
@@ -134,19 +134,19 @@ export const validateHcaptcha = async (req: Request, res: Response, next: NextFu
       });
       return;
     }
-    
+
     // Store CAPTCHA result in request for logging
     req.captchaResult = result;
     next();
   } catch (error) {
     console.error('hCaptcha validation error:', error);
-    
+
     if (process.env.NODE_ENV === 'development') {
       console.warn('hCaptcha validation failed, allowing request in development');
       next();
       return;
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'CAPTCHA verification service unavailable',

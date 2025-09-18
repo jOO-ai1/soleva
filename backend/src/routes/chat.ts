@@ -1,6 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
-import { 
+import {
   getCurrentConversation,
   createConversation,
   sendMessage,
@@ -8,8 +8,8 @@ import {
   requestHumanAgent,
   getConversationMessages,
   uploadChatFile,
-  getChatAvailability
-} from '../controllers/chatController';
+  getChatAvailability } from
+'../controllers/chatController';
 import { auth } from '../middleware/auth';
 import multer from 'multer';
 
@@ -20,14 +20,14 @@ const prisma = new PrismaClient();
 const upload = multer({
   dest: 'uploads/chat/',
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024 // 10MB limit
   },
   fileFilter: (_req, file, cb) => {
     // Allow images and documents
     const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
     const extname = allowedTypes.test(file.originalname.toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
-    
+
     if (mimetype && extname) {
       return cb(null, true);
     } else {

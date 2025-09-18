@@ -10,10 +10,10 @@ declare global {
       hasError: boolean;
       error?: Error;
     }
-    
+
     interface ErrorBoundaryProps {
       children: React.ReactNode;
-      fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
+      fallback?: React.ComponentType<{error?: Error;resetError: () => void;}>;
     }
   }
 

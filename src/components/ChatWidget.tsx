@@ -2,17 +2,17 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback } = React;
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_CONFIG } from '../config/api';
-import { 
-  FiMessageCircle, 
-  FiX, 
-  FiSend, 
-  FiUser, 
-  FiMinimize2, 
+import {
+  FiMessageCircle,
+  FiX,
+  FiSend,
+  FiUser,
+  FiMinimize2,
   FiMaximize2,
   FiPaperclip,
   FiWifi,
-  FiWifiOff
-} from 'react-icons/fi';
+  FiWifiOff } from
+'react-icons/fi';
 import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';
@@ -52,7 +52,7 @@ const ChatWidget = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [agentTyping, setAgentTyping] = useState(false);
-  
+
   const {
     showWarning,
     warningType,
@@ -86,7 +86,7 @@ const ChatWidget = () => {
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/availability?language=${lang}`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       });
 
@@ -124,7 +124,7 @@ const ChatWidget = () => {
       if (response.ok) {
         const data = await response.json();
         setConversation(data.data);
-        
+
         // Send welcome message
         await sendWelcomeMessage();
       }
@@ -136,7 +136,7 @@ const ChatWidget = () => {
   const initializeChat = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Check if user has an existing open conversation
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations/current`, {
         method: 'POST',
@@ -173,9 +173,9 @@ const ChatWidget = () => {
   const sendWelcomeMessage = async () => {
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: lang === 'ar' 
-        ? `مرحباً ${user?.name}! أنا مساعد سوليفا الذكي 🤖\n\nكيف يمكنني مساعدتك اليوم؟ يمكنني:\n\n✨ تتبع طلباتك\n🛍️ اقتراح منتجات مناسبة\n📦 معلومات الشحن والتوصيل\n🔄 المرتجعات والاستبدال\n💳 مساعدة في الدفع\n❓ الإجابة على الأسئلة الشائعة\n\nسأحاول مساعدتك أولاً، وإذا لم أتمكن من حل مشكلتك، سأقوم بتوصيلك بأحد موظفي خدمة العملاء 👨‍💼`
-        : `Hello ${user?.name}! I'm Soleva's AI Assistant 🤖\n\nHow can I help you today? I can assist with:\n\n✨ Your order tracking\n🛍️ Product recommendations\n📦 Shipping and delivery info\n🔄 Returns and exchanges\n💳 Payment assistance\n❓ FAQ answers\n\nI'll try to help you first, and if I can't resolve your issue, I'll connect you with a human agent 👨‍💼`,
+      content: lang === 'ar' ?
+      `مرحباً ${user?.name}! أنا مساعد سوليفا الذكي 🤖\n\nكيف يمكنني مساعدتك اليوم؟ يمكنني:\n\n✨ تتبع طلباتك\n🛍️ اقتراح منتجات مناسبة\n📦 معلومات الشحن والتوصيل\n🔄 المرتجعات والاستبدال\n💳 مساعدة في الدفع\n❓ الإجابة على الأسئلة الشائعة\n\nسأحاول مساعدتك أولاً، وإذا لم أتمكن من حل مشكلتك، سأقوم بتوصيلك بأحد موظفي خدمة العملاء 👨‍💼` :
+      `Hello ${user?.name}! I'm Soleva's AI Assistant 🤖\n\nHow can I help you today? I can assist with:\n\n✨ Your order tracking\n🛍️ Product recommendations\n📦 Shipping and delivery info\n🔄 Returns and exchanges\n💳 Payment assistance\n❓ FAQ answers\n\nI'll try to help you first, and if I can't resolve your issue, I'll connect you with a human agent 👨‍💼`,
       type: 'TEXT',
       senderType: 'AI',
       senderName: 'Soleva Assistant',
@@ -188,7 +188,7 @@ const ChatWidget = () => {
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || loading) return;
-    
+
     // Ensure user is logged in
     if (!user) {
       requireAuth(() => {
@@ -314,13 +314,13 @@ const ChatWidget = () => {
       }
     } catch (error) {
       console.error('AI response error:', error);
-      
+
       // Fallback response
       const fallbackMessage: Message = {
         id: Date.now().toString() + '_fallback',
-        content: lang === 'ar'
-          ? 'أعتذر، لم أتمكن من فهم استفسارك. هل يمكنك إعادة صياغته أو طلب التحدث مع أحد موظفي خدمة العملاء؟'
-          : 'I apologize, I couldn\'t understand your query. Could you please rephrase it or request to speak with a human agent?',
+        content: lang === 'ar' ?
+        'أعتذر، لم أتمكن من فهم استفسارك. هل يمكنك إعادة صياغته أو طلب التحدث مع أحد موظفي خدمة العملاء؟' :
+        'I apologize, I couldn\'t understand your query. Could you please rephrase it or request to speak with a human agent?',
         type: 'TEXT',
         senderType: 'AI',
         senderName: 'Soleva Assistant',
@@ -337,9 +337,9 @@ const ChatWidget = () => {
       ar: ['طلب', 'تتبع', 'رقم', 'وين', 'فين', 'وصل', 'شحن'],
       en: ['order', 'track', 'tracking', 'number', 'where', 'status', 'delivery']
     };
-    
+
     const keywords = orderKeywords[lang as keyof typeof orderKeywords];
-    return keywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+    return keywords.some((keyword) => message.toLowerCase().includes(keyword.toLowerCase()));
   };
 
   const isHumanRequestQuery = (message: string): boolean => {
@@ -347,9 +347,9 @@ const ChatWidget = () => {
       ar: ['موظف', 'انسان', 'شخص', 'عميل', 'خدمة', 'مندوب'],
       en: ['human', 'agent', 'person', 'staff', 'representative', 'support']
     };
-    
+
     const keywords = humanKeywords[lang as keyof typeof humanKeywords];
-    return keywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+    return keywords.some((keyword) => message.toLowerCase().includes(keyword.toLowerCase()));
   };
 
   const isProductRecommendationQuery = (message: string): boolean => {
@@ -357,9 +357,9 @@ const ChatWidget = () => {
       ar: ['منتج', 'اقتراح', 'توصية', 'أفضل', 'جديد', 'شائع', 'مطلوب', 'أريد', 'ابحث', 'أبحث'],
       en: ['product', 'recommend', 'suggestion', 'best', 'new', 'popular', 'want', 'looking', 'search', 'find']
     };
-    
+
     const keywords = productKeywords[lang as keyof typeof productKeywords];
-    return keywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+    return keywords.some((keyword) => message.toLowerCase().includes(keyword.toLowerCase()));
   };
 
   const isFAQQuery = (message: string): boolean => {
@@ -367,18 +367,18 @@ const ChatWidget = () => {
       ar: ['كيف', 'متى', 'أين', 'لماذا', 'ما هو', 'ما هي', 'سؤال', 'استفسار', 'معلومات', 'مساعدة'],
       en: ['how', 'when', 'where', 'why', 'what is', 'what are', 'question', 'help', 'information', 'support']
     };
-    
+
     const keywords = faqKeywords[lang as keyof typeof faqKeywords];
-    return keywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+    return keywords.some((keyword) => message.toLowerCase().includes(keyword.toLowerCase()));
   };
 
   const handleOrderTracking = async (message: string) => {
     // Extract order number from message
     const orderNumberMatch = message.match(/SOL-\d{8}-\d{5}|#?\d{10,}/);
-    
+
     if (orderNumberMatch) {
       const orderNumber = orderNumberMatch[0];
-      
+
       try {
         const response = await fetch(`${API_CONFIG.BASE_URL}/orders/track/${orderNumber}`, {
           headers: user ? {
@@ -389,7 +389,7 @@ const ChatWidget = () => {
         if (response.ok) {
           const data = await response.json();
           const order = data.data;
-          
+
           const orderInfoMessage: Message = {
             id: Date.now().toString() + '_order',
             content: formatOrderInfo(order),
@@ -405,9 +405,9 @@ const ChatWidget = () => {
         } else {
           const errorMessage: Message = {
             id: Date.now().toString() + '_error',
-            content: lang === 'ar'
-              ? 'لم أتمكن من العثور على طلب بهذا الرقم. يرجى التأكد من رقم الطلب والمحاولة مرة أخرى.'
-              : 'I couldn\'t find an order with that number. Please check the order number and try again.',
+            content: lang === 'ar' ?
+            'لم أتمكن من العثور على طلب بهذا الرقم. يرجى التأكد من رقم الطلب والمحاولة مرة أخرى.' :
+            'I couldn\'t find an order with that number. Please check the order number and try again.',
             type: 'TEXT',
             senderType: 'AI',
             senderName: 'Soleva Assistant',
@@ -423,9 +423,9 @@ const ChatWidget = () => {
     } else {
       const askOrderMessage: Message = {
         id: Date.now().toString() + '_ask_order',
-        content: lang === 'ar'
-          ? 'يرجى تقديم رقم الطلب الخاص بك. يمكنك العثور عليه في بريدك الإلكتروني أو في قسم "طلباتي".'
-          : 'Please provide your order number. You can find it in your email or in the "My Orders" section.',
+        content: lang === 'ar' ?
+        'يرجى تقديم رقم الطلب الخاص بك. يمكنك العثور عليه في بريدك الإلكتروني أو في قسم "طلباتي".' :
+        'Please provide your order number. You can find it in your email or in the "My Orders" section.',
         type: 'TEXT',
         senderType: 'AI',
         senderName: 'Soleva Assistant',
@@ -474,7 +474,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
       if (response.ok) {
         const data = await response.json();
         const products = data.data || [];
-        
+
         if (products.length > 0) {
           const productMessage: Message = {
             id: Date.now().toString() + '_products',
@@ -491,9 +491,9 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         } else {
           const noProductsMessage: Message = {
             id: Date.now().toString() + '_no_products',
-            content: lang === 'ar'
-              ? 'لم أجد منتجات تطابق بحثك. هل يمكنك وصف ما تبحث عنه بشكل أكثر تفصيلاً؟'
-              : 'I couldn\'t find products matching your search. Could you describe what you\'re looking for in more detail?',
+            content: lang === 'ar' ?
+            'لم أجد منتجات تطابق بحثك. هل يمكنك وصف ما تبحث عنه بشكل أكثر تفصيلاً؟' :
+            'I couldn\'t find products matching your search. Could you describe what you\'re looking for in more detail?',
             type: 'TEXT',
             senderType: 'AI',
             senderName: 'Soleva Assistant',
@@ -529,7 +529,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
     const responses = faqResponses[lang as keyof typeof faqResponses];
     const lowerMessage = message.toLowerCase();
-    
+
     for (const [key, answer] of Object.entries(responses)) {
       if (lowerMessage.includes(key)) {
         const faqMessage: Message = {
@@ -550,9 +550,9 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     // If no specific FAQ match, provide general help
     const generalHelpMessage: Message = {
       id: Date.now().toString() + '_general_help',
-      content: lang === 'ar'
-        ? 'يمكنني مساعدتك في:\n\n• تتبع الطلبات\n• معلومات المنتجات\n• الشحن والتوصيل\n• المرتجعات\n• طرق الدفع\n\nأو يمكنك طلب التحدث مع موظف خدمة العملاء.'
-        : 'I can help you with:\n\n• Order tracking\n• Product information\n• Shipping and delivery\n• Returns\n• Payment methods\n\nOr you can request to speak with a customer service agent.',
+      content: lang === 'ar' ?
+      'يمكنني مساعدتك في:\n\n• تتبع الطلبات\n• معلومات المنتجات\n• الشحن والتوصيل\n• المرتجعات\n• طرق الدفع\n\nأو يمكنك طلب التحدث مع موظف خدمة العملاء.' :
+      'I can help you with:\n\n• Order tracking\n• Product information\n• Shipping and delivery\n• Returns\n• Payment methods\n\nOr you can request to speak with a customer service agent.',
       type: 'TEXT',
       senderType: 'AI',
       senderName: 'Soleva Assistant',
@@ -565,12 +565,12 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
   const formatProductRecommendations = (products: any[]): string => {
     if (lang === 'ar') {
-      return `🛍️ إليك بعض المنتجات المقترحة:\n\n${products.map((product, index) => 
-        `${index + 1}. **${product.name}**\n   💰 ${product.price} ج.م\n   ⭐ ${product.rating || 'جديد'}\n   🔗 [عرض المنتج](${window.location.origin}/products/${product.id})`
+      return `🛍️ إليك بعض المنتجات المقترحة:\n\n${products.map((product, index) =>
+      `${index + 1}. **${product.name}**\n   💰 ${product.price} ج.م\n   ⭐ ${product.rating || 'جديد'}\n   🔗 [عرض المنتج](${window.location.origin}/products/${product.id})`
       ).join('\n\n')}\n\nهل تريد رؤية المزيد من المنتجات أم لديك أسئلة محددة؟`;
     } else {
-      return `🛍️ Here are some recommended products:\n\n${products.map((product, index) => 
-        `${index + 1}. **${product.name}**\n   💰 ${product.price} EGP\n   ⭐ ${product.rating || 'New'}\n   🔗 [View Product](${window.location.origin}/products/${product.id})`
+      return `🛍️ Here are some recommended products:\n\n${products.map((product, index) =>
+      `${index + 1}. **${product.name}**\n   💰 ${product.price} EGP\n   ⭐ ${product.rating || 'New'}\n   🔗 [View Product](${window.location.origin}/products/${product.id})`
       ).join('\n\n')}\n\nWould you like to see more products or do you have specific questions?`;
     }
   };
@@ -579,9 +579,9 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     // Check if user is logged in
     if (!user) {
       showToast(
-        lang === 'ar' 
-          ? 'يجب تسجيل الدخول أولاً لاستخدام خدمة الدردشة' 
-          : 'Please log in first to use the chat service'
+        lang === 'ar' ?
+        'يجب تسجيل الدخول أولاً لاستخدام خدمة الدردشة' :
+        'Please log in first to use the chat service'
       );
       return;
     }
@@ -602,14 +602,14 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.data.queued) {
           // User is in queue
           const queueMessage: Message = {
             id: Date.now().toString() + '_queue',
-            content: lang === 'ar'
-              ? `🙋‍♀️ تم إضافتك إلى قائمة الانتظار. موقعك في الطابور: ${data.data.queuePosition}\n\nسيتم توصيلك بأحد موظفي خدمة العملاء في أقرب وقت ممكن.`
-              : `🙋‍♀️ You've been added to the waiting queue. Your position: ${data.data.queuePosition}\n\nYou'll be connected to a human agent as soon as one becomes available.`,
+            content: lang === 'ar' ?
+            `🙋‍♀️ تم إضافتك إلى قائمة الانتظار. موقعك في الطابور: ${data.data.queuePosition}\n\nسيتم توصيلك بأحد موظفي خدمة العملاء في أقرب وقت ممكن.` :
+            `🙋‍♀️ You've been added to the waiting queue. Your position: ${data.data.queuePosition}\n\nYou'll be connected to a human agent as soon as one becomes available.`,
             type: 'TEXT',
             senderType: 'SYSTEM',
             isFromAI: false,
@@ -621,9 +621,9 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
           setChatMode('HUMAN');
           const switchMessage: Message = {
             id: Date.now().toString() + '_switch',
-            content: lang === 'ar'
-              ? '🙋‍♀️ تم تحويلك إلى أحد موظفي خدمة العملاء. سيتم الرد عليك في أقرب وقت ممكن.'
-              : '🙋‍♀️ You\'ve been connected to a human agent. You\'ll receive a response shortly.',
+            content: lang === 'ar' ?
+            '🙋‍♀️ تم تحويلك إلى أحد موظفي خدمة العملاء. سيتم الرد عليك في أقرب وقت ممكن.' :
+            '🙋‍♀️ You\'ve been connected to a human agent. You\'ll receive a response shortly.',
             type: 'TEXT',
             senderType: 'SYSTEM',
             isFromAI: false,
@@ -635,9 +635,9 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         // Handle error
         const errorMessage: Message = {
           id: Date.now().toString() + '_error',
-          content: lang === 'ar'
-            ? 'عذراً، حدث خطأ في طلب التحدث مع موظف خدمة العملاء. يرجى المحاولة مرة أخرى.'
-            : 'Sorry, there was an error requesting a human agent. Please try again.',
+          content: lang === 'ar' ?
+          'عذراً، حدث خطأ في طلب التحدث مع موظف خدمة العملاء. يرجى المحاولة مرة أخرى.' :
+          'Sorry, there was an error requesting a human agent. Please try again.',
           type: 'TEXT',
           senderType: 'SYSTEM',
           isFromAI: false,
@@ -649,9 +649,9 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
       console.error('Failed to request human agent:', error);
       const errorMessage: Message = {
         id: Date.now().toString() + '_error',
-        content: lang === 'ar'
-          ? 'عذراً، حدث خطأ في طلب التحدث مع موظف خدمة العملاء. يرجى المحاولة مرة أخرى.'
-          : 'Sorry, there was an error requesting a human agent. Please try again.',
+        content: lang === 'ar' ?
+        'عذراً، حدث خطأ في طلب التحدث مع موظف خدمة العملاء. يرجى المحاولة مرة أخرى.' :
+        'Sorry, there was an error requesting a human agent. Please try again.',
         type: 'TEXT',
         senderType: 'SYSTEM',
         isFromAI: false,
@@ -675,7 +675,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         const data = await response.json();
         if (data.data && data.data.length > 0) {
           setMessages((prev: Message[]) => [...prev, ...data.data]);
-          
+
           // Update unread count if widget is closed
           if (!isOpen) {
             setUnreadCount((prev: number) => prev + data.data.length);
@@ -705,7 +705,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
       if (response.ok) {
         const data = await response.json();
-        
+
         const fileMessage: Message = {
           id: Date.now().toString() + '_file',
           content: `📎 ${file.name}`,
@@ -824,52 +824,52 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     <>
       {/* Chat Widget Button */}
       <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            className="chat-widget-container"
-          >
+        {!isOpen &&
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          className="chat-widget-container">
+
             {/* Tooltip */}
             <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="chat-tooltip"
-            >
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="chat-tooltip">
+
               {lang === 'ar' ? 'هل يمكنني مساعدتك؟' : 'Can I help you?'}
             </motion.div>
             
             {/* Chat Button */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={openChat}
-              className="chat-widget-button"
-            >
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={openChat}
+            className="chat-widget-button">
+
               <FiMessageCircle size={24} />
-              {unreadCount > 0 && (
-                <span className="unread-badge">{unreadCount}</span>
-              )}
+              {unreadCount > 0 &&
+            <span className="unread-badge">{unreadCount}</span>
+            }
             </motion.button>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       {/* Chat Window */}
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0, y: 20 }}
-            animate={{ 
-              scale: 1, 
-              opacity: 1, 
-              y: 0,
-              height: isMinimized ? 60 : 500
-            }}
-            exit={{ scale: 0, opacity: 0, y: 20 }}
-            className="chat-window"
-          >
+        {isOpen &&
+        <motion.div
+          initial={{ scale: 0, opacity: 0, y: 20 }}
+          animate={{
+            scale: 1,
+            opacity: 1,
+            y: 0,
+            height: isMinimized ? 60 : 500
+          }}
+          exit={{ scale: 0, opacity: 0, y: 20 }}
+          className="chat-window">
+
             {/* Chat Header */}
             <div className="chat-header">
               <div className="chat-header-info">
@@ -878,43 +878,43 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
                 </div>
                 <div className="chat-info">
                   <div className="chat-title">
-                    {chatMode === 'AI' 
-                      ? (lang === 'ar' ? 'مساعد سوليفا' : 'Soleva Assistant')
-                      : (lang === 'ar' ? 'خدمة العملاء' : 'Customer Support')
-                    }
+                    {chatMode === 'AI' ?
+                  lang === 'ar' ? 'مساعد سوليفا' : 'Soleva Assistant' :
+                  lang === 'ar' ? 'خدمة العملاء' : 'Customer Support'
+                  }
                   </div>
                   <div className="chat-status">
-                    {agentTyping ? (
-                      <span className="typing-indicator">
+                    {agentTyping ?
+                  <span className="typing-indicator">
                         {lang === 'ar' ? 'يكتب...' : 'Typing...'}
-                      </span>
-                    ) : availability ? (
-                      <span className={`status-indicator ${availability.isLiveChatAvailable ? 'online' : 'offline'}`}>
-                        {availability.isLiveChatAvailable 
-                          ? (lang === 'ar' ? 'متاح الآن' : 'Online now')
-                          : (lang === 'ar' ? 'غير متاح' : 'Offline')
-                        }
-                      </span>
-                    ) : (
-                      <span className="online-status">
+                      </span> :
+                  availability ?
+                  <span className={`status-indicator ${availability.isLiveChatAvailable ? 'online' : 'offline'}`}>
+                        {availability.isLiveChatAvailable ?
+                    lang === 'ar' ? 'متاح الآن' : 'Online now' :
+                    lang === 'ar' ? 'غير متاح' : 'Offline'
+                    }
+                      </span> :
+
+                  <span className="online-status">
                         {lang === 'ar' ? 'متاح الآن' : 'Online now'}
                       </span>
-                    )}
+                  }
                   </div>
                 </div>
               </div>
               
               <div className="chat-actions">
                 <button
-                  onClick={() => setIsMinimized(!isMinimized)}
-                  className="chat-action-button"
-                >
+                onClick={() => setIsMinimized(!isMinimized)}
+                className="chat-action-button">
+
                   {isMinimized ? <FiMaximize2 size={16} /> : <FiMinimize2 size={16} />}
                 </button>
                 <button
-                  onClick={closeChat}
-                  className="chat-action-button"
-                >
+                onClick={closeChat}
+                className="chat-action-button">
+
                   <FiX size={16} />
                 </button>
               </div>
@@ -922,126 +922,126 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
             {/* Chat Content */}
             <AnimatePresence>
-              {!isMinimized && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="chat-content"
-                >
+              {!isMinimized &&
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="chat-content">
+
                   {/* Availability Status */}
-                  {availability && (
-                    <div className={`availability-status ${availability.isLiveChatAvailable ? 'online' : 'offline'}`}>
+                  {availability &&
+              <div className={`availability-status ${availability.isLiveChatAvailable ? 'online' : 'offline'}`}>
                       <div className="availability-icon">
                         {availability.isLiveChatAvailable ? <FiWifi size={16} /> : <FiWifiOff size={16} />}
                       </div>
                       <div className="availability-text">
-                        {availability.isLiveChatAvailable ? (
-                          <span className="online-text">
+                        {availability.isLiveChatAvailable ?
+                  <span className="online-text">
                             {lang === 'ar' ? 'وكلاؤنا المباشرون متاحون الآن' : 'Our live agents are available now'}
-                          </span>
-                        ) : (
-                          <span className="offline-text">
+                          </span> :
+
+                  <span className="offline-text">
                             {availability.message}
                           </span>
-                        )}
+                  }
                       </div>
                     </div>
-                  )}
+              }
 
                   {/* Messages */}
                   <div className="messages-container">
-                    {loading ? (
-                      <div className="loading-messages">
+                    {loading ?
+                <div className="loading-messages">
                         <div className="loading-spinner"></div>
                         <span>{lang === 'ar' ? 'جاري التحميل...' : 'Loading...'}</span>
-                      </div>
-                    ) : (
-                      messages.map((message: Message) => (
-                        <div
-                          key={message.id}
-                          className={`message ${message.senderType === 'CUSTOMER' ? 'user' : 'bot'}`}
-                        >
+                      </div> :
+
+                messages.map((message: Message) =>
+                <div
+                  key={message.id}
+                  className={`message ${message.senderType === 'CUSTOMER' ? 'user' : 'bot'}`}>
+
                           <div className="message-avatar">
-                            {message.senderType === 'CUSTOMER' ? (
-                              <FiUser />
-                            ) : message.isFromAI ? (
-                              <FiUser />
-                            ) : (
-                              <FiUser />
-                            )}
+                            {message.senderType === 'CUSTOMER' ?
+                    <FiUser /> :
+                    message.isFromAI ?
+                    <FiUser /> :
+
+                    <FiUser />
+                    }
                           </div>
                           
                           <div className="message-content">
                             <div className="message-header">
                               <span className="sender-name">
-                                {message.senderName || 
-                                  (message.senderType === 'CUSTOMER' 
-                                    ? (lang === 'ar' ? 'أنت' : 'You')
-                                    : (lang === 'ar' ? 'المساعد' : 'Assistant')
-                                  )
-                                }
+                                {message.senderName || (
+                        message.senderType === 'CUSTOMER' ?
+                        lang === 'ar' ? 'أنت' : 'You' :
+                        lang === 'ar' ? 'المساعد' : 'Assistant')
+
+                        }
                               </span>
                               <span className="message-time">
                                 {message.timestamp.toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                               </span>
                             </div>
                             
                             <div className="message-text">
-                              {message.type === 'PRODUCT_LINK' ? (
-                                <div className="product-message">
+                              {message.type === 'PRODUCT_LINK' ?
+                      <div className="product-message">
                                   {message.content.split('\n').map((line: string, index: number) => {
-                                    if (line.includes('[عرض المنتج]') || line.includes('[View Product]')) {
-                                      const linkMatch = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                                      if (linkMatch) {
-                                        return (
-                                          <div key={index} className="product-link">
-                                            <a 
-                                              href={linkMatch[2]} 
-                                              target="_blank" 
-                                              rel="noopener noreferrer"
-                                              className="product-link-button"
-                                            >
-                                              {linkMatch[1]}
-                                            </a>
-                                          </div>
-                                        );
-                                      }
-                                    }
-                                    return <div key={index}>{line}</div>;
-                                  })}
-                                </div>
-                              ) : (
-                                message.content
-                              )}
-                            </div>
-
-                            {message.attachments && message.attachments.length > 0 && (
-                              <div className="message-attachments">
-                                {message.attachments.map((attachment: string, index: number) => (
-                                  <a 
-                                    key={index}
-                                    href={attachment}
+                          if (line.includes('[عرض المنتج]') || line.includes('[View Product]')) {
+                            const linkMatch = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                            if (linkMatch) {
+                              return (
+                                <div key={index} className="product-link">
+                                            <a
+                                    href={linkMatch[2]}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="attachment-link"
-                                  >
+                                    className="product-link-button">
+
+                                              {linkMatch[1]}
+                                            </a>
+                                          </div>);
+
+                            }
+                          }
+                          return <div key={index}>{line}</div>;
+                        })}
+                                </div> :
+
+                      message.content
+                      }
+                            </div>
+
+                            {message.attachments && message.attachments.length > 0 &&
+                    <div className="message-attachments">
+                                {message.attachments.map((attachment: string, index: number) =>
+                      <a
+                        key={index}
+                        href={attachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="attachment-link">
+
                                     <FiPaperclip size={14} />
                                     {lang === 'ar' ? 'مرفق' : 'Attachment'}
                                   </a>
-                                ))}
+                      )}
                               </div>
-                            )}
+                    }
                           </div>
                         </div>
-                      ))
-                    )}
+                )
+                }
                     
-                    {isTyping && (
-                      <div className="message bot">
+                    {isTyping &&
+                <div className="message bot">
                         <div className="message-avatar">
                           <FiUser />
                         </div>
@@ -1051,7 +1051,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
                           <span></span>
                         </div>
                       </div>
-                    )}
+                }
                     
                     <div ref={messagesEndRef} />
                   </div>
@@ -1060,57 +1060,57 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
                   <div className="chat-input-container">
                     <div className="chat-input-wrapper">
                       <input
-                        ref={inputRef}
-                        type="text"
-                        value={inputMessage}
-                        onChange={(e) => setInputMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder={lang === 'ar' ? 'اكتب رسالتك...' : 'Type your message...'}
-                        className="chat-input"
-                        disabled={loading}
-                      />
+                    ref={inputRef}
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={lang === 'ar' ? 'اكتب رسالتك...' : 'Type your message...'}
+                    className="chat-input"
+                    disabled={loading} />
+
                       
                       <input
-                        ref={fileInputRef}
-                        type="file"
-                        onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
-                        style={{ display: 'none' }}
-                        accept="image/*,.pdf,.doc,.docx"
-                      />
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                    style={{ display: 'none' }}
+                    accept="image/*,.pdf,.doc,.docx" />
+
                       
                       <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="chat-attach-button"
-                        disabled={loading}
-                      >
+                    onClick={() => fileInputRef.current?.click()}
+                    className="chat-attach-button"
+                    disabled={loading}>
+
                         <FiPaperclip size={18} />
                       </button>
                       
                       <button
-                        onClick={sendMessage}
-                        className="chat-send-button"
-                        disabled={!inputMessage.trim() || loading}
-                      >
+                    onClick={sendMessage}
+                    className="chat-send-button"
+                    disabled={!inputMessage.trim() || loading}>
+
                         <FiSend size={18} />
                       </button>
                     </div>
                     
-                    {chatMode === 'AI' && (
-                      <div className="chat-mode-switch">
+                    {chatMode === 'AI' &&
+                <div className="chat-mode-switch">
                         <button
-                          onClick={switchToHumanMode}
-                          className="human-request-button"
-                        >
+                    onClick={switchToHumanMode}
+                    className="human-request-button">
+
                           {lang === 'ar' ? '🙋‍♀️ تحدث مع موظف' : '🙋‍♀️ Talk to human'}
                         </button>
                       </div>
-                    )}
+                }
                   </div>
                 </motion.div>
-              )}
+            }
             </AnimatePresence>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       <style>{`
@@ -1594,10 +1594,10 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         onLogin={handleLoginClick}
         onSignUp={handleSignUpClick}
         type={warningType}
-        action={actionDescription}
-      />
-    </>
-  );
+        action={actionDescription} />
+
+    </>);
+
 };
 
 export default ChatWidget;

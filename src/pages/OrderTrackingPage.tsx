@@ -91,7 +91,7 @@ export default function OrderTrackingPage() {
   const t = useTranslation();
   const auth = useAuthSafe();
   const user = auth?.user;
-  const { orderNumber } = useParams<{ orderNumber: string }>();
+  const { orderNumber } = useParams<{orderNumber: string;}>();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export default function OrderTrackingPage() {
       setLoading(true);
       setError(null);
       const response = await ordersApi.track(identifier);
-      
+
       if (response.success) {
         setOrder(response.data as Order);
       } else {
@@ -182,37 +182,37 @@ export default function OrderTrackingPage() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Enter order number (e.g., SOL-20241201-12345)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d1b16a] focus:border-transparent"
-            />
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d1b16a] focus:border-transparent" />
+
           </div>
           <button
             type="submit"
             disabled={loading || !searchInput.trim()}
-            className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? (
-              <FiRefreshCw className="animate-spin mr-2" />
-            ) : (
-              <FiSearch className="mr-2" />
-            )}
+            className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+
+            {loading ?
+            <FiRefreshCw className="animate-spin mr-2" /> :
+
+            <FiSearch className="mr-2" />
+            }
             Track Order
           </button>
         </form>
       </GlassCard>
 
       {/* Loading State */}
-      {loading && (
-        <GlassCard>
+      {loading &&
+      <GlassCard>
           <div className="flex items-center justify-center py-12">
             <FiRefreshCw className="animate-spin text-[#d1b16a] text-2xl mr-3" />
             <span className="text-gray-600">Tracking order...</span>
           </div>
         </GlassCard>
-      )}
+      }
 
       {/* Error State */}
-      {error && !loading && (
-        <GlassCard>
+      {error && !loading &&
+      <GlassCard>
           <div className="text-center py-12">
             <FiXCircle size={64} className="mx-auto mb-4 text-red-500" />
             <h2 className="text-xl font-semibold mb-2 text-red-600">Order Not Found</h2>
@@ -223,22 +223,22 @@ export default function OrderTrackingPage() {
               <p className="text-sm text-gray-500">
                 Make sure you're entering the correct order number from your confirmation email.
               </p>
-              {user && (
-                <Link 
-                  to="/orders" 
-                  className="inline-flex items-center px-4 py-2 text-[#d1b16a] hover:underline"
-                >
+              {user &&
+            <Link
+              to="/orders"
+              className="inline-flex items-center px-4 py-2 text-[#d1b16a] hover:underline">
+
                   View All Orders
                 </Link>
-              )}
+            }
             </div>
           </div>
         </GlassCard>
-      )}
+      }
 
       {/* Order Details */}
-      {order && !loading && (
-        <div className="space-y-6">
+      {order && !loading &&
+      <div className="space-y-6">
           {/* Order Summary */}
           <GlassCard className="p-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
@@ -266,15 +266,15 @@ export default function OrderTrackingPage() {
             <div className="mb-6">
               <h3 className="font-semibold mb-3">Order Items</h3>
               <div className="space-y-3">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    {item.product.images[0] && (
-                      <img 
-                        src={item.product.images[0]} 
-                        alt={item.product.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    )}
+                {order.items.map((item) =>
+              <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                    {item.product.images[0] &&
+                <img
+                  src={item.product.images[0]}
+                  alt={item.product.name}
+                  className="w-16 h-16 object-cover rounded" />
+
+                }
                     <div className="flex-1">
                       <h4 className="font-medium">{item.product.name}</h4>
                       <p className="text-sm text-gray-600">
@@ -283,7 +283,7 @@ export default function OrderTrackingPage() {
                     </div>
                     <span className="font-medium">{formatPrice(Number(item.price))}</span>
                   </div>
-                ))}
+              )}
               </div>
             </div>
 
@@ -306,15 +306,15 @@ export default function OrderTrackingPage() {
                   Delivery Information
                 </h3>
                 <div className="text-gray-600 space-y-1">
-                  {order.trackingNumber && (
-                    <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
-                  )}
-                  {order.estimatedDelivery && (
-                    <p><strong>Estimated Delivery:</strong> {formatDate(order.estimatedDelivery)}</p>
-                  )}
-                  {order.actualDelivery && (
-                    <p><strong>Delivered On:</strong> {formatDate(order.actualDelivery)}</p>
-                  )}
+                  {order.trackingNumber &&
+                <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
+                }
+                  {order.estimatedDelivery &&
+                <p><strong>Estimated Delivery:</strong> {formatDate(order.estimatedDelivery)}</p>
+                }
+                  {order.actualDelivery &&
+                <p><strong>Delivered On:</strong> {formatDate(order.actualDelivery)}</p>
+                }
                 </div>
               </div>
             </div>
@@ -325,11 +325,11 @@ export default function OrderTrackingPage() {
             <h3 className="font-semibold mb-6">Order Timeline</h3>
             <div className="space-y-4">
               {order.timeline.map((event, index) => {
-                const statusInfo = getTimelineStatus(event.status);
-                const isLast = index === order.timeline.length - 1;
-                
-                return (
-                  <div key={event.id} className="flex items-start space-x-4">
+              const statusInfo = getTimelineStatus(event.status);
+              const isLast = index === order.timeline.length - 1;
+
+              return (
+                <div key={event.id} className="flex items-start space-x-4">
                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${statusInfo.color} bg-white border-2 border-current`}>
                       {statusInfo.icon}
                     </div>
@@ -342,21 +342,21 @@ export default function OrderTrackingPage() {
                           {formatDate(event.timestamp)}
                         </p>
                       </div>
-                      {!isLast && (
-                        <div className="mt-2 ml-4 border-l-2 border-gray-200 h-6"></div>
-                      )}
+                      {!isLast &&
+                    <div className="mt-2 ml-4 border-l-2 border-gray-200 h-6"></div>
+                    }
                     </div>
-                  </div>
-                );
-              })}
+                  </div>);
+
+            })}
             </div>
           </GlassCard>
         </div>
-      )}
+      }
 
       {/* Help Section */}
-      {!order && !loading && !error && (
-        <GlassCard className="p-6">
+      {!order && !loading && !error &&
+      <GlassCard className="p-6">
           <div className="text-center">
             <FiBox size={48} className="mx-auto mb-4 text-[#d1b16a]" />
             <h3 className="text-lg font-semibold mb-2">Track Your Order</h3>
@@ -366,13 +366,13 @@ export default function OrderTrackingPage() {
             <div className="text-sm text-gray-500 space-y-1">
               <p>• Order numbers look like: SOL-20241201-12345</p>
               <p>• You can find your order number in your confirmation email</p>
-              {user && (
-                <p>• <Link to="/orders" className="text-[#d1b16a] hover:underline">View all your orders</Link></p>
-              )}
+              {user &&
+            <p>• <Link to="/orders" className="text-[#d1b16a] hover:underline">View all your orders</Link></p>
+            }
             </div>
           </div>
         </GlassCard>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }

@@ -10,7 +10,7 @@ const uploadDir = process.env.UPLOAD_PATH || './uploads';
 const paymentProofDir = path.join(uploadDir, 'payment-proofs');
 const productImagesDir = path.join(uploadDir, 'products');
 
-[uploadDir, paymentProofDir, productImagesDir].forEach(dir => {
+[uploadDir, paymentProofDir, productImagesDir].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -19,10 +19,10 @@ const productImagesDir = path.join(uploadDir, 'products');
 // File filter function
 const fileFilter = (allowedTypes: string[]) => {
   return (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedMimeTypes = allowedTypes.length > 0 
-      ? allowedTypes 
-      : (process.env.ALLOWED_FILE_TYPES?.split(',') || ['image/jpeg', 'image/png', 'image/webp', 'image/heic']);
-    
+    const allowedMimeTypes = allowedTypes.length > 0 ?
+    allowedTypes :
+    process.env.ALLOWED_FILE_TYPES?.split(',') || ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -104,31 +104,31 @@ export const processProductImages = async (req: Request, _res: Response, next: N
       const filepath = path.join(productImagesDir, filename);
 
       // Process image with Sharp
-      await sharp(file.buffer)
-        .resize(800, 800, { 
-          fit: 'inside',
-          withoutEnlargement: true
-        })
-        .webp({ 
-          quality: 85,
-          effort: 6 
-        })
-        .toFile(filepath);
+      await sharp(file.buffer).
+      resize(800, 800, {
+        fit: 'inside',
+        withoutEnlargement: true
+      }).
+      webp({
+        quality: 85,
+        effort: 6
+      }).
+      toFile(filepath);
 
       // Create thumbnail
       const thumbnailFilename = `product-${uniqueSuffix}-thumb.webp`;
       const thumbnailPath = path.join(productImagesDir, thumbnailFilename);
 
-      await sharp(file.buffer)
-        .resize(300, 300, { 
-          fit: 'cover',
-          position: 'center'
-        })
-        .webp({ 
-          quality: 80,
-          effort: 6 
-        })
-        .toFile(thumbnailPath);
+      await sharp(file.buffer).
+      resize(300, 300, {
+        fit: 'cover',
+        position: 'center'
+      }).
+      webp({
+        quality: 80,
+        effort: 6
+      }).
+      toFile(thumbnailPath);
 
       processedImages.push({
         original: `/uploads/products/${filename}`,
@@ -160,16 +160,16 @@ export const processSingleImage = async (req: Request, _res: Response, next: Nex
     const filepath = path.join(uploadDir, filename);
 
     // Process image with Sharp
-    await sharp(req.file.buffer)
-      .resize(1200, 1200, { 
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .webp({ 
-        quality: 85,
-        effort: 6 
-      })
-      .toFile(filepath);
+    await sharp(req.file.buffer).
+    resize(1200, 1200, {
+      fit: 'inside',
+      withoutEnlargement: true
+    }).
+    webp({
+      quality: 85,
+      effort: 6
+    }).
+    toFile(filepath);
 
     // Attach processed image to request
     (req as any).processedImage = {
@@ -190,7 +190,7 @@ export const processSingleImage = async (req: Request, _res: Response, next: Nex
 export const scanFile = async (req: Request, _res: Response, next: NextFunction) => {
   // In production, integrate with ClamAV or similar virus scanner
   // For now, just basic file type and size validation
-  
+
   if (req.file) {
     const maxSize = parseInt(process.env.MAX_FILE_SIZE || '10485760');
     if (req.file.size > maxSize) {
@@ -212,7 +212,7 @@ export const scanFile = async (req: Request, _res: Response, next: NextFunction)
 
 // Clean up temporary files on error
 export const cleanupFiles = (files: string[]) => {
-  files.forEach(file => {
+  files.forEach((file) => {
     try {
       if (fs.existsSync(file)) {
         fs.unlinkSync(file);
@@ -227,7 +227,7 @@ export const cleanupFiles = (files: string[]) => {
 export const validateImageFile = (file: Express.Multer.File): boolean => {
   const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
   const maxSize = parseInt(process.env.MAX_FILE_SIZE || '10485760');
-  
+
   return allowedMimeTypes.includes(file.mimetype) && file.size <= maxSize;
 };
 

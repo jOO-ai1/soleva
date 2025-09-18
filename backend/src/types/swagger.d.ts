@@ -30,7 +30,7 @@ declare module 'swagger-jsdoc' {
 
 declare module 'swagger-ui-express' {
   import { Request, Response, NextFunction } from 'express';
-  
+
   interface SwaggerUiOptions {
     customCss?: string;
     customSiteTitle?: string;
@@ -38,6 +38,6 @@ declare module 'swagger-ui-express' {
 
   function serve(): (req: Request, res: Response, next: NextFunction) => void;
   function setup(specs: any, options?: SwaggerUiOptions): (req: Request, res: Response, next: NextFunction) => void;
-  
+
   export { serve, setup };
 }

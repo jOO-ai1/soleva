@@ -17,7 +17,7 @@ async function createTestAddress() {
         isDefault: true
       }
     });
-    
+
     console.log('Address created:', address.id);
     return address.id;
   } catch (error) {
@@ -28,6 +28,3 @@ async function createTestAddress() {
 }
 
 createTestAddress();
-
-
-

@@ -21,8 +21,8 @@ import {
   Alert,
   Tabs,
   List,
-  Avatar,
-} from 'antd';
+  Avatar } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -33,8 +33,8 @@ import {
   InboxOutlined,
   ShoppingOutlined,
   ReloadOutlined,
-  DownloadOutlined,
-} from '@ant-design/icons';
+  DownloadOutlined } from
+'@ant-design/icons';
 import { inventoryAPI, suppliersAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import type { InventoryItem, Supplier, PurchaseOrder } from '../types/api';
@@ -67,10 +67,10 @@ const Inventory = () => {
     try {
       setLoading(true);
       const [inventoryRes, suppliersRes, ordersRes] = await Promise.all([
-        inventoryAPI.getAll(),
-        suppliersAPI.getAll(),
-        inventoryAPI.getPurchaseOrders(),
-      ]);
+      inventoryAPI.getAll(),
+      suppliersAPI.getAll(),
+      inventoryAPI.getPurchaseOrders()]
+      );
 
       if (inventoryRes.success) {
         setInventoryItems(inventoryRes.data as InventoryItem[]);
@@ -100,7 +100,7 @@ const Inventory = () => {
       currentStock: item.currentStock,
       lowStockThreshold: item.lowStockThreshold,
       costPrice: item.costPrice,
-      sellingPrice: item.sellingPrice,
+      sellingPrice: item.sellingPrice
     });
     setModalVisible(true);
   };
@@ -144,7 +144,7 @@ const Inventory = () => {
     const colors = {
       IN_STOCK: 'green',
       LOW_STOCK: 'orange',
-      OUT_OF_STOCK: 'red',
+      OUT_OF_STOCK: 'red'
     };
     return colors[status as keyof typeof colors] || 'default';
   };
@@ -157,179 +157,179 @@ const Inventory = () => {
 
   const getStockPercentage = (item: InventoryItem) => {
     const maxStock = Math.max(item.currentStock + 50, 100); // Assume max stock for percentage
-    return Math.round((item.currentStock / maxStock) * 100);
+    return Math.round(item.currentStock / maxStock * 100);
   };
 
-  const filteredItems = inventoryItems.filter(item => {
-    const matchesSearch = !searchText || 
-      item.productName.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchText.toLowerCase());
-    
+  const filteredItems = inventoryItems.filter((item) => {
+    const matchesSearch = !searchText ||
+    item.productName.toLowerCase().includes(searchText.toLowerCase()) ||
+    item.sku.toLowerCase().includes(searchText.toLowerCase());
+
     const matchesStatus = !filterStatus || getStatusText(item) === filterStatus;
-    
+
     return matchesSearch && matchesStatus;
   });
 
-  const lowStockItems = inventoryItems.filter(item => getStatusText(item) === 'LOW_STOCK');
-  const outOfStockItems = inventoryItems.filter(item => getStatusText(item) === 'OUT_OF_STOCK');
+  const lowStockItems = inventoryItems.filter((item) => getStatusText(item) === 'LOW_STOCK');
+  const outOfStockItems = inventoryItems.filter((item) => getStatusText(item) === 'OUT_OF_STOCK');
 
   const inventoryColumns: ColumnsType<InventoryItem> = [
-    {
-      title: 'Product',
-      key: 'product',
-      render: (record, _) => (
-        <div>
+  {
+    title: 'Product',
+    key: 'product',
+    render: (record, _) =>
+    <div>
           <div className="font-medium">{record.productName}</div>
           <div className="text-sm text-gray-500">{record.sku}</div>
         </div>
-      ),
-    },
-    {
-      title: 'Current Stock',
-      dataIndex: 'currentStock',
-      key: 'currentStock',
-      render: (stock: number, record) => (
-        <div>
+
+  },
+  {
+    title: 'Current Stock',
+    dataIndex: 'currentStock',
+    key: 'currentStock',
+    render: (stock: number, record) =>
+    <div>
           <div className="font-medium">{stock}</div>
           <Progress
-            percent={getStockPercentage(record)}
-            size="small"
-            showInfo={false}
-            status={getStatusText(record) === 'OUT_OF_STOCK' ? 'exception' : 'normal'}
-          />
-        </div>
-      ),
-      sorter: (a, b) => a.currentStock - b.currentStock,
+        percent={getStockPercentage(record)}
+        size="small"
+        showInfo={false}
+        status={getStatusText(record) === 'OUT_OF_STOCK' ? 'exception' : 'normal'} />
+
+        </div>,
+
+    sorter: (a, b) => a.currentStock - b.currentStock
+  },
+  {
+    title: 'Available',
+    dataIndex: 'availableStock',
+    key: 'availableStock',
+    render: (stock: number) =>
+    <Badge count={stock} style={{ backgroundColor: stock > 0 ? '#52c41a' : '#f5222d' }} />
+
+  },
+  {
+    title: 'Threshold',
+    dataIndex: 'lowStockThreshold',
+    key: 'lowStockThreshold',
+    render: (threshold: number) =>
+    <span className="text-gray-600">{threshold}</span>
+
+  },
+  {
+    title: 'Cost Price',
+    dataIndex: 'costPrice',
+    key: 'costPrice',
+    render: (price: number) => `$${price.toFixed(2)}`
+  },
+  {
+    title: 'Selling Price',
+    dataIndex: 'sellingPrice',
+    key: 'sellingPrice',
+    render: (price: number) => `$${price.toFixed(2)}`
+  },
+  {
+    title: 'Status',
+    key: 'status',
+    render: (record, _) => {
+      const status = getStatusText(record);
+      return <Tag color={getStatusColor(status)}>{status.replace('_', ' ')}</Tag>;
     },
-    {
-      title: 'Available',
-      dataIndex: 'availableStock',
-      key: 'availableStock',
-      render: (stock: number) => (
-        <Badge count={stock} style={{ backgroundColor: stock > 0 ? '#52c41a' : '#f5222d' }} />
-      ),
-    },
-    {
-      title: 'Threshold',
-      dataIndex: 'lowStockThreshold',
-      key: 'lowStockThreshold',
-      render: (threshold: number) => (
-        <span className="text-gray-600">{threshold}</span>
-      ),
-    },
-    {
-      title: 'Cost Price',
-      dataIndex: 'costPrice',
-      key: 'costPrice',
-      render: (price: number) => `$${price.toFixed(2)}`,
-    },
-    {
-      title: 'Selling Price',
-      dataIndex: 'sellingPrice',
-      key: 'sellingPrice',
-      render: (price: number) => `$${price.toFixed(2)}`,
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (record, _) => {
-        const status = getStatusText(record);
-        return <Tag color={getStatusColor(status)}>{status.replace('_', ' ')}</Tag>;
-      },
-      filters: [
-        { text: 'In Stock', value: 'IN_STOCK' },
-        { text: 'Low Stock', value: 'LOW_STOCK' },
-        { text: 'Out of Stock', value: 'OUT_OF_STOCK' },
-      ],
-      onFilter: (value, record) => getStatusText(record) === value,
-    },
-    {
-      title: 'Last Updated',
-      dataIndex: 'lastUpdated',
-      key: 'lastUpdated',
-      render: (date: string) => dayjs(date).format('MMM DD, YYYY'),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (record, _) => (
-        <Space>
+    filters: [
+    { text: 'In Stock', value: 'IN_STOCK' },
+    { text: 'Low Stock', value: 'LOW_STOCK' },
+    { text: 'Out of Stock', value: 'OUT_OF_STOCK' }],
+
+    onFilter: (value, record) => getStatusText(record) === value
+  },
+  {
+    title: 'Last Updated',
+    dataIndex: 'lastUpdated',
+    key: 'lastUpdated',
+    render: (date: string) => dayjs(date).format('MMM DD, YYYY')
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (record, _) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this inventory item?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this inventory item?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const purchaseOrderColumns: ColumnsType<PurchaseOrder> = [
-    {
-      title: 'Order #',
-      dataIndex: 'orderNumber',
-      key: 'orderNumber',
-    },
-    {
-      title: 'Supplier',
-      dataIndex: 'supplierName',
-      key: 'supplierName',
-    },
-    {
-      title: 'Total Amount',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (amount: number) => `$${amount.toFixed(2)}`,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const colors = {
-          PENDING: 'orange',
-          CONFIRMED: 'blue',
-          RECEIVED: 'green',
-          CANCELLED: 'red',
-        };
-        return <Tag color={colors[status as keyof typeof colors]}>{status}</Tag>;
-      },
-    },
-    {
-      title: 'Order Date',
-      dataIndex: 'orderDate',
-      key: 'orderDate',
-      render: (date: string) => dayjs(date).format('MMM DD, YYYY'),
-    },
-    {
-      title: 'Expected Delivery',
-      dataIndex: 'expectedDelivery',
-      key: 'expectedDelivery',
-      render: (date: string) => dayjs(date).format('MMM DD, YYYY'),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (record, _) => (
-        <Space>
+  {
+    title: 'Order #',
+    dataIndex: 'orderNumber',
+    key: 'orderNumber'
+  },
+  {
+    title: 'Supplier',
+    dataIndex: 'supplierName',
+    key: 'supplierName'
+  },
+  {
+    title: 'Total Amount',
+    dataIndex: 'totalAmount',
+    key: 'totalAmount',
+    render: (amount: number) => `$${amount.toFixed(2)}`
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    render: (status: string) => {
+      const colors = {
+        PENDING: 'orange',
+        CONFIRMED: 'blue',
+        RECEIVED: 'green',
+        CANCELLED: 'red'
+      };
+      return <Tag color={colors[status as keyof typeof colors]}>{status}</Tag>;
+    }
+  },
+  {
+    title: 'Order Date',
+    dataIndex: 'orderDate',
+    key: 'orderDate',
+    render: (date: string) => dayjs(date).format('MMM DD, YYYY')
+  },
+  {
+    title: 'Expected Delivery',
+    dataIndex: 'expectedDelivery',
+    key: 'expectedDelivery',
+    render: (date: string) => dayjs(date).format('MMM DD, YYYY')
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    render: (record, _) =>
+    <Space>
           <Button type="text" icon={<EyeOutlined />} size="small">
             View
           </Button>
@@ -337,9 +337,9 @@ const Inventory = () => {
             Edit
           </Button>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   return (
     <div className="p-6">
@@ -362,40 +362,40 @@ const Inventory = () => {
       </div>
 
       {/* Alerts */}
-      {(lowStockItems.length > 0 || outOfStockItems.length > 0) && (
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          {lowStockItems.length > 0 && (
-            <Col span={12}>
+      {(lowStockItems.length > 0 || outOfStockItems.length > 0) &&
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          {lowStockItems.length > 0 &&
+        <Col span={12}>
               <Alert
-                message={`${lowStockItems.length} items are low in stock`}
-                description="Consider reordering these items soon."
-                type="warning"
-                showIcon
-                action={
-                  <Button size="small" onClick={() => setFilterStatus('LOW_STOCK')}>
+            message={`${lowStockItems.length} items are low in stock`}
+            description="Consider reordering these items soon."
+            type="warning"
+            showIcon
+            action={
+            <Button size="small" onClick={() => setFilterStatus('LOW_STOCK')}>
                     View Items
                   </Button>
-                }
-              />
+            } />
+
             </Col>
-          )}
-          {outOfStockItems.length > 0 && (
-            <Col span={12}>
+        }
+          {outOfStockItems.length > 0 &&
+        <Col span={12}>
               <Alert
-                message={`${outOfStockItems.length} items are out of stock`}
-                description="These items need immediate attention."
-                type="error"
-                showIcon
-                action={
-                  <Button size="small" onClick={() => setFilterStatus('OUT_OF_STOCK')}>
+            message={`${outOfStockItems.length} items are out of stock`}
+            description="These items need immediate attention."
+            type="error"
+            showIcon
+            action={
+            <Button size="small" onClick={() => setFilterStatus('OUT_OF_STOCK')}>
                     View Items
                   </Button>
-                }
-              />
+            } />
+
             </Col>
-          )}
+        }
         </Row>
-      )}
+      }
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Inventory" key="inventory">
@@ -407,8 +407,8 @@ const Inventory = () => {
                     placeholder="Search inventory..."
                     prefix={<SearchOutlined />}
                     value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                  />
+                    onChange={(e) => setSearchText(e.target.value)} />
+
                 </Col>
                 <Col span={8}>
                   <Select
@@ -416,8 +416,8 @@ const Inventory = () => {
                     style={{ width: '100%' }}
                     value={filterStatus}
                     onChange={setFilterStatus}
-                    allowClear
-                  >
+                    allowClear>
+
                     <Option value="IN_STOCK">In Stock</Option>
                     <Option value="LOW_STOCK">Low Stock</Option>
                     <Option value="OUT_OF_STOCK">Out of Stock</Option>
@@ -427,8 +427,8 @@ const Inventory = () => {
                   <Button
                     icon={<FilterOutlined />}
                     onClick={fetchData}
-                    style={{ width: '100%' }}
-                  >
+                    style={{ width: '100%' }}>
+
                     Apply
                   </Button>
                 </Col>
@@ -445,10 +445,10 @@ const Inventory = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`,
+                `${range[0]}-${range[1]} of ${total} items`
               }}
-              scroll={{ x: 1000 }}
-            />
+              scroll={{ x: 1000 }} />
+
           </Card>
         </TabPane>
 
@@ -470,10 +470,10 @@ const Inventory = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} orders`,
+                `${range[0]}-${range[1]} of ${total} orders`
               }}
-              scroll={{ x: 1000 }}
-            />
+              scroll={{ x: 1000 }} />
+
           </Card>
         </TabPane>
 
@@ -487,36 +487,36 @@ const Inventory = () => {
 
             <List
               dataSource={suppliers}
-              renderItem={(supplier) => (
-                <List.Item
-                  actions={[
-                    <Button type="text" icon={<EditOutlined />} key="edit">
+              renderItem={(supplier) =>
+              <List.Item
+                actions={[
+                <Button type="text" icon={<EditOutlined />} key="edit">
                       Edit
                     </Button>,
-                    <Button type="text" icon={<DeleteOutlined />} key="delete" danger>
+                <Button type="text" icon={<DeleteOutlined />} key="delete" danger>
                       Delete
-                    </Button>,
-                  ]}
-                >
+                    </Button>]
+                }>
+
                   <List.Item.Meta
-                    avatar={<Avatar icon={<ShoppingOutlined />} />}
-                    title={supplier.name}
-                    description={
-                      <div>
+                  avatar={<Avatar icon={<ShoppingOutlined />} />}
+                  title={supplier.name}
+                  description={
+                  <div>
                         <div>{supplier.contactPerson}</div>
                         <div>{supplier.email} • {supplier.phone}</div>
                         <div className="text-sm text-gray-500">{supplier.address}</div>
                       </div>
-                    }
-                  />
+                  } />
+
                   <div>
                     <Tag color={supplier.isActive ? 'green' : 'red'}>
                       {supplier.isActive ? 'Active' : 'Inactive'}
                     </Tag>
                   </div>
                 </List.Item>
-              )}
-            />
+              } />
+
           </Card>
         </TabPane>
       </Tabs>
@@ -527,38 +527,38 @@ const Inventory = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={600}
-      >
+        width={600}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="currentStock"
                 label="Current Stock"
-                rules={[{ required: true, message: 'Please enter current stock' }]}
-              >
+                rules={[{ required: true, message: 'Please enter current stock' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0"
-                  min={0}
-                />
+                  min={0} />
+
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="lowStockThreshold"
                 label="Low Stock Threshold"
-                rules={[{ required: true, message: 'Please enter low stock threshold' }]}
-              >
+                rules={[{ required: true, message: 'Please enter low stock threshold' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="5"
-                  min={0}
-                />
+                  min={0} />
+
               </Form.Item>
             </Col>
           </Row>
@@ -568,30 +568,30 @@ const Inventory = () => {
               <Form.Item
                 name="costPrice"
                 label="Cost Price"
-                rules={[{ required: true, message: 'Please enter cost price' }]}
-              >
+                rules={[{ required: true, message: 'Please enter cost price' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0.00"
                   min={0}
                   step={0.01}
-                  precision={2}
-                />
+                  precision={2} />
+
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="sellingPrice"
                 label="Selling Price"
-                rules={[{ required: true, message: 'Please enter selling price' }]}
-              >
+                rules={[{ required: true, message: 'Please enter selling price' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0.00"
                   min={0}
                   step={0.01}
-                  precision={2}
-                />
+                  precision={2} />
+
               </Form.Item>
             </Col>
           </Row>
@@ -608,8 +608,8 @@ const Inventory = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Inventory;

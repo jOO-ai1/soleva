@@ -18,14 +18,14 @@ export default function OrderConfirmation() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.7, type: "spring", stiffness: 150 }}
-        className="w-full max-w-md"
-      >
+        className="w-full max-w-md">
+
         <GlassCard className="text-center">
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-          >
+            transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}>
+
             <FiCheckCircle className="text-green-500 mx-auto mb-6 animate-liquid-float" size={80} />
           </motion.div>
 
@@ -52,6 +52,6 @@ export default function OrderConfirmation() {
           </Link>
         </GlassCard>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 }

@@ -7,8 +7,8 @@ const Settings: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <p>System Settings - Coming soon</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Settings;

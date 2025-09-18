@@ -40,7 +40,7 @@ function App() {
                   <Route
                     path="/*"
                     element={
-                      <ProtectedRoute>
+                    <ProtectedRoute>
                         <Layout>
                           <Routes>
                             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -64,16 +64,16 @@ function App() {
                           </Routes>
                         </Layout>
                       </ProtectedRoute>
-                    }
-                  />
+                    } />
+
                 </Routes>
               </div>
             </Router>
           </AuthProvider>
         </NotificationProvider>
       </LanguageProvider>
-    </Provider>
-  );
+    </Provider>);
+
 }
 
 export default App;

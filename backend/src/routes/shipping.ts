@@ -29,9 +29,9 @@ router.get('/governorates', async (_req, res) => {
 router.get('/centers/:governorateId', async (req, res) => {
   try {
     const centers = await prisma.centers.findMany({
-      where: { 
+      where: {
         governorateId: req.params.governorateId,
-        isActive: true 
+        isActive: true
       },
       orderBy: { name: 'asc' }
     });
@@ -53,9 +53,9 @@ router.get('/centers/:governorateId', async (req, res) => {
 router.get('/villages/:centerId', async (req, res) => {
   try {
     const villages = await prisma.village.findMany({
-      where: { 
+      where: {
         centerId: req.params.centerId,
-        isActive: true 
+        isActive: true
       },
       orderBy: { name: 'asc' }
     });
@@ -82,32 +82,32 @@ router.post('/calculate', async (req, res) => {
     const shippingRate = await prisma.shippingRate.findFirst({
       where: {
         OR: [
-          { villageId: villageId },
-          { centerId: centerId },
-          { governorateId: governorateId }
-        ],
+        { villageId: villageId },
+        { centerId: centerId },
+        { governorateId: governorateId }],
+
         isActive: true,
         effectiveFrom: { lte: new Date() },
         AND: [
-          {
-            OR: [
-              { effectiveTo: null },
-              { effectiveTo: { gte: new Date() } }
-            ]
-          }
-        ]
+        {
+          OR: [
+          { effectiveTo: null },
+          { effectiveTo: { gte: new Date() } }]
+
+        }]
+
       },
       orderBy: [
-        { villageId: 'desc' },
-        { centerId: 'desc' },
-        { governorateId: 'desc' }
-      ]
+      { villageId: 'desc' },
+      { centerId: 'desc' },
+      { governorateId: 'desc' }]
+
     });
 
     let cost = 0;
     if (shippingRate) {
       cost = Number(shippingRate.cost);
-      
+
       // Check for free shipping
       if (shippingRate.freeThreshold && orderTotal >= Number(shippingRate.freeThreshold)) {
         cost = 0;

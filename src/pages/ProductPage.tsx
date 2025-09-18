@@ -19,7 +19,7 @@ export default function ProductPage() {
   const t = useTranslation();
   const { addToCart } = useCart();
   const { showToast } = useToast();
-  
+
   const {
     showWarning,
     warningType,
@@ -29,8 +29,8 @@ export default function ProductPage() {
     handleCloseWarning
   } = useAuthGuard();
 
-  const product = products.find(p => p.id === parseInt(id || "0"));
-  const relatedProducts = products.filter(p => p.id !== product?.id && p.collection === product?.collection).slice(0, 4);
+  const product = products.find((p) => p.id === parseInt(id || "0"));
+  const relatedProducts = products.filter((p) => p.id !== product?.id && p.collection === product?.collection).slice(0, 4);
 
   const [selectedColor, setSelectedColor] = useState(product?.colors[0]?.name[lang as 'ar' | 'en'] || "");
   const [selectedSize, setSelectedSize] = useState(product?.sizes[0] || 0);
@@ -52,7 +52,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     if (!product || !selectedColor) return;
-    const colorIndex = product.colors.findIndex(color => color.name[lang as 'ar' | 'en'] === selectedColor);
+    const colorIndex = product.colors.findIndex((color) => color.name[lang as 'ar' | 'en'] === selectedColor);
     if (colorIndex !== -1 && colorIndex !== currentImageIndex) {
       setIsImageChanging(true);
       setTimeout(() => {
@@ -76,8 +76,8 @@ export default function ProductPage() {
             </GlassButton>
           </Link>
         </GlassCard>
-      </div>
-    );
+      </div>);
+
   }
 
   const handleAddToCartAction = async () => {
@@ -85,12 +85,12 @@ export default function ProductPage() {
       showToast(lang === "ar" ? "يرجى اختيار اللون والمقاس" : "Please select color and size");
       return;
     }
-    
+
     setIsAddingToCart(true);
-    
+
     // Simulate loading for better UX
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     addToCart(product, selectedColor, selectedSize);
     showToast(t("addSuccess"));
     setIsAddingToCart(false);
@@ -139,16 +139,16 @@ export default function ProductPage() {
               "reviewCount": "127"
             }
           })
-        }}
-      />
+        }} />
+
       
       <div className="container py-8">
         {/* Breadcrumb */}
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+          className="mb-8">
+
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <Link to="/" className="hover:text-primary transition-colors">
               {t('home')}
@@ -168,8 +168,8 @@ export default function ProductPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="relative"
-          >
+            className="relative">
+
             <div className="relative overflow-hidden rounded-2xl bg-bg-secondary">
               <AnimatePresence mode="wait">
                 <motion.img
@@ -188,31 +188,31 @@ export default function ProductPage() {
                   decoding="async"
                   width="600"
                   height="600"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                  sizes="(max-width: 768px) 100vw, 50vw" />
+
               </AnimatePresence>
               
               {/* Image Indicators */}
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                {product.colors.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setIsImageChanging(true);
-                      setTimeout(() => {
-                        setCurrentImageIndex(index);
-                        setIsImageChanging(false);
-                      }, 200);
-                    }}
-                    className={clsx(
-                      "w-2 h-2 rounded-full transition-all duration-300",
-                      currentImageIndex === index
-                        ? "bg-primary w-6 shadow-lg"
-                        : "bg-white/50 hover:bg-white/80"
-                    )}
-                    aria-label={`View image ${index + 1}`}
-                  />
-                ))}
+                {product.colors.map((_, index) =>
+                <button
+                  key={index}
+                  onClick={() => {
+                    setIsImageChanging(true);
+                    setTimeout(() => {
+                      setCurrentImageIndex(index);
+                      setIsImageChanging(false);
+                    }, 200);
+                  }}
+                  className={clsx(
+                    "w-2 h-2 rounded-full transition-all duration-300",
+                    currentImageIndex === index ?
+                    "bg-primary w-6 shadow-lg" :
+                    "bg-white/50 hover:bg-white/80"
+                  )}
+                  aria-label={`View image ${index + 1}`} />
+
+                )}
               </div>
             </div>
           </motion.div>
@@ -222,8 +222,8 @@ export default function ProductPage() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-6"
-          >
+            className="space-y-6">
+
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h1 className="text-3xl lg:text-4xl font-bold mb-3">
@@ -246,26 +246,26 @@ export default function ProductPage() {
                 {t("color")}: <span className="text-primary">{selectedColor}</span>
               </h3>
               <div className="flex gap-3 flex-wrap">
-                {product.colors.map((color, index) => (
-                  <motion.button
-                    key={index}
-                    onClick={() => handleColorSelect(color)}
-                    whileTap={{ scale: 0.95 }}
-                    whileHover={{ scale: 1.1 }}
-                    className={clsx(
-                      "w-12 h-12 rounded-full border-2 cursor-pointer transition-all duration-200 relative",
-                      selectedColor === color.name[lang as 'ar' | 'en']
-                        ? "border-primary ring-2 ring-primary ring-offset-2"
-                        : "border-border-primary hover:border-primary"
-                    )}
-                    style={{ backgroundColor: color.code }}
-                    aria-label={color.name[lang as 'ar' | 'en']}
-                  >
-                    {selectedColor === color.name[lang as 'ar' | 'en'] && (
-                      <FiCheck className="absolute inset-0 m-auto text-white drop-shadow-lg" size={20} />
-                    )}
+                {product.colors.map((color, index) =>
+                <motion.button
+                  key={index}
+                  onClick={() => handleColorSelect(color)}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.1 }}
+                  className={clsx(
+                    "w-12 h-12 rounded-full border-2 cursor-pointer transition-all duration-200 relative",
+                    selectedColor === color.name[lang as 'ar' | 'en'] ?
+                    "border-primary ring-2 ring-primary ring-offset-2" :
+                    "border-border-primary hover:border-primary"
+                  )}
+                  style={{ backgroundColor: color.code }}
+                  aria-label={color.name[lang as 'ar' | 'en']}>
+
+                    {selectedColor === color.name[lang as 'ar' | 'en'] &&
+                  <FiCheck className="absolute inset-0 m-auto text-white drop-shadow-lg" size={20} />
+                  }
                   </motion.button>
-                ))}
+                )}
               </div>
             </div>
 
@@ -275,22 +275,22 @@ export default function ProductPage() {
                 {t("size")}: <span className="text-primary">{selectedSize}</span>
               </h3>
               <div className="flex gap-3 flex-wrap">
-                {product.sizes.map((size) => (
-                  <motion.button
-                    key={size}
-                    whileTap={{ scale: 0.95 }}
-                    whileHover={{ scale: 1.05 }}
-                    onClick={() => setSelectedSize(size)}
-                    className={clsx(
-                      "px-4 py-3 rounded-lg border font-medium transition-all duration-200 min-w-[60px]",
-                      selectedSize === size
-                        ? "bg-primary text-black border-primary shadow-lg"
-                        : "bg-bg-secondary text-text-primary border-border-primary hover:border-primary hover:bg-primary hover:bg-opacity-10"
-                    )}
-                  >
+                {product.sizes.map((size) =>
+                <motion.button
+                  key={size}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => setSelectedSize(size)}
+                  className={clsx(
+                    "px-4 py-3 rounded-lg border font-medium transition-all duration-200 min-w-[60px]",
+                    selectedSize === size ?
+                    "bg-primary text-black border-primary shadow-lg" :
+                    "bg-bg-secondary text-text-primary border-border-primary hover:border-primary hover:bg-primary hover:bg-opacity-10"
+                  )}>
+
                     {size}
                   </motion.button>
-                ))}
+                )}
               </div>
             </div>
 
@@ -303,17 +303,17 @@ export default function ProductPage() {
                 {product.specs[lang as 'ar' | 'en'].map((spec: string[], index: number) => {
                   const [key, value] = spec;
                   return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    className="flex justify-between items-center py-2 border-b border-border-secondary last:border-b-0"
-                  >
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + index * 0.1 }}
+                      className="flex justify-between items-center py-2 border-b border-border-secondary last:border-b-0">
+
                     <span className="text-text-secondary font-medium">{key}:</span>
                     <span className="text-text-primary font-semibold">{value}</span>
-                  </motion.div>
-                  );
+                  </motion.div>);
+
                 })}
               </div>
             </GlassCard>
@@ -326,49 +326,49 @@ export default function ProductPage() {
                 size="lg"
                 className="w-full"
                 loading={isAddingToCart}
-                disabled={!selectedColor || !selectedSize}
-              >
+                disabled={!selectedColor || !selectedSize}>
+
                 <FiShoppingCart size={20} />
                 {isAddingToCart ? 'Adding...' : t("addToCart")}
               </GlassButton>
               
-              {(!selectedColor || !selectedSize) && (
-                <p className="text-sm text-text-secondary text-center">
+              {(!selectedColor || !selectedSize) &&
+              <p className="text-sm text-text-secondary text-center">
                   {lang === "ar" ? "يرجى اختيار اللون والمقاس" : "Please select color and size"}
                 </p>
-              )}
+              }
             </div>
           </motion.div>
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
+        {relatedProducts.length > 0 &&
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}>
+
             <h2 className="text-2xl font-bold mb-8 text-center">
               {lang === "ar" ? "منتجات مشابهة" : "Related Products"}
             </h2>
             <div className="products-grid">
-              {relatedProducts.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9 + index * 0.1 }}
-                  whileHover={{ y: -6, scale: 1.02 }}
-                  className="product-card interactive-hover"
-                >
+              {relatedProducts.map((item, index) =>
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 + index * 0.1 }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="product-card interactive-hover">
+
                   <Link to={`/product/${item.id}`}>
                     <div className="product-card-image">
                       <img
-                        src={item.image}
-                        alt={item.name[lang as 'ar' | 'en']}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-115"
-                      />
+                    src={item.image}
+                    alt={item.name[lang as 'ar' | 'en']}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-115" />
+
                       <FavoriteButton productId={item.id} />
                     </div>
                     <div className="product-card-content">
@@ -381,10 +381,10 @@ export default function ProductPage() {
                     </div>
                   </Link>
                 </motion.div>
-              ))}
+            )}
             </div>
           </motion.section>
-        )}
+        }
       </div>
       
       {/* Auth Warning Modal */}
@@ -394,8 +394,8 @@ export default function ProductPage() {
         onLogin={handleLoginClick}
         onSignUp={handleSignUpClick}
         type={warningType}
-        action={actionDescription}
-      />
-    </div>
-  );
+        action={actionDescription} />
+
+    </div>);
+
 }

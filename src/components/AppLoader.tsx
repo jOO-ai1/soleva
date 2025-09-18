@@ -14,7 +14,7 @@ const AppLoader = ({ children }: AppLoaderProps) => {
 
   useEffect(() => {
     let cancelled = false;
-    
+
     // Show content immediately after a short delay (200ms) to allow initial render
     const showContentTimer = setTimeout(() => {
       if (!cancelled) {
@@ -32,7 +32,7 @@ const AppLoader = ({ children }: AppLoaderProps) => {
           const response = await fetch(apiUrl, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-            signal: controller.signal,
+            signal: controller.signal
           });
           if (cancelled) return;
           if (response.ok) {
@@ -58,9 +58,9 @@ const AppLoader = ({ children }: AppLoaderProps) => {
 
     // Run API check in background without blocking UI
     checkApiConnection();
-    
-    return () => { 
-      cancelled = true; 
+
+    return () => {
+      cancelled = true;
       clearTimeout(showContentTimer);
     };
   }, []);

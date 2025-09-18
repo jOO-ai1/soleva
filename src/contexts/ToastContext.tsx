@@ -7,31 +7,31 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({ children }: {children: React.ReactNode;}) {
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
-  
+
   const showToast = (message: string) => {
     setMsg(message);
     setOpen(false);
     setTimeout(() => setOpen(true), 50);
   };
-  
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       <Toast.Provider swipeDirection="right">
         {children}
-        <Toast.Root 
-          open={open} 
-          onOpenChange={setOpen} 
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 glass px-7 py-4 shadow-lg z-[9999] flex items-center gap-3 text-lg font-semibold text-[#111]"
-        >
+        <Toast.Root
+          open={open}
+          onOpenChange={setOpen}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 glass px-7 py-4 shadow-lg z-[9999] flex items-center gap-3 text-lg font-semibold text-[#111]">
+
           <Toast.Title>{msg}</Toast.Title>
         </Toast.Root>
         <Toast.Viewport />
       </Toast.Provider>
-    </ToastContext.Provider>
-  );
+    </ToastContext.Provider>);
+
 }
 
 export function useToast() {

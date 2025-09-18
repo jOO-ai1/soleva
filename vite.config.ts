@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/',
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
-    __BUILD_TIMESTAMP__: JSON.stringify(Date.now()),
+    __BUILD_TIMESTAMP__: JSON.stringify(Date.now())
   },
   build: {
     rollupOptions: {

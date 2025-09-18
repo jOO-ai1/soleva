@@ -21,8 +21,8 @@ import {
   ShopOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  BellOutlined,
-} from '@ant-design/icons';
+  BellOutlined } from
+'@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -43,94 +43,94 @@ const Layout = ({ children }: LayoutProps) => {
   const { t, isRTL } = useLanguage();
 
   const menuItems = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: t('dashboard'),
-    },
-    {
-      key: '/products',
-      icon: <ShoppingOutlined />,
-      label: t('products'),
-    },
-    {
-      key: '/categories',
-      icon: <AppstoreOutlined />,
-      label: t('categories'),
-    },
-    {
-      key: '/flash-sales',
-      icon: <FireOutlined />,
-      label: t('flashSales'),
-    },
-    {
-      key: '/coupons',
-      icon: <GiftOutlined />,
-      label: t('coupons'),
-    },
-    {
-      key: '/orders',
-      icon: <FileTextOutlined />,
-      label: t('orders'),
-    },
-    {
-      key: '/customers',
-      icon: <UserOutlined />,
-      label: t('customers'),
-    },
-    {
-      key: '/inventory',
-      icon: <InboxOutlined />,
-      label: t('inventory'),
-    },
-    {
-      key: '/shipping',
-      icon: <TruckOutlined />,
-      label: t('shipping'),
-    },
-    {
-      key: '/cms',
-      icon: <EditOutlined />,
-      label: t('cms'),
-    },
-    {
-      key: '/reports',
-      icon: <BarChartOutlined />,
-      label: t('reports'),
-    },
-    {
-      key: '/users',
-      icon: <TeamOutlined />,
-      label: t('users'),
-    },
-    {
-      key: '/chat',
-      icon: <MessageOutlined />,
-      label: t('aiChat'),
-    },
-    {
-      key: '/chat-support',
-      icon: <CustomerServiceOutlined />,
-      label: t('chatSupport'),
-    },
-    {
-      key: '/multi-store',
-      icon: <ShopOutlined />,
-      label: t('multiStore'),
-    },
-    {
-      key: '/audit-logs',
-      icon: <AuditOutlined />,
-      label: t('auditLogs'),
-    },
-    {
-      key: '/settings',
-      icon: <SettingOutlined />,
-      label: t('settings'),
-    },
-  ];
+  {
+    key: '/dashboard',
+    icon: <DashboardOutlined />,
+    label: t('dashboard')
+  },
+  {
+    key: '/products',
+    icon: <ShoppingOutlined />,
+    label: t('products')
+  },
+  {
+    key: '/categories',
+    icon: <AppstoreOutlined />,
+    label: t('categories')
+  },
+  {
+    key: '/flash-sales',
+    icon: <FireOutlined />,
+    label: t('flashSales')
+  },
+  {
+    key: '/coupons',
+    icon: <GiftOutlined />,
+    label: t('coupons')
+  },
+  {
+    key: '/orders',
+    icon: <FileTextOutlined />,
+    label: t('orders')
+  },
+  {
+    key: '/customers',
+    icon: <UserOutlined />,
+    label: t('customers')
+  },
+  {
+    key: '/inventory',
+    icon: <InboxOutlined />,
+    label: t('inventory')
+  },
+  {
+    key: '/shipping',
+    icon: <TruckOutlined />,
+    label: t('shipping')
+  },
+  {
+    key: '/cms',
+    icon: <EditOutlined />,
+    label: t('cms')
+  },
+  {
+    key: '/reports',
+    icon: <BarChartOutlined />,
+    label: t('reports')
+  },
+  {
+    key: '/users',
+    icon: <TeamOutlined />,
+    label: t('users')
+  },
+  {
+    key: '/chat',
+    icon: <MessageOutlined />,
+    label: t('aiChat')
+  },
+  {
+    key: '/chat-support',
+    icon: <CustomerServiceOutlined />,
+    label: t('chatSupport')
+  },
+  {
+    key: '/multi-store',
+    icon: <ShopOutlined />,
+    label: t('multiStore')
+  },
+  {
+    key: '/audit-logs',
+    icon: <AuditOutlined />,
+    label: t('auditLogs')
+  },
+  {
+    key: '/settings',
+    icon: <SettingOutlined />,
+    label: t('settings')
+  }];
 
-  const handleMenuClick = ({ key }: { key: string }) => {
+
+  const handleMenuClick = ({ key }: {key: string;}) => {
     navigate(key);
   };
 
@@ -140,26 +140,26 @@ const Layout = ({ children }: LayoutProps) => {
   };
 
   const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: t('profile'),
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: t('settings'),
-    },
-    {
-      type: 'divider' as const,
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: t('logout'),
-      onClick: handleLogout,
-    },
-  ];
+  {
+    key: 'profile',
+    icon: <UserOutlined />,
+    label: t('profile')
+  },
+  {
+    key: 'settings',
+    icon: <SettingOutlined />,
+    label: t('settings')
+  },
+  {
+    type: 'divider' as const
+  },
+  {
+    key: 'logout',
+    icon: <LogoutOutlined />,
+    label: t('logout'),
+    onClick: handleLogout
+  }];
+
 
   return (
     <div className="admin-layout" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -173,9 +173,9 @@ const Layout = ({ children }: LayoutProps) => {
           collapsedWidth={80}
           style={{
             background: 'transparent',
-            borderRight: '1px solid var(--border-primary)',
-          }}
-        >
+            borderRight: '1px solid var(--border-primary)'
+          }}>
+
           <div className="glass" style={{
             height: '64px',
             display: 'flex',
@@ -187,7 +187,7 @@ const Layout = ({ children }: LayoutProps) => {
             color: '#000000',
             fontWeight: '700',
             fontSize: collapsed ? 'var(--text-lg)' : 'var(--text-xl)',
-            boxShadow: '0 8px 25px var(--primary-300)',
+            boxShadow: '0 8px 25px var(--primary-300)'
           }}>
             {collapsed ? 'SA' : 'Soleva Admin'}
           </div>
@@ -198,13 +198,13 @@ const Layout = ({ children }: LayoutProps) => {
             items={menuItems}
             onClick={handleMenuClick}
             className="admin-menu"
-            style={{ 
+            style={{
               border: 'none',
               background: 'transparent',
-              padding: '0 16px',
+              padding: '0 16px'
             }}
-            theme="light"
-          />
+            theme="light" />
+
         </Sider>
         
         <AntLayout style={{ background: 'transparent' }}>
@@ -215,35 +215,35 @@ const Layout = ({ children }: LayoutProps) => {
             alignItems: 'center',
             justifyContent: 'space-between',
             height: '64px',
-            lineHeight: '64px',
+            lineHeight: '64px'
           }}>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               className="btn-ghost"
-              style={{ 
-                fontSize: '16px', 
-                width: 48, 
+              style={{
+                fontSize: '16px',
+                width: 48,
                 height: 48,
                 borderRadius: 'var(--radius-lg)',
-                color: 'var(--text-primary)',
-              }}
-            />
+                color: 'var(--text-primary)'
+              }} />
+
             
             <Space size="middle">
               <Badge count={5} size="small">
-                <Button 
-                  type="text" 
-                  icon={<BellOutlined />} 
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
                   className="btn-ghost"
                   style={{
                     width: 48,
                     height: 48,
                     borderRadius: 'var(--radius-lg)',
-                    color: 'var(--text-primary)',
-                  }}
-                />
+                    color: 'var(--text-primary)'
+                  }} />
+
               </Badge>
               
               <LanguageSwitcher />
@@ -251,20 +251,20 @@ const Layout = ({ children }: LayoutProps) => {
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement={isRTL ? 'bottomLeft' : 'bottomRight'}
-                trigger={['click']}
-              >
+                trigger={['click']}>
+
                 <Space style={{ cursor: 'pointer' }} className="user-profile">
                   <Avatar
                     src={user?.avatar}
                     icon={<UserOutlined />}
-                    style={{ 
+                    style={{
                       backgroundColor: 'var(--primary)',
                       color: '#000000',
-                      border: '2px solid var(--primary-200)',
-                    }}
-                  />
-                  {!collapsed && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                      border: '2px solid var(--primary-200)'
+                    }} />
+
+                  {!collapsed &&
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                       <Text strong style={{ color: 'var(--text-primary)', fontSize: 'var(--text-sm)' }}>
                         {user?.name || user?.email}
                       </Text>
@@ -272,7 +272,7 @@ const Layout = ({ children }: LayoutProps) => {
                         {user?.role}
                       </Text>
                     </div>
-                  )}
+                  }
                 </Space>
               </Dropdown>
             </Space>
@@ -282,15 +282,15 @@ const Layout = ({ children }: LayoutProps) => {
             <div className="glass animate-fade-in-up" style={{
               padding: 'var(--space-6)',
               minHeight: 'calc(100vh - 112px)',
-              borderRadius: 'var(--radius-xl)',
+              borderRadius: 'var(--radius-xl)'
             }}>
               {children}
             </div>
           </Content>
         </AntLayout>
       </AntLayout>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Layout;

@@ -35,7 +35,7 @@ export const translations = {
     addSuccess: "Product added to cart",
     removeSuccess: "Product removed from cart",
     updateSuccess: "Quantity updated",
-    
+
     // Notification Messages
     // Success Messages
     registrationSuccess: "Registration successful",
@@ -43,7 +43,7 @@ export const translations = {
     logoutSuccess: "You have been logged out successfully",
     passwordResetSuccess: "Password reset email sent successfully",
     profileUpdateSuccess: "Profile updated successfully",
-    
+
     // Error Messages
     invalidPassword: "Invalid password",
     accountNotFound: "Account not found. You can create a new one",
@@ -56,11 +56,11 @@ export const translations = {
     accountDisabled: "Account is disabled, please contact support",
     accountLocked: "Account is temporarily locked, please try again later",
     captchaRequired: "Please complete the security verification",
-    
+
     // Warning Messages
     sessionExpired: "Your session has expired. Please log in again",
     unsavedChanges: "You have unsaved changes. Are you sure you want to leave?",
-    
+
     // Info Messages
     processing: "Processing your request...",
     orderNumber: "Order #",
@@ -213,7 +213,7 @@ export const translations = {
     addSuccess: "تمت إضافة المنتج للسلة",
     removeSuccess: "تم إزالة المنتج من السلة",
     updateSuccess: "تم تحديث الكمية",
-    
+
     // Notification Messages
     // Success Messages
     registrationSuccess: "تم التسجيل بنجاح",
@@ -221,7 +221,7 @@ export const translations = {
     logoutSuccess: "تم تسجيل خروجك بنجاح",
     passwordResetSuccess: "تم إرسال رابط إعادة تعيين كلمة المرور بنجاح",
     profileUpdateSuccess: "تم تحديث الملف الشخصي بنجاح",
-    
+
     // Error Messages
     invalidPassword: "كلمة المرور غير صحيحة",
     accountNotFound: "الحساب غير مسجل. يمكنك إنشاء حساب جديد",
@@ -234,11 +234,11 @@ export const translations = {
     accountDisabled: "الحساب معطل، يرجى التواصل مع الدعم",
     accountLocked: "الحساب مقفل مؤقتاً، يرجى المحاولة لاحقاً",
     captchaRequired: "يرجى إكمال التحقق من الأمان",
-    
+
     // Warning Messages
     sessionExpired: "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى",
     unsavedChanges: "لديك تغييرات غير محفوظة. هل أنت متأكد من المغادرة؟",
-    
+
     // Info Messages
     processing: "جاري معالجة طلبك...",
     orderNumber: "رقم الطلب",

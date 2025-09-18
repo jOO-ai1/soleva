@@ -35,18 +35,18 @@ export const useDeviceDetection = () => {
     const screenHeight = window.screen.height;
     const devicePixelRatio = window.devicePixelRatio || 1;
     const cpuCores = navigator.hardwareConcurrency || 1;
-    
+
     // Memory detection (Chrome only)
     const memoryGB = (navigator as any).deviceMemory || null;
-    
+
     // Connection detection
     const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
     const connectionType = connection?.effectiveType || 'unknown';
-    
+
     // Device type detection
     let deviceType: 'mobile' | 'tablet' | 'desktop' = 'desktop';
     if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
-      if (/iPad/i.test(userAgent) || (screenWidth >= 768 && screenWidth <= 1024)) {
+      if (/iPad/i.test(userAgent) || screenWidth >= 768 && screenWidth <= 1024) {
         deviceType = 'tablet';
       } else {
         deviceType = 'mobile';
@@ -59,18 +59,18 @@ export const useDeviceDetection = () => {
 
     // OS detection
     let os = 'unknown';
-    if (/Windows/i.test(userAgent)) os = 'Windows';
-    else if (/Mac/i.test(userAgent)) os = 'macOS';
-    else if (/Linux/i.test(userAgent)) os = 'Linux';
-    else if (/Android/i.test(userAgent)) os = 'Android';
-    else if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
+    if (/Windows/i.test(userAgent)) os = 'Windows';else
+    if (/Mac/i.test(userAgent)) os = 'macOS';else
+    if (/Linux/i.test(userAgent)) os = 'Linux';else
+    if (/Android/i.test(userAgent)) os = 'Android';else
+    if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
 
     // Browser detection
     let browser = 'unknown';
-    if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) browser = 'Chrome';
-    else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
-    else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = 'Safari';
-    else if (/Edge/i.test(userAgent)) browser = 'Edge';
+    if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) browser = 'Chrome';else
+    if (/Firefox/i.test(userAgent)) browser = 'Firefox';else
+    if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = 'Safari';else
+    if (/Edge/i.test(userAgent)) browser = 'Edge';
 
     // Performance level assessment
     const performanceScore = calculatePerformanceScore({
@@ -83,9 +83,9 @@ export const useDeviceDetection = () => {
     });
 
     const isLowSpec = performanceScore < 40;
-    const performanceLevel: 'low' | 'medium' | 'high' = 
-      performanceScore < 40 ? 'low' : 
-      performanceScore < 70 ? 'medium' : 'high';
+    const performanceLevel: 'low' | 'medium' | 'high' =
+    performanceScore < 40 ? 'low' :
+    performanceScore < 70 ? 'medium' : 'high';
 
     return {
       deviceType,
@@ -151,7 +151,7 @@ export const useDeviceDetection = () => {
   const measurePerformanceMetrics = (): Promise<PerformanceMetrics> => {
     return new Promise((resolve) => {
       const startTime = performance.now();
-      
+
       // Use PerformanceObserver for modern metrics
       const metrics: Partial<PerformanceMetrics> = {
         loadTime: startTime,
@@ -169,14 +169,14 @@ export const useDeviceDetection = () => {
         }
         fcpObserver.disconnect();
       });
-      
+
       try {
         fcpObserver.observe({ entryTypes: ['paint'] });
       } catch (e) {
-        // FCP observation not supported
-      }
 
-      // Largest Contentful Paint
+
+        // FCP observation not supported
+      } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         if (entries.length > 0) {
@@ -187,10 +187,10 @@ export const useDeviceDetection = () => {
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
       } catch (e) {
-        // LCP observation not supported
-      }
 
-      // Cumulative Layout Shift
+
+        // LCP observation not supported
+      } // Cumulative Layout Shift
       const clsObserver = new PerformanceObserver((list) => {
         let clsValue = 0;
         for (const entry of list.getEntries()) {
@@ -204,30 +204,30 @@ export const useDeviceDetection = () => {
       try {
         clsObserver.observe({ entryTypes: ['layout-shift'] });
       } catch (e) {
-        // CLS observation not supported
-      }
 
-      // Interaction to Next Paint (experimental)
+
+        // CLS observation not supported
+      } // Interaction to Next Paint (experimental)
       const inpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         if (entries.length > 0) {
-          metrics.inp = Math.max(...entries.map(entry => (entry as any).processingDuration || 0));
+          metrics.inp = Math.max(...entries.map((entry) => (entry as any).processingDuration || 0));
         }
       });
 
       try {
         inpObserver.observe({ entryTypes: ['event'] });
       } catch (e) {
-        // INP observation not supported
-      }
 
-      // Resolve after a delay to collect metrics
+
+        // INP observation not supported
+      } // Resolve after a delay to collect metrics
       setTimeout(() => {
         fcpObserver.disconnect();
         lcpObserver.disconnect();
         clsObserver.disconnect();
         inpObserver.disconnect();
-        
+
         metrics.loadTime = performance.now() - startTime;
         resolve(metrics as PerformanceMetrics);
       }, 5000);
@@ -258,10 +258,10 @@ export const useDeviceDetection = () => {
         body: JSON.stringify(logData)
       });
     } catch (error) {
-      // Failed to log device data
-    }
-  };
 
+
+      // Failed to log device data
+    }};
   const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {
     if (deviceInfo.isLowSpec) {
       // Force light mode for better performance
@@ -273,10 +273,10 @@ export const useDeviceDetection = () => {
       // Reduce animation intensity
       document.documentElement.style.setProperty('--animation-duration', '0.1s');
       document.documentElement.style.setProperty('--transition-duration', '0.1s');
-      
+
       // Add adaptive mode class
       document.body.classList.add('adaptive-mode');
-      
+
       // Disable heavy effects
       const style = document.createElement('style');
       style.textContent = `
@@ -298,7 +298,7 @@ export const useDeviceDetection = () => {
         }
       `;
       document.head.appendChild(style);
-      
+
       // Adaptive mode enabled: Reduced animations and effects for low-spec device
     }
   };

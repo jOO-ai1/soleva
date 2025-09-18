@@ -44,8 +44,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         background: 'var(--glass-bg)',
         backdropFilter: 'blur(20px)',
         border: '1px solid var(--primary-200)',
-        borderRadius: 'var(--radius-lg)',
-      },
+        borderRadius: 'var(--radius-lg)'
+      }
     });
   };
 
@@ -59,8 +59,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         background: 'var(--glass-bg)',
         backdropFilter: 'blur(20px)',
         border: '1px solid var(--error)',
-        borderRadius: 'var(--radius-lg)',
-      },
+        borderRadius: 'var(--radius-lg)'
+      }
     });
   };
 
@@ -74,8 +74,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         background: 'var(--glass-bg)',
         backdropFilter: 'blur(20px)',
         border: '1px solid var(--warning)',
-        borderRadius: 'var(--radius-lg)',
-      },
+        borderRadius: 'var(--radius-lg)'
+      }
     });
   };
 
@@ -89,25 +89,25 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         background: 'var(--glass-bg)',
         backdropFilter: 'blur(20px)',
         border: '1px solid var(--info)',
-        borderRadius: 'var(--radius-lg)',
-      },
+        borderRadius: 'var(--radius-lg)'
+      }
     });
   };
 
   const showBanner = (type: 'success' | 'error' | 'warning' | 'info', message: string, description?: string) => {
     const id = Date.now().toString();
     const newBanner = { id, type, message, description };
-    
-    setBanners(prev => [...prev, newBanner]);
-    
+
+    setBanners((prev) => [...prev, newBanner]);
+
     // Auto remove after 5 seconds
     setTimeout(() => {
-      setBanners(prev => prev.filter(banner => banner.id !== id));
+      setBanners((prev) => prev.filter((banner) => banner.id !== id));
     }, 5000);
   };
 
   const removeBanner = (id: string) => {
-    setBanners(prev => prev.filter(banner => banner.id !== id));
+    setBanners((prev) => prev.filter((banner) => banner.id !== id));
   };
 
   const getBannerIcon = (type: string) => {
@@ -135,7 +135,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       showError,
       showWarning,
       showInfo,
-      showBanner,
+      showBanner
     }}>
       {children}
       
@@ -146,39 +146,39 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
           top: '80px',
           [isRTL ? 'left' : 'right']: '24px',
           zIndex: 1000,
-          maxWidth: '400px',
-        }}
-      >
-        {banners.map((banner) => (
-          <div
-            key={banner.id}
-            className="animate-fade-in-up"
-            style={{
-              marginBottom: '12px',
-              animation: 'slideInFromTop 0.3s ease-out',
-            }}
-          >
+          maxWidth: '400px'
+        }}>
+
+        {banners.map((banner) =>
+        <div
+          key={banner.id}
+          className="animate-fade-in-up"
+          style={{
+            marginBottom: '12px',
+            animation: 'slideInFromTop 0.3s ease-out'
+          }}>
+
             <Alert
-              message={banner.message}
-              description={banner.description}
-              type={getBannerType(banner.type)}
-              icon={getBannerIcon(banner.type)}
-              showIcon
-              closable
-              onClose={() => removeBanner(banner.id)}
-              style={{
-                background: 'var(--glass-bg)',
-                backdropFilter: 'blur(20px)',
-                border: `1px solid var(--${banner.type === 'error' ? 'error' : banner.type === 'warning' ? 'warning' : banner.type === 'success' ? 'success' : 'info'})`,
-                borderRadius: 'var(--radius-lg)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-              }}
-            />
+            message={banner.message}
+            description={banner.description}
+            type={getBannerType(banner.type)}
+            icon={getBannerIcon(banner.type)}
+            showIcon
+            closable
+            onClose={() => removeBanner(banner.id)}
+            style={{
+              background: 'var(--glass-bg)',
+              backdropFilter: 'blur(20px)',
+              border: `1px solid var(--${banner.type === 'error' ? 'error' : banner.type === 'warning' ? 'warning' : banner.type === 'success' ? 'success' : 'info'})`,
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
+            }} />
+
           </div>
-        ))}
+        )}
       </div>
-    </NotificationContext.Provider>
-  );
+    </NotificationContext.Provider>);
+
 };
 
 // CSS for banner animations

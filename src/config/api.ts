@@ -2,26 +2,26 @@
 export const API_CONFIG = {
   // Base URL - prefer VITE_API_URL (common), fallback to VITE_API_BASE_URL
   BASE_URL:
-    import.meta.env.VITE_API_URL ||
-    (typeof window !== 'undefined' && (window.location.hostname === 'solevaeg.com' || window.location.hostname === 'www.solevaeg.com')
-      ? 'https://api.solevaeg.com/api/v1'
-      : 'http://localhost:3001/api/v1'),
-  
+  import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && (window.location.hostname === 'solevaeg.com' || window.location.hostname === 'www.solevaeg.com') ?
+  'https://api.solevaeg.com/api/v1' :
+  'http://localhost:3001/api/v1'),
+
   // API Version
   VERSION: 'v1',
-  
+
   // Timeout settings
   TIMEOUT: 30000,
-  
+
   // Headers
   DEFAULT_HEADERS: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    'Accept': 'application/json'
   },
-  
+
   // Authentication
   AUTH_TOKEN_KEY: 'auth_token',
-  REFRESH_TOKEN_KEY: 'refresh_token',
+  REFRESH_TOKEN_KEY: 'refresh_token'
 };
 
 // API Endpoints
@@ -37,70 +37,70 @@ export const API_ENDPOINTS = {
     FACEBOOK: '/auth/customer/facebook',
     DISCONNECT_GOOGLE: '/auth/customer/disconnect-google',
     FORGOT_PASSWORD: '/auth/forgot-password',
-    RESET_PASSWORD: '/auth/reset-password',
+    RESET_PASSWORD: '/auth/reset-password'
   },
-  
+
   // Products
   PRODUCTS: {
     LIST: '/products',
     SHOW: (id: number) => `/products/${id}`,
     SEARCH: '/products/search',
-    FILTER: '/products/filter',
+    FILTER: '/products/filter'
   },
-  
+
   // Categories
   CATEGORIES: {
     LIST: '/categories',
-    SHOW: (id: string) => `/categories/${id}`,
+    SHOW: (id: string) => `/categories/${id}`
   },
-  
+
   // Collections
   COLLECTIONS: {
     LIST: '/collections',
     SHOW: (id: string) => `/collections/${id}`,
-    PRODUCTS: (id: string) => `/collections/${id}/products`,
+    PRODUCTS: (id: string) => `/collections/${id}/products`
   },
-  
+
   // Cart
   CART: {
     GET: '/cart',
     ADD: '/cart/add',
     UPDATE: '/cart/update',
     REMOVE: '/cart/remove',
-    CLEAR: '/cart/clear',
+    CLEAR: '/cart/clear'
   },
-  
+
   // Orders
   ORDERS: {
     LIST: '/orders/user',
     SHOW: (id: string) => `/orders/${id}`,
     CREATE: '/orders',
-    TRACK: (identifier: string) => `/orders/track/${identifier}`,
+    TRACK: (identifier: string) => `/orders/track/${identifier}`
   },
-  
+
   // Favorites
   FAVORITES: {
     LIST: '/favorites',
     ADD: '/favorites/add',
     REMOVE: '/favorites/remove',
-    TOGGLE: '/favorites/toggle',
+    TOGGLE: '/favorites/toggle'
   },
-  
+
   // Coupons
   COUPONS: {
     VALIDATE: '/coupons/validate',
-    APPLY: '/coupons/apply',
+    APPLY: '/coupons/apply'
   },
-  
+
   // Contact
   CONTACT: {
-    SEND: '/contact/send',
+    SEND: '/contact/send'
   },
-  
+
   // File Upload
   UPLOAD: {
     IMAGE: '/upload/image',
-    PAYMENT_SCREENSHOT: '/upload/payment-screenshot',
+    PAYMENT_SCREENSHOT: '/upload/payment-screenshot'
   },
 
   // Chat
@@ -110,21 +110,21 @@ export const API_ENDPOINTS = {
     MESSAGES: '/chat/messages',
     AI_RESPONSE: '/chat/ai-response',
     REQUEST_HUMAN: '/chat/request-human',
-    UPLOAD: '/chat/upload',
+    UPLOAD: '/chat/upload'
   },
 
   // Configuration
-  CONFIG: '/config',
+  CONFIG: '/config'
 };
 
 // Helper function to build full URL
 export const buildApiUrl = (endpoint: string): string => {
-  const baseUrl = API_CONFIG.BASE_URL.endsWith('/') 
-    ? API_CONFIG.BASE_URL.slice(0, -1) 
-    : API_CONFIG.BASE_URL;
-  
+  const baseUrl = API_CONFIG.BASE_URL.endsWith('/') ?
+  API_CONFIG.BASE_URL.slice(0, -1) :
+  API_CONFIG.BASE_URL;
+
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  
+
   return `${baseUrl}${cleanEndpoint}`;
 };
 
@@ -136,8 +136,8 @@ export const getAuthHeaders = (): Record<string, string> => {
   } catch {
     token = null;
   }
-  
-  return token 
-    ? { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` }
-    : API_CONFIG.DEFAULT_HEADERS;
+
+  return token ?
+  { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` } :
+  API_CONFIG.DEFAULT_HEADERS;
 };

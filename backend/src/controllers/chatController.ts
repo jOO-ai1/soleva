@@ -13,9 +13,9 @@ export const getCurrentConversation = async (req: Request, res: Response): Promi
     let conversation = await prisma.conversation.findFirst({
       where: {
         OR: [
-          ...(userId ? [{ userId, status: 'OPEN' as const }] : []),
-          ...(customerEmail ? [{ customerEmail, status: 'OPEN' as const }] : [])
-        ]
+        ...(userId ? [{ userId, status: 'OPEN' as const }] : []),
+        ...(customerEmail ? [{ customerEmail, status: 'OPEN' as const }] : [])]
+
       },
       include: {
         messages: {
@@ -189,9 +189,9 @@ export const getAIResponse = async (req: Request, res: Response): Promise<Respon
       return res.json({
         success: true,
         data: {
-          response: language === 'ar' 
-            ? 'سأقوم بتحويلك إلى أحد موظفي خدمة العملاء. يرجى الانتظار...'
-            : 'I\'ll connect you with a human agent. Please wait...',
+          response: language === 'ar' ?
+          'سأقوم بتحويلك إلى أحد موظفي خدمة العملاء. يرجى الانتظار...' :
+          'I\'ll connect you with a human agent. Please wait...',
           confidence: 0.95,
           model: 'human-request'
         }
@@ -300,9 +300,9 @@ export const requestHumanAgent = async (req: Request, res: Response): Promise<Re
     if (activeSessions >= maxConcurrentSessions) {
       // Add to queue
       queued = true;
-      
+
       // Count users in queue
-      queuePosition = await prisma.conversation.count({
+      queuePosition = (await prisma.conversation.count({
         where: {
           status: 'PENDING',
           priority: 'HIGH',
@@ -310,7 +310,7 @@ export const requestHumanAgent = async (req: Request, res: Response): Promise<Re
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
           }
         }
-      }) + 1;
+      })) + 1;
 
       // Update conversation to pending (in queue)
       await prisma.conversation.update({
@@ -335,9 +335,9 @@ export const requestHumanAgent = async (req: Request, res: Response): Promise<Re
     await prisma.message.create({
       data: {
         conversationId,
-        content: queued 
-          ? `Customer requested human agent - Added to queue (Position: ${queuePosition})`
-          : 'Customer requested human agent - Connected directly',
+        content: queued ?
+        `Customer requested human agent - Added to queue (Position: ${queuePosition})` :
+        'Customer requested human agent - Connected directly',
         type: 'SYSTEM',
         senderType: 'SYSTEM',
         senderName: 'System'
@@ -351,9 +351,9 @@ export const requestHumanAgent = async (req: Request, res: Response): Promise<Re
       data: {
         queued,
         queuePosition: queued ? queuePosition : 0,
-        message: queued 
-          ? 'Added to waiting queue' 
-          : 'Connected to human agent'
+        message: queued ?
+        'Added to waiting queue' :
+        'Connected to human agent'
       }
     });
 
@@ -452,12 +452,12 @@ export const uploadChatFile = async (req: Request, res: Response): Promise<Respo
 // Helper functions
 const isOrderTrackingQuery = (message: string): boolean => {
   const orderKeywords = [
-    'order', 'track', 'tracking', 'number', 'where', 'status', 'delivery',
-    'طلب', 'تتبع', 'رقم', 'وين', 'فين', 'وصل', 'شحن'
-  ];
-  
-  return orderKeywords.some(keyword => 
-    message.toLowerCase().includes(keyword.toLowerCase())
+  'order', 'track', 'tracking', 'number', 'where', 'status', 'delivery',
+  'طلب', 'تتبع', 'رقم', 'وين', 'فين', 'وصل', 'شحن'];
+
+
+  return orderKeywords.some((keyword) =>
+  message.toLowerCase().includes(keyword.toLowerCase())
   );
 };
 
@@ -466,31 +466,31 @@ const isHumanRequestQuery = (message: string, language: string): boolean => {
     en: ['human', 'agent', 'person', 'staff', 'representative', 'support'],
     ar: ['موظف', 'انسان', 'شخص', 'عميل', 'خدمة', 'مندوب']
   };
-  
+
   const keywords = humanKeywords[language as keyof typeof humanKeywords] || humanKeywords.en;
-  return keywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+  return keywords.some((keyword) => message.toLowerCase().includes(keyword.toLowerCase()));
 };
 
 const handleOrderTrackingQuery = async (message: string, userId?: string, language: string = 'en'): Promise<string | null> => {
   try {
     // Extract order number from message
     const orderNumberMatch = message.match(/SOL-\d{8}-\d{5}|#?\d{10,}/);
-    
+
     if (!orderNumberMatch) {
-      return language === 'ar'
-        ? 'يرجى تقديم رقم الطلب الخاص بك. يمكنك العثور عليه في بريدك الإلكتروني أو في قسم "طلباتي".'
-        : 'Please provide your order number. You can find it in your email or in the "My Orders" section.';
+      return language === 'ar' ?
+      'يرجى تقديم رقم الطلب الخاص بك. يمكنك العثور عليه في بريدك الإلكتروني أو في قسم "طلباتي".' :
+      'Please provide your order number. You can find it in your email or in the "My Orders" section.';
     }
 
     const orderNumber = orderNumberMatch[0];
-    
+
     // Find order in database
     const order = await prisma.order.findFirst({
       where: {
         OR: [
-          { orderNumber },
-          { id: orderNumber }
-        ],
+        { orderNumber },
+        { id: orderNumber }],
+
         ...(userId ? { userId } : {})
       },
       include: {
@@ -503,9 +503,9 @@ const handleOrderTrackingQuery = async (message: string, userId?: string, langua
     });
 
     if (!order) {
-      return language === 'ar'
-        ? 'لم أتمكن من العثور على طلب بهذا الرقم. يرجى التأكد من رقم الطلب والمحاولة مرة أخرى.'
-        : 'I couldn\'t find an order with that number. Please check the order number and try again.';
+      return language === 'ar' ?
+      'لم أتمكن من العثور على طلب بهذا الرقم. يرجى التأكد من رقم الطلب والمحاولة مرة أخرى.' :
+      'I couldn\'t find an order with that number. Please check the order number and try again.';
     }
 
     // Format order information
@@ -568,84 +568,84 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
   }
 };
 
-const generateAIResponse = async (message: string, language: string, context: any): Promise<{ response: string; confidence: number; model: string }> => {
+const generateAIResponse = async (message: string, language: string, context: any): Promise<{response: string;confidence: number;model: string;}> => {
   try {
     // For now, return a simple response based on keywords
     // In production, you would integrate with OpenAI, Claude, or similar service
-    
+
     const lowerMessage = message.toLowerCase();
     const userData = context?.userData;
-    
+
     // Check if user is asking about their orders
     if (lowerMessage.includes('order') || lowerMessage.includes('طلب')) {
       if (userData?.orders && userData.orders.length > 0) {
         const latestOrder = userData.orders[0];
         return {
-          response: language === 'ar'
-            ? `لديك ${userData.orders.length} طلب. آخر طلب لك رقم ${latestOrder.orderNumber} بحالة ${latestOrder.orderStatus}. هل تريد معرفة تفاصيل أكثر؟`
-            : `You have ${userData.orders.length} orders. Your latest order ${latestOrder.orderNumber} is ${latestOrder.orderStatus}. Would you like more details?`,
+          response: language === 'ar' ?
+          `لديك ${userData.orders.length} طلب. آخر طلب لك رقم ${latestOrder.orderNumber} بحالة ${latestOrder.orderStatus}. هل تريد معرفة تفاصيل أكثر؟` :
+          `You have ${userData.orders.length} orders. Your latest order ${latestOrder.orderNumber} is ${latestOrder.orderStatus}. Would you like more details?`,
           confidence: 0.9,
           model: 'user-data-bot'
         };
       } else {
         return {
-          response: language === 'ar'
-            ? 'لم أجد أي طلبات في حسابك. هل تريد المساعدة في العثور على منتجات مناسبة؟'
-            : 'I don\'t see any orders in your account. Would you like help finding suitable products?',
+          response: language === 'ar' ?
+          'لم أجد أي طلبات في حسابك. هل تريد المساعدة في العثور على منتجات مناسبة؟' :
+          'I don\'t see any orders in your account. Would you like help finding suitable products?',
           confidence: 0.9,
           model: 'user-data-bot'
         };
       }
     }
-    
+
     // Check if user is asking about cart
     if (lowerMessage.includes('cart') || lowerMessage.includes('سلة')) {
       if (userData?.cartItems && userData.cartItems.length > 0) {
         return {
-          response: language === 'ar'
-            ? `لديك ${userData.cartItems.length} منتج في السلة. هل تريد إكمال عملية الشراء؟`
-            : `You have ${userData.cartItems.length} items in your cart. Would you like to complete your purchase?`,
+          response: language === 'ar' ?
+          `لديك ${userData.cartItems.length} منتج في السلة. هل تريد إكمال عملية الشراء؟` :
+          `You have ${userData.cartItems.length} items in your cart. Would you like to complete your purchase?`,
           confidence: 0.9,
           model: 'user-data-bot'
         };
       } else {
         return {
-          response: language === 'ar'
-            ? 'سلة التسوق فارغة. هل تريد استكشاف منتجاتنا؟'
-            : 'Your cart is empty. Would you like to explore our products?',
+          response: language === 'ar' ?
+          'سلة التسوق فارغة. هل تريد استكشاف منتجاتنا؟' :
+          'Your cart is empty. Would you like to explore our products?',
           confidence: 0.9,
           model: 'user-data-bot'
         };
       }
     }
-    
+
     // Check if user is asking about favorites
     if (lowerMessage.includes('favorite') || lowerMessage.includes('مفضل')) {
       if (userData?.favorites && userData.favorites.length > 0) {
         return {
-          response: language === 'ar'
-            ? `لديك ${userData.favorites.length} منتج في المفضلة. هل تريد رؤية قائمة المفضلة؟`
-            : `You have ${userData.favorites.length} items in your favorites. Would you like to see your favorites list?`,
+          response: language === 'ar' ?
+          `لديك ${userData.favorites.length} منتج في المفضلة. هل تريد رؤية قائمة المفضلة؟` :
+          `You have ${userData.favorites.length} items in your favorites. Would you like to see your favorites list?`,
           confidence: 0.9,
           model: 'user-data-bot'
         };
       } else {
         return {
-          response: language === 'ar'
-            ? 'لا توجد منتجات في المفضلة. هل تريد استكشاف منتجاتنا؟'
-            : 'No items in your favorites. Would you like to explore our products?',
+          response: language === 'ar' ?
+          'لا توجد منتجات في المفضلة. هل تريد استكشاف منتجاتنا؟' :
+          'No items in your favorites. Would you like to explore our products?',
           confidence: 0.9,
           model: 'user-data-bot'
         };
       }
     }
-    
+
     // FAQ responses
     if (lowerMessage.includes('shipping') || lowerMessage.includes('شحن')) {
       return {
-        response: language === 'ar' 
-          ? 'نحن نقدم الشحن إلى جميع أنحاء مصر. التوصيل مجاني للطلبات التي تزيد عن 500 ج.م. مدة التوصيل من 2-5 أيام عمل.'
-          : 'We ship to all of Egypt. Free delivery for orders over 500 EGP. Delivery time is 2-5 business days.',
+        response: language === 'ar' ?
+        'نحن نقدم الشحن إلى جميع أنحاء مصر. التوصيل مجاني للطلبات التي تزيد عن 500 ج.م. مدة التوصيل من 2-5 أيام عمل.' :
+        'We ship to all of Egypt. Free delivery for orders over 500 EGP. Delivery time is 2-5 business days.',
         confidence: 0.9,
         model: 'faq-bot'
       };
@@ -653,9 +653,9 @@ const generateAIResponse = async (message: string, language: string, context: an
 
     if (lowerMessage.includes('return') || lowerMessage.includes('مرتجع')) {
       return {
-        response: language === 'ar'
-          ? 'يمكنك إرجاع المنتجات خلال 14 يوم من تاريخ الاستلام. يجب أن تكون المنتجات في حالتها الأصلية. يرجى التواصل معنا لبدء عملية الإرجاع.'
-          : 'You can return products within 14 days of delivery. Products must be in original condition. Please contact us to start the return process.',
+        response: language === 'ar' ?
+        'يمكنك إرجاع المنتجات خلال 14 يوم من تاريخ الاستلام. يجب أن تكون المنتجات في حالتها الأصلية. يرجى التواصل معنا لبدء عملية الإرجاع.' :
+        'You can return products within 14 days of delivery. Products must be in original condition. Please contact us to start the return process.',
         confidence: 0.9,
         model: 'faq-bot'
       };
@@ -663,9 +663,9 @@ const generateAIResponse = async (message: string, language: string, context: an
 
     if (lowerMessage.includes('size') || lowerMessage.includes('مقاس')) {
       return {
-        response: language === 'ar'
-          ? 'يمكنك العثور على جدول المقاسات في صفحة المنتج. إذا كنت بحاجة إلى مساعدة في اختيار المقاس المناسب، يمكنني مساعدتك.'
-          : 'You can find the size chart on the product page. If you need help choosing the right size, I can assist you.',
+        response: language === 'ar' ?
+        'يمكنك العثور على جدول المقاسات في صفحة المنتج. إذا كنت بحاجة إلى مساعدة في اختيار المقاس المناسب، يمكنني مساعدتك.' :
+        'You can find the size chart on the product page. If you need help choosing the right size, I can assist you.',
         confidence: 0.8,
         model: 'faq-bot'
       };
@@ -673,9 +673,9 @@ const generateAIResponse = async (message: string, language: string, context: an
 
     // Default response
     return {
-      response: language === 'ar'
-        ? 'شكراً لرسالتك! كيف يمكنني مساعدتك اليوم؟ يمكنني مساعدتك في تتبع الطلبات، معلومات المنتجات، الشحن، أو أي استفسارات أخرى.'
-        : 'Thank you for your message! How can I help you today? I can assist with order tracking, product information, shipping, or any other inquiries.',
+      response: language === 'ar' ?
+      'شكراً لرسالتك! كيف يمكنني مساعدتك اليوم؟ يمكنني مساعدتك في تتبع الطلبات، معلومات المنتجات، الشحن، أو أي استفسارات أخرى.' :
+      'Thank you for your message! How can I help you today? I can assist with order tracking, product information, shipping, or any other inquiries.',
       confidence: 0.7,
       model: 'general-bot'
     };
@@ -683,9 +683,9 @@ const generateAIResponse = async (message: string, language: string, context: an
   } catch (error) {
     console.error('AI response generation error:', error);
     return {
-      response: language === 'ar'
-        ? 'أعتذر، حدث خطأ في معالجة رسالتك. يرجى المحاولة مرة أخرى أو طلب التحدث مع أحد موظفي خدمة العملاء.'
-        : 'I apologize, there was an error processing your message. Please try again or request to speak with a human agent.',
+      response: language === 'ar' ?
+      'أعتذر، حدث خطأ في معالجة رسالتك. يرجى المحاولة مرة أخرى أو طلب التحدث مع أحد موظفي خدمة العملاء.' :
+      'I apologize, there was an error processing your message. Please try again or request to speak with a human agent.',
       confidence: 0.5,
       model: 'error-handler'
     };
@@ -696,7 +696,7 @@ const generateAIResponse = async (message: string, language: string, context: an
 export const getChatAvailability = async (req: Request, res: Response): Promise<Response | void> => {
   try {
     const { language = 'en' } = req.query;
-    
+
     // Working hours configuration
     const workingHours = {
       timezone: 'Africa/Cairo',
@@ -707,31 +707,31 @@ export const getChatAvailability = async (req: Request, res: Response): Promise<
         tuesday: { start: '09:00', end: '18:00', enabled: true },
         wednesday: { start: '09:00', end: '18:00', enabled: true },
         thursday: { start: '09:00', end: '18:00', enabled: true },
-        friday: { start: '09:00', end: '18:00', enabled: false },
+        friday: { start: '09:00', end: '18:00', enabled: false }
       }
     };
 
     // Check if current time is within working hours
     const now = new Date();
     const timeInTimezone = new Date(now.toLocaleString('en-US', { timeZone: workingHours.timezone }));
-    const currentDay = timeInTimezone.toLocaleDateString('en-US', { 
+    const currentDay = timeInTimezone.toLocaleDateString('en-US', {
       weekday: 'long',
       timeZone: workingHours.timezone
     }).toLowerCase();
-    
+
     const dayConfig = workingHours.days[currentDay as keyof typeof workingHours.days];
     let isLiveChatAvailable = dayConfig?.enabled || false;
-    
+
     if (isLiveChatAvailable && dayConfig) {
       const currentTime = timeInTimezone.getHours() * 60 + timeInTimezone.getMinutes();
       const startParts = dayConfig.start.split(':');
       const endParts = dayConfig.end.split(':');
-      
-      if (startParts.length === 2 && endParts.length === 2 && 
-          startParts[0] && startParts[1] && endParts[0] && endParts[1]) {
+
+      if (startParts.length === 2 && endParts.length === 2 &&
+      startParts[0] && startParts[1] && endParts[0] && endParts[1]) {
         const startTime = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
         const endTime = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-        
+
         if (currentTime < startTime || currentTime > endTime) {
           isLiveChatAvailable = false;
         }
@@ -745,14 +745,14 @@ export const getChatAvailability = async (req: Request, res: Response): Promise<
       for (let i = 0; i < 7; i++) {
         const checkDate = new Date(now);
         checkDate.setDate(now.getDate() + i);
-        
-        const dayName = checkDate.toLocaleDateString('en-US', { 
+
+        const dayName = checkDate.toLocaleDateString('en-US', {
           weekday: 'long',
           timeZone: workingHours.timezone
         }).toLowerCase();
-        
+
         const dayConfig = workingHours.days[dayName as keyof typeof workingHours.days];
-        
+
         if (dayConfig && dayConfig.enabled) {
           const startParts = dayConfig.start.split(':');
           if (startParts.length === 2 && startParts[0] && startParts[1]) {
@@ -771,11 +771,11 @@ export const getChatAvailability = async (req: Request, res: Response): Promise<
       isAIAvailable: true, // AI is always available
       nextAvailableTime,
       currentMode: isLiveChatAvailable ? 'LIVE' : 'AI',
-      message: isLiveChatAvailable 
-        ? (language === 'ar' ? 'وكلاؤنا المباشرون متاحون الآن' : 'Our live agents are available now')
-        : (language === 'ar' 
-          ? `وكلاؤنا المباشرون غير متاحين حالياً. يرجى ترك رسالة أو التحدث مع مساعدنا الذكي.${nextAvailableTime ? ` سيكونون متاحين ${nextAvailableTime.toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US', { timeZone: workingHours.timezone, weekday: 'long', hour: '2-digit', minute: '2-digit' })}` : ''}`
-          : `Our live agents are currently offline. Please leave a message or chat with our AI Assistant.${nextAvailableTime ? ` They will be available ${nextAvailableTime.toLocaleString('en-US', { timeZone: workingHours.timezone, weekday: 'long', hour: '2-digit', minute: '2-digit' })}` : ''}`)
+      message: isLiveChatAvailable ?
+      language === 'ar' ? 'وكلاؤنا المباشرون متاحون الآن' : 'Our live agents are available now' :
+      language === 'ar' ?
+      `وكلاؤنا المباشرون غير متاحين حالياً. يرجى ترك رسالة أو التحدث مع مساعدنا الذكي.${nextAvailableTime ? ` سيكونون متاحين ${nextAvailableTime.toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US', { timeZone: workingHours.timezone, weekday: 'long', hour: '2-digit', minute: '2-digit' })}` : ''}` :
+      `Our live agents are currently offline. Please leave a message or chat with our AI Assistant.${nextAvailableTime ? ` They will be available ${nextAvailableTime.toLocaleString('en-US', { timeZone: workingHours.timezone, weekday: 'long', hour: '2-digit', minute: '2-digit' })}` : ''}`
     };
 
     res.json({

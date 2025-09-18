@@ -19,8 +19,8 @@ import {
   Typography,
   Divider,
   Switch,
-  Tabs,
-} from 'antd';
+  Tabs } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -28,8 +28,8 @@ import {
   EyeOutlined,
   UploadOutlined,
   SearchOutlined,
-  FilterOutlined,
-} from '@ant-design/icons';
+  FilterOutlined } from
+'@ant-design/icons';
 import { productsAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -83,9 +83,9 @@ const Products = () => {
       const response = await productsAPI.getAll({
         search: searchText,
         category: filterCategory,
-        brand: filterBrand,
+        brand: filterBrand
       });
-      
+
       if (response.success && response.data) {
         setProducts(response.data);
       }
@@ -117,7 +117,7 @@ const Products = () => {
       stockQuantity: product.stockQuantity,
       category: product.category,
       brand: product.brand,
-      isActive: product.isActive,
+      isActive: product.isActive
     });
     setModalVisible(true);
   };
@@ -140,14 +140,14 @@ const Products = () => {
     try {
       const productData = {
         ...values,
-        images: uploadedImages,
+        images: uploadedImages
       };
 
       let response;
       if (editingProduct) {
         response = await productsAPI.update(editingProduct.id, productData);
       } else {
-        response = await productsAPI.create({...productData, variants: []});
+        response = await productsAPI.create({ ...productData, variants: [] });
       }
 
       if (response.success) {
@@ -167,7 +167,7 @@ const Products = () => {
       setUploading(true);
       const response = await productsAPI.uploadImage(file);
       if (response.success && response.data) {
-        setUploadedImages(prev => [...prev, (response.data as any).url]);
+        setUploadedImages((prev) => [...prev, (response.data as any).url]);
         message.success('Image uploaded successfully');
       } else {
         message.error('Failed to upload image');
@@ -180,111 +180,111 @@ const Products = () => {
   };
 
   const removeImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const columns: ColumnsType<Product> = [
-    {
-      title: 'Image',
-      dataIndex: 'images',
-      key: 'images',
-      width: 80,
-      render: (images: string[]) => (
-        <Image
-          width={50}
-          height={50}
-          src={images?.[0] || '/placeholder-image.jpg'}
-          style={{ objectFit: 'cover', borderRadius: 4 }}
-        />
-      ),
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toString().toLowerCase()),
-    },
-    {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      filters: categories.map(cat => ({ text: cat, value: cat })),
-      onFilter: (value, record) => record.category === value,
-    },
-    {
-      title: 'Brand',
-      dataIndex: 'brand',
-      key: 'brand',
-      filters: brands.map(brand => ({ text: brand, value: brand })),
-      onFilter: (value, record) => record.brand === value,
-    },
-    {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price: number) => `$${price.toFixed(2)}`,
-      sorter: (a, b) => a.price - b.price,
-    },
-    {
-      title: 'Stock',
-      dataIndex: 'stockQuantity',
-      key: 'stockQuantity',
-      render: (stock: number) => (
-        <Tag color={stock > 10 ? 'green' : stock > 0 ? 'orange' : 'red'}>
+  {
+    title: 'Image',
+    dataIndex: 'images',
+    key: 'images',
+    width: 80,
+    render: (images: string[]) =>
+    <Image
+      width={50}
+      height={50}
+      src={images?.[0] || '/placeholder-image.jpg'}
+      style={{ objectFit: 'cover', borderRadius: 4 }} />
+
+
+  },
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    filteredValue: searchText ? [searchText] : null,
+    onFilter: (value, record) =>
+    record.name.toLowerCase().includes(value.toString().toLowerCase())
+  },
+  {
+    title: 'Category',
+    dataIndex: 'category',
+    key: 'category',
+    filters: categories.map((cat) => ({ text: cat, value: cat })),
+    onFilter: (value, record) => record.category === value
+  },
+  {
+    title: 'Brand',
+    dataIndex: 'brand',
+    key: 'brand',
+    filters: brands.map((brand) => ({ text: brand, value: brand })),
+    onFilter: (value, record) => record.brand === value
+  },
+  {
+    title: 'Price',
+    dataIndex: 'price',
+    key: 'price',
+    render: (price: number) => `$${price.toFixed(2)}`,
+    sorter: (a, b) => a.price - b.price
+  },
+  {
+    title: 'Stock',
+    dataIndex: 'stockQuantity',
+    key: 'stockQuantity',
+    render: (stock: number) =>
+    <Tag color={stock > 10 ? 'green' : stock > 0 ? 'orange' : 'red'}>
           {stock}
-        </Tag>
-      ),
-      sorter: (a, b) => a.stockQuantity - b.stockQuantity,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
+        </Tag>,
+
+    sorter: (a, b) => a.stockQuantity - b.stockQuantity
+  },
+  {
+    title: 'Status',
+    dataIndex: 'isActive',
+    key: 'isActive',
+    render: (isActive: boolean) =>
+    <Tag color={isActive ? 'green' : 'red'}>
           {isActive ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Active', value: true },
-        { text: 'Inactive', value: false },
-      ],
-      onFilter: (value, record) => record.isActive === value,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space>
+        </Tag>,
+
+    filters: [
+    { text: 'Active', value: true },
+    { text: 'Inactive', value: false }],
+
+    onFilter: (value, record) => record.isActive === value
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (_, record) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this product?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this product?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   return (
     <div className="p-6">
@@ -293,8 +293,8 @@ const Products = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
+          onClick={handleAdd}>
+
           Add Product
         </Button>
       </div>
@@ -308,8 +308,8 @@ const Products = () => {
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                onPressEnter={fetchProducts}
-              />
+                onPressEnter={fetchProducts} />
+
             </Col>
             <Col span={6}>
               <Select
@@ -317,11 +317,11 @@ const Products = () => {
                 style={{ width: '100%' }}
                 value={filterCategory}
                 onChange={setFilterCategory}
-                allowClear
-              >
-                {categories.map(cat => (
-                  <Option key={cat} value={cat}>{cat}</Option>
-                ))}
+                allowClear>
+
+                {categories.map((cat) =>
+                <Option key={cat} value={cat}>{cat}</Option>
+                )}
               </Select>
             </Col>
             <Col span={6}>
@@ -330,19 +330,19 @@ const Products = () => {
                 style={{ width: '100%' }}
                 value={filterBrand}
                 onChange={setFilterBrand}
-                allowClear
-              >
-                {brands.map(brand => (
-                  <Option key={brand} value={brand}>{brand}</Option>
-                ))}
+                allowClear>
+
+                {brands.map((brand) =>
+                <Option key={brand} value={brand}>{brand}</Option>
+                )}
               </Select>
             </Col>
             <Col span={4}>
               <Button
                 icon={<FilterOutlined />}
                 onClick={fetchProducts}
-                style={{ width: '100%' }}
-              >
+                style={{ width: '100%' }}>
+
                 Apply Filters
               </Button>
             </Col>
@@ -359,10 +359,10 @@ const Products = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} products`,
+            `${range[0]}-${range[1]} of ${total} products`
           }}
-          scroll={{ x: 1000 }}
-        />
+          scroll={{ x: 1000 }} />
+
       </Card>
 
       <Modal
@@ -370,13 +370,13 @@ const Products = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={800}
-      >
+        width={800}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Tabs defaultActiveKey="basic">
             <TabPane tab="Basic Information" key="basic">
               <Row gutter={16}>
@@ -384,8 +384,8 @@ const Products = () => {
                   <Form.Item
                     name="name"
                     label="Product Name"
-                    rules={[{ required: true, message: 'Please enter product name' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter product name' }]}>
+
                     <Input placeholder="Enter product name" />
                   </Form.Item>
                 </Col>
@@ -393,16 +393,16 @@ const Products = () => {
                   <Form.Item
                     name="price"
                     label="Price"
-                    rules={[{ required: true, message: 'Please enter price' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter price' }]}>
+
                     <InputNumber
                       style={{ width: '100%' }}
                       placeholder="0.00"
                       min={0}
                       step={0.01}
-                      formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '')) as any}
-                    />
+                      formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                      parser={(value) => parseFloat(value!.replace(/\$\s?|(,*)/g, '')) as any} />
+
                   </Form.Item>
                 </Col>
               </Row>
@@ -410,8 +410,8 @@ const Products = () => {
               <Form.Item
                 name="description"
                 label="Description"
-                rules={[{ required: true, message: 'Please enter description' }]}
-              >
+                rules={[{ required: true, message: 'Please enter description' }]}>
+
                 <TextArea rows={4} placeholder="Enter product description" />
               </Form.Item>
 
@@ -420,12 +420,12 @@ const Products = () => {
                   <Form.Item
                     name="category"
                     label="Category"
-                    rules={[{ required: true, message: 'Please select category' }]}
-                  >
+                    rules={[{ required: true, message: 'Please select category' }]}>
+
                     <Select placeholder="Select category">
-                      {categories.map(cat => (
-                        <Option key={cat} value={cat}>{cat}</Option>
-                      ))}
+                      {categories.map((cat) =>
+                      <Option key={cat} value={cat}>{cat}</Option>
+                      )}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -433,12 +433,12 @@ const Products = () => {
                   <Form.Item
                     name="brand"
                     label="Brand"
-                    rules={[{ required: true, message: 'Please select brand' }]}
-                  >
+                    rules={[{ required: true, message: 'Please select brand' }]}>
+
                     <Select placeholder="Select brand">
-                      {brands.map(brand => (
-                        <Option key={brand} value={brand}>{brand}</Option>
-                      ))}
+                      {brands.map((brand) =>
+                      <Option key={brand} value={brand}>{brand}</Option>
+                      )}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -446,13 +446,13 @@ const Products = () => {
                   <Form.Item
                     name="stockQuantity"
                     label="Stock Quantity"
-                    rules={[{ required: true, message: 'Please enter stock quantity' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter stock quantity' }]}>
+
                     <InputNumber
                       style={{ width: '100%' }}
                       placeholder="0"
-                      min={0}
-                    />
+                      min={0} />
+
                   </Form.Item>
                 </Col>
               </Row>
@@ -460,8 +460,8 @@ const Products = () => {
               <Form.Item
                 name="isActive"
                 label="Status"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
               </Form.Item>
             </TabPane>
@@ -471,40 +471,40 @@ const Products = () => {
                 <Upload
                   beforeUpload={handleImageUpload}
                   showUploadList={false}
-                  accept="image/*"
-                >
+                  accept="image/*">
+
                   <Button
                     icon={<UploadOutlined />}
-                    loading={uploading}
-                  >
+                    loading={uploading}>
+
                     Upload Image
                   </Button>
                 </Upload>
               </div>
 
               <div className="grid grid-cols-4 gap-4">
-                {uploadedImages.map((image, index) => (
-                  <div key={index} className="relative">
+                {uploadedImages.map((image, index) =>
+                <div key={index} className="relative">
                     <Image
-                      width={150}
-                      height={150}
-                      src={image}
-                      style={{ objectFit: 'cover', borderRadius: 8 }}
-                    />
+                    width={150}
+                    height={150}
+                    src={image}
+                    style={{ objectFit: 'cover', borderRadius: 8 }} />
+
                     <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => removeImage(index)}
-                      style={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        background: 'rgba(255, 255, 255, 0.8)',
-                      }}
-                    />
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => removeImage(index)}
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      right: 4,
+                      background: 'rgba(255, 255, 255, 0.8)'
+                    }} />
+
                   </div>
-                ))}
+                )}
               </div>
             </TabPane>
           </Tabs>
@@ -521,8 +521,8 @@ const Products = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Products;

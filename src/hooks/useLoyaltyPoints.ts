@@ -41,59 +41,59 @@ interface LoyaltyTier {
 }
 
 const LOYALTY_TIERS: LoyaltyTier[] = [
-  {
-    name: 'Bronze',
-    nameAr: 'برونزي',
-    minPoints: 0,
-    benefits: {
-      earningMultiplier: 1,
-      freeShipping: false,
-      exclusiveAccess: false,
-      birthdayBonus: 50
-    },
-    color: '#CD7F32',
-    icon: '🥉'
+{
+  name: 'Bronze',
+  nameAr: 'برونزي',
+  minPoints: 0,
+  benefits: {
+    earningMultiplier: 1,
+    freeShipping: false,
+    exclusiveAccess: false,
+    birthdayBonus: 50
   },
-  {
-    name: 'Silver',
-    nameAr: 'فضي',
-    minPoints: 500,
-    benefits: {
-      earningMultiplier: 1.2,
-      freeShipping: true,
-      exclusiveAccess: false,
-      birthdayBonus: 100
-    },
-    color: '#C0C0C0',
-    icon: '🥈'
+  color: '#CD7F32',
+  icon: '🥉'
+},
+{
+  name: 'Silver',
+  nameAr: 'فضي',
+  minPoints: 500,
+  benefits: {
+    earningMultiplier: 1.2,
+    freeShipping: true,
+    exclusiveAccess: false,
+    birthdayBonus: 100
   },
-  {
-    name: 'Gold',
-    nameAr: 'ذهبي',
-    minPoints: 1500,
-    benefits: {
-      earningMultiplier: 1.5,
-      freeShipping: true,
-      exclusiveAccess: true,
-      birthdayBonus: 200
-    },
-    color: '#FFD700',
-    icon: '🥇'
+  color: '#C0C0C0',
+  icon: '🥈'
+},
+{
+  name: 'Gold',
+  nameAr: 'ذهبي',
+  minPoints: 1500,
+  benefits: {
+    earningMultiplier: 1.5,
+    freeShipping: true,
+    exclusiveAccess: true,
+    birthdayBonus: 200
   },
-  {
-    name: 'Platinum',
-    nameAr: 'بلاتيني',
-    minPoints: 5000,
-    benefits: {
-      earningMultiplier: 2,
-      freeShipping: true,
-      exclusiveAccess: true,
-      birthdayBonus: 500
-    },
-    color: '#E5E4E2',
-    icon: '💎'
-  }
-];
+  color: '#FFD700',
+  icon: '🥇'
+},
+{
+  name: 'Platinum',
+  nameAr: 'بلاتيني',
+  minPoints: 5000,
+  benefits: {
+    earningMultiplier: 2,
+    freeShipping: true,
+    exclusiveAccess: true,
+    birthdayBonus: 500
+  },
+  color: '#E5E4E2',
+  icon: '💎'
+}];
+
 
 export const useLoyaltyPoints = () => {
   const [loyaltyData, setLoyaltyData] = useState<LoyaltyProgram | null>(null);
@@ -155,49 +155,49 @@ export const useLoyaltyPoints = () => {
 
   const calculatePointsForPurchase = (amount: number): number => {
     if (!loyaltyData) return 0;
-    
+
     const tier = getCurrentTier();
     const basePoints = Math.floor(amount * loyaltyData.rules.earningRate);
     const multipliedPoints = Math.floor(basePoints * tier.benefits.earningMultiplier);
-    
+
     return multipliedPoints;
   };
 
   const getCurrentTier = (): LoyaltyTier => {
     const totalPoints = loyaltyData?.totalPoints || 0;
-    
+
     for (let i = LOYALTY_TIERS.length - 1; i >= 0; i--) {
       if (totalPoints >= LOYALTY_TIERS[i].minPoints) {
         return LOYALTY_TIERS[i];
       }
     }
-    
+
     return LOYALTY_TIERS[0];
   };
 
   const getNextTier = (): LoyaltyTier | null => {
     const currentTier = getCurrentTier();
-    const currentIndex = LOYALTY_TIERS.findIndex(tier => tier.name === currentTier.name);
-    
+    const currentIndex = LOYALTY_TIERS.findIndex((tier) => tier.name === currentTier.name);
+
     if (currentIndex < LOYALTY_TIERS.length - 1) {
       return LOYALTY_TIERS[currentIndex + 1];
     }
-    
+
     return null;
   };
 
   const getPointsToNextTier = (): number => {
     const nextTier = getNextTier();
     if (!nextTier || !loyaltyData) return 0;
-    
+
     return Math.max(0, nextTier.minPoints - loyaltyData.totalPoints);
   };
 
   const canRedeem = (points: number): boolean => {
     if (!loyaltyData) return false;
-    
-    return loyaltyData.availablePoints >= points && 
-           points >= loyaltyData.rules.minRedemption;
+
+    return loyaltyData.availablePoints >= points &&
+    points >= loyaltyData.rules.minRedemption;
   };
 
   const redeemPoints = async (points: number, orderId?: string): Promise<boolean> => {
@@ -270,45 +270,45 @@ export const useLoyaltyPoints = () => {
     if (!loyaltyData) return [];
 
     const options = [
-      {
-        id: 'discount_50',
-        name: '50 EGP Discount',
-        nameAr: 'خصم 50 جنيه',
-        points: 100,
-        value: 50,
-        type: 'discount',
-        available: canRedeem(100)
-      },
-      {
-        id: 'discount_100',
-        name: '100 EGP Discount',
-        nameAr: 'خصم 100 جنيه',
-        points: 200,
-        value: 100,
-        type: 'discount',
-        available: canRedeem(200)
-      },
-      {
-        id: 'free_shipping',
-        name: 'Free Shipping',
-        nameAr: 'شحن مجاني',
-        points: 50,
-        value: 45,
-        type: 'shipping',
-        available: canRedeem(50)
-      },
-      {
-        id: 'discount_250',
-        name: '250 EGP Discount',
-        nameAr: 'خصم 250 جنيه',
-        points: 500,
-        value: 250,
-        type: 'discount',
-        available: canRedeem(500)
-      }
-    ];
+    {
+      id: 'discount_50',
+      name: '50 EGP Discount',
+      nameAr: 'خصم 50 جنيه',
+      points: 100,
+      value: 50,
+      type: 'discount',
+      available: canRedeem(100)
+    },
+    {
+      id: 'discount_100',
+      name: '100 EGP Discount',
+      nameAr: 'خصم 100 جنيه',
+      points: 200,
+      value: 100,
+      type: 'discount',
+      available: canRedeem(200)
+    },
+    {
+      id: 'free_shipping',
+      name: 'Free Shipping',
+      nameAr: 'شحن مجاني',
+      points: 50,
+      value: 45,
+      type: 'shipping',
+      available: canRedeem(50)
+    },
+    {
+      id: 'discount_250',
+      name: '250 EGP Discount',
+      nameAr: 'خصم 250 جنيه',
+      points: 500,
+      value: 250,
+      type: 'discount',
+      available: canRedeem(500)
+    }];
 
-    return options.filter(option => option.available);
+
+    return options.filter((option) => option.available);
   };
 
   const getBirthdayBonus = async (): Promise<void> => {
@@ -357,12 +357,12 @@ export const useLoyaltyPoints = () => {
   const getProgressPercentage = (): number => {
     const nextTier = getNextTier();
     if (!nextTier || !loyaltyData) return 100;
-    
+
     const currentTier = getCurrentTier();
     const currentProgress = loyaltyData.totalPoints - currentTier.minPoints;
     const tierRange = nextTier.minPoints - currentTier.minPoints;
-    
-    return Math.min(100, (currentProgress / tierRange) * 100);
+
+    return Math.min(100, currentProgress / tierRange * 100);
   };
 
   return {

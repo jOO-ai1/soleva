@@ -24,34 +24,34 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ 
-    success: boolean; 
-    message?: string; 
+  login: (email: string, password: string) => Promise<{
+    success: boolean;
+    message?: string;
     errorType?: 'invalid_credentials' | 'account_not_found' | 'account_disabled' | 'email_not_verified' | 'account_locked' | 'rate_limited' | 'captcha_required' | 'network_error';
     retryAfter?: number;
   }>;
-  register: (userData: { name: string; email: string; phoneNumber: string; password: string; password_confirmation: string }) => Promise<{ 
-    success: boolean; 
-    message?: string; 
+  register: (userData: {name: string;email: string;phoneNumber: string;password: string;password_confirmation: string;}) => Promise<{
+    success: boolean;
+    message?: string;
     errorType?: 'email_exists' | 'password_weak' | 'invalid_email' | 'rate_limited' | 'captcha_required' | 'network_error' | 'validation_error';
     errors?: any;
     requiresVerification?: boolean;
   }>;
-  socialLogin: (provider: 'google' | 'facebook', data: Record<string, unknown>) => Promise<{ 
-    success: boolean; 
-    message?: string; 
+  socialLogin: (provider: 'google' | 'facebook', data: Record<string, unknown>) => Promise<{
+    success: boolean;
+    message?: string;
     errorType?: 'account_not_found' | 'account_disabled' | 'rate_limited' | 'network_error' | 'invalid_token' | 'provider_error';
     error?: string;
   }>;
-  forgotPassword: (email: string, phoneNumber: string) => Promise<{ success: boolean; message?: string }>;
-  resetPassword: (token: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
+  forgotPassword: (email: string, phoneNumber: string) => Promise<{success: boolean;message?: string;}>;
+  resetPassword: (token: string, newPassword: string) => Promise<{success: boolean;message?: string;}>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: {children: React.ReactNode;}) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -87,30 +87,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await authApi.login({ email, password });
-      
+
       if (response.success) {
         // Store token and user data
-        const responseData = response.data as { token: string; refreshToken?: string; user: User };
+        const responseData = response.data as {token: string;refreshToken?: string;user: User;};
         safeSetItem('auth_token', responseData.token);
         if (responseData.refreshToken) {
           safeSetItem('refresh_token', responseData.refreshToken);
         }
         safeSetItem('user', JSON.stringify(responseData.user));
-        
+
         setUser(responseData.user);
         setIsAuthenticated(true);
-        
+
         // Show success notification
         showSuccess(
           lang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login Successful',
           t.loginSuccessBanner
         );
-        
+
         return { success: true };
       } else {
         // Enhanced error handling with detailed error types
         let errorType: 'invalid_credentials' | 'account_not_found' | 'account_disabled' | 'email_not_verified' | 'account_locked' | 'rate_limited' | 'captcha_required' | 'network_error' = 'invalid_credentials';
-        
+
         // Check message content for error type determination
         const message = response.message || '';
         if (message.includes('EMAIL_NOT_VERIFIED') || message.includes('email verification')) {
@@ -123,14 +123,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           errorType = 'rate_limited';
         } else if (message.includes('CAPTCHA_REQUIRED') || message.includes('CAPTCHA_FAILED')) {
           errorType = 'captcha_required';
-        } else if (message.toLowerCase().includes('not found') || 
-                   message.toLowerCase().includes('does not exist')) {
+        } else if (message.toLowerCase().includes('not found') ||
+        message.toLowerCase().includes('does not exist')) {
           errorType = 'account_not_found';
-        } else if (message.toLowerCase().includes('disabled') || 
-                   message.toLowerCase().includes('inactive')) {
+        } else if (message.toLowerCase().includes('disabled') ||
+        message.toLowerCase().includes('inactive')) {
           errorType = 'account_disabled';
         }
-        
+
         // Show error notification
         const errorMessages: Record<string, string> = {
           'email_not_verified': t.emailNotVerified,
@@ -139,16 +139,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'account_not_found': t.accountNotFound,
           'rate_limited': t.tooManyAttempts,
           'captcha_required': t.captchaRequired,
-          'network_error': t.networkError,
+          'network_error': t.networkError
         };
-        
+
         showError(
           lang === 'ar' ? 'فشل تسجيل الدخول' : 'Login Failed',
           errorMessages[errorType] || t.invalidPassword
         );
-        
-        return { 
-          success: false, 
+
+        return {
+          success: false,
           message: message || 'Login failed',
           errorType,
           retryAfter: (response as any).retryAfter
@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: unknown) {
       console.error('Login error:', error);
-      
+
       // Handle different types of errors
       if (error && typeof error === 'object' && 'status' in error) {
         const apiError = error as any;
@@ -183,24 +183,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
         }
       }
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
       showError(
         lang === 'ar' ? 'فشل تسجيل الدخول' : 'Login Failed',
         t.invalidPassword
       );
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: errorMessage,
         errorType: 'invalid_credentials' as const
       };
     }
   };
 
-  const register = async (userData: { name: string; email: string; phoneNumber: string; password: string; password_confirmation: string }) => {
+  const register = async (userData: {name: string;email: string;phoneNumber: string;password: string;password_confirmation: string;}) => {
     try {
       const response = await authApi.register(userData);
-      
+
       if (response.success) {
         // Check if email verification is required
         const responseData = response.data as any;
@@ -209,32 +209,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             lang === 'ar' ? 'تم التسجيل بنجاح' : 'Registration Successful',
             lang === 'ar' ? 'يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك' : 'Please check your email to verify your account'
           );
-          return { 
-            success: true, 
+          return {
+            success: true,
             requiresVerification: true,
             message: response.message || 'Please check your email to verify your account'
           };
         }
-        
+
         // Store token and user data (if no verification required)
         if (responseData?.token) {
           safeSetItem('auth_token', responseData.token);
           safeSetItem('user', JSON.stringify(responseData.user));
-          
+
           setUser(responseData.user);
           setIsAuthenticated(true);
         }
-        
+
         showSuccess(
           lang === 'ar' ? 'تم التسجيل بنجاح' : 'Registration Successful',
           t.registrationSuccess
         );
-        
+
         return { success: true };
       } else {
         // Enhanced error handling for registration
         let errorType: 'email_exists' | 'password_weak' | 'invalid_email' | 'rate_limited' | 'captcha_required' | 'network_error' | 'validation_error' = 'validation_error';
-        
+
         const message = response.message || '';
         if (message.includes('EMAIL_ALREADY_EXISTS') || message.includes('already exists')) {
           errorType = 'email_exists';
@@ -247,15 +247,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (message.includes('CAPTCHA_REQUIRED') || message.includes('CAPTCHA_FAILED')) {
           errorType = 'captcha_required';
         }
-        
+
         // Show error notification
         showError(
           lang === 'ar' ? 'فشل التسجيل' : 'Registration Failed',
           t.registrationFailed
         );
-        
-        return { 
-          success: false, 
+
+        return {
+          success: false,
           message: message || 'Registration failed',
           errorType,
           errors: (response as any).errors
@@ -263,7 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: unknown) {
       console.error('Registration error:', error);
-      
+
       // Handle different types of errors
       if (error && typeof error === 'object' && 'status' in error) {
         const apiError = error as any;
@@ -281,10 +281,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
         }
       }
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: errorMessage,
         errorType: 'validation_error' as const
       };
@@ -297,26 +297,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch(`${API_CONFIG.BASE_URL}/auth${endpoint}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         // Store token and user data
         safeSetItem('auth_token', result.token);
         safeSetItem('user', JSON.stringify(result.user));
-        
+
         setUser(result.user);
         setIsAuthenticated(true);
-        
+
         return { success: true };
       } else {
         // Enhanced error handling for social login
         let errorType: 'account_not_found' | 'account_disabled' | 'rate_limited' | 'network_error' | 'invalid_token' | 'provider_error' = 'provider_error';
-        
+
         const message = result.message || '';
         if (message.toLowerCase().includes('not found') || message.toLowerCase().includes('does not exist')) {
           errorType = 'account_not_found';
@@ -327,9 +327,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (message.includes('INVALID_TOKEN') || message.includes('invalid token')) {
           errorType = 'invalid_token';
         }
-        
-        return { 
-          success: false, 
+
+        return {
+          success: false,
           message: message || `${provider} login failed`,
           errorType,
           error: result.error
@@ -337,7 +337,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: unknown) {
       console.error(`${provider} login error:`, error);
-      
+
       // Handle different types of errors
       if (error && typeof error === 'object' && 'status' in error) {
         const apiError = error as any;
@@ -355,10 +355,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
         }
       }
-      
+
       const errorMessage = error instanceof Error ? error.message : `${provider} login failed. Please try again.`;
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: errorMessage,
         errorType: 'network_error' as const
       };
@@ -393,7 +393,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       safeRemoveItem('refresh_token');
       setUser(null);
       setIsAuthenticated(false);
-      
+
       // Show logout success notification
       showSuccess(
         lang === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Logout Successful',
@@ -410,10 +410,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         safeSetItem('user', JSON.stringify(response.data));
       }
     } catch (error) {
-      // Failed to refresh user data
-    }
-  };
 
+
+      // Failed to refresh user data
+    }};
   const forgotPassword = async (email: string, phoneNumber: string) => {
     try {
       const response = await authApi.forgotPassword({ email, phoneNumber });
@@ -443,23 +443,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
   };
-  
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      loading, 
-      login, 
-      register, 
-      socialLogin, 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated,
+      loading,
+      login,
+      register,
+      socialLogin,
       forgotPassword,
       resetPassword,
-      logout, 
-      refreshUser 
+      logout,
+      refreshUser
     }}>
       {children}
-    </AuthContext.Provider>
-  );
+    </AuthContext.Provider>);
+
 }
 
 export function useAuth() {

@@ -14,8 +14,8 @@ import {
   Badge,
   Modal,
   Form,
-  message,
-} from 'antd';
+  message } from
+'antd';
 import {
   SendOutlined,
   UserOutlined,
@@ -23,8 +23,8 @@ import {
   SearchOutlined,
   FilterOutlined,
   MessageOutlined,
-  ClockCircleOutlined,
-} from '@ant-design/icons';
+  ClockCircleOutlined } from
+'@ant-design/icons';
 import { chatAPI } from '../services/api';
 import type { Conversation } from '../types/api';
 
@@ -53,9 +53,9 @@ const Chat: React.FC = () => {
     try {
       setLoading(true);
       const response = await chatAPI.getConversations({
-        status: filterStatus,
+        status: filterStatus
       });
-      
+
       if (response.success && response.data) {
         setConversations(response.data);
       }
@@ -112,7 +112,7 @@ const Chat: React.FC = () => {
         message.success('Status updated successfully');
         fetchConversations();
         if (selectedConversation?.id === conversationId) {
-          setSelectedConversation(prev => prev ? { ...prev, status: status as 'active' | 'resolved' | 'pending' } : null);
+          setSelectedConversation((prev) => prev ? { ...prev, status: status as 'active' | 'resolved' | 'pending' } : null);
         }
       } else {
         message.error('Failed to update status');
@@ -129,13 +129,13 @@ const Chat: React.FC = () => {
       // This would integrate with your AI service
       // For now, we'll simulate an AI response
       const aiResponse = `AI Assistant: Based on your query "${aiPrompt}", here's what I recommend...`;
-      
+
       if (selectedConversation) {
         await chatAPI.sendMessage(selectedConversation.id, aiResponse);
         handleSelectConversation(selectedConversation.id);
         fetchConversations();
       }
-      
+
       setAiModalVisible(false);
       setAiPrompt('');
       message.success('AI response sent successfully');
@@ -145,18 +145,18 @@ const Chat: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    const colors: { [key: string]: string } = {
+    const colors: {[key: string]: string;} = {
       active: 'green',
       pending: 'orange',
-      resolved: 'blue',
+      resolved: 'blue'
     };
     return colors[status] || 'default';
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -167,8 +167,8 @@ const Chat: React.FC = () => {
         <Button
           type="primary"
           icon={<RobotOutlined />}
-          onClick={() => setAiModalVisible(true)}
-        >
+          onClick={() => setAiModalVisible(true)}>
+
           AI Assistant
         </Button>
       </div>
@@ -179,67 +179,67 @@ const Chat: React.FC = () => {
           <Card
             title="Conversations"
             extra={
-              <Space>
+            <Space>
                 <Input
-                  placeholder="Search conversations..."
-                  prefix={<SearchOutlined />}
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  size="small"
-                />
+                placeholder="Search conversations..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                size="small" />
+
                 <Select
-                  placeholder="Status"
-                  value={filterStatus}
-                  onChange={setFilterStatus}
-                  size="small"
-                  style={{ width: 100 }}
-                >
+                placeholder="Status"
+                value={filterStatus}
+                onChange={setFilterStatus}
+                size="small"
+                style={{ width: 100 }}>
+
                   <Option value="">All</Option>
                   <Option value="active">Active</Option>
                   <Option value="pending">Pending</Option>
                   <Option value="resolved">Resolved</Option>
                 </Select>
                 <Button
-                  icon={<FilterOutlined />}
-                  onClick={fetchConversations}
-                  size="small"
-                />
+                icon={<FilterOutlined />}
+                onClick={fetchConversations}
+                size="small" />
+
               </Space>
             }
             style={{ height: '100%' }}
-            bodyStyle={{ padding: 0, height: 'calc(100% - 57px)', overflow: 'auto' }}
-          >
+            bodyStyle={{ padding: 0, height: 'calc(100% - 57px)', overflow: 'auto' }}>
+
             <List
-              dataSource={conversations.filter(conv => 
-                conv.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
-                conv.customerEmail.toLowerCase().includes(searchText.toLowerCase())
+              dataSource={conversations.filter((conv) =>
+              conv.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+              conv.customerEmail.toLowerCase().includes(searchText.toLowerCase())
               )}
               loading={loading}
-              renderItem={(conversation) => (
-                <List.Item
-                  onClick={() => handleSelectConversation(conversation.id)}
-                  style={{
-                    cursor: 'pointer',
-                    backgroundColor: selectedConversation?.id === conversation.id ? '#f0f0f0' : 'transparent',
-                    padding: '12px 16px',
-                  }}
-                >
+              renderItem={(conversation) =>
+              <List.Item
+                onClick={() => handleSelectConversation(conversation.id)}
+                style={{
+                  cursor: 'pointer',
+                  backgroundColor: selectedConversation?.id === conversation.id ? '#f0f0f0' : 'transparent',
+                  padding: '12px 16px'
+                }}>
+
                   <List.Item.Meta
-                    avatar={
-                      <Badge count={conversation.unreadCount} size="small">
+                  avatar={
+                  <Badge count={conversation.unreadCount} size="small">
                         <Avatar icon={<UserOutlined />} />
                       </Badge>
-                    }
-                    title={
-                      <div className="flex justify-between items-center">
+                  }
+                  title={
+                  <div className="flex justify-between items-center">
                         <span>{conversation.customerName}</span>
                         <Tag color={getStatusColor(conversation.status)}>
                           {conversation.status}
                         </Tag>
                       </div>
-                    }
-                    description={
-                      <div>
+                  }
+                  description={
+                  <div>
                         <div className="text-sm text-gray-500 truncate">
                           {conversation.lastMessage}
                         </div>
@@ -247,20 +247,20 @@ const Chat: React.FC = () => {
                           <ClockCircleOutlined /> {formatTime(conversation.lastMessageTime)}
                         </div>
                       </div>
-                    }
-                  />
+                  } />
+
                 </List.Item>
-              )}
-            />
+              } />
+
           </Card>
         </Col>
 
         {/* Chat Area */}
         <Col span={16}>
-          {selectedConversation ? (
-            <Card
-              title={
-                <div className="flex justify-between items-center">
+          {selectedConversation ?
+          <Card
+            title={
+            <div className="flex justify-between items-center">
                   <div>
                     <Title level={4} style={{ margin: 0 }}>
                       {selectedConversation.customerName}
@@ -269,68 +269,68 @@ const Chat: React.FC = () => {
                   </div>
                   <Space>
                     <Select
-                      value={selectedConversation.status}
-                      onChange={(value) => handleUpdateStatus(selectedConversation.id, value)}
-                      size="small"
-                    >
+                  value={selectedConversation.status}
+                  onChange={(value) => handleUpdateStatus(selectedConversation.id, value)}
+                  size="small">
+
                       <Option value="active">Active</Option>
                       <Option value="pending">Pending</Option>
                       <Option value="resolved">Resolved</Option>
                     </Select>
                   </Space>
                 </div>
-              }
-              style={{ height: '100%' }}
-              bodyStyle={{ 
-                padding: 0, 
-                height: 'calc(100% - 57px)', 
-                display: 'flex', 
-                flexDirection: 'column' 
-              }}
-            >
+            }
+            style={{ height: '100%' }}
+            bodyStyle={{
+              padding: 0,
+              height: 'calc(100% - 57px)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+
               {/* Messages */}
-              <div style={{ 
-                flex: 1, 
-                overflow: 'auto', 
-                padding: '16px',
-                maxHeight: 'calc(100% - 80px)'
-              }}>
-                {selectedConversation.messages.map((message) => (
-                  <div
-                    key={message.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: message.sender === 'admin' ? 'flex-end' : 'flex-start',
-                      marginBottom: '12px',
-                    }}
-                  >
+              <div style={{
+              flex: 1,
+              overflow: 'auto',
+              padding: '16px',
+              maxHeight: 'calc(100% - 80px)'
+            }}>
+                {selectedConversation.messages.map((message) =>
+              <div
+                key={message.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: message.sender === 'admin' ? 'flex-end' : 'flex-start',
+                  marginBottom: '12px'
+                }}>
+
                     <div
-                      style={{
-                        maxWidth: '70%',
-                        display: 'flex',
-                        flexDirection: message.sender === 'admin' ? 'row-reverse' : 'row',
-                        alignItems: 'flex-start',
-                        gap: '8px',
-                      }}
-                    >
+                  style={{
+                    maxWidth: '70%',
+                    display: 'flex',
+                    flexDirection: message.sender === 'admin' ? 'row-reverse' : 'row',
+                    alignItems: 'flex-start',
+                    gap: '8px'
+                  }}>
+
                       <Avatar
-                        icon={message.sender === 'admin' ? <UserOutlined /> : <RobotOutlined />}
-                        size="small"
-                      />
+                    icon={message.sender === 'admin' ? <UserOutlined /> : <RobotOutlined />}
+                    size="small" />
+
                       <div
-                        style={{
-                          backgroundColor: message.sender === 'admin' ? '#1890ff' : '#f0f0f0',
-                          color: message.sender === 'admin' ? 'white' : 'black',
-                          padding: '8px 12px',
-                          borderRadius: '12px',
-                          fontSize: '14px',
-                        }}
-                      >
+                    style={{
+                      backgroundColor: message.sender === 'admin' ? '#1890ff' : '#f0f0f0',
+                      color: message.sender === 'admin' ? 'white' : 'black',
+                      padding: '8px 12px',
+                      borderRadius: '12px',
+                      fontSize: '14px'
+                    }}>
+
                         {message.content}
                       </div>
                     </div>
                   </div>
-                ))}
+              )}
                 <div ref={messagesEndRef} />
               </div>
 
@@ -338,37 +338,37 @@ const Chat: React.FC = () => {
               <div style={{ padding: '16px', borderTop: '1px solid #f0f0f0' }}>
                 <Space.Compact style={{ width: '100%' }}>
                   <TextArea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    autoSize={{ minRows: 1, maxRows: 3 }}
-                    onPressEnter={(e) => {
-                      if (!e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                  />
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type your message..."
+                  autoSize={{ minRows: 1, maxRows: 3 }}
+                  onPressEnter={(e) => {
+                    if (!e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }} />
+
                   <Button
-                    type="primary"
-                    icon={<SendOutlined />}
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim()}
-                  >
+                  type="primary"
+                  icon={<SendOutlined />}
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim()}>
+
                     Send
                   </Button>
                 </Space.Compact>
               </div>
-            </Card>
-          ) : (
-            <Card style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            </Card> :
+
+          <Card style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div className="text-center">
                 <MessageOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
                 <Title level={4} type="secondary">Select a conversation to start chatting</Title>
                 <Text type="secondary">Choose a conversation from the list to view messages and respond to customers.</Text>
               </div>
             </Card>
-          )}
+          }
         </Col>
       </Row>
 
@@ -377,16 +377,16 @@ const Chat: React.FC = () => {
         title="AI Assistant"
         open={aiModalVisible}
         onCancel={() => setAiModalVisible(false)}
-        footer={null}
-      >
+        footer={null}>
+
         <Form layout="vertical">
           <Form.Item label="AI Prompt">
             <TextArea
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               placeholder="Describe what you need help with..."
-              rows={4}
-            />
+              rows={4} />
+
           </Form.Item>
           
           <div className="flex justify-end space-x-2">
@@ -396,15 +396,15 @@ const Chat: React.FC = () => {
             <Button
               type="primary"
               onClick={handleAIAssist}
-              disabled={!aiPrompt.trim() || !selectedConversation}
-            >
+              disabled={!aiPrompt.trim() || !selectedConversation}>
+
               Send AI Response
             </Button>
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Chat;

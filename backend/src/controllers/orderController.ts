@@ -89,8 +89,8 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
 
   // Verify address belongs to user
   const address = await prisma.address.findFirst({
-    where: { 
-      id: addressId, 
+    where: {
+      id: addressId,
       userId,
       isActive: true
     }
@@ -107,17 +107,17 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
   for (const item of cartItems) {
     const product = item.product;
     const variant = item.variant;
-    
+
     // Check stock availability
     const availableStock = variant ? variant.stockQuantity : product.stockQuantity;
     if (availableStock < item.quantity) {
       throw new ValidationError(`Insufficient stock for ${product.name}`);
     }
 
-    const unitPrice = variant 
-      ? Number(product.basePrice) + Number(variant.priceDelta)
-      : Number(product.basePrice);
-    
+    const unitPrice = variant ?
+    Number(product.basePrice) + Number(variant.priceDelta) :
+    Number(product.basePrice);
+
     const totalPrice = unitPrice * item.quantity;
     subtotal += totalPrice;
 
@@ -153,17 +153,17 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
         isActive: true,
         validFrom: { lte: new Date() },
         OR: [
-          { validTo: null },
-          { validTo: { gte: new Date() } }
-        ],
+        { validTo: null },
+        { validTo: { gte: new Date() } }],
+
         AND: [
-          {
-            OR: [
-              { usageLimit: null },
-              { usageCount: { lt: prisma.coupon.fields.usageLimit } }
-            ]
-          }
-        ]
+        {
+          OR: [
+          { usageLimit: null },
+          { usageCount: { lt: prisma.coupon.fields.usageLimit } }]
+
+        }]
+
       }
     });
 
@@ -178,7 +178,7 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
 
     // Calculate discount
     if (couponData.type === 'PERCENTAGE') {
-      discountAmount = (subtotal * Number(couponData.value)) / 100;
+      discountAmount = subtotal * Number(couponData.value) / 100;
       if (couponData.maxDiscount) {
         discountAmount = Math.min(discountAmount, Number(couponData.maxDiscount));
       }
@@ -350,34 +350,34 @@ export const getUserOrders = asyncHandler(async (req: AuthenticatedRequest, res:
   const userId = req.user!.id;
 
   const [orders, total] = await Promise.all([
-    prisma.order.findMany({
-      where: { userId },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                images: true
-              }
-            },
-            variant: {
-              select: {
-                color: true,
-                size: true
-              }
+  prisma.order.findMany({
+    where: { userId },
+    include: {
+      items: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              images: true
+            }
+          },
+          variant: {
+            select: {
+              color: true,
+              size: true
             }
           }
-        },
-        address: true
+        }
       },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit
-    }),
-    prisma.order.count({ where: { userId } })
-  ]);
+      address: true
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: limit
+  }),
+  prisma.order.count({ where: { userId } })]
+  );
 
   res.json({
     success: true,
@@ -417,9 +417,9 @@ export const getOrderById = asyncHandler(async (req: AuthenticatedRequest, res: 
   const userId = req.user!.id;
 
   const order = await prisma.order.findFirst({
-    where: { 
-      id: id || '', 
-      userId 
+    where: {
+      id: id || '',
+      userId
     },
     include: {
       items: {
@@ -501,8 +501,8 @@ export const uploadPaymentProof = asyncHandler(async (req: AuthenticatedRequest,
   }
 
   const order = await prisma.order.findFirst({
-    where: { 
-      id: id || '', 
+    where: {
+      id: id || '',
       userId,
       paymentMethod: { in: ['BANK_WALLET', 'DIGITAL_WALLET'] },
       paymentStatus: { in: ['AWAITING_PROOF', 'UNDER_REVIEW'] }
@@ -590,8 +590,8 @@ export const cancelOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
   const userId = req.user!.id;
 
   const order = await prisma.order.findFirst({
-    where: { 
-      id: id || '', 
+    where: {
+      id: id || '',
       userId,
       orderStatus: { in: ['PENDING', 'CONFIRMED'] }
     },
@@ -680,10 +680,10 @@ export const updateOrderStatus = asyncHandler(async (req: AuthenticatedRequest, 
   const { id } = req.params;
   const rawUpdateData = updateOrderStatusSchema.parse(req.body);
   const adminId = req.user!.id;
-  
+
   // Filter out undefined values
   const updateData: any = {};
-  Object.keys(rawUpdateData).forEach(key => {
+  Object.keys(rawUpdateData).forEach((key) => {
     if ((rawUpdateData as any)[key] !== undefined) {
       updateData[key] = (rawUpdateData as any)[key];
     }

@@ -8,7 +8,7 @@ import GlassButton from './GlassButton';
 
 interface GovernorateData {
   id: string;
-  name: { ar: string; en: string };
+  name: {ar: string;en: string;};
   code: string;
   shippingCost: number;
   centers: CenterData[];
@@ -16,7 +16,7 @@ interface GovernorateData {
 
 interface CenterData {
   id: string;
-  name: { ar: string; en: string };
+  name: {ar: string;en: string;};
   code: string;
   shippingCost?: number;
   villages: VillageData[];
@@ -24,7 +24,7 @@ interface CenterData {
 
 interface VillageData {
   id: string;
-  name: { ar: string; en: string };
+  name: {ar: string;en: string;};
   code: string;
   type: 'KAFR' | 'EZBA' | 'SHEIKH' | 'VILLAGE';
   shippingCost?: number;
@@ -94,7 +94,7 @@ const ShippingAddressForm = ({
       setLoadingData(true);
       const response = await fetch('/api/v1/shipping/governorates');
       const data = await response.json();
-      
+
       if (data.success) {
         setGovernorates(data.data);
       }
@@ -111,7 +111,7 @@ const ShippingAddressForm = ({
       setLoadingData(true);
       const response = await fetch(`/api/v1/shipping/centers?governorateId=${governorateId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setCenters(data.data);
       }
@@ -128,7 +128,7 @@ const ShippingAddressForm = ({
       setLoadingData(true);
       const response = await fetch(`/api/v1/shipping/villages?centerId=${centerId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setVillages(data.data);
       }
@@ -145,13 +145,13 @@ const ShippingAddressForm = ({
       setShippingCost(0);
       return;
     }
-    
+
     const governorate = governorates.find((g: GovernorateData) => g.id === formData.governorateId);
     if (!governorate) {
       setShippingCost(0);
       return;
     }
-    
+
     if (formData.centerId) {
       const center = governorate.centers.find((c: CenterData) => c.id === formData.centerId);
       if (center && center.shippingCost !== undefined) {
@@ -159,7 +159,7 @@ const ShippingAddressForm = ({
         return;
       }
     }
-    
+
     if (formData.villageId && formData.centerId) {
       const center = governorate.centers.find((c: CenterData) => c.id === formData.centerId);
       if (center) {
@@ -170,7 +170,7 @@ const ShippingAddressForm = ({
         }
       }
     }
-    
+
     setShippingCost(governorate.shippingCost);
   };
 
@@ -243,7 +243,7 @@ const ShippingAddressForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       showToast(
         lang === 'ar' ? 'يرجى تصحيح الأخطاء في النموذج' : 'Please correct the errors in the form'
@@ -260,7 +260,7 @@ const ShippingAddressForm = ({
 
   const handleInputChange = (field: keyof AddressFormData, value: string | boolean) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: '' }));
@@ -274,8 +274,8 @@ const ShippingAddressForm = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="shipping-address-form"
-    >
+      className="shipping-address-form">
+
       {/* Recipient Information */}
       <div className="form-section">
         <h3 className="section-title">
@@ -294,8 +294,8 @@ const ShippingAddressForm = ({
               className={`form-input ${errors.recipientName ? 'error' : ''}`}
               value={formData.recipientName}
               onChange={(e) => handleInputChange('recipientName', e.target.value)}
-              placeholder={lang === 'ar' ? 'أدخل اسم المستلم' : 'Enter recipient name'}
-            />
+              placeholder={lang === 'ar' ? 'أدخل اسم المستلم' : 'Enter recipient name'} />
+
             {errors.recipientName && <span className="error-text">{errors.recipientName}</span>}
           </div>
 
@@ -309,8 +309,8 @@ const ShippingAddressForm = ({
               className={`form-input ${errors.phone ? 'error' : ''}`}
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder={lang === 'ar' ? '01xxxxxxxxx' : '01xxxxxxxxx'}
-            />
+              placeholder={lang === 'ar' ? '01xxxxxxxxx' : '01xxxxxxxxx'} />
+
             {errors.phone && <span className="error-text">{errors.phone}</span>}
           </div>
 
@@ -324,8 +324,8 @@ const ShippingAddressForm = ({
               className={`form-input ${errors.secondaryPhone ? 'error' : ''}`}
               value={formData.secondaryPhone}
               onChange={(e) => handleInputChange('secondaryPhone', e.target.value)}
-              placeholder={lang === 'ar' ? '01xxxxxxxxx' : '01xxxxxxxxx'}
-            />
+              placeholder={lang === 'ar' ? '01xxxxxxxxx' : '01xxxxxxxxx'} />
+
             {errors.secondaryPhone && <span className="error-text">{errors.secondaryPhone}</span>}
           </div>
         </div>
@@ -348,19 +348,19 @@ const ShippingAddressForm = ({
               className={`form-input ${errors.governorateId ? 'error' : ''}`}
               value={formData.governorateId}
               onChange={(e) => handleInputChange('governorateId', e.target.value)}
-              disabled={loadingData}
-            >
+              disabled={loadingData}>
+
               <option value="">
-                {loadingData 
-                  ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...')
-                  : (lang === 'ar' ? 'اختر المحافظة' : 'Select Governorate')
+                {loadingData ?
+                lang === 'ar' ? 'جاري التحميل...' : 'Loading...' :
+                lang === 'ar' ? 'اختر المحافظة' : 'Select Governorate'
                 }
               </option>
-              {governorates.map((gov: GovernorateData) => (
-                <option key={gov.id} value={gov.id}>
+              {governorates.map((gov: GovernorateData) =>
+              <option key={gov.id} value={gov.id}>
                   {(gov.name as any)[lang]} - {gov.shippingCost} {lang === 'ar' ? 'ج.م' : 'EGP'}
                 </option>
-              ))}
+              )}
             </select>
             {errors.governorateId && <span className="error-text">{errors.governorateId}</span>}
           </div>
@@ -374,20 +374,20 @@ const ShippingAddressForm = ({
               className={`form-input ${errors.centerId ? 'error' : ''}`}
               value={formData.centerId}
               onChange={(e) => handleInputChange('centerId', e.target.value)}
-              disabled={!formData.governorateId || centers.length === 0}
-            >
+              disabled={!formData.governorateId || centers.length === 0}>
+
               <option value="">
-                {!formData.governorateId 
-                  ? (lang === 'ar' ? 'اختر المحافظة أولاً' : 'Select governorate first')
-                  : (lang === 'ar' ? 'اختر المركز' : 'Select Center')
+                {!formData.governorateId ?
+                lang === 'ar' ? 'اختر المحافظة أولاً' : 'Select governorate first' :
+                lang === 'ar' ? 'اختر المركز' : 'Select Center'
                 }
               </option>
-              {centers.map((center: CenterData) => (
-                <option key={center.id} value={center.id}>
+              {centers.map((center: CenterData) =>
+              <option key={center.id} value={center.id}>
                   {(center.name as any)[lang]}
                   {center.shippingCost && ` - ${center.shippingCost} ${lang === 'ar' ? 'ج.م' : 'EGP'}`}
                 </option>
-              ))}
+              )}
             </select>
             {errors.centerId && <span className="error-text">{errors.centerId}</span>}
           </div>
@@ -401,27 +401,27 @@ const ShippingAddressForm = ({
               className="form-input"
               value={formData.villageId}
               onChange={(e) => handleInputChange('villageId', e.target.value)}
-              disabled={!formData.centerId || villages.length === 0}
-            >
+              disabled={!formData.centerId || villages.length === 0}>
+
               <option value="">
-                {!formData.centerId 
-                  ? (lang === 'ar' ? 'اختر المركز أولاً' : 'Select center first')
-                  : (lang === 'ar' ? 'اختر القرية (اختياري)' : 'Select Village (Optional)')
+                {!formData.centerId ?
+                lang === 'ar' ? 'اختر المركز أولاً' : 'Select center first' :
+                lang === 'ar' ? 'اختر القرية (اختياري)' : 'Select Village (Optional)'
                 }
               </option>
-              {villages.map((village: VillageData) => (
-                <option key={village.id} value={village.id}>
+              {villages.map((village: VillageData) =>
+              <option key={village.id} value={village.id}>
                   {(village.name as any)[lang]} ({village.type})
                   {village.shippingCost && ` - ${village.shippingCost} ${lang === 'ar' ? 'ج.م' : 'EGP'}`}
                 </option>
-              ))}
+              )}
             </select>
           </div>
         </div>
 
         {/* Shipping Cost Display */}
-        {shippingCost > 0 && (
-          <div className="shipping-cost-display">
+        {shippingCost > 0 &&
+        <div className="shipping-cost-display">
             <FiInfo />
             <span>
               {lang === 'ar' ? 'تكلفة الشحن:' : 'Shipping Cost:'} <strong>{shippingCost} {lang === 'ar' ? 'ج.م' : 'EGP'}</strong>
@@ -430,7 +430,7 @@ const ShippingAddressForm = ({
               {lang === 'ar' ? 'شحن مجاني للطلبات فوق 500 ج.م' : 'Free shipping on orders over 500 EGP'}
             </small>
           </div>
-        )}
+        }
       </div>
 
       {/* Detailed Address */}
@@ -451,8 +451,8 @@ const ShippingAddressForm = ({
               className={`form-input ${errors.street ? 'error' : ''}`}
               value={formData.street}
               onChange={(e) => handleInputChange('street', e.target.value)}
-              placeholder={lang === 'ar' ? 'اسم الشارع' : 'Street name'}
-            />
+              placeholder={lang === 'ar' ? 'اسم الشارع' : 'Street name'} />
+
             {errors.street && <span className="error-text">{errors.street}</span>}
           </div>
 
@@ -466,8 +466,8 @@ const ShippingAddressForm = ({
               className="form-input"
               value={formData.building}
               onChange={(e) => handleInputChange('building', e.target.value)}
-              placeholder={lang === 'ar' ? 'رقم المبنى' : 'Building number'}
-            />
+              placeholder={lang === 'ar' ? 'رقم المبنى' : 'Building number'} />
+
           </div>
 
           <div className="form-group">
@@ -480,8 +480,8 @@ const ShippingAddressForm = ({
               className="form-input"
               value={formData.floor}
               onChange={(e) => handleInputChange('floor', e.target.value)}
-              placeholder={lang === 'ar' ? 'رقم الدور' : 'Floor number'}
-            />
+              placeholder={lang === 'ar' ? 'رقم الدور' : 'Floor number'} />
+
           </div>
 
           <div className="form-group">
@@ -494,8 +494,8 @@ const ShippingAddressForm = ({
               className="form-input"
               value={formData.apartment}
               onChange={(e) => handleInputChange('apartment', e.target.value)}
-              placeholder={lang === 'ar' ? 'رقم الشقة' : 'Apartment number'}
-            />
+              placeholder={lang === 'ar' ? 'رقم الشقة' : 'Apartment number'} />
+
           </div>
 
           <div className="form-group">
@@ -508,8 +508,8 @@ const ShippingAddressForm = ({
               className="form-input"
               value={formData.landmark}
               onChange={(e) => handleInputChange('landmark', e.target.value)}
-              placeholder={lang === 'ar' ? 'مثل: بجوار مسجد النور' : 'e.g., Near Al Noor Mosque'}
-            />
+              placeholder={lang === 'ar' ? 'مثل: بجوار مسجد النور' : 'e.g., Near Al Noor Mosque'} />
+
           </div>
 
           <div className="form-group">
@@ -522,8 +522,8 @@ const ShippingAddressForm = ({
               className="form-input"
               value={formData.postalCode}
               onChange={(e) => handleInputChange('postalCode', e.target.value)}
-              placeholder={lang === 'ar' ? 'الرمز البريدي' : 'Postal code'}
-            />
+              placeholder={lang === 'ar' ? 'الرمز البريدي' : 'Postal code'} />
+
           </div>
 
           <div className="form-group full-width">
@@ -536,11 +536,11 @@ const ShippingAddressForm = ({
               rows={3}
               value={formData.instructions}
               onChange={(e) => handleInputChange('instructions', e.target.value)}
-              placeholder={lang === 'ar' 
-                ? 'تعليمات إضافية للمندوب (مثل: اتصل قبل الوصول)' 
-                : 'Additional instructions for delivery (e.g., call before arrival)'
-              }
-            />
+              placeholder={lang === 'ar' ?
+              'تعليمات إضافية للمندوب (مثل: اتصل قبل الوصول)' :
+              'Additional instructions for delivery (e.g., call before arrival)'
+              } />
+
           </div>
         </div>
       </div>
@@ -551,8 +551,8 @@ const ShippingAddressForm = ({
           <input
             type="checkbox"
             checked={formData.isDefault}
-            onChange={(e) => handleInputChange('isDefault', e.target.checked)}
-          />
+            onChange={(e) => handleInputChange('isDefault', e.target.checked)} />
+
           <span className="checkbox-text">
             {lang === 'ar' ? 'جعل هذا العنوان الافتراضي' : 'Make this my default address'}
           </span>
@@ -561,25 +561,25 @@ const ShippingAddressForm = ({
 
       {/* Form Actions */}
       <div className="form-actions">
-        {onCancel && (
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={onCancel}
-            disabled={loading}
-          >
+        {onCancel &&
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onCancel}
+          disabled={loading}>
+
             {lang === 'ar' ? 'إلغاء' : 'Cancel'}
           </button>
-        )}
+        }
         
         <GlassButton
           variant="primary"
           loading={loading}
-          className="submit-button"
-        >
-          {loading 
-            ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...')
-            : (lang === 'ar' ? 'حفظ العنوان' : 'Save Address')
+          className="submit-button">
+
+          {loading ?
+          lang === 'ar' ? 'جاري الحفظ...' : 'Saving...' :
+          lang === 'ar' ? 'حفظ العنوان' : 'Save Address'
           }
         </GlassButton>
       </div>
@@ -726,8 +726,8 @@ const ShippingAddressForm = ({
           }
         }
       `}</style>
-    </motion.form>
-  );
+    </motion.form>);
+
 };
 
 export default ShippingAddressForm;

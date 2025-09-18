@@ -37,17 +37,17 @@ const loadGoogleScript = (): Promise<void> => {
  * @param onError - Optional callback when revocation fails
  */
 export const revokeGoogleConsent = async (
-  email: string,
-  onSuccess?: () => void,
-  onError?: (error: Error) => void
-): Promise<void> => {
+email: string,
+onSuccess?: () => void,
+onError?: (error: Error) => void)
+: Promise<void> => {
   try {
     // Check if Google Client ID is configured
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!googleClientId) {
       throw new Error('Google Client ID not configured');
     }
-    
+
     // Load Google Identity Services if not already loaded
     if (!window.google) {
       await loadGoogleScript();

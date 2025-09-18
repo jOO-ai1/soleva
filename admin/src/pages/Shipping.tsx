@@ -7,8 +7,8 @@ const Shipping: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <p>Shipping management page - Coming soon</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Shipping;

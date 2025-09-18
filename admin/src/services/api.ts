@@ -9,21 +9,21 @@ import type {
   AnalyticsData,
   UpdateProfileRequest,
   CreateProductRequest,
-  UpdateProductRequest
-} from '../types/api';
+  UpdateProductRequest } from
+'../types/api';
 
 // API Configuration
-const API_BASE_URL = (import.meta as { env?: { VITE_API_URL?: string; VITE_API_BASE_URL?: string } }).env?.VITE_API_URL || 
-  (import.meta as { env?: { VITE_API_URL?: string; VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 
-  process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
+const API_BASE_URL = (import.meta as {env?: {VITE_API_URL?: string;VITE_API_BASE_URL?: string;};}).env?.VITE_API_URL ||
+(import.meta as {env?: {VITE_API_URL?: string;VITE_API_BASE_URL?: string;};}).env?.VITE_API_BASE_URL ||
+process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
 // Request interceptor to add auth token
@@ -52,17 +52,17 @@ api.interceptors.response.use(
       localStorage.removeItem('admin_user');
       window.location.href = '/login';
     }
-    
+
     // Handle network errors
     if (!error.response) {
       error.message = 'Network error. Please check your connection and try again.';
     }
-    
+
     // Handle server errors
     if (error.response?.status >= 500) {
       error.message = 'Server error. Please try again later.';
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -76,7 +76,7 @@ export const authAPI = {
     const response = await api.post<ApiResponse<User>>('/auth/admin/login', {
       email,
       password,
-      twoFactorToken,
+      twoFactorToken
     });
     return response.data;
   },
@@ -94,7 +94,7 @@ export const authAPI = {
   changePassword: async (currentPassword: string, newPassword: string): Promise<ApiResponse> => {
     const response = await api.put<ApiResponse>('/auth/password', {
       currentPassword,
-      newPassword,
+      newPassword
     });
     return response.data;
   },
@@ -102,7 +102,7 @@ export const authAPI = {
   logout: async (): Promise<ApiResponse> => {
     const response = await api.post<ApiResponse>('/auth/logout');
     return response.data;
-  },
+  }
 };
 
 // Dashboard API
@@ -120,7 +120,7 @@ export const dashboardAPI = {
   getAnalytics: async (period: string = '30d'): Promise<ApiResponse<AnalyticsData>> => {
     const response = await api.get<ApiResponse<AnalyticsData>>(`/admin/dashboard/analytics?period=${period}`);
     return response.data;
-  },
+  }
 };
 
 // Products API
@@ -162,11 +162,11 @@ export const productsAPI = {
     formData.append('image', file);
     const response = await api.post<ApiResponse>('/upload/product', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+        'Content-Type': 'multipart/form-data'
+      }
     });
     return response.data;
-  },
+  }
 };
 
 // Orders API
@@ -191,7 +191,7 @@ export const ordersAPI = {
   updateStatus: async (id: string, status: string, notes?: string) => {
     const response = await api.put<ApiResponse>(`/admin/orders/${id}/status`, {
       status,
-      notes,
+      notes
     });
     return response.data;
   },
@@ -199,10 +199,10 @@ export const ordersAPI = {
   processRefund: async (id: string, amount: number, reason: string) => {
     const response = await api.post<ApiResponse>(`/admin/orders/${id}/refund`, {
       amount,
-      reason,
+      reason
     });
     return response.data;
-  },
+  }
 };
 
 // Customers API
@@ -260,7 +260,7 @@ export const customersAPI = {
   deleteSegment: async (id: string) => {
     const response = await api.delete<ApiResponse>(`/admin/customer-segments/${id}`);
     return response.data;
-  },
+  }
 };
 
 // Users API (Admin Users)
@@ -293,7 +293,7 @@ export const usersAPI = {
   delete: async (id: string) => {
     const response = await api.delete<ApiResponse>(`/admin/users/${id}`);
     return response.data;
-  },
+  }
 };
 
 // Analytics API
@@ -311,7 +311,7 @@ export const analyticsAPI = {
   getCustomerInsights: async (period: string) => {
     const response = await api.get<ApiResponse>(`/admin/analytics/customers?period=${period}`);
     return response.data;
-  },
+  }
 };
 
 // Categories API
@@ -341,7 +341,7 @@ export const categoriesAPI = {
     return response.data;
   },
 
-  reorder: async (updates: Array<{ id: string; sortOrder: number }>) => {
+  reorder: async (updates: Array<{id: string;sortOrder: number;}>) => {
     const response = await api.put<ApiResponse>('/admin/categories/reorder', updates);
     return response.data;
   },
@@ -351,11 +351,11 @@ export const categoriesAPI = {
     formData.append('image', file);
     const response = await api.post<ApiResponse>('/upload/category', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+        'Content-Type': 'multipart/form-data'
+      }
     });
     return response.data;
-  },
+  }
 };
 
 // Flash Sales API
@@ -390,11 +390,11 @@ export const flashSalesAPI = {
     formData.append('image', file);
     const response = await api.post<ApiResponse>('/upload/flash-sale', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+        'Content-Type': 'multipart/form-data'
+      }
     });
     return response.data;
-  },
+  }
 };
 
 // Coupons API
@@ -422,7 +422,7 @@ export const couponsAPI = {
   delete: async (id: string) => {
     const response = await api.delete<ApiResponse>(`/admin/coupons/${id}`);
     return response.data;
-  },
+  }
 };
 
 // Inventory API
@@ -465,7 +465,7 @@ export const inventoryAPI = {
   updatePurchaseOrder: async (id: string, data: any) => {
     const response = await api.put<ApiResponse>(`/admin/purchase-orders/${id}`, data);
     return response.data;
-  },
+  }
 };
 
 // Suppliers API
@@ -493,7 +493,7 @@ export const suppliersAPI = {
   delete: async (id: string) => {
     const response = await api.delete<ApiResponse>(`/admin/suppliers/${id}`);
     return response.data;
-  },
+  }
 };
 
 
@@ -530,10 +530,10 @@ export const loyaltyAPI = {
       customerId,
       points,
       description,
-      type: 'ADJUSTED',
+      type: 'ADJUSTED'
     });
     return response.data;
-  },
+  }
 };
 
 // Wishlist API
@@ -565,10 +565,10 @@ export const wishlistAPI = {
 
   sendTargetedOffer: async (offerId: string, customerIds: string[]) => {
     const response = await api.post<ApiResponse>(`/admin/targeted-offers/${offerId}/send`, {
-      customerIds,
+      customerIds
     });
     return response.data;
-  },
+  }
 };
 
 // Settings API
@@ -626,7 +626,7 @@ export const settingsAPI = {
   getPermissions: async () => {
     const response = await api.get<ApiResponse>('/admin/permissions');
     return response.data;
-  },
+  }
 };
 
 // Multi-Store API
@@ -692,7 +692,7 @@ export const multiStoreAPI = {
   deleteStorePromotion: async (id: string) => {
     const response = await api.delete<ApiResponse>(`/admin/multi-store/promotions/${id}`);
     return response.data;
-  },
+  }
 };
 
 // Chat API
@@ -713,14 +713,14 @@ export const chatAPI = {
 
   sendMessage: async (conversationId: string, message: string) => {
     const response = await api.post<ApiResponse>(`/admin/chat/conversations/${conversationId}/messages`, {
-      message,
+      message
     });
     return response.data;
   },
 
   updateStatus: async (conversationId: string, status: string) => {
     const response = await api.put<ApiResponse>(`/admin/chat/conversations/${conversationId}/status`, {
-      status,
+      status
     });
     return response.data;
   },
@@ -763,7 +763,7 @@ export const chatAPI = {
   deleteEscalationRule: async (id: string) => {
     const response = await api.delete<ApiResponse>(`/admin/chat/escalation-rules/${id}`);
     return response.data;
-  },
+  }
 };
 
 export default api;

@@ -8,7 +8,7 @@ export interface WorkingHours {
   days: {
     [key: string]: {
       start: string; // Format: "HH:MM"
-      end: string;   // Format: "HH:MM"
+      end: string; // Format: "HH:MM"
       enabled: boolean;
     };
   };
@@ -24,7 +24,7 @@ export const DEFAULT_WORKING_HOURS: WorkingHours = {
     tuesday: { start: '09:00', end: '18:00', enabled: true },
     wednesday: { start: '09:00', end: '18:00', enabled: true },
     thursday: { start: '09:00', end: '18:00', enabled: true },
-    friday: { start: '09:00', end: '18:00', enabled: false }, // Friday is off
+    friday: { start: '09:00', end: '18:00', enabled: false } // Friday is off
   }
 };
 
@@ -68,15 +68,15 @@ function getCurrentTimeInMinutes(timezone: string): number {
 export function isWithinWorkingHours(workingHours: WorkingHours = DEFAULT_WORKING_HOURS): boolean {
   const currentDay = getCurrentDayName();
   const dayConfig = workingHours.days[currentDay];
-  
+
   if (!dayConfig || !dayConfig.enabled) {
     return false;
   }
-  
+
   const currentTime = getCurrentTimeInMinutes(workingHours.timezone);
   const startTime = timeToMinutes(dayConfig.start);
   const endTime = timeToMinutes(dayConfig.end);
-  
+
   return currentTime >= startTime && currentTime <= endTime;
 }
 
@@ -86,30 +86,30 @@ export function isWithinWorkingHours(workingHours: WorkingHours = DEFAULT_WORKIN
 export function getNextAvailableTime(workingHours: WorkingHours = DEFAULT_WORKING_HOURS): Date | null {
   const now = new Date();
   const timezone = workingHours.timezone;
-  
+
   // Check next 7 days
   for (let i = 0; i < 7; i++) {
     const checkDate = new Date(now);
     checkDate.setDate(now.getDate() + i);
-    
-    const dayName = checkDate.toLocaleDateString('en-US', { 
+
+    const dayName = checkDate.toLocaleDateString('en-US', {
       weekday: 'long',
       timeZone: timezone
     }).toLowerCase();
-    
+
     const dayConfig = workingHours.days[dayName];
-    
+
     if (dayConfig && dayConfig.enabled) {
       const [startHour, startMinute] = dayConfig.start.split(':').map(Number);
       const nextAvailable = new Date(checkDate);
       nextAvailable.setHours(startHour, startMinute, 0, 0);
-      
+
       // If it's today and we're past the start time, check if we're before end time
       if (i === 0) {
         const currentTime = getCurrentTimeInMinutes(timezone);
         const startTime = timeToMinutes(dayConfig.start);
         const endTime = timeToMinutes(dayConfig.end);
-        
+
         if (currentTime < endTime) {
           // Still within today's working hours
           return now;
@@ -120,7 +120,7 @@ export function getNextAvailableTime(workingHours: WorkingHours = DEFAULT_WORKIN
       }
     }
   }
-  
+
   return null;
 }
 
@@ -128,21 +128,21 @@ export function getNextAvailableTime(workingHours: WorkingHours = DEFAULT_WORKIN
  * Get chat availability status
  */
 export function getChatAvailability(
-  workingHours: WorkingHours = DEFAULT_WORKING_HOURS,
-  language: 'en' | 'ar' = 'en'
-): ChatAvailability {
+workingHours: WorkingHours = DEFAULT_WORKING_HOURS,
+language: 'en' | 'ar' = 'en')
+: ChatAvailability {
   const isLiveChatAvailable = isWithinWorkingHours(workingHours);
   const isAIAvailable = true; // AI is always available
   const nextAvailableTime = getNextAvailableTime(workingHours);
-  
+
   let currentMode: 'AI' | 'LIVE' = 'AI';
   let message = '';
-  
+
   if (isLiveChatAvailable) {
     currentMode = 'LIVE';
   } else {
     currentMode = 'AI';
-    
+
     if (nextAvailableTime) {
       const nextTimeStr = nextAvailableTime.toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US', {
         timeZone: workingHours.timezone,
@@ -150,17 +150,17 @@ export function getChatAvailability(
         hour: '2-digit',
         minute: '2-digit'
       });
-      
-      message = language === 'ar' 
-        ? `وكلاؤنا المباشرون غير متاحين حالياً. يرجى ترك رسالة أو التحدث مع مساعدنا الذكي. سيكونون متاحين ${nextTimeStr}`
-        : `Our live agents are currently offline. Please leave a message or chat with our AI Assistant. They will be available ${nextTimeStr}`;
+
+      message = language === 'ar' ?
+      `وكلاؤنا المباشرون غير متاحين حالياً. يرجى ترك رسالة أو التحدث مع مساعدنا الذكي. سيكونون متاحين ${nextTimeStr}` :
+      `Our live agents are currently offline. Please leave a message or chat with our AI Assistant. They will be available ${nextTimeStr}`;
     } else {
-      message = language === 'ar'
-        ? 'وكلاؤنا المباشرون غير متاحين حالياً. يرجى ترك رسالة أو التحدث مع مساعدنا الذكي.'
-        : 'Our live agents are currently offline. Please leave a message or chat with our AI Assistant.';
+      message = language === 'ar' ?
+      'وكلاؤنا المباشرون غير متاحين حالياً. يرجى ترك رسالة أو التحدث مع مساعدنا الذكي.' :
+      'Our live agents are currently offline. Please leave a message or chat with our AI Assistant.';
     }
   }
-  
+
   return {
     isLiveChatAvailable,
     isAIAvailable,
@@ -174,16 +174,16 @@ export function getChatAvailability(
  * Format working hours for display
  */
 export function formatWorkingHours(workingHours: WorkingHours = DEFAULT_WORKING_HOURS, language: 'en' | 'ar' = 'en'): string {
-  const enabledDays = Object.entries(workingHours.days)
-    .filter(([_, config]) => config.enabled)
-    .map(([day, config]) => {
-      const dayName = language === 'ar' 
-        ? getArabicDayName(day)
-        : day.charAt(0).toUpperCase() + day.slice(1);
-      
-      return `${dayName}: ${config.start} - ${config.end}`;
-    });
-  
+  const enabledDays = Object.entries(workingHours.days).
+  filter(([_, config]) => config.enabled).
+  map(([day, config]) => {
+    const dayName = language === 'ar' ?
+    getArabicDayName(day) :
+    day.charAt(0).toUpperCase() + day.slice(1);
+
+    return `${dayName}: ${config.start} - ${config.end}`;
+  });
+
   return enabledDays.join('\n');
 }
 
@@ -191,7 +191,7 @@ export function formatWorkingHours(workingHours: WorkingHours = DEFAULT_WORKING_
  * Get Arabic day name
  */
 function getArabicDayName(day: string): string {
-  const arabicDays: { [key: string]: string } = {
+  const arabicDays: {[key: string]: string;} = {
     saturday: 'السبت',
     sunday: 'الأحد',
     monday: 'الاثنين',
@@ -200,7 +200,7 @@ function getArabicDayName(day: string): string {
     thursday: 'الخميس',
     friday: 'الجمعة'
   };
-  
+
   return arabicDays[day] || day;
 }
 
@@ -209,7 +209,7 @@ function getArabicDayName(day: string): string {
  */
 export function simulateTime(date: Date, workingHours: WorkingHours = DEFAULT_WORKING_HOURS): ChatAvailability {
   const originalDate = Date;
-  
+
   // Mock Date constructor for testing
   (global as any).Date = class extends Date {
     constructor(...args: any[]) {
@@ -219,16 +219,16 @@ export function simulateTime(date: Date, workingHours: WorkingHours = DEFAULT_WO
         super(...args);
       }
     }
-    
+
     static now() {
       return date.getTime();
     }
   };
-  
+
   const availability = getChatAvailability(workingHours, 'en');
-  
+
   // Restore original Date
   (global as any).Date = originalDate;
-  
+
   return availability;
 }

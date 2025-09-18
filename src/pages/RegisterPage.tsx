@@ -24,7 +24,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = useTranslation();
-  
+
   const {
     showWarning,
     warningType,
@@ -33,7 +33,7 @@ export default function RegisterPage() {
     handleCloseWarning,
     executePendingAction
   } = useAuthGuard();
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -48,19 +48,19 @@ export default function RegisterPage() {
 
   function validateForm() {
     const newErrors: any = {};
-    
+
     if (!formData.name) {
       newErrors.name = t("requiredField");
     } else if (formData.name.length < 2) {
       newErrors.name = lang === "ar" ? "الاسم يجب أن يكون حرفين على الأقل" : "Name must be at least 2 characters";
     }
-    
+
     if (!formData.email) {
       newErrors.email = t("requiredField");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = lang === "ar" ? "البريد الإلكتروني غير صحيح" : "Invalid email format";
     }
-    
+
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = t("requiredField");
     } else {
@@ -70,19 +70,19 @@ export default function RegisterPage() {
         newErrors.phoneNumber = lang === "ar" ? "رقم الهاتف غير صحيح" : "Invalid phone number format";
       }
     }
-    
+
     if (!formData.password) {
       newErrors.password = t("requiredField");
     } else if (formData.password.length < 6) {
       newErrors.password = lang === "ar" ? "كلمة المرور يجب أن تكون 6 أحرف على الأقل" : "Password must be at least 6 characters";
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = t("requiredField");
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = lang === "ar" ? "كلمة المرور غير متطابقة" : "Passwords don't match";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -96,15 +96,15 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     if (!register) {
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const result = await register({
         name: formData.name,
@@ -113,14 +113,14 @@ export default function RegisterPage() {
         password: formData.password,
         password_confirmation: formData.confirmPassword
       });
-      
+
       if (result.success) {
         if (result.requiresVerification) {
+
+
           // Don't navigate to account page, show verification message instead
-        } else {
-          // Execute pending action if there was one, otherwise go to account
-          const actionExecuted = executePendingAction();
-          if (!actionExecuted) {
+        } else {// Execute pending action if there was one, otherwise go to account
+          const actionExecuted = executePendingAction();if (!actionExecuted) {
             navigate("/account");
           }
         }
@@ -139,16 +139,16 @@ export default function RegisterPage() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-        className="max-w-md mx-auto"
-      >
+        className="max-w-md mx-auto">
+
         <GlassCard>
           <div className="text-center mb-8">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
-              className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
+              className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+
               <HiUsers size={32} />
             </motion.div>
             <h1 className="text-3xl font-bold mb-2 text-[#111]">{t("register")}</h1>
@@ -172,14 +172,14 @@ export default function RegisterPage() {
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('name', e.target.value)}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                    errors.name ? 'border-red-400' : 'border-[#d1b16a]/40'
-                  }`}
-                  placeholder={lang === "ar" ? "أدخل اسمك الكامل" : "Enter your full name"}
-                />
+                  errors.name ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل اسمك الكامل" : "Enter your full name"} />
+
               </div>
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
+              {errors.name &&
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              }
             </div>
 
             {/* Email Field */}
@@ -196,14 +196,14 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                    errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'
-                  }`}
-                  placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"}
-                />
+                  errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
+
               </div>
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
+              {errors.email &&
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              }
             </div>
 
             {/* Phone Number Field */}
@@ -222,14 +222,14 @@ export default function RegisterPage() {
                   value={formData.phoneNumber}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phoneNumber', e.target.value)}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                    errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'
-                  }`}
-                  placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"}
-                />
+                  errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"} />
+
               </div>
-              {errors.phoneNumber && (
-                <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-              )}
+              {errors.phoneNumber &&
+              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+              }
             </div>
 
             {/* Password Field */}
@@ -246,21 +246,21 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('password', e.target.value)}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                    errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'
-                  }`}
-                  placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"}
-                />
+                  errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                   {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              )}
+              {errors.password &&
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              }
             </div>
 
             {/* Confirm Password Field */}
@@ -277,36 +277,36 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('confirmPassword', e.target.value)}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                    errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'
-                  }`}
-                  placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"}
-                />
+                  errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
+
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                   {showConfirmPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-              )}
+              {errors.confirmPassword &&
+              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+              }
             </div>
 
-            <button 
+            <button
               type="submit"
               className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-              ) : (
-                <>
+              disabled={isLoading}>
+
+              {isLoading ?
+              <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
+
+              <>
                   <HiUsers />
                   {t("createAccount")}
                 </>
-              )}
+              }
             </button>
           </form>
 
@@ -316,10 +316,10 @@ export default function RegisterPage() {
             <p className="text-gray-600">
               {t("alreadyAccount")}
             </p>
-            <Link 
-              to="/login" 
-              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors"
-            >
+            <Link
+              to="/login"
+              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
+
               {t("login")}
             </Link>
           </div>
@@ -332,8 +332,8 @@ export default function RegisterPage() {
         onClose={handleCloseWarning}
         onLogin={handleLoginClick}
         onSignUp={handleSignUpClick}
-        type={warningType}
-      />
-    </div>
-  );
+        type={warningType} />
+
+    </div>);
+
 }

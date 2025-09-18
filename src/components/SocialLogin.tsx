@@ -22,13 +22,13 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
   const handleGoogleLogin = async () => {
     try {
       setLoading('google');
-      
+
       // Check if Google Client ID is configured
       const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
       if (!googleClientId) {
         return;
       }
-      
+
       // Load Google Identity Services
       if (!window.google) {
         await loadGoogleScript();
@@ -39,7 +39,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: handleGoogleCallback,
         auto_select: false,
-        cancel_on_tap_outside: true,
+        cancel_on_tap_outside: true
       });
 
       // Prompt for sign-in
@@ -51,7 +51,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
             {
               theme: 'outline',
               size: 'large',
-              width: '100%',
+              width: '100%'
             }
           );
           document.getElementById('google-signin-button')?.click();
@@ -100,7 +100,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
       }
 
       setLoading('facebook');
-      
+
       // Load Facebook SDK
       if (!window.FB) {
         await loadFacebookScript();
@@ -123,7 +123,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
               if (!socialLogin) {
                 return;
               }
-              
+
               const result = await socialLogin('facebook', {
                 accessToken: response.authResponse.accessToken,
                 userID: response.authResponse.userID,
@@ -162,7 +162,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
       if (!googleClientId) {
         throw new Error('Google Client ID not configured');
       }
-      
+
       // Load Google Identity Services if not already loaded
       if (!window.google) {
         await loadGoogleScript();
@@ -225,9 +225,9 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
       <div className="social-divider">
         <div className="divider-line"></div>
         <span className="divider-text">
-          {mode === 'login' 
-            ? (lang === 'ar' ? 'أو سجل الدخول باستخدام' : 'or sign in with')
-            : (lang === 'ar' ? 'أو أنشئ حساب باستخدام' : 'or sign up with')
+          {mode === 'login' ?
+          lang === 'ar' ? 'أو سجل الدخول باستخدام' : 'or sign in with' :
+          lang === 'ar' ? 'أو أنشئ حساب باستخدام' : 'or sign up with'
           }
         </span>
         <div className="divider-line"></div>
@@ -240,48 +240,48 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
           onClick={handleGoogleLogin}
           disabled={loading !== null}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
+          whileTap={{ scale: 0.98 }}>
+
           <div className="social-button-content">
-            {loading === 'google' ? (
-              <div className="loading-spinner"></div>
-            ) : (
-              <FaGoogle />
-            )}
+            {loading === 'google' ?
+            <div className="loading-spinner"></div> :
+
+            <FaGoogle />
+            }
             <span className="social-text">
-              {loading === 'google'
-                ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...')
-                : (lang === 'ar' ? 'جوجل' : 'Google')
+              {loading === 'google' ?
+              lang === 'ar' ? 'جاري التحميل...' : 'Loading...' :
+              lang === 'ar' ? 'جوجل' : 'Google'
               }
             </span>
           </div>
         </motion.button>
 
         {/* Facebook Login Button - Only show if enabled */}
-        {import.meta.env.VITE_FACEBOOK_APP_ID && import.meta.env.VITE_FACEBOOK_APP_ID.trim() !== '' && (
-          <motion.button
-            type="button"
-            className={`social-button facebook ${loading === 'facebook' ? 'loading' : ''}`}
-            onClick={handleFacebookLogin}
-            disabled={loading !== null}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
+        {import.meta.env.VITE_FACEBOOK_APP_ID && import.meta.env.VITE_FACEBOOK_APP_ID.trim() !== '' &&
+        <motion.button
+          type="button"
+          className={`social-button facebook ${loading === 'facebook' ? 'loading' : ''}`}
+          onClick={handleFacebookLogin}
+          disabled={loading !== null}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}>
+
             <div className="social-button-content">
-              {loading === 'facebook' ? (
-                <div className="loading-spinner"></div>
-              ) : (
-                <FaFacebook />
-              )}
+              {loading === 'facebook' ?
+            <div className="loading-spinner"></div> :
+
+            <FaFacebook />
+            }
               <span className="social-text">
-                {loading === 'facebook'
-                  ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...')
-                  : (lang === 'ar' ? 'فيسبوك' : 'Facebook')
-                }
+                {loading === 'facebook' ?
+              lang === 'ar' ? 'جاري التحميل...' : 'Loading...' :
+              lang === 'ar' ? 'فيسبوك' : 'Facebook'
+              }
               </span>
             </div>
           </motion.button>
-        )}
+        }
       </div>
 
       {/* Hidden Google Sign-In button for fallback */}
@@ -413,8 +413,8 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSucc
           border-color: rgba(255, 255, 255, 0.2);
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 };
 
 // Extend window interface for Google and Facebook

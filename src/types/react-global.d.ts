@@ -6,11 +6,11 @@ declare global {
     interface ChangeEvent<T = Element> {
       target: T & EventTarget;
     }
-    
+
     interface FormEvent<T = Element> {
       target: T & EventTarget;
     }
-    
+
     interface MouseEvent<T = Element> {
       target: T & EventTarget;
     }

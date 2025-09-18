@@ -19,11 +19,11 @@ interface ErrorDetails {
 }
 
 export const errorHandler = (
-  error: CustomError | Error | PrismaClientKnownRequestError,
-  req: Request,
-  res: Response,
-  _next: NextFunction
-): void => {
+error: CustomError | Error | PrismaClientKnownRequestError,
+req: Request,
+res: Response,
+_next: NextFunction)
+: void => {
   let statusCode = 500;
   let message = 'Internal server error';
   let details: ErrorDetails | null = null;
@@ -78,7 +78,7 @@ export const errorHandler = (
     statusCode = 400;
     message = 'Validation failed';
     details = {
-      errors: error.errors.map(err => ({
+      errors: error.errors.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
         code: err.code
@@ -141,7 +141,7 @@ export const errorHandler = (
 // Custom error classes
 export class ValidationError extends Error {
   statusCode = 400;
-  
+
   constructor(message: string) {
     super(message);
     this.name = 'ValidationError';
@@ -150,7 +150,7 @@ export class ValidationError extends Error {
 
 export class NotFoundError extends Error {
   statusCode = 404;
-  
+
   constructor(message: string = 'Resource not found') {
     super(message);
     this.name = 'NotFoundError';
@@ -159,7 +159,7 @@ export class NotFoundError extends Error {
 
 export class UnauthorizedError extends Error {
   statusCode = 401;
-  
+
   constructor(message: string = 'Unauthorized') {
     super(message);
     this.name = 'UnauthorizedError';
@@ -168,7 +168,7 @@ export class UnauthorizedError extends Error {
 
 export class ForbiddenError extends Error {
   statusCode = 403;
-  
+
   constructor(message: string = 'Forbidden') {
     super(message);
     this.name = 'ForbiddenError';
@@ -177,7 +177,7 @@ export class ForbiddenError extends Error {
 
 export class ConflictError extends Error {
   statusCode = 409;
-  
+
   constructor(message: string = 'Conflict') {
     super(message);
     this.name = 'ConflictError';

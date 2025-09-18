@@ -7,8 +7,8 @@ const CMS: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <p>Content Management System - Coming soon</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default CMS;

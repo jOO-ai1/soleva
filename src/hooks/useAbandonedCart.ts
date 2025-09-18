@@ -27,7 +27,7 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
     if (cart.length > 0) {
       lastActivityRef.current = new Date();
       abandonmentTrackedRef.current = false;
-      
+
       // Clear existing timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -65,8 +65,8 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
         // Page is visible, restart timer if cart has items
         if (cart.length > 0 && !abandonmentTrackedRef.current) {
           const timeSinceLastActivity = Date.now() - lastActivityRef.current.getTime();
-          const remainingTime = (config.timeoutMinutes * 60 * 1000) - timeSinceLastActivity;
-          
+          const remainingTime = config.timeoutMinutes * 60 * 1000 - timeSinceLastActivity;
+
           if (remainingTime > 0) {
             timeoutRef.current = setTimeout(() => {
               trackAbandonedCart();
@@ -79,7 +79,7 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -89,7 +89,7 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
   useEffect(() => {
     const resetTimer = () => {
       lastActivityRef.current = new Date();
-      
+
       if (cart.length > 0 && timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
@@ -100,13 +100,13 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
 
     // Track various user interactions
     const events = ['click', 'scroll', 'keypress', 'mousemove', 'touchstart'];
-    
-    events.forEach(event => {
+
+    events.forEach((event) => {
       document.addEventListener(event, resetTimer, { passive: true });
     });
 
     return () => {
-      events.forEach(event => {
+      events.forEach((event) => {
         document.removeEventListener(event, resetTimer);
       });
     };
@@ -121,11 +121,11 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
 
     try {
       // Calculate cart value
-      const cartValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-      
+      const cartValue = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+
       // Prepare cart data
       const cartData = {
-        items: cart.map(item => ({
+        items: cart.map((item) => ({
           id: item.id,
           name: item.name,
           price: item.price,
@@ -171,7 +171,7 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
         window.fbq('track', 'AddToCart', {
           value: cartValue,
           currency: 'EGP',
-          content_ids: cartData.items.map(item => item.id),
+          content_ids: cartData.items.map((item) => item.id),
           content_type: 'product'
         });
       }
@@ -202,12 +202,12 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
 
   const getSessionId = (): string => {
     let sessionId = localStorage.getItem('session_id');
-    
+
     if (!sessionId) {
       sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       localStorage.setItem('session_id', sessionId);
     }
-    
+
     return sessionId;
   };
 
@@ -221,7 +221,7 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Track recovery event
         if (typeof window.gtag !== 'undefined') {
           window.gtag('event', 'recover_cart', {
@@ -235,7 +235,7 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
     } catch (error) {
       console.error('Failed to recover cart:', error);
     }
-    
+
     return null;
   };
 
@@ -274,8 +274,8 @@ export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) =
     if (!user?.email || cart.length === 0) return;
 
     try {
-      const cartValue = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-      
+      const cartValue = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+
       await fetch('/api/v1/email/immediate-cart-reminder', {
         method: 'POST',
         headers: {

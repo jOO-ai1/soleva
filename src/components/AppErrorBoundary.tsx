@@ -31,20 +31,20 @@ class AppErrorBoundary extends React.Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       // Check if this is likely a network/API error
-      const isNetworkError = this.state.error?.message?.includes('fetch') || 
-                            this.state.error?.message?.includes('network') ||
-                            this.state.error?.message?.includes('API') ||
-                            this.state.error?.message?.includes('CORS');
+      const isNetworkError = this.state.error?.message?.includes('fetch') ||
+      this.state.error?.message?.includes('network') ||
+      this.state.error?.message?.includes('API') ||
+      this.state.error?.message?.includes('CORS');
 
       if (isNetworkError) {
         return (
           <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <ServiceUnavailable 
+            <ServiceUnavailable
               onRetry={() => window.location.reload()}
-              className="max-w-md"
-            />
-          </div>
-        );
+              className="max-w-md" />
+
+          </div>);
+
       }
 
       return (
@@ -79,35 +79,35 @@ class AppErrorBoundary extends React.Component<Props, State> {
               <li>Browser compatibility issues</li>
             </ul>
             
-            {this.state.error && (
-              <details style={{ textAlign: 'left', marginBottom: '2rem' }}>
+            {this.state.error &&
+            <details style={{ textAlign: 'left', marginBottom: '2rem' }}>
                 <summary style={{ cursor: 'pointer', fontWeight: 'bold', marginBottom: '1rem' }}>
                   Error Details
                 </summary>
                 <pre style={{
-                  backgroundColor: '#f8f9fa',
-                  padding: '1rem',
-                  borderRadius: '4px',
-                  overflow: 'auto',
-                  fontSize: '0.875rem'
-                }}>
+                backgroundColor: '#f8f9fa',
+                padding: '1rem',
+                borderRadius: '4px',
+                overflow: 'auto',
+                fontSize: '0.875rem'
+              }}>
                   {this.state.error.message}
                   {this.state.error.stack}
                 </pre>
-                {this.state.errorInfo && (
-                  <pre style={{
-                    backgroundColor: '#f8f9fa',
-                    padding: '1rem',
-                    borderRadius: '4px',
-                    overflow: 'auto',
-                    fontSize: '0.875rem',
-                    marginTop: '1rem'
-                  }}>
+                {this.state.errorInfo &&
+              <pre style={{
+                backgroundColor: '#f8f9fa',
+                padding: '1rem',
+                borderRadius: '4px',
+                overflow: 'auto',
+                fontSize: '0.875rem',
+                marginTop: '1rem'
+              }}>
                     {this.state.errorInfo.componentStack}
                   </pre>
-                )}
+              }
               </details>
-            )}
+            }
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button
@@ -120,8 +120,8 @@ class AppErrorBoundary extends React.Component<Props, State> {
                   borderRadius: '4px',
                   cursor: 'pointer',
                   fontSize: '1rem'
-                }}
-              >
+                }}>
+
                 Refresh Page
               </button>
               <button
@@ -134,14 +134,14 @@ class AppErrorBoundary extends React.Component<Props, State> {
                   borderRadius: '4px',
                   cursor: 'pointer',
                   fontSize: '1rem'
-                }}
-              >
+                }}>
+
                 Go Home
               </button>
             </div>
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;

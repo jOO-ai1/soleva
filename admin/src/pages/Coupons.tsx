@@ -19,8 +19,8 @@ import {
   Divider,
   Switch,
   Progress,
-  Badge,
-} from 'antd';
+  Badge } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -31,8 +31,8 @@ import {
   CopyOutlined,
   GiftOutlined,
   PercentageOutlined,
-  DollarOutlined,
-} from '@ant-design/icons';
+  DollarOutlined } from
+'@ant-design/icons';
 import { couponsAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import type { Coupon } from '../types/api';
@@ -78,7 +78,7 @@ const Coupons = () => {
     try {
       setLoading(true);
       const response = await couponsAPI.getAll();
-      
+
       if (response.success && response.data) {
         setCoupons(response.data as Coupon[]);
       }
@@ -110,7 +110,7 @@ const Coupons = () => {
       validFrom: dayjs(coupon.validFrom),
       validTo: coupon.validTo ? dayjs(coupon.validTo) : null,
       freeShipping: coupon.freeShipping,
-      isActive: coupon.isActive,
+      isActive: coupon.isActive
     });
     setModalVisible(true);
   };
@@ -134,7 +134,7 @@ const Coupons = () => {
       const couponData = {
         ...values,
         validFrom: dayjs(values.validFrom).toISOString(),
-        validTo: values.validTo ? dayjs(values.validTo).toISOString() : null,
+        validTo: values.validTo ? dayjs(values.validTo).toISOString() : null
       };
 
       let response;
@@ -196,125 +196,125 @@ const Coupons = () => {
 
   const getUsagePercentage = (coupon: Coupon) => {
     if (!coupon.usageLimit) return 0;
-    return Math.round((coupon.usageCount / coupon.usageLimit) * 100);
+    return Math.round(coupon.usageCount / coupon.usageLimit * 100);
   };
 
-  const filteredCoupons = coupons.filter(coupon => {
-    const matchesSearch = !searchText || 
-      coupon.code.toLowerCase().includes(searchText.toLowerCase()) ||
-      coupon.name.toLowerCase().includes(searchText.toLowerCase());
-    
+  const filteredCoupons = coupons.filter((coupon) => {
+    const matchesSearch = !searchText ||
+    coupon.code.toLowerCase().includes(searchText.toLowerCase()) ||
+    coupon.name.toLowerCase().includes(searchText.toLowerCase());
+
     const matchesType = !filterType || coupon.type === filterType;
-    
-    const matchesStatus = !filterStatus || 
-      (filterStatus === 'active' && coupon.isActive && new Date() >= new Date(coupon.validFrom) && (!coupon.validTo || new Date() <= new Date(coupon.validTo)) && (!coupon.usageLimit || coupon.usageCount < coupon.usageLimit)) ||
-      (filterStatus === 'expired' && coupon.validTo && new Date() > new Date(coupon.validTo)) ||
-      (filterStatus === 'inactive' && !coupon.isActive) ||
-      (filterStatus === 'fully-used' && coupon.usageLimit && coupon.usageCount >= coupon.usageLimit);
-    
+
+    const matchesStatus = !filterStatus ||
+    filterStatus === 'active' && coupon.isActive && new Date() >= new Date(coupon.validFrom) && (!coupon.validTo || new Date() <= new Date(coupon.validTo)) && (!coupon.usageLimit || coupon.usageCount < coupon.usageLimit) ||
+    filterStatus === 'expired' && coupon.validTo && new Date() > new Date(coupon.validTo) ||
+    filterStatus === 'inactive' && !coupon.isActive ||
+    filterStatus === 'fully-used' && coupon.usageLimit && coupon.usageCount >= coupon.usageLimit;
+
     return matchesSearch && matchesType && matchesStatus;
   });
 
   const columns: ColumnsType<Coupon> = [
-    {
-      title: 'Code',
-      dataIndex: 'code',
-      key: 'code',
-      render: (code: string) => (
-        <div className="flex items-center space-x-2">
+  {
+    title: 'Code',
+    dataIndex: 'code',
+    key: 'code',
+    render: (code: string) =>
+    <div className="flex items-center space-x-2">
           <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
             {code}
           </code>
           <Button
-            type="text"
-            size="small"
-            icon={<CopyOutlined />}
-            onClick={() => copyCode(code)}
-          />
+        type="text"
+        size="small"
+        icon={<CopyOutlined />}
+        onClick={() => copyCode(code)} />
+
         </div>
-      ),
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toString().toLowerCase()) ||
-        record.code.toLowerCase().includes(value.toString().toLowerCase()),
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      render: (type: string) => {
-        const icons = {
-          PERCENTAGE: <PercentageOutlined />,
-          FIXED_AMOUNT: <DollarOutlined />,
-          FREE_SHIPPING: <GiftOutlined />,
-        };
-        const colors = {
-          PERCENTAGE: 'blue',
-          FIXED_AMOUNT: 'green',
-          FREE_SHIPPING: 'purple',
-        };
-        return (
-          <Tag color={colors[type as keyof typeof colors]} icon={icons[type as keyof typeof icons]}>
+
+  },
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    filteredValue: searchText ? [searchText] : null,
+    onFilter: (value, record) =>
+    record.name.toLowerCase().includes(value.toString().toLowerCase()) ||
+    record.code.toLowerCase().includes(value.toString().toLowerCase())
+  },
+  {
+    title: 'Type',
+    dataIndex: 'type',
+    key: 'type',
+    render: (type: string) => {
+      const icons = {
+        PERCENTAGE: <PercentageOutlined />,
+        FIXED_AMOUNT: <DollarOutlined />,
+        FREE_SHIPPING: <GiftOutlined />
+      };
+      const colors = {
+        PERCENTAGE: 'blue',
+        FIXED_AMOUNT: 'green',
+        FREE_SHIPPING: 'purple'
+      };
+      return (
+        <Tag color={colors[type as keyof typeof colors]} icon={icons[type as keyof typeof icons]}>
             {type.replace('_', ' ')}
-          </Tag>
-        );
-      },
-      filters: [
-        { text: 'Percentage', value: 'PERCENTAGE' },
-        { text: 'Fixed Amount', value: 'FIXED_AMOUNT' },
-        { text: 'Free Shipping', value: 'FREE_SHIPPING' },
-      ],
-      onFilter: (value, record) => record.type === value,
+          </Tag>);
+
     },
-    {
-      title: 'Value',
-      key: 'value',
-      render: (_, record) => (
-        <div>
+    filters: [
+    { text: 'Percentage', value: 'PERCENTAGE' },
+    { text: 'Fixed Amount', value: 'FIXED_AMOUNT' },
+    { text: 'Free Shipping', value: 'FREE_SHIPPING' }],
+
+    onFilter: (value, record) => record.type === value
+  },
+  {
+    title: 'Value',
+    key: 'value',
+    render: (_, record) =>
+    <div>
           <div className="font-medium">
-            {record.type === 'PERCENTAGE' 
-              ? `${record.value}%` 
-              : record.type === 'FIXED_AMOUNT'
-              ? `$${record.value}`
-              : 'Free Shipping'
-            }
+            {record.type === 'PERCENTAGE' ?
+        `${record.value}%` :
+        record.type === 'FIXED_AMOUNT' ?
+        `$${record.value}` :
+        'Free Shipping'
+        }
           </div>
-          {record.maxDiscount && (
-            <div className="text-xs text-gray-500">
+          {record.maxDiscount &&
+      <div className="text-xs text-gray-500">
               Max: ${record.maxDiscount}
             </div>
-          )}
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Usage',
-      key: 'usage',
-      render: (_, record) => (
-        <div>
+
+  },
+  {
+    title: 'Usage',
+    key: 'usage',
+    render: (_, record) =>
+    <div>
           <div className="text-sm">
             {record.usageCount} / {record.usageLimit || '∞'}
           </div>
-          {record.usageLimit && (
-            <Progress
-              percent={getUsagePercentage(record)}
-              size="small"
-              showInfo={false}
-            />
-          )}
+          {record.usageLimit &&
+      <Progress
+        percent={getUsagePercentage(record)}
+        size="small"
+        showInfo={false} />
+
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Validity',
-      key: 'validity',
-      render: (_, record) => (
-        <div>
+
+  },
+  {
+    title: 'Validity',
+    key: 'validity',
+    render: (_, record) =>
+    <div>
           <div className="text-sm">
             {dayjs(record.validFrom).format('MMM DD, YYYY')}
           </div>
@@ -322,75 +322,75 @@ const Coupons = () => {
             {record.validTo ? dayjs(record.validTo).format('MMM DD, YYYY') : 'No expiry'}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (_, record) => {
-        const status = getStatusText(record);
-        const color = getStatusColor(record);
-        return <Tag color={color}>{status}</Tag>;
-      },
-      filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Expired', value: 'expired' },
-        { text: 'Inactive', value: 'inactive' },
-        { text: 'Fully Used', value: 'fully-used' },
-      ],
-      onFilter: (value, record) => {
-        const now = new Date();
-        const validFrom = new Date(record.validFrom);
-        const validTo = record.validTo ? new Date(record.validTo) : null;
 
-        if (value === 'active') return record.isActive && now >= validFrom && (!validTo || now <= validTo) && (!record.usageLimit || record.usageCount < record.usageLimit);
-        if (value === 'expired') return validTo && now > validTo;
-        if (value === 'inactive') return !record.isActive;
-        if (value === 'fully-used') return record.usageLimit && record.usageCount >= record.usageLimit;
-        return true;
-      },
+  },
+  {
+    title: 'Status',
+    key: 'status',
+    render: (_, record) => {
+      const status = getStatusText(record);
+      const color = getStatusColor(record);
+      return <Tag color={color}>{status}</Tag>;
     },
-    {
-      title: 'Orders',
-      dataIndex: 'ordersCount',
-      key: 'ordersCount',
-      render: (count: number) => (
-        <Badge count={count} showZero />
-      ),
-      sorter: (a, b) => a.ordersCount - b.ordersCount,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space>
+    filters: [
+    { text: 'Active', value: 'active' },
+    { text: 'Expired', value: 'expired' },
+    { text: 'Inactive', value: 'inactive' },
+    { text: 'Fully Used', value: 'fully-used' }],
+
+    onFilter: (value, record) => {
+      const now = new Date();
+      const validFrom = new Date(record.validFrom);
+      const validTo = record.validTo ? new Date(record.validTo) : null;
+
+      if (value === 'active') return record.isActive && now >= validFrom && (!validTo || now <= validTo) && (!record.usageLimit || record.usageCount < record.usageLimit);
+      if (value === 'expired') return validTo && now > validTo;
+      if (value === 'inactive') return !record.isActive;
+      if (value === 'fully-used') return record.usageLimit && record.usageCount >= record.usageLimit;
+      return true;
+    }
+  },
+  {
+    title: 'Orders',
+    dataIndex: 'ordersCount',
+    key: 'ordersCount',
+    render: (count: number) =>
+    <Badge count={count} showZero />,
+
+    sorter: (a, b) => a.ordersCount - b.ordersCount
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (_, record) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)} />
+
           <Popconfirm
-            title="Are you sure you want to delete this coupon?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this coupon?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />} />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   return (
     <div className="p-6">
@@ -402,8 +402,8 @@ const Coupons = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
+          onClick={handleAdd}>
+
           Create Coupon
         </Button>
       </div>
@@ -416,8 +416,8 @@ const Coupons = () => {
                 placeholder="Search coupons..."
                 prefix={<SearchOutlined />}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
+                onChange={(e) => setSearchText(e.target.value)} />
+
             </Col>
             <Col span={6}>
               <Select
@@ -425,8 +425,8 @@ const Coupons = () => {
                 style={{ width: '100%' }}
                 value={filterType}
                 onChange={setFilterType}
-                allowClear
-              >
+                allowClear>
+
                 <Option value="PERCENTAGE">Percentage</Option>
                 <Option value="FIXED_AMOUNT">Fixed Amount</Option>
                 <Option value="FREE_SHIPPING">Free Shipping</Option>
@@ -438,8 +438,8 @@ const Coupons = () => {
                 style={{ width: '100%' }}
                 value={filterStatus}
                 onChange={setFilterStatus}
-                allowClear
-              >
+                allowClear>
+
                 <Option value="active">Active</Option>
                 <Option value="expired">Expired</Option>
                 <Option value="inactive">Inactive</Option>
@@ -450,8 +450,8 @@ const Coupons = () => {
               <Button
                 icon={<FilterOutlined />}
                 onClick={fetchCoupons}
-                style={{ width: '100%' }}
-              >
+                style={{ width: '100%' }}>
+
                 Apply Filters
               </Button>
             </Col>
@@ -468,10 +468,10 @@ const Coupons = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} coupons`,
+            `${range[0]}-${range[1]} of ${total} coupons`
           }}
-          scroll={{ x: 1200 }}
-        />
+          scroll={{ x: 1200 }} />
+
       </Card>
 
       <Modal
@@ -479,20 +479,20 @@ const Coupons = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={700}
-      >
+        width={700}>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
-        >
+          onFinish={handleSubmit}>
+
           <Row gutter={16}>
             <Col span={16}>
               <Form.Item
                 name="code"
                 label="Coupon Code"
-                rules={[{ required: true, message: 'Please enter coupon code' }]}
-              >
+                rules={[{ required: true, message: 'Please enter coupon code' }]}>
+
                 <Input placeholder="Enter coupon code" />
               </Form.Item>
             </Col>
@@ -510,8 +510,8 @@ const Coupons = () => {
               <Form.Item
                 name="name"
                 label="Coupon Name"
-                rules={[{ required: true, message: 'Please enter coupon name' }]}
-              >
+                rules={[{ required: true, message: 'Please enter coupon name' }]}>
+
                 <Input placeholder="Enter coupon name" />
               </Form.Item>
             </Col>
@@ -519,8 +519,8 @@ const Coupons = () => {
               <Form.Item
                 name="type"
                 label="Coupon Type"
-                rules={[{ required: true, message: 'Please select coupon type' }]}
-              >
+                rules={[{ required: true, message: 'Please select coupon type' }]}>
+
                 <Select placeholder="Select coupon type">
                   <Option value="PERCENTAGE">Percentage</Option>
                   <Option value="FIXED_AMOUNT">Fixed Amount</Option>
@@ -532,8 +532,8 @@ const Coupons = () => {
 
           <Form.Item
             name="description"
-            label="Description"
-          >
+            label="Description">
+
             <TextArea rows={3} placeholder="Enter coupon description" />
           </Form.Item>
 
@@ -542,40 +542,40 @@ const Coupons = () => {
               <Form.Item
                 name="value"
                 label="Discount Value"
-                rules={[{ required: true, message: 'Please enter discount value' }]}
-              >
+                rules={[{ required: true, message: 'Please enter discount value' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0"
                   min={0}
-                  step={0.01}
-                />
+                  step={0.01} />
+
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
                 name="maxDiscount"
-                label="Max Discount"
-              >
+                label="Max Discount">
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="No limit"
                   min={0}
-                  step={0.01}
-                />
+                  step={0.01} />
+
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
                 name="minOrderValue"
-                label="Min Order Value"
-              >
+                label="Min Order Value">
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="No minimum"
                   min={0}
-                  step={0.01}
-                />
+                  step={0.01} />
+
               </Form.Item>
             </Col>
           </Row>
@@ -584,26 +584,26 @@ const Coupons = () => {
             <Col span={12}>
               <Form.Item
                 name="usageLimit"
-                label="Usage Limit"
-              >
+                label="Usage Limit">
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="Unlimited"
-                  min={1}
-                />
+                  min={1} />
+
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="userLimit"
                 label="Per User Limit"
-                rules={[{ required: true, message: 'Please enter per user limit' }]}
-              >
+                rules={[{ required: true, message: 'Please enter per user limit' }]}>
+
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="1"
-                  min={1}
-                />
+                  min={1} />
+
               </Form.Item>
             </Col>
           </Row>
@@ -613,25 +613,25 @@ const Coupons = () => {
               <Form.Item
                 name="validFrom"
                 label="Valid From"
-                rules={[{ required: true, message: 'Please select valid from date' }]}
-              >
+                rules={[{ required: true, message: 'Please select valid from date' }]}>
+
                 <DatePicker
                   style={{ width: '100%' }}
                   showTime
-                  format="YYYY-MM-DD HH:mm"
-                />
+                  format="YYYY-MM-DD HH:mm" />
+
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="validTo"
-                label="Valid To"
-              >
+                label="Valid To">
+
                 <DatePicker
                   style={{ width: '100%' }}
                   showTime
-                  format="YYYY-MM-DD HH:mm"
-                />
+                  format="YYYY-MM-DD HH:mm" />
+
               </Form.Item>
             </Col>
           </Row>
@@ -641,8 +641,8 @@ const Coupons = () => {
               <Form.Item
                 name="freeShipping"
                 label="Free Shipping"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Yes" unCheckedChildren="No" />
               </Form.Item>
             </Col>
@@ -650,8 +650,8 @@ const Coupons = () => {
               <Form.Item
                 name="isActive"
                 label="Status"
-                valuePropName="checked"
-              >
+                valuePropName="checked">
+
                 <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
               </Form.Item>
             </Col>
@@ -669,8 +669,8 @@ const Coupons = () => {
           </div>
         </Form>
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Coupons;
