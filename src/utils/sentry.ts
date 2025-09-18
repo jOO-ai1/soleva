@@ -10,6 +10,8 @@ class PlaceholderSentryService {
 
 
 
+
+
     // Sentry initialization disabled
   }captureException(_error: Error, _context?: Record<string, any>) {
 
@@ -36,9 +38,7 @@ class PlaceholderSentryService {
 
     // Breadcrumb tracking disabled
   }startTransaction(_name: string, _op: string) {// Transaction tracking disabled
-    return { setTag: () => {},
-      setData: () => {},
-      finish: () => {}
+    return { setTag: () => {}, setData: () => {}, finish: () => {}
     };
   }
 }

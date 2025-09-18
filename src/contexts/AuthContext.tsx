@@ -414,10 +414,10 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
 
 
 
+
+
       // Failed to refresh user data
-    }};const forgotPassword = async (email: string, phoneNumber: string) => {try {
-      const response = await authApi.forgotPassword({ email, phoneNumber });
-      return {
+    }};const forgotPassword = async (email: string, phoneNumber: string) => {try {const response = await authApi.forgotPassword({ email, phoneNumber });return {
         success: response.success,
         message: response.message
       };
