@@ -74,15 +74,15 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
 * Get audit logs with filtering and pagination
-*/export const getAuditLogs = async (filters: {userId?: string;adminId?: string;action?: string;resource?: string;startDate?: Date;endDate?: Date;page?: number;limit?: number;}) => {const { userId, adminId, action, resource, startDate, endDate, page = 1, limit = 50 } = filters;const skip = (page - 1) * limit;const where: any = {};if (userId) where.userId = userId;if (adminId) where.adminId = adminId;if (action) where.action = action;if (resource) where.resource = resource;if (startDate || endDate) {where.createdAt = {};if (startDate) where.createdAt.gte = startDate;
-    if (endDate) where.createdAt.lte = endDate;
-  }
-
-  const [logs, total] = await Promise.all([
+*/export const getAuditLogs = async (filters: {userId?: string;adminId?: string;action?: string;resource?: string;startDate?: Date;endDate?: Date;page?: number;limit?: number;}) => {const { userId, adminId, action, resource, startDate, endDate, page = 1, limit = 50 } = filters;const skip = (page - 1) * limit;const where: any = {};if (userId) where.userId = userId;if (adminId) where.adminId = adminId;if (action) where.action = action;if (resource) where.resource = resource;if (startDate || endDate) {where.createdAt = {};if (startDate) where.createdAt.gte = startDate;if (endDate) where.createdAt.lte = endDate;}const [logs, total] = await Promise.all([
   prisma.auditLog.findMany({
     where,
     include: {

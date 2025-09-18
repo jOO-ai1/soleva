@@ -134,20 +134,20 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
-      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-      className="max-w-md mx-auto">
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }} className="max-w-md mx-auto">
 
         <GlassCard>
           <div className="text-center mb-8">
-            <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
-            className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <motion.div initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
+          className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4">
 
               <HiUsers size={32} />
             </motion.div>
