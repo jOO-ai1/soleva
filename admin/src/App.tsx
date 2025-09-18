@@ -64,16 +64,16 @@ function App() {
                           </Routes>
                         </Layout>
                       </ProtectedRoute>
-                    }
-                  />
+                    } />
+
                 </Routes>
               </div>
             </Router>
           </AuthProvider>
         </NotificationProvider>
       </LanguageProvider>
-    </Provider>
-  );
+    </Provider>);
+
 }
 
 export default App;
