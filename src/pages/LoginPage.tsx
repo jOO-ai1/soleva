@@ -81,11 +81,11 @@ export default function LoginPage() {
       } else {
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
-      }} catch (error: any) {console.error('Login error:', error);
-      // Error handling is now done by the AuthContext with notification banners
-    } finally {
-      setIsLoading(false);
+      }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
+    } finally {setIsLoading(false);
     }
   }
 

@@ -118,11 +118,11 @@ export default function RegisterPage() {
         if (result.requiresVerification) {
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
-          const actionExecuted = executePendingAction();if (!actionExecuted) {
-            navigate("/account");
-          }
+          const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}
         }
       }
     } catch (error: any) {

@@ -101,10 +101,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch {
 
 
+
+
       // Continue with logout even if API call fails
-    } finally {localStorage.removeItem('admin_token');localStorage.removeItem('admin_user');
-      setUser(null);
-      setIsAuthenticated(false);
+    } finally {localStorage.removeItem('admin_token');localStorage.removeItem('admin_user');setUser(null);setIsAuthenticated(false);
     }
   };
 
@@ -118,18 +118,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch {
 
 
+
+
       // Failed to refresh user data
-    }};
-  return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      loading,
-      login,
-      logout,
-      refreshUser
-    }}>
+    }};return <AuthContext.Provider value={{
+    isAuthenticated,
+    user,
+    loading,
+    login,
+    logout,
+    refreshUser
+  }}>
       {children}
-    </AuthContext.Provider>);
+    </AuthContext.Provider>;
 
 };

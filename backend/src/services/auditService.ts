@@ -42,15 +42,15 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
- * Get audit logs with filtering and pagination
- */export const getAuditLogs = async (filters: {
-  userId?: string;
-  adminId?: string;
-  action?: string;
-  resource?: string;
+* Get audit logs with filtering and pagination
+*/export const getAuditLogs = async (filters: {userId?: string;adminId?: string;action?: string;resource?: string;
   startDate?: Date;
   endDate?: Date;
   page?: number;
