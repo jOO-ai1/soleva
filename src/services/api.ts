@@ -205,11 +205,11 @@ export const authApi = {
 };
 
 export const productsApi = {
-  getAll: (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) => {
+  getAll: async (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) => {
     // Use Supabase API instead of external API
     try {
-      const { supabaseProductsApi } = require('./supabaseApi');
-      return supabaseProductsApi.getAll(params);
+      const { supabaseProductsApi } = await import('./supabaseApi');
+      return await supabaseProductsApi.getAll(params);
     } catch (error) {
       console.error('API connection error:', error);
       // Return empty data as fallback
@@ -221,10 +221,10 @@ export const productsApi = {
     }
   },
 
-  getById: (id: number) => {
+  getById: async (id: number) => {
     try {
-      const { supabaseProductsApi } = require('./supabaseApi');
-      return supabaseProductsApi.getById(id);
+      const { supabaseProductsApi } = await import('./supabaseApi');
+      return await supabaseProductsApi.getById(id);
     } catch (error) {
       console.error('API connection error:', error);
       throw {
@@ -234,10 +234,26 @@ export const productsApi = {
     }
   },
 
-  search: (query: string) => {
+  search: async (query: string) => {
     try {
-      const { supabaseProductsApi } = require('./supabaseApi');
-      return supabaseProductsApi.getAll({ search: query });
+      const { supabaseProductsApi } = await import('./supabaseApi');
+      return await supabaseProductsApi.getAll({ search: query });
+    } catch (error) {
+      console.error('API connection error:', error);
+      return Promise.resolve({
+        data: [],
+        status: 200,
+        success: true
+      });
+    }
+  }
+};
+
+export const categoriesApi = {
+  getAll: async () => {
+    try {
+      const { supabaseCategoriesApi } = await import('./supabaseApi');
+      return await supabaseCategoriesApi.getAll();
     } catch (error) {
       console.error('API connection error:', error);
       return Promise.resolve({
@@ -250,10 +266,10 @@ export const productsApi = {
 };
 
 export const collectionsApi = {
-  getAll: () => {
+  getAll: async () => {
     try {
-      const { supabaseCollectionsApi } = require('./supabaseApi');
-      return supabaseCollectionsApi.getAll();
+      const { supabaseCollectionsApi } = await import('./supabaseApi');
+      return await supabaseCollectionsApi.getAll();
     } catch (error) {
       console.error('API connection error:', error);
       return Promise.resolve({
@@ -264,10 +280,10 @@ export const collectionsApi = {
     }
   },
 
-  getById: (id: string) => {
+  getById: async (id: string) => {
     try {
-      const { supabaseCollectionsApi } = require('./supabaseApi');
-      return supabaseCollectionsApi.getAll();
+      const { supabaseCollectionsApi } = await import('./supabaseApi');
+      return await supabaseCollectionsApi.getAll();
     } catch (error) {
       console.error('API connection error:', error);
       return Promise.resolve({
@@ -278,10 +294,10 @@ export const collectionsApi = {
     }
   },
 
-  getProducts: (id: string) => {
+  getProducts: async (id: string) => {
     try {
-      const { supabaseProductsApi } = require('./supabaseApi');
-      return supabaseProductsApi.getAll({ collection: id });
+      const { supabaseProductsApi } = await import('./supabaseApi');
+      return await supabaseProductsApi.getAll({ collection: id });
     } catch (error) {
       console.error('API connection error:', error);
       return Promise.resolve({

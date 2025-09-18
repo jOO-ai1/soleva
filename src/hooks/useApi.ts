@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ApiResponse, ApiError, productsApi, collectionsApi, favoritesApi, ordersApi, cartApi } from '../services/api';
+import { ApiResponse, ApiError, productsApi, categoriesApi, collectionsApi, favoritesApi, ordersApi, cartApi } from '../services/api';
 
 // Generic hook for API calls with enhanced error handling
 export function useApi<T>(
@@ -141,6 +141,10 @@ export function useFavoritesData() {
 
 export function useOrders() {
   return useApi(() => ordersApi.getAll(), []);
+}
+
+export function useCategories() {
+  return useApi(() => categoriesApi.getAll(), []);
 }
 
 export function useCart() {
