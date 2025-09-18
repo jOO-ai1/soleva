@@ -323,22 +323,16 @@ apiRouter.get('/config', async (_req, res) => {
     try {
       storeSettings = await prisma.storeSettings.findFirst();
     } catch (dbError) {
-
-
-
-
-
-
-
-
+      console.warn('Failed to fetch store settings:', dbError);
       // Continue with default settings
     }
     
     try {
       integrationSettings = await prisma.integrationSettings.findFirst();
     } catch (dbError) {
+      console.warn('Failed to fetch integration settings:', dbError);
       // Continue with default settings
-    }
+    };
     
     // Default configuration if no settings found
     const defaultConfig = { store: { name: { en: 'Soleva', ar: 'سوليفا' }, description: { en: 'Luxury Footwear', ar: 'أحذية فاخرة' }, currency: 'EGP', timezone: 'Africa/Cairo', language: 'en',

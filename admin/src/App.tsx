@@ -64,8 +64,8 @@ function App() {
                           </Routes>
                         </Layout>
                       </ProtectedRoute>
-                    } />
-
+                    }
+                  />
                 </Routes>
               </div>
             </Router>
