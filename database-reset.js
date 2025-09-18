@@ -39,12 +39,12 @@ if (!process.env.DATABASE_URL) {
 
 try {
   console.log('🧹 Step 1: Cleaning existing migrations...');
-  
+
   // Remove migration files (keeping the directory structure)
   const migrationsDir = path.join(backendPath, 'prisma', 'migrations');
   if (fs.existsSync(migrationsDir)) {
     const migrations = fs.readdirSync(migrationsDir);
-    migrations.forEach(migration => {
+    migrations.forEach((migration) => {
       if (migration !== '.gitkeep') {
         const migrationPath = path.join(migrationsDir, migration);
         if (fs.statSync(migrationPath).isDirectory()) {
@@ -56,7 +56,7 @@ try {
   console.log('✅ Existing migrations cleaned');
 
   console.log('\n🗄️  Step 2: Resetting database...');
-  
+
   // Reset the database completely
   execSync('npx prisma db push --force-reset --accept-data-loss', {
     cwd: backendPath,
@@ -106,12 +106,12 @@ try {
   console.log('✓ Generated new Prisma client');
   console.log('✓ Applied clean initial migration');
   console.log('✓ Seeded with initial data (if seed script exists)');
-  
+
   console.log('\n🚀 Next steps:');
   console.log('1. Start your backend server: cd backend && npm run dev');
   console.log('2. Verify the API endpoints are working');
   console.log('3. Check frontend connectivity');
-  
+
   console.log('\n✨ Your database is now clean and ready to use!');
 
 } catch (error) {
@@ -121,6 +121,6 @@ try {
   console.log('2. Check your DATABASE_URL in backend/.env');
   console.log('3. Ensure the database exists and you have proper permissions');
   console.log('4. Try running: createdb your_database_name');
-  
+
   process.exit(1);
 }

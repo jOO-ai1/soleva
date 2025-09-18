@@ -68,7 +68,7 @@ async function setupDatabase() {
     console.log('🗄️  Setting up database schema...');
     if (!runCommand('npx prisma db push --force-reset --accept-data-loss', { cwd: backendPath })) {
       console.log('⚠️  Database push failed, trying migration approach...');
-      
+
       // Alternative approach with migrations
       runCommand('npx prisma migrate reset --force', { cwd: backendPath });
       if (!runCommand('npx prisma migrate dev --name init', { cwd: backendPath })) {
@@ -91,18 +91,18 @@ async function setupDatabase() {
 
     console.log('\n✅ DATABASE SETUP COMPLETED!');
     console.log('============================');
-    
+
     console.log('\n📋 Setup Summary:');
     console.log('✓ Environment configuration created/verified');
     console.log('✓ Dependencies installed');
     console.log('✓ Prisma client generated');
     console.log('✓ Database schema created');
     console.log('✓ Initial data seeded (if available)');
-    
+
     console.log('\n🚀 Ready to start!');
     console.log('To start the backend server:');
     console.log('  cd backend && npm run dev');
-    
+
     console.log('\n🌐 Expected API endpoints:');
     console.log('  Health check: http://localhost:3001/health');
     console.log('  API base: http://localhost:3001/api/v1');
@@ -111,14 +111,14 @@ async function setupDatabase() {
 
   } catch (error) {
     console.error('\n❌ Setup failed:', error.message);
-    
+
     console.log('\n🔧 Troubleshooting steps:');
     console.log('1. Make sure PostgreSQL is running');
     console.log('2. Check DATABASE_URL in backend/.env');
     console.log('3. Create the database manually: createdb solevaeg_dev');
     console.log('4. Verify PostgreSQL credentials and permissions');
     console.log('5. Try running individual commands manually');
-    
+
     process.exit(1);
   }
 }

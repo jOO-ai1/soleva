@@ -185,6 +185,8 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // FCP observation not supported
       } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});try {lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });} catch (e) {
@@ -201,9 +203,9 @@ export const useDeviceDetection = () => {
 
         // LCP observation not supported
       } // Cumulative Layout Shift
-      const clsObserver = new PerformanceObserver((list) => {let clsValue = 0;for (const entry of list.getEntries()) {if (!(entry as any).hadRecentInput) {clsValue += (entry as any).value;}}metrics.cls = clsValue;});try {
-        clsObserver.observe({ entryTypes: ['layout-shift'] });
-      } catch (e) {
+      const clsObserver = new PerformanceObserver((list) => {let clsValue = 0;for (const entry of list.getEntries()) {if (!(entry as any).hadRecentInput) {clsValue += (entry as any).value;}}metrics.cls = clsValue;});try {clsObserver.observe({ entryTypes: ['layout-shift'] });} catch (e) {
+
+
 
 
 
@@ -232,9 +234,7 @@ export const useDeviceDetection = () => {
 
         // INP observation not supported
       } // Resolve after a delay to collect metrics
-      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;resolve(metrics as PerformanceMetrics);}, 5000);});};
-
-  const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {
+      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;resolve(metrics as PerformanceMetrics);}, 5000);});};const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {
     try {
       // Get IP and location info
       const ipResponse = await fetch('https://ipapi.co/json/');
@@ -270,14 +270,14 @@ export const useDeviceDetection = () => {
 
 
 
+
+
       // Failed to log device data
     }};const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {if (deviceInfo.isLowSpec) {// Force light mode for better performance
       if (theme === 'dark') {setTheme('light'); // Adaptive mode: Switched to light theme for better performance
       } // Reduce animation intensity
       document.documentElement.style.setProperty('--animation-duration', '0.1s');document.documentElement.style.setProperty('--transition-duration', '0.1s'); // Add adaptive mode class
-      document.body.classList.add('adaptive-mode');
-
-      // Disable heavy effects
+      document.body.classList.add('adaptive-mode'); // Disable heavy effects
       const style = document.createElement('style');
       style.textContent = `
         .adaptive-mode .glass {

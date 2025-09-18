@@ -8,7 +8,7 @@ async function main() {
 
   // Create admin user
   const hashedPassword = await bcrypt.hash('admin123', 12);
-  
+
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@solevaeg.com' },
     update: {},
@@ -18,8 +18,8 @@ async function main() {
       name: 'Soleva Admin',
       role: 'ADMIN',
       isVerified: true,
-      isActive: true,
-    },
+      isActive: true
+    }
   });
 
   console.log('✅ Created admin user:', adminUser.email);
@@ -33,8 +33,8 @@ async function main() {
       description: { ar: 'علامة تجارية للأحذية الفاخرة', en: 'Luxury footwear brand' },
       slug: 'soleva',
       isActive: true,
-      sortOrder: 1,
-    },
+      sortOrder: 1
+    }
   });
 
   console.log('✅ Created brand:', brand.name);
@@ -48,8 +48,8 @@ async function main() {
       description: { ar: 'مجموعة أحذية رجالية فاخرة', en: 'Luxury men\'s footwear collection' },
       slug: 'mens-shoes',
       isActive: true,
-      sortOrder: 1,
-    },
+      sortOrder: 1
+    }
   });
 
   const womenCategory = await prisma.category.upsert({
@@ -60,8 +60,8 @@ async function main() {
       description: { ar: 'مجموعة أحذية نسائية فاخرة', en: 'Luxury women\'s footwear collection' },
       slug: 'womens-shoes',
       isActive: true,
-      sortOrder: 2,
-    },
+      sortOrder: 2
+    }
   });
 
   console.log('✅ Created categories');
@@ -76,8 +76,8 @@ async function main() {
       slug: 'spring-2024',
       isActive: true,
       isFeatured: true,
-      sortOrder: 1,
-    },
+      sortOrder: 1
+    }
   });
 
   console.log('✅ Created collection');
@@ -86,49 +86,49 @@ async function main() {
   const product1 = await prisma.product.create({
     data: {
       name: { ar: 'حذاء سوليفا كلاسيك', en: 'Soleva Classic Shoe' },
-      description: { 
-        ar: 'حذاء كلاسيك أنيق من الجلد الطبيعي', 
-        en: 'Elegant classic shoe made from genuine leather' 
+      description: {
+        ar: 'حذاء كلاسيك أنيق من الجلد الطبيعي',
+        en: 'Elegant classic shoe made from genuine leather'
       },
       sku: 'SOL-CLASSIC-001',
       basePrice: 299.99,
       stockQuantity: 50,
       images: [
-        'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-        'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'
-      ],
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
+      'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'],
+
       slug: 'soleva-classic-shoe',
       status: 'ACTIVE',
       isActive: true,
       isFeatured: true,
       brandId: brand.id,
       categoryId: menCategory.id,
-      collectionId: collection.id,
-    },
+      collectionId: collection.id
+    }
   });
 
   const product2 = await prisma.product.create({
     data: {
       name: { ar: 'حذاء سوليفا الرياضي', en: 'Soleva Sport Shoe' },
-      description: { 
-        ar: 'حذاء رياضي مريح للاستخدام اليومي', 
-        en: 'Comfortable sport shoe for daily use' 
+      description: {
+        ar: 'حذاء رياضي مريح للاستخدام اليومي',
+        en: 'Comfortable sport shoe for daily use'
       },
       sku: 'SOL-SPORT-001',
       basePrice: 199.99,
       stockQuantity: 30,
       images: [
-        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-        'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400'
-      ],
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
+      'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400'],
+
       slug: 'soleva-sport-shoe',
       status: 'ACTIVE',
       isActive: true,
       isFeatured: false,
       brandId: brand.id,
       categoryId: menCategory.id,
-      collectionId: collection.id,
-    },
+      collectionId: collection.id
+    }
   });
 
   console.log('✅ Created sample products');
@@ -140,8 +140,8 @@ async function main() {
       color: { ar: 'بني', en: 'Brown', code: '#8B4513' },
       size: '42',
       sku: 'SOL-CLASSIC-001-BR-42',
-      stockQuantity: 10,
-    },
+      stockQuantity: 10
+    }
   });
 
   await prisma.productVariant.create({
@@ -150,8 +150,8 @@ async function main() {
       color: { ar: 'أسود', en: 'Black', code: '#000000' },
       size: '43',
       sku: 'SOL-CLASSIC-001-BL-43',
-      stockQuantity: 15,
-    },
+      stockQuantity: 15
+    }
   });
 
   console.log('✅ Created product variants');
@@ -161,24 +161,24 @@ async function main() {
     data: {
       name: { ar: 'القاهرة', en: 'Cairo' },
       code: 'CAI',
-      shippingCost: 30.00,
-    },
+      shippingCost: 30.00
+    }
   });
 
   const giza = await prisma.governorate.create({
     data: {
       name: { ar: 'الجيزة', en: 'Giza' },
       code: 'GIZ',
-      shippingCost: 35.00,
-    },
+      shippingCost: 35.00
+    }
   });
 
   const alexandria = await prisma.governorate.create({
     data: {
       name: { ar: 'الإسكندرية', en: 'Alexandria' },
       code: 'ALX',
-      shippingCost: 50.00,
-    },
+      shippingCost: 50.00
+    }
   });
 
   console.log('✅ Created governorates');
@@ -188,16 +188,16 @@ async function main() {
     data: {
       governorateId: cairo.id,
       name: { ar: 'مركز القاهرة', en: 'Cairo Center' },
-      code: 'CAI-CTR',
-    },
+      code: 'CAI-CTR'
+    }
   });
 
   await prisma.centers.create({
     data: {
       governorateId: giza.id,
       name: { ar: 'مركز الجيزة', en: 'Giza Center' },
-      code: 'GIZ-CTR',
-    },
+      code: 'GIZ-CTR'
+    }
   });
 
   console.log('✅ Created centers');
@@ -220,8 +220,8 @@ async function main() {
         facebook: '',
         instagram: '',
         twitter: ''
-      },
-    },
+      }
+    }
   });
 
   console.log('✅ Created store settings');
@@ -256,8 +256,8 @@ async function main() {
       socialLogin: {
         google: { enabled: false, clientId: '' },
         facebook: { enabled: false, appId: '' }
-      },
-    },
+      }
+    }
   });
 
   console.log('✅ Created integration settings');
@@ -276,11 +276,11 @@ async function main() {
   console.log('  - Integration settings');
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ Seeding failed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().
+catch((e) => {
+  console.error('❌ Seeding failed:', e);
+  process.exit(1);
+}).
+finally(async () => {
+  await prisma.$disconnect();
+});
