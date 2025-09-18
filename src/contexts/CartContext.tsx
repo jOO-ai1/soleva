@@ -1,5 +1,9 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { useAuth } from './AuthContext';
+import * as React from 'react';
+
+// Import React hooks
+const { createContext, useContext, useEffect, useState, useCallback } = React;
+import { readJSON, safeSetItem } from '../utils/storage';
+import { useAuthSafe } from './AuthContext';
 import { cartApi } from '../services/api';
 
 interface CartItem {
@@ -12,9 +16,16 @@ interface CartItem {
   qty: number;
 }
 
+interface Product {
+  id: number;
+  name: { ar: string; en: string };
+  price: number;
+  image: string;
+}
+
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: any, color: string, size: number) => void;
+  addToCart: (product: Product, color: string, size: number) => void;
   removeFromCart: (id: number, color: string, size: number) => void;
   updateQty: (id: number, color: string, size: number, qty: number) => void;
   clearCart: () => void;
@@ -25,15 +36,53 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuth();
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const auth = useAuthSafe();
+  const isAuthenticated = auth?.isAuthenticated || false;
+  const user = auth?.user;
+  const [cart, setCart] = useState<CartItem[]>(() => readJSON<CartItem[]>("cart", []));
   const [isGuestCart, setIsGuestCart] = useState(!isAuthenticated);
-  
+
+  const syncCartWithServer = useCallback(async () => {
+    if (!isAuthenticated || !user) return;
+    try {
+      // Fetch current server cart
+      const serverResponse = await cartApi.get();
+      const serverCart: any[] = (serverResponse.data as any[]) || [];
+
+      // Merge guest cart with server cart
+      const guestCart = cart;
+      guestCart.forEach((guestItem: CartItem) => {
+        const existsOnServer = serverCart.some((serverItem: any) =>
+          (serverItem.productId === String(guestItem.id)) &&
+          (serverItem.variant?.color === guestItem.color) &&
+          (serverItem.variant?.size === guestItem.size)
+        );
+
+        if (!existsOnServer) {
+          // Best-effort add to server cart
+          cartApi.add(guestItem.id, guestItem.color, guestItem.size, guestItem.qty).catch(() => {});
+        }
+      });
+
+      const updatedCart: CartItem[] = serverCart.map((serverItem: any) => ({
+        id: parseInt(serverItem.productId, 10),
+        name: serverItem.product?.name ?? { ar: '', en: '' },
+        price: serverItem.product?.price ?? 0,
+        image: serverItem.product?.images?.[0] || '',
+        color: serverItem.variant?.color || '',
+        size: serverItem.variant?.size || 0,
+        qty: serverItem.quantity ?? 1,
+      }));
+
+      setCart(updatedCart);
+      setIsGuestCart(false);
+    } catch (error) {
+      console.error('Failed to sync cart with server:', error);
+    }
+  }, [isAuthenticated, user, cart]);
+
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    safeSetItem("cart", JSON.stringify(cart));
   }, [cart]);
 
   // Sync cart when user logs in
@@ -44,11 +93,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsGuestCart(!isAuthenticated);
   }, [isAuthenticated, user, isGuestCart, syncCartWithServer]);
   
-  const addToCart = (product: any, color: string, size: number) => {
-    setCart((prev) => {
-      const exist = prev.find((item) => item.id === product.id && item.color === color && item.size === size);
+  const addToCart = (product: Product, color: string, size: number) => {
+    setCart((prev: CartItem[]) => {
+      const exist = prev.find((item: CartItem) => item.id === product.id && item.color === color && item.size === size);
       if (exist) {
-        return prev.map((item) =>
+        return prev.map((item: CartItem) =>
           (item.id === product.id && item.color === color && item.size === size)
             ? { ...item, qty: item.qty + 1 }
             : item
@@ -59,10 +108,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
   
   const removeFromCart = (id: number, color: string, size: number) =>
-    setCart((prev) => prev.filter((item) => !(item.id === id && item.color === color && item.size === size)));
+    setCart((prev: CartItem[]) => prev.filter((item: CartItem) => !(item.id === id && item.color === color && item.size === size)));
   
   const updateQty = (id: number, color: string, size: number, qty: number) =>
-    setCart((prev) => prev.map((item) =>
+    setCart((prev: CartItem[]) => prev.map((item: CartItem) =>
       (item.id === id && item.color === color && item.size === size)
         ? { ...item, qty: Math.max(1, qty) }
         : item
@@ -70,48 +119,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   
   const clearCart = () => setCart([]);
 
-  const syncCartWithServer = useCallback(async () => {
-    if (!isAuthenticated || !user) return;
-    
-    try {
-      // Get server cart
-      const serverResponse = await cartApi.getAll();
-      const serverCart = serverResponse.data || [];
-      
-      // Merge guest cart with server cart
-      const guestCart = cart;
-      
-      // Add guest cart items that don't exist on server
-      guestCart.forEach(guestItem => {
-        const existsOnServer = serverCart.some(serverItem => 
-          serverItem.productId === guestItem.id.toString() && 
-          serverItem.variant?.color === guestItem.color &&
-          serverItem.variant?.size === guestItem.size
-        );
-        
-        if (!existsOnServer) {
-          // Add to server cart
-          cartApi.add(guestItem.id.toString(), undefined, guestItem.qty);
-        }
-      });
-      
-      // Update local cart with server data
-      const updatedCart = serverCart.map(serverItem => ({
-        id: parseInt(serverItem.productId),
-        name: serverItem.product.name,
-        price: serverItem.product.price,
-        image: serverItem.product.images?.[0] || '',
-        color: serverItem.variant?.color || '',
-        size: serverItem.variant?.size || 0,
-        qty: serverItem.quantity
-      }));
-      
-      setCart(updatedCart);
-      setIsGuestCart(false);
-    } catch (error) {
-      console.error('Failed to sync cart with server:', error);
-    }
-  }, [isAuthenticated, user, cart]);
+  
   
   return (
     <CartContext.Provider value={{ 

@@ -159,6 +159,16 @@ async function main() {
         slug: 'womens-shoes',
         metaTitle: { ar: 'أحذية نسائي - سوليفا', en: 'Women\'s Shoes - Soleva' }
       }
+    }),
+    prisma.category.upsert({
+      where: { slug: 'kids-shoes' },
+      update: {},
+      create: {
+        name: { ar: 'أحذية أطفال', en: 'Kids Shoes' },
+        description: { ar: 'مجموعة أحذية للأطفال', en: 'Collection of kids footwear' },
+        slug: 'kids-shoes',
+        metaTitle: { ar: 'أحذية أطفال - سوليفا', en: 'Kids Shoes - Soleva' }
+      }
     })
   ]);
 
@@ -268,11 +278,61 @@ async function main() {
         { color: { ar: 'أبيض', en: 'White', code: '#f9f9f9' }, size: '40', stockQuantity: 12 }
       ]
     }
+    ,
+    {
+      name: { ar: 'سوليفا سبورت رجالي', en: 'Soleva Sport Men' },
+      description: { ar: 'حذاء رياضي مريح للاستخدام اليومي والتمارين', en: 'Comfortable sport shoe for daily use and workouts' },
+      slug: 'soleva-sport-men',
+      sku: 'SOL-SM-001',
+      basePrice: 2800,
+      images: [
+        'https://images.pexels.com/photos/2528042/pexels-photo-2528042.jpeg?auto=compress&cs=tinysrgb&w=600'
+      ],
+      status: 'ACTIVE',
+      isFeatured: true,
+      stockQuantity: 80,
+      categoryId: categories[0].id, // Men's shoes
+      brandId: brand.id,
+      collectionId: null,
+      specifications: [
+        { key: { ar: 'الاستخدام', en: 'Usage' }, value: { ar: 'رياضي/يومي', en: 'Sport/Daily' } },
+        { key: { ar: 'الوزن', en: 'Weight' }, value: { ar: 'خفيف', en: 'Lightweight' } }
+      ],
+      variants: [
+        { color: { ar: 'أسود', en: 'Black', code: '#191919' }, size: '41', stockQuantity: 20 },
+        { color: { ar: 'أبيض', en: 'White', code: '#f9f9f9' }, size: '42', stockQuantity: 20 }
+      ]
+    },
+    {
+      name: { ar: 'سوليفا كومفورت نسائي', en: 'Soleva Comfort Women' },
+      description: { ar: 'حذاء نسائي مريح للمشي طوال اليوم', en: 'Women\'s comfort shoe for all-day walking' },
+      slug: 'soleva-comfort-women',
+      sku: 'SOL-CW-001',
+      basePrice: 2400,
+      images: [
+        'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=600'
+      ],
+      status: 'ACTIVE',
+      isFeatured: false,
+      stockQuantity: 70,
+      categoryId: categories[1].id, // Women's shoes
+      brandId: brand.id,
+      collectionId: null,
+      specifications: [
+        { key: { ar: 'الراحة', en: 'Comfort' }, value: { ar: 'مبطن للمشي الطويل', en: 'Cushioned for long walks' } }
+      ],
+      variants: [
+        { color: { ar: 'أسود', en: 'Black', code: '#191919' }, size: '36', stockQuantity: 15 },
+        { color: { ar: 'أزرق', en: 'Blue', code: '#1e3a8a' }, size: '37', stockQuantity: 15 }
+      ]
+    }
   ];
 
   for (const productData of products) {
-    await prisma.product.create({
-      data: {
+    await prisma.product.upsert({
+      where: { slug: productData.slug },
+      update: {},
+      create: {
         name: productData.name,
         description: productData.description,
         slug: productData.slug,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table,
   Button,
@@ -77,11 +77,7 @@ const Products = () => {
   const categories = ['Sneakers', 'Boots', 'Sandals', 'Dress Shoes', 'Casual Shoes'];
   const brands = ['Nike', 'Adidas', 'Puma', 'Reebok', 'Converse', 'Vans'];
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await productsAPI.getAll({
@@ -98,7 +94,11 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchText, filterCategory, filterBrand]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleAdd = () => {
     setEditingProduct(null);
@@ -147,7 +147,7 @@ const Products = () => {
       if (editingProduct) {
         response = await productsAPI.update(editingProduct.id, productData);
       } else {
-        response = await productsAPI.create(productData);
+        response = await productsAPI.create({...productData, variants: []});
       }
 
       if (response.success) {
@@ -167,7 +167,7 @@ const Products = () => {
       setUploading(true);
       const response = await productsAPI.uploadImage(file);
       if (response.success && response.data) {
-        setUploadedImages(prev => [...prev, response.data.url]);
+        setUploadedImages(prev => [...prev, (response.data as any).url]);
         message.success('Image uploaded successfully');
       } else {
         message.error('Failed to upload image');

@@ -78,9 +78,14 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # Build stage
 FROM base AS build
+# Accept build-time Vite variables
+ARG VITE_API_URL
+ARG VITE_APP_NAME
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    VITE_API_URL=${VITE_API_URL} \
+    VITE_APP_NAME=${VITE_APP_NAME}
 # Verify build tools and run build with retry logic
 RUN i=1; while [ $i -le 3 ]; do \
       echo "Build attempt $i/3"; \

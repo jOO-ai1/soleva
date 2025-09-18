@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-solevaeg_db}
       POSTGRES_USER: ${POSTGRES_USER:-solevaeg}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      LC_ALL: C.UTF-8
+      LANG: C.UTF-8
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -25,9 +27,9 @@ services:
     image: redis:7-alpine
     container_name: solevaeg-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-}"
+    command: redis-server --appendonly yes --requirepass "SoLevAeG_2025_Redis_Pass_Q7x2Lm!"
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_PASSWORD=SoLevAeG_2025_Redis_Pass_Q7x2Lm!
     volumes:
       - redis_data:/data
     ports:
@@ -35,7 +37,7 @@ services:
     networks:
       - solevaeg-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-}", "ping"]
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "SoLevAeG_2025_Redis_Pass_Q7x2Lm!", "ping"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -52,7 +54,7 @@ services:
     container_name: solevaeg-backend
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     volumes:
       - backend_uploads:/app/uploads
       - backend_logs:/app/logs
@@ -84,11 +86,13 @@ services:
       target: ${NODE_ENV:-production}
       args:
         BUILDKIT_INLINE_CACHE: 1
+        VITE_API_URL: ${VITE_API_URL:-https://api.solevaeg.com/api/v1}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Soleva}
       network: host
     container_name: solevaeg-frontend
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     # Temporarily removed volume mount to allow fresh build files
@@ -117,11 +121,13 @@ services:
       target: ${NODE_ENV:-production}
       args:
         BUILDKIT_INLINE_CACHE: 1
+        VITE_API_URL: ${VITE_API_URL:-https://api.solevaeg.com/api/v1}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Soleva Admin}
       network: host
     container_name: solevaeg-admin
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     volumes:
       - admin_static:/usr/share/nginx/html:ro
     ports:
@@ -149,6 +155,7 @@ services:
     volumes:
       - ./docker/nginx/ssl:/etc/letsencrypt:ro
       - ./docker/nginx/certbot-webroot:/var/www/certbot:ro
+      - ./docker/nginx/conf.d:/docker/nginx/conf.d:ro
       - backend_uploads:/var/www/uploads:ro
       - frontend_static:/var/www/frontend:ro
       - nginx_logs:/var/log/nginx
@@ -171,7 +178,7 @@ services:
     volumes:
       - ./docker/nginx/ssl:/etc/letsencrypt
       - ./docker/nginx/certbot-webroot:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email ${ADMIN_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN} -d www.${DOMAIN} -d api.${DOMAIN} -d admin.${DOMAIN}
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${ADMIN_EMAIL:-admin@solevaeg.com} --agree-tos --no-eff-email -d ${DOMAIN:-solevaeg.com} -d www.${DOMAIN:-solevaeg.com} -d api.${DOMAIN:-solevaeg.com} -d admin.${DOMAIN:-solevaeg.com}
     depends_on:
       - nginx
     profiles:

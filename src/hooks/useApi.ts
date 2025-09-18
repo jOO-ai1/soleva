@@ -1,27 +1,65 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ApiResponse, ApiError } from '../services/api';
+import { ApiResponse, ApiError, productsApi, collectionsApi, favoritesApi, ordersApi, cartApi } from '../services/api';
 
-// Generic hook for API calls
+// Generic hook for API calls with enhanced error handling
 export function useApi<T>(
   apiCall: () => Promise<ApiResponse<T>>,
-  dependencies: any[] = []
+  dependencies: any[] = [],
+  options: {
+    retryOnError?: boolean;
+    maxRetries?: number;
+    retryDelay?: number;
+    onError?: (error: ApiError) => void;
+  } = {}
 ) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const fetchData = useCallback(async () => {
+  const {
+    retryOnError = true,
+    maxRetries = 3,
+    retryDelay = 1000,
+    onError
+  } = options;
+
+  const fetchData = useCallback(async (isRetry = false) => {
     try {
-      setLoading(true);
-      setError(null);
+      if (!isRetry) {
+        setLoading(true);
+        setError(null);
+        setRetryCount(0);
+      }
+      
       const response = await apiCall();
       setData(response.data);
+      setError(null);
+      setRetryCount(0);
     } catch (err) {
-      setError(err as ApiError);
+      const apiError = err as ApiError;
+      setError(apiError);
+      
+      // Call error callback if provided
+      if (onError) {
+        onError(apiError);
+      }
+
+      // Retry logic for network errors and server errors
+      if (retryOnError && retryCount < maxRetries && (
+        apiError.status === 0 || // Network error
+        apiError.status >= 500   // Server error
+      )) {
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => {
+          fetchData(true);
+        }, retryDelay * Math.pow(2, retryCount)); // Exponential backoff
+        return;
+      }
     } finally {
       setLoading(false);
     }
-  }, dependencies);
+  }, [...dependencies, retryOnError, maxRetries, retryDelay, onError, retryCount]);
 
   useEffect(() => {
     fetchData();
@@ -31,7 +69,20 @@ export function useApi<T>(
     fetchData();
   }, [fetchData]);
 
-  return { data, loading, error, refetch };
+  const retry = useCallback(() => {
+    setRetryCount(0);
+    fetchData();
+  }, [fetchData]);
+
+  return { 
+    data, 
+    loading, 
+    error, 
+    refetch, 
+    retry,
+    isRetrying: retryCount > 0,
+    retryCount
+  };
 }
 
 // Hook for mutations (POST, PUT, DELETE)
@@ -69,29 +120,29 @@ export function useMutation<T, P = any>(
 
 // Specific hooks for common operations
 export function useProducts(params?: any) {
-  return useApi(() => import('../services/api').then(({ productsApi }) => productsApi.getAll(params)), [params]);
+  return useApi(() => productsApi.getAll(params), [params]);
 }
 
 export function useProduct(id: number) {
-  return useApi(() => import('../services/api').then(({ productsApi }) => productsApi.getById(id)), [id]);
+  return useApi(() => productsApi.getById(id), [id]);
 }
 
 export function useCollections() {
-  return useApi(() => import('../services/api').then(({ collectionsApi }) => collectionsApi.getAll()), []);
+  return useApi(() => collectionsApi.getAll(), []);
 }
 
 export function useCollection(id: string) {
-  return useApi(() => import('../services/api').then(({ collectionsApi }) => collectionsApi.getById(id)), [id]);
+  return useApi(() => collectionsApi.getById(id), [id]);
 }
 
 export function useFavoritesData() {
-  return useApi(() => import('../services/api').then(({ favoritesApi }) => favoritesApi.getAll()), []);
+  return useApi(() => favoritesApi.getAll(), []);
 }
 
 export function useOrders() {
-  return useApi(() => import('../services/api').then(({ ordersApi }) => ordersApi.getAll()), []);
+  return useApi(() => ordersApi.getAll(), []);
 }
 
 export function useCart() {
-  return useApi(() => import('../services/api').then(({ cartApi }) => cartApi.get()), []);
+  return useApi(() => cartApi.get(), []);
 }

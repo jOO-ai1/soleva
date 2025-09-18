@@ -2,10 +2,14 @@
 set -Eeuo pipefail
 
 # =============================================================================
-# Soleva E-commerce Platform - Production Deployment Script with Fallback
+# DEPRECATED: This script is deprecated. Use ./deploy.sh instead.
 # =============================================================================
+# Soleva E-commerce Platform - Production Deployment Script with Fallback
 # This script attempts deployment with Alpine images first, then falls back
 # to Debian images if Alpine package repository issues occur.
+# 
+# WARNING: This script is deprecated and will be removed in future versions.
+# Please use the new ./deploy.sh script for all deployments.
 # =============================================================================
 
 # Colors for output

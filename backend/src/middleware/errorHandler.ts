@@ -7,15 +7,26 @@ export interface CustomError extends Error {
   code?: string;
 }
 
+interface ErrorDetails {
+  field?: string | string[] | undefined;
+  code?: string | undefined;
+  relation?: string | undefined;
+  errors?: Array<{
+    field: string;
+    message: string;
+    code: string;
+  }> | undefined;
+}
+
 export const errorHandler = (
-  error: CustomError | Error,
+  error: CustomError | Error | PrismaClientKnownRequestError,
   req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
   let statusCode = 500;
   let message = 'Internal server error';
-  let details: any = null;
+  let details: ErrorDetails | null = null;
 
   // Handle different error types
   if ('statusCode' in error && error.statusCode) {
@@ -28,7 +39,7 @@ export const errorHandler = (
         statusCode = 409;
         message = 'A record with this information already exists';
         details = {
-          field: error.meta?.target,
+          field: error.meta?.target as string | string[] | undefined,
           code: error.code
         };
         break;
@@ -43,7 +54,7 @@ export const errorHandler = (
         statusCode = 400;
         message = 'Foreign key constraint failed';
         details = {
-          field: error.meta?.field_name,
+          field: error.meta?.field_name as string | string[] | undefined,
           code: error.code
         };
         break;
@@ -51,7 +62,7 @@ export const errorHandler = (
         statusCode = 400;
         message = 'Invalid relation';
         details = {
-          relation: error.meta?.relation_name,
+          relation: error.meta?.relation_name as string | undefined,
           code: error.code
         };
         break;
@@ -87,8 +98,8 @@ export const errorHandler = (
     };
   }
 
-  // Log error for debugging
-  if (statusCode >= 500) {
+  // Log error for debugging (only in development)
+  if (statusCode >= 500 && process.env.NODE_ENV === 'development') {
     console.error('Server Error:', {
       error: error.message,
       stack: error.stack,
@@ -99,7 +110,16 @@ export const errorHandler = (
   }
 
   // Send error response
-  const response: any = {
+  interface ErrorResponse {
+    error: string;
+    timestamp: string;
+    path: string;
+    method: string;
+    details?: ErrorDetails;
+    stack?: string;
+  }
+
+  const response: ErrorResponse = {
     error: message,
     timestamp: new Date().toISOString(),
     path: req.url,
@@ -165,7 +185,7 @@ export class ConflictError extends Error {
 }
 
 // Async error wrapper
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };

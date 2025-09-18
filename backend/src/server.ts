@@ -35,6 +35,9 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Trust proxy for rate limiting behind reverse proxy
+app.set('trust proxy', 1);
+
 // Initialize database and Redis
 const prisma = new PrismaClient();
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -75,22 +78,65 @@ const swaggerOptions = {
 
 const specs = swaggerJsdoc(swaggerOptions);
 
-// Security middleware
+// Security middleware with enhanced CSP
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https://fonts.googleapis.com",
+        "https://cdn.jsdelivr.net"
+      ],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "'unsafe-eval'",
+        "https://accounts.google.com",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com",
+        "https://www.gstatic.com",
+        "https://connect.facebook.net",
+        "https://cdn.jsdelivr.net"
+      ],
+      imgSrc: [
+        "'self'", 
+        "data:", 
+        "https:", 
+        "blob:",
+        "https://www.google-analytics.com",
+        "https://www.googletagmanager.com"
+      ],
+      connectSrc: [
+        "'self'", 
+        "https://api.solevaeg.com", 
+        "https://solevaeg.com",
+        "https://www.google-analytics.com",
+        "https://analytics.google.com",
+        "https://accounts.google.com",
+        "https://www.googletagmanager.com",
+        "https://connect.facebook.net",
+        "https://graph.facebook.com"
+      ],
+      fontSrc: [
+        "'self'", 
+        "https://fonts.gstatic.com",
+        "https://cdn.jsdelivr.net"
+      ],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: [
+        "'self'",
+        "https://accounts.google.com",
+        "https://www.facebook.com"
+      ],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
     },
   },
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 // Rate limiting
@@ -109,16 +155,57 @@ const authLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_AUTH_MAX || '5'),
   message: {
-    error: 'Too many authentication attempts, please try again later.',
-    retryAfter: Math.ceil(parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000') / 1000)
+    success: false,
+    error: 'RATE_LIMIT_EXCEEDED',
+    message: 'Too many authentication attempts, please try again later.',
+    retryAfter: Math.ceil(parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000') / 1000),
+    details: 'Please wait before attempting to authenticate again.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip successful requests
+  skipSuccessfulRequests: true,
+  // Skip failed requests (to avoid double counting)
+  skipFailedRequests: false
+});
+
+// Enhanced rate limiting for registration (used in auth routes)
+const registrationLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_REGISTRATION_MAX || '3'),
+  message: {
+    success: false,
+    error: 'RATE_LIMIT_EXCEEDED',
+    message: 'Too many registration attempts, please try again later.',
+    retryAfter: Math.ceil(parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000') / 1000),
+    details: 'Please wait before attempting to register again.'
   },
   standardHeaders: true,
   legacyHeaders: false
 });
 
+// Export for use in auth routes
+export { authLimiter, registrationLimiter };
+
 // CORS configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:3002'],
+  origin: process.env.CORS_ORIGIN?.split(',') || [
+    'http://localhost:5173', 
+    'http://localhost:3002',
+    'https://solevaeg.com',
+    'https://www.solevaeg.com',
+    'https://admin.solevaeg.com',
+    'http://solevaeg.com',
+    'http://www.solevaeg.com',
+    'http://admin.solevaeg.com',
+    // Temporary fix for incorrect domain
+    'https://solevaeq.com',
+    'https://www.solevaeq.com',
+    'https://admin.solevaeq.com',
+    'http://solevaeq.com',
+    'http://www.solevaeq.com',
+    'http://admin.solevaeq.com'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -141,11 +228,215 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 const apiRouter = express.Router();
 
 // Public routes (no auth required)
-apiRouter.use('/auth', authLimiter, authRoutes);
+apiRouter.use('/auth', authRoutes);
 apiRouter.use('/products', productRoutes);
 apiRouter.use('/shipping', shippingRoutes);
 apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/orders/track', orderTrackingRoutes); // Public order tracking
+
+// Categories and Collections endpoints
+apiRouter.get('/categories', async (_req, res) => {
+  try {
+    const categories = await prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      include: { 
+        parent: true,
+        _count: { select: { products: true } } as any 
+      }
+    } as any);
+
+    const data = categories.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      slug: c.slug,
+      image: c.image,
+      parentId: c.parentId,
+      parentName: c.parent ? c.parent.name : null,
+      isActive: c.isActive,
+      sortOrder: c.sortOrder,
+      productsCount: c._count?.products || 0,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+    }));
+
+    res.json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Categories fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch categories'
+    });
+  }
+});
+
+apiRouter.get('/collections', async (_req, res) => {
+  try {
+    const collections = await prisma.collection.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      include: { 
+        _count: { select: { products: true } } as any 
+      }
+    } as any);
+
+    const data = collections.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      slug: c.slug,
+      image: c.image,
+      isActive: c.isActive,
+      isFeatured: c.isFeatured,
+      sortOrder: c.sortOrder,
+      startDate: c.startDate,
+      endDate: c.endDate,
+      productsCount: c._count?.products || 0,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+    }));
+
+    res.json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Collections fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch collections'
+    });
+  }
+});
+
+// Config endpoint - returns public configuration data
+apiRouter.get('/config', async (_req, res) => {
+  try {
+    // Get store settings from database
+    let storeSettings = null;
+    let integrationSettings = null;
+    
+    try {
+      storeSettings = await prisma.storeSettings.findFirst();
+    } catch (dbError) {
+      // Continue with default settings
+    }
+    
+    try {
+      integrationSettings = await prisma.integrationSettings.findFirst();
+    } catch (dbError) {
+      // Continue with default settings
+    }
+
+    // Default configuration if no settings found
+    const defaultConfig = {
+      store: {
+        name: { en: 'Soleva', ar: 'سوليفا' },
+        description: { en: 'Luxury Footwear', ar: 'أحذية فاخرة' },
+        currency: 'EGP',
+        timezone: 'Africa/Cairo',
+        language: 'en',
+        socialMedia: {
+          facebook: '',
+          instagram: '',
+          twitter: ''
+        }
+      },
+      features: {
+        chatEnabled: process.env.CHAT_SYSTEM_ENABLED === 'true',
+        loyaltyProgram: true,
+        wishlist: true,
+        reviews: true,
+        socialLogin: {
+          google: !!process.env.GOOGLE_CLIENT_ID,
+          facebook: !!process.env.FACEBOOK_APP_ID
+        }
+      },
+      shipping: {
+        freeThreshold: parseInt(process.env.SHIPPING_FREE_THRESHOLD || '500'),
+        defaultCost: parseInt(process.env.DEFAULT_SHIPPING_COST || '60'),
+        currency: 'EGP'
+      },
+      payment: {
+        methods: ['cash_on_delivery', 'bank_transfer'],
+        currency: 'EGP'
+      },
+      analytics: {
+        googleAnalytics: process.env.VITE_GA4_MEASUREMENT_ID || '',
+        facebookPixel: process.env.VITE_FACEBOOK_PIXEL_ID || ''
+      }
+    };
+
+    // Merge with database settings if available
+    const config = {
+      ...defaultConfig,
+      store: {
+        ...defaultConfig.store,
+        ...(storeSettings && {
+          name: storeSettings.storeName || defaultConfig.store.name,
+          description: storeSettings.storeDescription || defaultConfig.store.description,
+          currency: storeSettings.currency || defaultConfig.store.currency,
+          timezone: storeSettings.timezone || defaultConfig.store.timezone,
+          language: storeSettings.language || defaultConfig.store.language,
+          socialMedia: storeSettings.socialMedia || defaultConfig.store.socialMedia
+        })
+      },
+      features: {
+        ...defaultConfig.features,
+        ...(integrationSettings && {
+          socialLogin: {
+            google: (integrationSettings.socialLogin as any)?.google?.enabled || defaultConfig.features.socialLogin.google,
+            facebook: (integrationSettings.socialLogin as any)?.facebook?.enabled || defaultConfig.features.socialLogin.facebook
+          }
+        })
+      }
+    };
+
+    res.json({
+      success: true,
+      data: config,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Config endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch configuration',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Health check endpoint for API
+apiRouter.get('/health', async (_req, res) => {
+  try {
+    // Check database connection
+    await prisma.$queryRaw`SELECT 1`;
+    
+    // Check Redis connection
+    const redisStatus = redis.status;
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        database: 'connected',
+        redis: redisStatus,
+        uptime: process.uptime()
+      }
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
 
 // Protected routes (auth required)
 apiRouter.use('/cart', auth, cartRoutes);

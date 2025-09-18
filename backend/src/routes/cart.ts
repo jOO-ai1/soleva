@@ -113,7 +113,7 @@ router.post('/guest/:sessionId', async (req: Request, res): Promise<Response | v
     }
     const { productId, variantId, quantity, product } = req.body;
 
-    let guestCart = guestCarts.get(sessionId) || [];
+    const guestCart = guestCarts.get(sessionId) || [];
     
     // Check if item already exists
     const existingItemIndex = guestCart.findIndex(item => 
@@ -162,7 +162,7 @@ router.put('/guest/:sessionId/:itemId', async (req: Request, res): Promise<Respo
     }
     const { quantity } = req.body;
 
-    let guestCart = guestCarts.get(sessionId) || [];
+    const guestCart = guestCarts.get(sessionId) || [];
     const itemIndex = guestCart.findIndex(item => item.id === itemId);
 
     if (itemIndex >= 0) {
@@ -194,13 +194,13 @@ router.delete('/guest/:sessionId/:itemId', async (req: Request, res): Promise<Re
       });
     }
 
-    let guestCart = guestCarts.get(sessionId) || [];
-    guestCart = guestCart.filter(item => item.id !== itemId);
-    guestCarts.set(sessionId, guestCart);
+    const guestCart = guestCarts.get(sessionId) || [];
+    const updatedGuestCart = guestCart.filter(item => item.id !== itemId);
+    guestCarts.set(sessionId, updatedGuestCart);
 
     res.json({
       success: true,
-      data: guestCart
+      data: updatedGuestCart
     });
   } catch (error) {
     console.error('Remove from guest cart error:', error);

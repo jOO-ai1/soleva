@@ -42,11 +42,12 @@ model User {
   // Language preference
   preferredLanguage String @default("en") // 'en' or 'ar'
 
+
   // 2FA fields
   twoFactorSecret   String?
   twoFactorEnabled  Boolean @default(false)
   backupCodes       String[]
-
+  
   // Relationships
   addresses             Address[]
   orders                Order[]
@@ -58,6 +59,9 @@ model User {
   auditLogs             AuditLog[]     @relation("AuditUser")
   adminLogs             AuditLog[]     @relation("AuditAdmin")
   Message               Message[]
+  websocketConnections  WebSocketConnection[]
+  customers             Customer[]
+  passwordResetTokens   PasswordResetToken[]
 
   @@map("users")
 }
@@ -69,6 +73,20 @@ enum UserRole {
   MANAGER
   ADMIN
   OWNER
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("password_reset_tokens")
 }
 
 model Address {
@@ -105,8 +123,9 @@ model Address {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders Order[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+  customers Customer[]
 
   @@map("addresses")
 }
@@ -164,6 +183,7 @@ model Category {
 
   // Relationships
   products Product[]
+  storeCategories StoreCategory[]
 
   @@map("categories")
 }
@@ -257,6 +277,11 @@ model Product {
   favorites          Favorite[]
   inventoryMovements InventoryMovement[]
   PurchaseOrderItem  PurchaseOrderItem[]
+  flashSaleProducts  FlashSaleProduct[]
+  exclusiveOfferProducts ExclusiveOfferProduct[]
+  wishlistItems      WishlistItem[]
+  storeProducts      StoreProduct[]
+  storeInventory     StoreInventory[]
 
   @@map("products")
 }
@@ -300,6 +325,8 @@ model ProductVariant {
   cartItems          CartItem[]
   inventoryMovements InventoryMovement[]
   PurchaseOrderItem  PurchaseOrderItem[]
+  wishlistItems      WishlistItem[]
+  storeInventory     StoreInventory[]
 
   @@unique([productId, color, size])
   @@map("product_variants")
@@ -353,8 +380,9 @@ model Favorite {
   createdAt DateTime @default(now())
 
   // Relationships
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customers Customer[]
 
   @@unique([userId, productId])
   @@map("favorites")
@@ -371,6 +399,7 @@ model Order {
   // Customer info
   userId    String
   addressId String
+  storeId   String?
 
   // Order totals
   subtotal       Decimal @db.Decimal(10, 2)
@@ -411,6 +440,17 @@ model Order {
   address  Address         @relation(fields: [addressId], references: [id])
   items    OrderItem[]
   timeline OrderTimeline[]
+  loyaltyTransactions LoyaltyTransaction[]
+  store    Store?          @relation(fields: [storeId], references: [id])
+  customer Customer?       @relation(fields: [customerId], references: [id])
+  customerId String?
+  // Relations for promotions
+  coupon            Coupon? @relation(fields: [couponId], references: [id])
+  couponId          String?
+  flashSale         FlashSale? @relation(fields: [flashSaleId], references: [id])
+  flashSaleId       String?
+  exclusiveOffer    ExclusiveOffer? @relation(fields: [exclusiveOfferId], references: [id])
+  exclusiveOfferId  String?
 
   @@map("orders")
 }
@@ -801,6 +841,8 @@ model Conversation {
   user       User?     @relation("ConversationUser", fields: [userId], references: [id])
   assignedTo User?     @relation("ConversationAssignedTo", fields: [assignedToId], references: [id])
   messages   Message[]
+  chatbot    ChatBot?  @relation(fields: [chatbotId], references: [id])
+  chatbotId  String?
 
   @@map("conversations")
 }
@@ -1000,6 +1042,9 @@ model Coupon {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relationships
+  orders Order[]
+
   @@map("coupons")
 }
 
@@ -1007,6 +1052,836 @@ enum CouponType {
   PERCENTAGE
   FIXED_AMOUNT
   FREE_SHIPPING
+}
+
+// ============================================================================
+// FLASH SALES & EXCLUSIVE OFFERS
+// ============================================================================
+
+model FlashSale {
+  id          String @id @default(uuid())
+  name        Json // { ar: "عرض فلاش", en: "Flash Sale" }
+  description Json?
+
+  // Sale settings
+  discountType FlashSaleDiscountType
+  discountValue Decimal @db.Decimal(10, 2) // Percentage or fixed amount
+  maxDiscount   Decimal? @db.Decimal(10, 2) // Max discount for percentage sales
+  minOrderValue Decimal? @db.Decimal(10, 2) // Minimum order value
+
+  // Timing
+  startDate DateTime
+  endDate   DateTime
+
+  // Status
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
+  // Display settings
+  bannerImage String?
+  countdownEnabled Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  products FlashSaleProduct[]
+  orders   Order[]
+
+  @@map("flash_sales")
+}
+
+enum FlashSaleDiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model FlashSaleProduct {
+  id         String @id @default(uuid())
+  flashSaleId String
+  productId   String
+
+  // Product-specific settings
+  discountValue Decimal? @db.Decimal(10, 2) // Override flash sale discount
+  maxQuantity   Int? // Limit quantity per customer
+  stockLimit    Int? // Limit total stock for this sale
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  flashSale FlashSale @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([flashSaleId, productId])
+  @@map("flash_sale_products")
+}
+
+model ExclusiveOffer {
+  id          String @id @default(uuid())
+  name        Json // { ar: "عرض حصري", en: "Exclusive Offer" }
+  description Json?
+
+  // Offer settings
+  discountType ExclusiveOfferDiscountType
+  discountValue Decimal @db.Decimal(10, 2)
+  maxDiscount   Decimal? @db.Decimal(10, 2)
+  minOrderValue Decimal? @db.Decimal(10, 2)
+
+  // Customer segmentation
+  customerSegments Json // Array of segment IDs or criteria
+  customerIds      String[] // Specific customer IDs
+
+  // Timing
+  startDate DateTime
+  endDate   DateTime?
+
+  // Status
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
+  // Display settings
+  bannerImage String?
+  priority    Int @default(0) // Higher number = higher priority
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  products ExclusiveOfferProduct[]
+  orders   Order[]
+
+  @@map("exclusive_offers")
+}
+
+enum ExclusiveOfferDiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+  BUY_X_GET_Y
+}
+
+model ExclusiveOfferProduct {
+  id              String @id @default(uuid())
+  exclusiveOfferId String
+  productId        String
+
+  // Product-specific settings
+  discountValue Decimal? @db.Decimal(10, 2)
+  maxQuantity   Int?
+  stockLimit    Int?
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  exclusiveOffer ExclusiveOffer @relation(fields: [exclusiveOfferId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([exclusiveOfferId, productId])
+  @@map("exclusive_offer_products")
+}
+
+// ============================================================================
+// CUSTOMER SEGMENTATION & LOYALTY
+// ============================================================================
+
+model CustomerSegment {
+  id          String @id @default(uuid())
+  name        Json // { ar: "عملاء VIP", en: "VIP Customers" }
+  description Json?
+  
+  // Segmentation criteria
+  criteria    Json // { minOrders: 10, minSpent: 1000, tags: ["premium"] }
+  
+  // Benefits
+  benefits    Json // { discount: 10, freeShipping: true, earlyAccess: true }
+  
+  // Status
+  isActive    Boolean @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  customers   Customer[]
+  
+  @@map("customer_segments")
+}
+
+model Customer {
+  id          String @id @default(uuid())
+  userId      String @unique
+  segmentId   String?
+  
+  // Customer data
+  firstName   String
+  lastName    String
+  email       String @unique
+  phone       String?
+  dateOfBirth DateTime?
+  gender      String?
+  
+  // Address
+  addresses   Address[]
+  
+  // Loyalty data
+  loyaltyPoints    Int @default(0)
+  totalSpent       Decimal @default(0) @db.Decimal(10, 2)
+  totalOrders      Int @default(0)
+  lastOrderDate    DateTime?
+  
+  // Preferences
+  preferences Json // { newsletter: true, sms: false, language: "en" }
+  tags        String[] // Custom tags for segmentation
+  
+  // Status
+  isActive    Boolean @default(true)
+  isVerified  Boolean @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  segment     CustomerSegment? @relation(fields: [segmentId], references: [id])
+  orders      Order[]
+  favorites   Favorite[]
+  wishlists   Wishlist[]
+  loyaltyTransactions LoyaltyTransaction[]
+  loyaltyTier LoyaltyTier? @relation(fields: [loyaltyTierId], references: [id])
+  loyaltyTierId String?
+  targetedCampaigns TargetedCampaign[]
+  store       Store? @relation(fields: [storeId], references: [id])
+  storeId     String?
+  
+  @@map("customers")
+}
+
+model LoyaltyTier {
+  id          String @id @default(uuid())
+  name        Json // { ar: "برونزي", en: "Bronze" }
+  description Json?
+  
+  // Tier requirements
+  minPoints   Int
+  minSpent    Decimal @db.Decimal(10, 2)
+  minOrders   Int
+  
+  // Tier benefits
+  benefits    Json // { discount: 5, freeShipping: false, pointsMultiplier: 1.0 }
+  
+  // Status
+  isActive    Boolean @default(true)
+  sortOrder   Int @default(0)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  customers   Customer[]
+  
+  @@map("loyalty_tiers")
+}
+
+model LoyaltyTransaction {
+  id          String @id @default(uuid())
+  customerId  String
+  orderId     String?
+  
+  // Transaction details
+  type        LoyaltyTransactionType
+  points      Int // Positive for earned, negative for redeemed
+  description Json // { ar: "نقاط مكافأة", en: "Reward Points" }
+  
+  // Status
+  status      LoyaltyTransactionStatus @default(COMPLETED)
+  expiresAt   DateTime?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order       Order? @relation(fields: [orderId], references: [id])
+  
+  @@map("loyalty_transactions")
+}
+
+enum LoyaltyTransactionType {
+  EARNED
+  REDEEMED
+  EXPIRED
+  ADJUSTED
+  BONUS
+}
+
+enum LoyaltyTransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================================================
+// WISHLIST & TARGETED OFFERS
+// ============================================================================
+
+model Wishlist {
+  id          String @id @default(uuid())
+  customerId  String
+  name        String? // Custom wishlist name
+  isPublic    Boolean @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items       WishlistItem[]
+  
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id          String @id @default(uuid())
+  wishlistId  String
+  productId   String
+  variantId   String?
+  quantity    Int @default(1)
+  notes       String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  wishlist    Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  @@unique([wishlistId, productId, variantId])
+  @@map("wishlist_items")
+}
+
+model TargetedOffer {
+  id          String @id @default(uuid())
+  name        Json // { ar: "عرض خاص", en: "Special Offer" }
+  description Json?
+  
+  // Targeting criteria
+  targetSegments String[] // Customer segment IDs
+  targetTags     String[] // Customer tags
+  targetProducts String[] // Product IDs
+  
+  // Offer details
+  offerType   TargetedOfferType
+  offerValue  Decimal @db.Decimal(10, 2)
+  minOrderValue Decimal? @db.Decimal(10, 2)
+  
+  // Timing
+  startDate   DateTime
+  endDate     DateTime?
+  
+  // Status
+  isActive    Boolean @default(true)
+  isSent      Boolean @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  campaigns   TargetedCampaign[]
+  
+  @@map("targeted_offers")
+}
+
+model TargetedCampaign {
+  id          String @id @default(uuid())
+  offerId     String
+  customerId  String
+  
+  // Campaign details
+  status      CampaignStatus @default(PENDING)
+  sentAt      DateTime?
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  convertedAt DateTime?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  offer       TargetedOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@unique([offerId, customerId])
+  @@map("targeted_campaigns")
+}
+
+enum TargetedOfferType {
+  DISCOUNT_PERCENTAGE
+  DISCOUNT_FIXED
+  FREE_SHIPPING
+  FREE_PRODUCT
+  LOYALTY_BONUS
+}
+
+enum CampaignStatus {
+  PENDING
+  SENT
+  OPENED
+  CLICKED
+  CONVERTED
+  EXPIRED
+}
+
+// ============================================================================
+// SETTINGS & CONFIGURATION
+// ============================================================================
+
+model StoreSettings {
+  id          String @id @default(uuid())
+  
+  // Store Information
+  storeName   Json // { ar: "متجر سوليفا", en: "Soleva Store" }
+  storeDescription Json?
+  storeLogo   String?
+  storeFavicon String?
+  
+  // Contact Information
+  email       String
+  phone       String
+  address     Json // { ar: "العنوان", en: "Address" }
+  
+  // Business Information
+  taxNumber   String?
+  businessLicense String?
+  currency    String @default("EGP")
+  timezone    String @default("Africa/Cairo")
+  language    String @default("en")
+  
+  // Social Media
+  socialMedia Json // { facebook: "", instagram: "", twitter: "" }
+  
+  // SEO Settings
+  metaTitle   Json?
+  metaDescription Json?
+  metaKeywords Json?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("store_settings")
+}
+
+model IntegrationSettings {
+  id          String @id @default(uuid())
+  
+  // Payment Gateways
+  paymentGateways Json // { paymob: { enabled: true, apiKey: "" }, fawry: { enabled: false } }
+  
+  // Shipping Providers
+  shippingProviders Json // { aramex: { enabled: true, apiKey: "" } }
+  
+  // Email Service
+  emailService Json // { provider: "sendgrid", apiKey: "", fromEmail: "" }
+  
+  // SMS Service
+  smsService Json // { provider: "twilio", apiKey: "", fromNumber: "" }
+  
+  // Analytics
+  analytics Json // { googleAnalytics: "", facebookPixel: "" }
+  
+  // Social Login
+  socialLogin Json // { google: { enabled: true, clientId: "" }, facebook: { enabled: false } }
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("integration_settings")
+}
+
+model SecuritySettings {
+  id          String @id @default(uuid())
+  
+  // Password Policy
+  passwordPolicy Json // { minLength: 8, requireUppercase: true, requireNumbers: true }
+  
+  // Session Settings
+  sessionTimeout Int @default(3600) // seconds
+  maxLoginAttempts Int @default(5)
+  lockoutDuration Int @default(900) // seconds
+  
+  // 2FA Settings
+  twoFactorRequired Boolean @default(false)
+  twoFactorMethods Json // { sms: true, email: true, authenticator: true }
+  
+  // API Security
+  apiRateLimit Int @default(100) // requests per minute
+  apiKeyExpiry Int @default(365) // days
+  
+  // Audit Settings
+  auditLogRetention Int @default(90) // days
+  logFailedAttempts Boolean @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("security_settings")
+}
+
+// ============================================================================
+// ROLE-BASED ACCESS CONTROL (RBAC)
+// ============================================================================
+
+
+model Permission {
+  id          String @id @default(uuid())
+  name        String @unique
+  resource    String // e.g., "products", "orders", "customers"
+  action      String // e.g., "create", "read", "update", "delete"
+  description String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+// ============================================================================
+// AI CHAT & LIVE SUPPORT
+// ============================================================================
+
+model ChatBot {
+  id          String @id @default(uuid())
+  name        String
+  description String?
+  
+  // AI Configuration
+  model       String @default("gpt-3.5-turbo")
+  systemPrompt String
+  temperature Float @default(0.7)
+  maxTokens   Int @default(1000)
+  
+  // Behavior Settings
+  autoRespond Boolean @default(true)
+  escalationRules Json // Rules for when to escalate to human
+  
+  // Status
+  isActive    Boolean @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  conversations Conversation[]
+  
+  @@map("chatbots")
+}
+
+model ChatTemplate {
+  id          String @id @default(uuid())
+  name        String
+  category    String // "greeting", "product_inquiry", "order_support", etc.
+  
+  // Template Content
+  content     Json // { ar: "مرحبا", en: "Hello" }
+  variables   Json // Available variables for personalization
+  
+  // Status
+  isActive    Boolean @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("chat_templates")
+}
+
+model EscalationRule {
+  id          String @id @default(uuid())
+  name        String
+  description String?
+  
+  // Rule Conditions
+  conditions  Json // { keywords: ["refund", "complaint"], sentiment: "negative" }
+  
+  // Escalation Actions
+  actions     Json // { notifyAdmins: true, assignTo: "support_team" }
+  
+  // Priority
+  priority    Int @default(1)
+  
+  // Status
+  isActive    Boolean @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("escalation_rules")
+}
+
+// ============================================================================
+// MULTI-STORE MANAGEMENT
+// ============================================================================
+
+model Store {
+  id          String @id @default(uuid())
+  name        Json // { ar: "متجر القاهرة", en: "Cairo Store" }
+  description Json?
+  
+  // Store Information
+  domain      String @unique
+  subdomain   String @unique
+  logo        String?
+  favicon     String?
+  
+  // Contact Information
+  email       String
+  phone       String
+  address     Json // { ar: "العنوان", en: "Address" }
+  
+  // Business Information
+  taxNumber   String?
+  businessLicense String?
+  currency    String @default("EGP")
+  timezone    String @default("Africa/Cairo")
+  language    String @default("en")
+  
+  // Store Settings
+  settings    Json // Store-specific settings
+  theme       Json // Store theme configuration
+  
+  // Status
+  isActive    Boolean @default(true)
+  isDefault   Boolean @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  products    StoreProduct[]
+  categories  StoreCategory[]
+  orders      Order[]
+  customers   Customer[]
+  inventory   StoreInventory[]
+  promotions  StorePromotion[]
+  
+  @@map("stores")
+}
+
+model StoreProduct {
+  id          String @id @default(uuid())
+  storeId     String
+  productId   String
+  
+  // Store-specific pricing
+  price       Decimal @db.Decimal(10, 2)
+  comparePrice Decimal? @db.Decimal(10, 2)
+  costPrice   Decimal? @db.Decimal(10, 2)
+  
+  // Store-specific inventory
+  stockQuantity Int @default(0)
+  lowStockThreshold Int @default(5)
+  
+  // Store-specific settings
+  isActive    Boolean @default(true)
+  isFeatured  Boolean @default(false)
+  sortOrder   Int @default(0)
+  
+  // Store-specific SEO
+  metaTitle   Json?
+  metaDescription Json?
+  metaKeywords Json?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  store       Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([storeId, productId])
+  @@map("store_products")
+}
+
+model StoreCategory {
+  id          String @id @default(uuid())
+  storeId     String
+  categoryId  String
+  
+  // Store-specific settings
+  isActive    Boolean @default(true)
+  isFeatured  Boolean @default(false)
+  sortOrder   Int @default(0)
+  
+  // Store-specific SEO
+  metaTitle   Json?
+  metaDescription Json?
+  metaKeywords Json?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  store       Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@unique([storeId, categoryId])
+  @@map("store_categories")
+}
+
+model StoreInventory {
+  id          String @id @default(uuid())
+  storeId     String
+  productId   String
+  variantId   String?
+  
+  // Inventory tracking
+  stockQuantity Int @default(0)
+  reservedQuantity Int @default(0)
+  availableQuantity Int @default(0)
+  lowStockThreshold Int @default(5)
+  
+  // Location tracking
+  warehouse   String?
+  shelf       String?
+  bin         String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  store       Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  @@unique([storeId, productId, variantId])
+  @@map("store_inventory")
+}
+
+model StorePromotion {
+  id          String @id @default(uuid())
+  storeId     String
+  
+  // Promotion details
+  name        Json // { ar: "عرض خاص", en: "Special Offer" }
+  description Json?
+  type        StorePromotionType
+  value       Decimal @db.Decimal(10, 2)
+  
+  // Targeting
+  targetProducts String[] // Product IDs
+  targetCategories String[] // Category IDs
+  targetCustomers String[] // Customer IDs
+  
+  // Conditions
+  minOrderValue Decimal? @db.Decimal(10, 2)
+  maxUsage      Int?
+  usageCount    Int @default(0)
+  
+  // Timing
+  startDate   DateTime
+  endDate     DateTime?
+  
+  // Status
+  isActive    Boolean @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  store       Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  @@map("store_promotions")
+}
+
+enum StorePromotionType {
+  DISCOUNT_PERCENTAGE
+  DISCOUNT_FIXED
+  FREE_SHIPPING
+  BUY_X_GET_Y
+  FREE_PRODUCT
+}
+
+// ============================================================================
+// REAL-TIME INFRASTRUCTURE
+// ============================================================================
+
+model RealtimeEvent {
+  id          String @id @default(uuid())
+  
+  // Event details
+  type        String // 'order_created', 'inventory_updated', 'customer_registered'
+  entityType  String // 'Order', 'Product', 'Customer'
+  entityId    String
+  
+  // Event data
+  data        Json // Event payload
+  metadata    Json? // Additional metadata
+  
+  // Targeting
+  targetUsers String[] // User IDs to notify
+  targetStores String[] // Store IDs
+  
+  // Status
+  isProcessed Boolean @default(false)
+  processedAt DateTime?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  @@map("realtime_events")
+}
+
+model WebSocketConnection {
+  id          String @id @default(uuid())
+  userId      String
+  storeId     String?
+  
+  // Connection details
+  socketId    String @unique
+  userAgent   String?
+  ipAddress   String?
+  
+  // Status
+  isActive    Boolean @default(true)
+  lastPing    DateTime @default(now())
+  
+  // Timestamps
+  connectedAt DateTime @default(now())
+  disconnectedAt DateTime?
+  
+  // Relationships
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("websocket_connections")
 }
 
 // ============================================================================

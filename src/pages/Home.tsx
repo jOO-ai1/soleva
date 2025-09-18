@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiTruck, FiShield, FiHeadphones, FiArrowRight } from 'react-icons/fi';
 import { useLang, useTranslation } from '../contexts/LangContext';
-import { products } from '../data/products';
+import { useProducts } from '../hooks/useApi';
 import GlassCard from '../components/GlassCard';
 import GlassButton from '../components/GlassButton';
 import Logo from '../components/Logo';
@@ -13,7 +13,10 @@ export default function Home() {
   const { lang } = useLang();
   const t = useTranslation();
 
-  const featuredProducts = products.slice(0, 6);
+  // Fetch products from API
+  const { data: productsResponse, loading: productsLoading, error: productsError } = useProducts();
+  const products = productsResponse || [];
+  const featuredProducts = products.filter(p => p.isFeatured).slice(0, 6);
 
   const features = [
     {
@@ -165,50 +168,108 @@ export default function Home() {
             </p>
           </motion.div>
           
-          <div className="mobile-products-grid sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {featuredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10, scale: 1.03 }}
-               className="product-card group interactive-hover"
-              >
-                <Link to={`/product/${product.id}`} className="block h-full">
-                 <div className="product-card-image">
-                    <img 
-                      src={product.image} 
-                      alt={product.name[lang]}
-                      loading={index < 3 ? "eager" : "lazy"}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-115"
-                    />
-                    <FavoriteButton productId={product.id} />
-                  </div>
-                  
-                 <div className="product-card-content">
-                   <h3 className="product-card-title">
-                      {product.name[lang]}
-                    </h3>
-                   <p className="product-card-description">
-                      {product.desc[lang]}
-                    </p>
-                   <div className="product-card-price">
-                      {product.price} {t("egp")}
+          {productsLoading ? (
+            <div className="text-center py-16">
+              <GlassCard className="max-w-md mx-auto">
+                <div className="text-6xl mb-4">⏳</div>
+                <h3 className="text-xl font-semibold mb-2 text-text-primary">
+                  {lang === "ar" ? "جاري التحميل..." : "Loading..."}
+                </h3>
+                <p className="text-text-secondary">
+                  {lang === "ar" 
+                    ? "جاري جلب المنتجات المميزة"
+                    : "Fetching featured products"
+                  }
+                </p>
+              </GlassCard>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-16">
+              <GlassCard className="max-w-md mx-auto">
+                <div className="text-6xl mb-4">❌</div>
+                <h3 className="text-xl font-semibold mb-2 text-text-primary">
+                  {lang === "ar" ? "خطأ في التحميل" : "Loading Error"}
+                </h3>
+                <p className="text-text-secondary">
+                  {lang === "ar" 
+                    ? "حدث خطأ أثناء جلب المنتجات"
+                    : "An error occurred while fetching products"
+                  }
+                </p>
+              </GlassCard>
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="text-center py-16">
+              <GlassCard className="max-w-md mx-auto">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold mb-2 text-text-primary">
+                  {lang === "ar" ? "لا توجد منتجات مميزة" : "No Featured Products"}
+                </h3>
+                <p className="text-text-secondary">
+                  {lang === "ar" 
+                    ? "لا توجد منتجات مميزة متاحة حالياً"
+                    : "No featured products available at the moment"
+                  }
+                </p>
+              </GlassCard>
+            </div>
+          ) : (
+            <div className="mobile-products-grid sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -10, scale: 1.03 }}
+                 className="product-card group interactive-hover"
+                >
+                  <Link to={`/product/${product.slug}`} className="block h-full">
+                   <div className="product-card-image">
+                      <img 
+                        src={Array.isArray(product.images) ? product.images[0] : product.images} 
+                        alt={product.name[lang] || product.name.en}
+                        loading={index < 3 ? "eager" : "lazy"}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-115"
+                      />
+                      <FavoriteButton productId={product.id} />
                     </div>
-                   <div className="product-card-actions">
-                      <GlassButton 
-                        variant="primary"
-                        className="w-full text-[#000000]"
-                      >
-                        {t("viewDetails")}
-                      </GlassButton>
+                    
+                   <div className="product-card-content">
+                     <h3 className="product-card-title">
+                        {product.name[lang] || product.name.en}
+                      </h3>
+                     <p className="product-card-description">
+                        {product.description[lang] || product.description.en}
+                      </p>
+                     <div className="product-card-price">
+                        {product.salePrice ? (
+                          <>
+                            <span className="line-through text-text-secondary mr-2">
+                              {Number(product.basePrice)} {t("egp")}
+                            </span>
+                            <span className="text-primary font-semibold">
+                              {Number(product.salePrice)} {t("egp")}
+                            </span>
+                          </>
+                        ) : (
+                          <span>{Number(product.basePrice)} {t("egp")}</span>
+                        )}
+                      </div>
+                     <div className="product-card-actions">
+                        <GlassButton 
+                          variant="primary"
+                          className="w-full text-[#000000]"
+                        >
+                          {t("viewDetails")}
+                        </GlassButton>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
           
           <motion.div
             initial={{ opacity: 0, y: 30 }}

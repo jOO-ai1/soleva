@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { Form, Input, Button, Card, message, Alert, Space, Divider } from 'antd';
+import { Form, Input, Button, Card, message, Alert, Space, Divider, Typography } from 'antd';
 import { UserOutlined, LockOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+
+const { Title, Text } = Typography;
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -10,6 +14,7 @@ const Login = () => {
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState('');
   const { login } = useAuth();
+  const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogin = async (values: { email: string; password: string }) => {
@@ -20,16 +25,16 @@ const Login = () => {
       if (result.success) {
         if (result.requiresTwoFactor) {
           setRequiresTwoFactor(true);
-          message.info('Please enter your 2FA code');
+          message.info(t('twoFactorRequired'));
         } else {
-          message.success('Login successful!');
+          message.success(t('loginSuccess'));
           navigate('/dashboard');
         }
       } else {
-        message.error(result.message || 'Login failed');
+        message.error(result.message || t('loginError'));
       }
     } catch (error) {
-      message.error('An unexpected error occurred');
+      message.error(t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -37,7 +42,7 @@ const Login = () => {
 
   const handleTwoFactorSubmit = async () => {
     if (!twoFactorToken) {
-      message.error('Please enter your 2FA code');
+      message.error(t('enterTwoFactorCode'));
       return;
     }
 
@@ -47,29 +52,79 @@ const Login = () => {
       const result = await login(values.email, values.password, twoFactorToken);
       
       if (result.success) {
-        message.success('Login successful!');
+        message.success(t('loginSuccess'));
         navigate('/dashboard');
       } else {
-        message.error(result.message || 'Invalid 2FA code');
+        message.error(result.message || t('invalidTwoFactorCode'));
         setTwoFactorToken('');
       }
     } catch (error) {
-      message.error('An unexpected error occurred');
+      message.error(t('unexpectedError'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-md w-full mx-4">
-        <Card className="shadow-2xl border-0">
-          <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mb-4">
-              <UserOutlined className="text-2xl text-white" />
+    <div 
+      className="admin-layout" 
+      dir={isRTL ? 'rtl' : 'ltr'}
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)',
+        padding: 'var(--space-4)',
+      }}
+    >
+      <div style={{ 
+        position: 'absolute', 
+        top: '24px', 
+        [isRTL ? 'left' : 'right']: '24px',
+        zIndex: 10,
+      }}>
+        <LanguageSwitcher />
+      </div>
+      
+      <div style={{ maxWidth: '400px', width: '100%' }}>
+        <Card className="glass animate-fade-in-scale" style={{
+          border: 'none',
+          borderRadius: 'var(--radius-2xl)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
+          overflow: 'hidden',
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            marginBottom: 'var(--space-8)',
+            padding: 'var(--space-6) var(--space-6) 0',
+          }}>
+            <div style={{
+              margin: '0 auto var(--space-6)',
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+              borderRadius: 'var(--radius-full)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 25px var(--primary-300)',
+            }}>
+              <UserOutlined style={{ fontSize: '32px', color: '#000000' }} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
-            <p className="text-gray-600 mt-2">Sign in to your account</p>
+            <Title level={2} style={{ 
+              color: 'var(--text-primary)', 
+              marginBottom: 'var(--space-2)',
+              fontWeight: '700',
+            }}>
+              Soleva Admin
+            </Title>
+            <Text style={{ 
+              color: 'var(--text-secondary)',
+              fontSize: 'var(--text-base)',
+            }}>
+              {t('signInToAccount')}
+            </Text>
           </div>
 
           {!requiresTwoFactor ? (
@@ -79,43 +134,70 @@ const Login = () => {
               onFinish={handleLogin}
               layout="vertical"
               size="large"
+              style={{ padding: '0 var(--space-6) var(--space-6)' }}
             >
               <Form.Item
                 name="email"
-                label="Email Address"
+                label={<Text strong style={{ color: 'var(--text-primary)' }}>{t('email')}</Text>}
                 rules={[
-                  { required: true, message: 'Please enter your email' },
-                  { type: 'email', message: 'Please enter a valid email' }
+                  { required: true, message: t('required') },
+                  { type: 'email', message: t('invalidEmail') }
                 ]}
               >
                 <Input
-                  prefix={<UserOutlined className="text-gray-400" />}
+                  prefix={<UserOutlined style={{ color: 'var(--text-tertiary)' }} />}
                   placeholder="admin@solevaeg.com"
+                  className="form-input"
+                  style={{
+                    height: '48px',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid var(--border-primary)',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'blur(20px)',
+                  }}
                 />
               </Form.Item>
 
               <Form.Item
                 name="password"
-                label="Password"
+                label={<Text strong style={{ color: 'var(--text-primary)' }}>{t('password')}</Text>}
                 rules={[
-                  { required: true, message: 'Please enter your password' },
-                  { min: 6, message: 'Password must be at least 6 characters' }
+                  { required: true, message: t('required') },
+                  { min: 6, message: t('minLength', { min: 6 }) }
                 ]}
               >
                 <Input.Password
-                  prefix={<LockOutlined className="text-gray-400" />}
-                  placeholder="Enter your password"
+                  prefix={<LockOutlined style={{ color: 'var(--text-tertiary)' }} />}
+                  placeholder={t('enterPassword')}
+                  className="form-input"
+                  style={{
+                    height: '48px',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid var(--border-primary)',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'blur(20px)',
+                  }}
                 />
               </Form.Item>
 
-              <Form.Item>
+              <Form.Item style={{ marginBottom: 'var(--space-6)' }}>
                 <Button
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  className="w-full h-12 text-lg font-medium"
+                  className="btn btn-primary"
+                  style={{
+                    width: '100%',
+                    height: '48px',
+                    fontSize: 'var(--text-base)',
+                    fontWeight: '600',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                    border: 'none',
+                    boxShadow: '0 6px 20px var(--primary-300)',
+                  }}
                 >
-                  Sign In
+                  {t('login')}
                 </Button>
               </Form.Item>
             </Form>

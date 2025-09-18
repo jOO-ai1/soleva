@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import * as React from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiLock, FiLogIn, FiEye, FiEyeOff } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '../contexts/ToastContext';
+import { FiUser } from 'react-icons/fi';
+import { HiLockClosed } from 'react-icons/hi';
+import { HiLogin } from 'react-icons/hi';
+import { HiEye } from 'react-icons/hi';
+import { HiEyeOff } from 'react-icons/hi';
+
+// Import React hooks
+const { useState } = React;
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang, useTranslation } from '../contexts/LangContext';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 import AuthWarningModal from '../components/AuthWarningModal';
@@ -12,8 +18,8 @@ import GlassButton from '../components/GlassButton';
 import SocialLogin from '../components/SocialLogin';
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const { showToast } = useToast();
+  const auth = useAuthSafe();
+  const login = auth?.login;
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = useTranslation();
@@ -30,11 +36,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   function validateForm() {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
     
     if (!email) {
       newErrors.email = t("requiredField");
@@ -57,29 +63,27 @@ export default function LoginPage() {
     
     if (!validateForm()) return;
     
+    if (!login) {
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       const result = await login(email, password);
       
       if (result.success) {
-        showToast(t("loginSuccess"));
         // Execute pending action if there was one, otherwise go to account
         const actionExecuted = executePendingAction();
         if (!actionExecuted) {
           navigate("/account");
         }
       } else {
-        // Handle different error types
-        if (result.errorType === 'account_not_found') {
-          // Show signup modal for account not found
-          handleSignUpClick();
-        } else {
-          showToast(result.message || (lang === "ar" ? "فشل في تسجيل الدخول" : "Login failed"));
-        }
+        // Error handling is now done by the AuthContext with notification banners
       }
-    } catch (error) {
-      showToast(lang === "ar" ? "حدث خطأ أثناء تسجيل الدخول" : "Login failed");
+    } catch (error: any) {
+      console.error('Login error:', error);
+      // Error handling is now done by the AuthContext with notification banners
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +105,7 @@ export default function LoginPage() {
               transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
               className="w-20 h-20 bg-[#d1b16a]/20 rounded-full flex items-center justify-center mx-auto mb-4"
             >
-              <FiLogIn size={32} className="text-[#d1b16a]" />
+              <HiLogin size={32} />
             </motion.div>
             <h1 className="text-3xl font-bold mb-2 text-[#111]">{t("login")}</h1>
             <p className="text-gray-600">
@@ -122,9 +126,9 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={e => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setEmail(e.target.value);
-                    if (errors.email) setErrors({...errors, email: null});
+                    if (errors.email) setErrors({...errors, email: ''});
                   }}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
                     errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'
@@ -144,14 +148,14 @@ export default function LoginPage() {
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <FiLock size={20} />
+                  <HiLockClosed size={20} />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={e => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setPassword(e.target.value);
-                    if (errors.password) setErrors({...errors, password: null});
+                    if (errors.password) setErrors({...errors, password: ''});
                   }}
                   className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
                     errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'
@@ -163,7 +167,7 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
               {errors.password && (
@@ -171,21 +175,30 @@ export default function LoginPage() {
               )}
             </div>
 
-            <GlassButton 
-              type="submit" 
-              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300"
+            <button 
+              type="submit"
+              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" />
               ) : (
                 <>
-                  <FiLogIn />
+                  <HiLogin />
                   {t("login")}
                 </>
               )}
-            </GlassButton>
+            </button>
           </form>
+
+          <div className="text-center mt-4">
+            <Link 
+              to="/forgot-password" 
+              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors text-sm"
+            >
+              {lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot Password?"}
+            </Link>
+          </div>
 
           <SocialLogin mode="login" onSuccess={() => navigate("/account")} />
 

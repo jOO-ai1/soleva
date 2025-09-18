@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 
 interface AuthGuardOptions {
   action?: string; // Description of the action being performed
@@ -9,7 +9,9 @@ interface AuthGuardOptions {
 }
 
 export function useAuthGuard() {
-  const { isAuthenticated, user } = useAuth();
+  const auth = useAuthSafe();
+  const isAuthenticated = auth?.isAuthenticated || false;
+  const user = auth?.user;
   const navigate = useNavigate();
   
   const [showWarning, setShowWarning] = useState(false);

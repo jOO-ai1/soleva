@@ -220,6 +220,7 @@ export const disable2FA = async (req: AuthenticatedRequest, res: Response): Prom
     }
 
     // Verify password
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const bcrypt = require('bcrypt');
     const userWithPassword = await prisma.user.findUnique({
       where: { id: user.id },

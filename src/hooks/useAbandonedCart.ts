@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 
 interface AbandonedCartConfig {
   timeoutMinutes: number;
@@ -16,7 +16,8 @@ const DEFAULT_CONFIG: AbandonedCartConfig = {
 
 export const useAbandonedCart = (config: AbandonedCartConfig = DEFAULT_CONFIG) => {
   const { cart } = useCart();
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<Date>(new Date());
   const abandonmentTrackedRef = useRef<boolean>(false);

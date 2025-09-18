@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             localStorage.removeItem('admin_token');
             localStorage.removeItem('admin_user');
           }
-        } catch (error) {
+        } catch {
           localStorage.removeItem('admin_token');
           localStorage.removeItem('admin_user');
         }
@@ -84,10 +84,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         return { success: false, message: response.message || 'Login failed' };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Login failed. Please try again.';
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Login failed. Please try again.' 
+        message: errorMessage || 'Login failed. Please try again.' 
       };
     }
   };
@@ -95,7 +98,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     try {
       await authAPI.logout();
-    } catch (error) {
+    } catch {
       // Continue with logout even if API call fails
     } finally {
       localStorage.removeItem('admin_token');
@@ -112,7 +115,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(response.data);
         localStorage.setItem('admin_user', JSON.stringify(response.data));
       }
-    } catch (error) {
+    } catch {
       // Failed to refresh user data
     }
   };

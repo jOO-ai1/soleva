@@ -4,7 +4,7 @@ import { GlobalOutlined } from '@ant-design/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const LanguageSwitcher: React.FC = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, isRTL } = useLanguage();
 
   const languageOptions = [
     {
@@ -45,11 +45,12 @@ const LanguageSwitcher: React.FC = () => {
     <Dropdown
       menu={{ items: languageOptions }}
       trigger={['click']}
-      placement={language === 'ar' ? 'bottomLeft' : 'bottomRight'}
+      placement={isRTL ? 'bottomLeft' : 'bottomRight'}
     >
       <Button
         type="text"
         icon={<GlobalOutlined />}
+        className="language-switcher-btn"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -58,6 +59,8 @@ const LanguageSwitcher: React.FC = () => {
           padding: '4px 8px',
           border: 'none',
           background: 'transparent',
+          color: 'var(--text-primary)',
+          transition: 'all var(--transition-normal)',
         }}
       >
         <span className="language-label">

@@ -1,5 +1,40 @@
 import { API_CONFIG, API_ENDPOINTS, buildApiUrl, getAuthHeaders } from '../config/api';
 
+// Exponential backoff with jitter
+async function retryWithBackoff<T>(fn: () => Promise<T>, opts?: { retries?: number; baseMs?: number; maxMs?: number }): Promise<T> {
+  const retries = opts?.retries ?? 3;
+  const baseMs = opts?.baseMs ?? 300;
+  const maxMs = opts?.maxMs ?? 3000;
+  let attempt = 0;
+  let lastError: unknown;
+  while (attempt <= retries) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt === retries) break;
+      const jitter = Math.random() * baseMs;
+      const delay = Math.min(baseMs * 2 ** attempt + jitter, maxMs);
+      await new Promise((res) => setTimeout(res, delay));
+      attempt += 1;
+    }
+  }
+  throw lastError;
+}
+
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const id = setTimeout(() => reject(new Error('Request timeout')), ms);
+    p.then((v) => {
+      clearTimeout(id);
+      resolve(v);
+    }).catch((e) => {
+      clearTimeout(id);
+      reject(e);
+    });
+  });
+}
+
 // Generic API response type
 export interface ApiResponse<T = any> {
   data: T;
@@ -33,27 +68,49 @@ class ApiClient {
     };
 
     try {
-      const response = await fetch(url, config);
-      const data = await response.json();
+      const doFetch = async () => {
+        const response = await withTimeout(fetch(url, config), API_CONFIG.TIMEOUT);
+        let data: any = null;
+        // Some endpoints may return 204 No Content
+        if (response.status !== 204) {
+          try {
+            data = await response.json();
+          } catch {
+            data = null;
+          }
+        }
 
-      if (!response.ok) {
-        throw {
-          message: data.message || 'An error occurred',
-          errors: data.errors || {},
+        if (!response.ok) {
+          // Retry on 5xx
+          if (response.status >= 500) {
+            throw new Error(`Server error ${response.status}`);
+          }
+          throw {
+            message: (data && (data.message || data.error)) || 'An error occurred',
+            errors: (data && data.errors) || {},
+            status: response.status,
+          } as ApiError;
+        }
+
+        return {
+          data: (data && (data.data || data)) as T,
+          message: data?.message,
           status: response.status,
-        } as ApiError;
-      }
-
-      return {
-        data: data.data || data,
-        message: data.message,
-        status: response.status,
-        success: true,
+          success: true,
+        } as ApiResponse<T>;
       };
+
+      return await retryWithBackoff(() => doFetch());
     } catch (error) {
       if (error instanceof TypeError) {
         throw {
           message: 'Network error. Please check your connection.',
+          status: 0,
+        } as ApiError;
+      }
+      if (error instanceof Error && error.message === 'Request timeout') {
+        throw {
+          message: 'Request timeout. Please try again.',
           status: 0,
         } as ApiError;
       }
@@ -125,7 +182,7 @@ export const authApi = {
   login: (credentials: { email: string; password: string }) =>
     apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
   
-  register: (userData: { name: string; email: string; password: string; password_confirmation: string }) =>
+  register: (userData: { name: string; email: string; phoneNumber: string; password: string; password_confirmation: string }) =>
     apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
   
   logout: () =>
@@ -136,6 +193,15 @@ export const authApi = {
   
   updateProfile: (data: any) =>
     apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
+  
+  disconnectGoogle: () =>
+    apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
+  
+  forgotPassword: (data: { email: string; phoneNumber: string }) =>
+    apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
+  
+  resetPassword: (data: { token: string; newPassword: string }) =>
+    apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
 };
 
 export const productsApi = {

@@ -1,524 +1,509 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
+  Card, 
   Table,
   Button,
   Space,
-  Modal,
-  Form,
   Input,
   Select,
   Tag,
-  Card,
+  Modal, 
+  Form, 
+  Popconfirm,
+  Typography,
   Row,
   Col,
-  Typography,
-  Descriptions,
-  message,
-  Tabs,
-  Divider,
-  Avatar,
   Statistic,
-  DatePicker,
+  Badge,
+  Descriptions,
+  Avatar,
+  Tabs
 } from 'antd';
 import {
+  SearchOutlined,
   EyeOutlined,
   EditOutlined,
-  SearchOutlined,
-  FilterOutlined,
+  DeleteOutlined,
   UserOutlined,
-  ShoppingCartOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  ShoppingOutlined,
   DollarOutlined,
+  CalendarOutlined,
+  StarOutlined,
 } from '@ant-design/icons';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useNotification } from '../components/NotificationSystem';
 import { customersAPI } from '../services/api';
-import type { ColumnsType } from 'antd/es/table';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { Search } = Input;
 const { Option } = Select;
-const { TextArea } = Input;
 const { TabPane } = Tabs;
-const { RangePicker } = DatePicker;
 
 interface Customer {
   id: string;
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
   avatar?: string;
-  isActive: boolean;
+  status: 'active' | 'inactive' | 'suspended';
   totalOrders: number;
   totalSpent: number;
-  lastOrderDate?: string;
-  registrationDate: string;
-  preferredLanguage: string;
   loyaltyPoints: number;
+  registrationDate: string;
+  lastLogin: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  preferences: {
+    language: string;
+    currency: string;
+    notifications: boolean;
+  };
 }
 
-interface CustomerOrder {
-  id: string;
-  orderNumber: string;
-  totalAmount: number;
-  orderStatus: string;
-  paymentStatus: string;
-  createdAt: string;
-}
-
-const Customers = () => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+const Customers: React.FC = () => {
+  const { t } = useLanguage();
+  const { showSuccess, showError } = useNotification();
   const [loading, setLoading] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [customerOrders, setCustomerOrders] = useState<CustomerOrder[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [form] = Form.useForm();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchText, setSearchText] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
-  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [_form] = Form.useForm();
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await customersAPI.getAll({
-        search: searchText,
-        status: filterStatus,
-      });
-      
-      if (response.success && response.data) {
-        setCustomers(response.data);
+      const response = await customersAPI.getAll();
+      if (response.success) {
+        setCustomers(response.data || []);
       }
     } catch (error) {
-      message.error('Failed to fetch customers');
+      console.error('Error fetching customers:', error);
+      showError(t('error'), t('fetchCustomersError'));
     } finally {
       setLoading(false);
     }
+  }, [showError, t]);
+
+  const filterCustomers = useCallback(() => {
+    let filtered = customers;
+
+    if (searchText) {
+      filtered = filtered.filter(customer =>
+        customer.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchText.toLowerCase()) ||
+        customer.phone.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    if (selectedStatus) {
+      filtered = filtered.filter(customer => customer.status === selectedStatus);
+    }
+
+    setFilteredCustomers(filtered);
+  }, [customers, searchText, selectedStatus]);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
+
+  useEffect(() => {
+    filterCustomers();
+  }, [filterCustomers]);
+
+  const handleViewCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsModalVisible(true);
   };
 
-  const handleViewCustomer = async (customerId: string) => {
+  const handleUpdateCustomer = async (customerId: string, data: any) => {
     try {
-      const [customerRes, ordersRes] = await Promise.all([
-        customersAPI.getById(customerId),
-        customersAPI.getOrderHistory(customerId),
-      ]);
-
-      if (customerRes.success && customerRes.data) {
-        setSelectedCustomer(customerRes.data);
-        setModalVisible(true);
-      }
-
-      if (ordersRes.success && ordersRes.data) {
-        setCustomerOrders(ordersRes.data);
+      const response = await customersAPI.update(customerId, data);
+      if (response.success) {
+        showSuccess(t('updateSuccess'));
+        fetchCustomers();
+      } else {
+        showError(t('error'), response.message || t('updateError'));
       }
     } catch (error) {
-      message.error('Failed to fetch customer details');
+      console.error('Error updating customer:', error);
+      showError(t('error'), t('updateError'));
     }
   };
 
-  const handleEditCustomer = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    form.setFieldsValue({
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      isActive: customer.isActive,
-      preferredLanguage: customer.preferredLanguage,
-    });
-    setEditModalVisible(true);
-  };
-
-  const handleUpdateCustomer = async (values: any) => {
-    if (!selectedCustomer) return;
-
+  const handleDeleteCustomer = async (id: string) => {
     try {
-      const response = await customersAPI.update(selectedCustomer.id, values);
+      const response = await customersAPI.delete(id);
       if (response.success) {
-        message.success('Customer updated successfully');
-        setEditModalVisible(false);
+        showSuccess(t('deleteSuccess'));
         fetchCustomers();
-        if (modalVisible) {
-          handleViewCustomer(selectedCustomer.id);
-        }
       } else {
-        message.error('Failed to update customer');
+        showError(t('error'), response.message || t('deleteError'));
       }
     } catch (error) {
-      message.error('Failed to update customer');
+      console.error('Error deleting customer:', error);
+      showError(t('error'), t('deleteError'));
     }
   };
 
   const getStatusColor = (status: string) => {
-    return status === 'ACTIVE' ? 'green' : 'red';
+    switch (status) {
+      case 'active': return 'success';
+      case 'inactive': return 'warning';
+      case 'suspended': return 'error';
+      default: return 'default';
+    }
   };
 
-  const columns: ColumnsType<Customer> = [
+  const columns = [
     {
-      title: 'Customer',
+      title: t('customer'),
+      dataIndex: 'name',
       key: 'customer',
-      render: (_, record) => (
-        <div className="flex items-center space-x-3">
-          <Avatar
-            size={40}
-            src={record.avatar}
+      render: (text: string, record: Customer) => (
+        <Space>
+          <Avatar 
+            src={record.avatar} 
             icon={<UserOutlined />}
+            style={{ backgroundColor: 'var(--primary)' }}
           />
           <div>
-            <div className="font-medium">{record.name}</div>
-            <div className="text-sm text-gray-500">{record.email}</div>
+            <Text strong>{text}</Text>
+            <div>
+              <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
+                {record.email}
+              </Text>
+            </div>
           </div>
-        </div>
+        </Space>
       ),
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toString().toLowerCase()) ||
-        record.email.toLowerCase().includes(value.toString().toLowerCase()),
     },
     {
-      title: 'Phone',
+      title: t('phone'),
       dataIndex: 'phone',
       key: 'phone',
-      render: (phone: string) => phone || 'N/A',
+      render: (phone: string) => (
+        <Space>
+          <PhoneOutlined />
+          <Text>{phone}</Text>
+        </Space>
+      ),
     },
     {
-      title: 'Total Orders',
+      title: t('customerTotalOrders'),
       dataIndex: 'totalOrders',
       key: 'totalOrders',
-      sorter: (a, b) => a.totalOrders - b.totalOrders,
       render: (orders: number) => (
-        <div className="flex items-center space-x-1">
-          <ShoppingCartOutlined />
-          <span>{orders}</span>
-        </div>
+        <Badge count={orders} style={{ backgroundColor: 'var(--primary)' }} />
       ),
     },
     {
-      title: 'Total Spent',
+      title: t('totalSpent'),
       dataIndex: 'totalSpent',
       key: 'totalSpent',
-      sorter: (a, b) => a.totalSpent - b.totalSpent,
       render: (amount: number) => (
-        <div className="flex items-center space-x-1">
-          <DollarOutlined />
-          <span>${amount.toFixed(2)}</span>
-        </div>
+        <Text strong style={{ color: 'var(--success)' }}>
+          ${amount.toFixed(2)}
+        </Text>
       ),
     },
     {
-      title: 'Loyalty Points',
+      title: t('loyaltyPoints'),
       dataIndex: 'loyaltyPoints',
       key: 'loyaltyPoints',
-      sorter: (a, b) => a.loyaltyPoints - b.loyaltyPoints,
       render: (points: number) => (
-        <Tag color="gold">{points} pts</Tag>
+        <Space>
+          <StarOutlined style={{ color: 'var(--warning)' }} />
+          <Text>{points}</Text>
+        </Space>
       ),
     },
     {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? 'Active' : 'Inactive'}
-        </Tag>
+      title: t('status'),
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>
+          {t(status as any)}
+            </Tag>
       ),
-      filters: [
-        { text: 'Active', value: true },
-        { text: 'Inactive', value: false },
-      ],
-      onFilter: (value, record) => record.isActive === value,
     },
     {
-      title: 'Registration Date',
+      title: t('registrationDate'),
       dataIndex: 'registrationDate',
       key: 'registrationDate',
       render: (date: string) => new Date(date).toLocaleDateString(),
-      sorter: (a, b) => new Date(a.registrationDate).getTime() - new Date(b.registrationDate).getTime(),
     },
     {
-      title: 'Actions',
+      title: t('actions'),
       key: 'actions',
-      width: 150,
-      render: (_, record) => (
+      render: (_, record: Customer) => (
         <Space>
           <Button
             type="text"
             icon={<EyeOutlined />}
-            onClick={() => handleViewCustomer(record.id)}
-          >
-            View
-          </Button>
+            size="small"
+            onClick={() => handleViewCustomer(record)}
+          />
           <Button
             type="text"
             icon={<EditOutlined />}
-            onClick={() => handleEditCustomer(record)}
+            size="small"
+            onClick={() => handleViewCustomer(record)}
+          />
+          <Popconfirm
+            title={t('confirmDelete')}
+            onConfirm={() => handleDeleteCustomer(record.id)}
+            okText={t('delete')}
+            cancelText={t('cancel')}
           >
-            Edit
-          </Button>
+            <Button
+              type="text"
+              icon={<DeleteOutlined />} 
+              size="small"
+              danger
+            />
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
-  const orderColumns: ColumnsType<CustomerOrder> = [
-    {
-      title: 'Order Number',
-      dataIndex: 'orderNumber',
-      key: 'orderNumber',
-    },
-    {
-      title: 'Total Amount',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (amount: number) => `$${amount.toFixed(2)}`,
-    },
-    {
-      title: 'Order Status',
-      dataIndex: 'orderStatus',
-      key: 'orderStatus',
-      render: (status: string) => (
-        <Tag color={status === 'DELIVERED' ? 'green' : status === 'CANCELLED' ? 'red' : 'blue'}>
-          {status}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Payment Status',
-      dataIndex: 'paymentStatus',
-      key: 'paymentStatus',
-      render: (status: string) => (
-        <Tag color={status === 'PAID' ? 'green' : status === 'FAILED' ? 'red' : 'orange'}>
-          {status}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Date',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-  ];
+  const stats = {
+    totalCustomers: customers.length,
+    activeCustomers: customers.filter(c => c.status === 'active').length,
+    newCustomers: customers.filter(c => {
+      const regDate = new Date(c.registrationDate);
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return regDate > thirtyDaysAgo;
+    }).length,
+    totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0),
+  };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2} style={{ margin: 0 }}>Customers Management</Title>
+    <div className="customers-container">
+      <div style={{ marginBottom: 'var(--space-6)' }}>
+        <Title level={2} style={{ color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>
+          {t('customers')}
+        </Title>
+        <Text style={{ color: 'var(--text-secondary)' }}>
+          {t('manageCustomersDescription')}
+        </Text>
       </div>
 
-      <Card>
-        <div className="mb-4">
-          <Row gutter={16}>
-            <Col span={8}>
-              <Input
-                placeholder="Search customers..."
-                prefix={<SearchOutlined />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                onPressEnter={fetchCustomers}
-              />
-            </Col>
-            <Col span={6}>
-              <Select
-                placeholder="Filter by status"
-                style={{ width: '100%' }}
-                value={filterStatus}
-                onChange={setFilterStatus}
-                allowClear
-              >
-                <Option value="active">Active</Option>
-                <Option value="inactive">Inactive</Option>
-              </Select>
-            </Col>
-            <Col span={4}>
-              <Button
-                icon={<FilterOutlined />}
-                onClick={fetchCustomers}
-                style={{ width: '100%' }}
-              >
-                Apply Filters
-              </Button>
-            </Col>
-          </Row>
-        </div>
+      {/* Stats Cards */}
+      <Row gutter={[24, 24]} style={{ marginBottom: 'var(--space-6)' }}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <Statistic
+              title={t('totalCustomers')}
+              value={stats.totalCustomers}
+              prefix={<UserOutlined style={{ color: 'var(--primary)' }} />}
+              valueStyle={{ color: 'var(--primary)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <Statistic
+              title={t('activeCustomers')}
+              value={stats.activeCustomers}
+              prefix={<UserOutlined style={{ color: 'var(--success)' }} />}
+              valueStyle={{ color: 'var(--success)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <Statistic
+              title={t('newCustomers')}
+              value={stats.newCustomers}
+              prefix={<UserOutlined style={{ color: 'var(--info)' }} />}
+              valueStyle={{ color: 'var(--info)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <Statistic
+              title={t('totalRevenue')}
+              value={stats.totalRevenue}
+              prefix={<DollarOutlined style={{ color: 'var(--success)' }} />}
+              valueStyle={{ color: 'var(--success)' }}
+              precision={2}
+            />
+          </Card>
+        </Col>
+      </Row>
 
-        <Table
-          columns={columns}
-          dataSource={customers}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} customers`,
-          }}
-          scroll={{ x: 1000 }}
-        />
+      {/* Filters */}
+      <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.5s', marginBottom: 'var(--space-6)' }}>
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={12} md={8}>
+            <Search
+              placeholder={t('searchCustomers')}
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+              prefix={<SearchOutlined />}
+              style={{ width: '100%' }}
+                  />
+                </Col>
+          <Col xs={24} sm={12} md={6}>
+                  <Select
+              placeholder={t('status')}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+                    style={{ width: '100%' }}
+                    allowClear
+                  >
+              <Option value="active">{t('active')}</Option>
+              <Option value="inactive">{t('inactive')}</Option>
+              <Option value="suspended">{t('suspended')}</Option>
+                  </Select>
+                </Col>
+              </Row>
       </Card>
+
+      {/* Customers Table */}
+      <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <Table
+          columns={columns}
+              dataSource={filteredCustomers}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} ${t('customers')}`,
+              }}
+          scroll={{ x: 1000 }}
+            />
+          </Card>
 
       {/* Customer Details Modal */}
       <Modal
-        title={`Customer Details - ${selectedCustomer?.name}`}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
+        title={`${t('customerDetails')} - ${selectedCustomer?.name}`}
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
         width={800}
+        className="glass"
+        footer={null}
       >
         {selectedCustomer && (
           <Tabs defaultActiveKey="profile">
-            <TabPane tab="Profile" key="profile">
-              <div className="flex items-center space-x-4 mb-6">
-                <Avatar
-                  size={80}
-                  src={selectedCustomer.avatar}
-                  icon={<UserOutlined />}
-                />
-                <div>
-                  <Title level={4} style={{ margin: 0 }}>{selectedCustomer.name}</Title>
-                  <p className="text-gray-500">{selectedCustomer.email}</p>
-                  <Tag color={selectedCustomer.isActive ? 'green' : 'red'}>
-                    {selectedCustomer.isActive ? 'Active' : 'Inactive'}
-                  </Tag>
-                </div>
-              </div>
-
-              <Row gutter={16}>
+            <TabPane tab={t('profile')} key="profile">
+              <Row gutter={[24, 24]}>
                 <Col span={8}>
-                  <Statistic
-                    title="Total Orders"
-                    value={selectedCustomer.totalOrders}
-                    prefix={<ShoppingCartOutlined />}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Statistic
-                    title="Total Spent"
-                    value={selectedCustomer.totalSpent}
-                    prefix={<DollarOutlined />}
-                    precision={2}
-                    formatter={(value) => `$${Number(value).toLocaleString()}`}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Statistic
-                    title="Loyalty Points"
-                    value={selectedCustomer.loyaltyPoints}
-                    suffix="pts"
-                  />
-                </Col>
-              </Row>
-
-              <Divider />
-
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="Email" span={1}>
-                  {selectedCustomer.email}
-                </Descriptions.Item>
-                <Descriptions.Item label="Phone" span={1}>
-                  {selectedCustomer.phone || 'N/A'}
-                </Descriptions.Item>
-                <Descriptions.Item label="Preferred Language" span={1}>
-                  {selectedCustomer.preferredLanguage}
-                </Descriptions.Item>
-                <Descriptions.Item label="Registration Date" span={1}>
-                  {new Date(selectedCustomer.registrationDate).toLocaleDateString()}
-                </Descriptions.Item>
-                <Descriptions.Item label="Last Order" span={1}>
-                  {selectedCustomer.lastOrderDate 
-                    ? new Date(selectedCustomer.lastOrderDate).toLocaleDateString()
-                    : 'No orders yet'
-                  }
-                </Descriptions.Item>
-              </Descriptions>
+                  <div style={{ textAlign: 'center' }}>
+                    <Avatar 
+                      size={100} 
+                      src={selectedCustomer.avatar} 
+                      icon={<UserOutlined />}
+                      style={{ backgroundColor: 'var(--primary)' }}
+                    />
+                    <Title level={4} style={{ marginTop: 'var(--space-4)' }}>
+                      {selectedCustomer.name}
+                    </Title>
+                    <Tag color={getStatusColor(selectedCustomer.status)}>
+                      {t(selectedCustomer.status)}
+                    </Tag>
+                  </div>
+            </Col>
+                <Col span={16}>
+                  <Descriptions column={1} size="small">
+                    <Descriptions.Item label={t('customerEmail')}>
+                      <Space>
+                        <MailOutlined />
+                        {selectedCustomer.email}
+                      </Space>
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('customerPhone')}>
+                      <Space>
+                        <PhoneOutlined />
+                        {selectedCustomer.phone}
+                      </Space>
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('registrationDate')}>
+                      <Space>
+                        <CalendarOutlined />
+                        {new Date(selectedCustomer.registrationDate).toLocaleDateString()}
+                      </Space>
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('lastLogin')}>
+                      <Space>
+                        <CalendarOutlined />
+                        {new Date(selectedCustomer.lastLogin).toLocaleDateString()}
+                      </Space>
+                    </Descriptions.Item>
+                  </Descriptions>
+            </Col>
+          </Row>
             </TabPane>
-
-            <TabPane tab="Order History" key="orders">
-              <Table
-                dataSource={customerOrders}
-                columns={orderColumns}
-                rowKey="id"
-                loading={ordersLoading}
-                pagination={{
-                  pageSize: 5,
-                  showSizeChanger: false,
-                }}
-              />
+            
+            <TabPane tab={t('orders')} key="orders">
+              <Card size="small">
+                <Row gutter={[16, 16]}>
+            <Col span={8}>
+                    <Statistic
+                      title={t('customerTotalOrders')}
+                      value={selectedCustomer.totalOrders}
+                      prefix={<ShoppingOutlined />}
+                    />
+            </Col>
+            <Col span={8}>
+                    <Statistic
+                      title={t('totalSpent')}
+                      value={selectedCustomer.totalSpent}
+                      prefix={<DollarOutlined />}
+                      precision={2}
+                    />
+            </Col>
+            <Col span={8}>
+                    <Statistic
+                      title={t('loyaltyPoints')}
+                      value={selectedCustomer.loyaltyPoints}
+                      prefix={<StarOutlined />}
+                    />
+            </Col>
+          </Row>
+              </Card>
+            </TabPane>
+            
+            <TabPane tab={t('address')} key="address">
+              <Card size="small">
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label={t('street')}>
+                    {selectedCustomer.address.street}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('city')}>
+                    {selectedCustomer.address.city}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('state')}>
+                    {selectedCustomer.address.state}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('zipCode')}>
+                    {selectedCustomer.address.zipCode}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('country')}>
+                    {selectedCustomer.address.country}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
             </TabPane>
           </Tabs>
         )}
-      </Modal>
-
-      {/* Edit Customer Modal */}
-      <Modal
-        title="Edit Customer"
-        open={editModalVisible}
-        onCancel={() => setEditModalVisible(false)}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleUpdateCustomer}
-        >
-          <Form.Item
-            name="name"
-            label="Full Name"
-            rules={[{ required: true, message: 'Please enter full name' }]}
-          >
-            <Input placeholder="Enter full name" />
-          </Form.Item>
-
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: 'Please enter email' },
-              { type: 'email', message: 'Please enter valid email' }
-            ]}
-          >
-            <Input placeholder="Enter email" />
-          </Form.Item>
-
-          <Form.Item
-            name="phone"
-            label="Phone Number"
-          >
-            <Input placeholder="Enter phone number" />
-          </Form.Item>
-
-          <Form.Item
-            name="preferredLanguage"
-            label="Preferred Language"
-            rules={[{ required: true, message: 'Please select language' }]}
-          >
-            <Select placeholder="Select language">
-              <Option value="en">English</Option>
-              <Option value="ar">Arabic</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="isActive"
-            label="Status"
-            valuePropName="checked"
-          >
-            <Select placeholder="Select status">
-              <Option value={true}>Active</Option>
-              <Option value={false}>Inactive</Option>
-            </Select>
-          </Form.Item>
-
-          <div className="flex justify-end space-x-2">
-            <Button onClick={() => setEditModalVisible(false)}>
-              Cancel
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Update Customer
-            </Button>
-          </div>
-        </Form>
       </Modal>
     </div>
   );

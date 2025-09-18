@@ -1,7 +1,11 @@
 // API Configuration for Backend Integration
 export const API_CONFIG = {
-  // Base URL - can be overridden by environment variable
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  // Base URL - prefer VITE_API_URL (common), fallback to VITE_API_BASE_URL
+  BASE_URL:
+    import.meta.env.VITE_API_URL ||
+    (typeof window !== 'undefined' && (window.location.hostname === 'solevaeg.com' || window.location.hostname === 'www.solevaeg.com')
+      ? 'https://api.solevaeg.com/api/v1'
+      : 'http://localhost:3001/api/v1'),
   
   // API Version
   VERSION: 'v1',
@@ -31,6 +35,9 @@ export const API_ENDPOINTS = {
     PROFILE: '/auth/customer/profile',
     GOOGLE: '/auth/customer/google',
     FACEBOOK: '/auth/customer/facebook',
+    DISCONNECT_GOOGLE: '/auth/customer/disconnect-google',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
   },
   
   // Products
@@ -39,6 +46,12 @@ export const API_ENDPOINTS = {
     SHOW: (id: number) => `/products/${id}`,
     SEARCH: '/products/search',
     FILTER: '/products/filter',
+  },
+  
+  // Categories
+  CATEGORIES: {
+    LIST: '/categories',
+    SHOW: (id: string) => `/categories/${id}`,
   },
   
   // Collections
@@ -99,6 +112,9 @@ export const API_ENDPOINTS = {
     REQUEST_HUMAN: '/chat/request-human',
     UPLOAD: '/chat/upload',
   },
+
+  // Configuration
+  CONFIG: '/config',
 };
 
 // Helper function to build full URL
@@ -114,7 +130,12 @@ export const buildApiUrl = (endpoint: string): string => {
 
 // Helper function to get auth headers
 export const getAuthHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem(API_CONFIG.AUTH_TOKEN_KEY);
+  let token: string | null = null;
+  try {
+    token = localStorage.getItem(API_CONFIG.AUTH_TOKEN_KEY);
+  } catch {
+    token = null;
+  }
   
   return token 
     ? { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` }

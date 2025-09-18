@@ -35,6 +35,34 @@ export const translations = {
     addSuccess: "Product added to cart",
     removeSuccess: "Product removed from cart",
     updateSuccess: "Quantity updated",
+    
+    // Notification Messages
+    // Success Messages
+    registrationSuccess: "Registration successful",
+    loginSuccessBanner: "Welcome back! You have been logged in successfully.",
+    logoutSuccess: "You have been logged out successfully",
+    passwordResetSuccess: "Password reset email sent successfully",
+    profileUpdateSuccess: "Profile updated successfully",
+    
+    // Error Messages
+    invalidPassword: "Invalid password",
+    accountNotFound: "Account not found. You can create a new one",
+    tooManyAttempts: "Too many attempts. Try again later",
+    serverConnectionError: "Unable to connect to the server",
+    googleLoginFailed: "Google login failed",
+    registrationFailed: "Registration failed. Please try again",
+    networkError: "Network error. Please check your connection",
+    emailNotVerified: "Please verify your email before logging in",
+    accountDisabled: "Account is disabled, please contact support",
+    accountLocked: "Account is temporarily locked, please try again later",
+    captchaRequired: "Please complete the security verification",
+    
+    // Warning Messages
+    sessionExpired: "Your session has expired. Please log in again",
+    unsavedChanges: "You have unsaved changes. Are you sure you want to leave?",
+    
+    // Info Messages
+    processing: "Processing your request...",
     orderNumber: "Order #",
     status: "Status",
     date: "Date",
@@ -147,8 +175,7 @@ export const translations = {
     logIn: "Log In",
     signUp: "Sign Up",
     continueWithAction: "Continue with your action",
-    invalidCredentials: "Invalid credentials. Please check your email and password.",
-    accountNotFound: "Account not found in our system."
+    invalidCredentials: "Invalid credentials. Please check your email and password."
   },
   ar: {
     home: "الرئيسية",
@@ -186,6 +213,34 @@ export const translations = {
     addSuccess: "تمت إضافة المنتج للسلة",
     removeSuccess: "تم إزالة المنتج من السلة",
     updateSuccess: "تم تحديث الكمية",
+    
+    // Notification Messages
+    // Success Messages
+    registrationSuccess: "تم التسجيل بنجاح",
+    loginSuccessBanner: "مرحباً بعودتك! تم تسجيل دخولك بنجاح.",
+    logoutSuccess: "تم تسجيل خروجك بنجاح",
+    passwordResetSuccess: "تم إرسال رابط إعادة تعيين كلمة المرور بنجاح",
+    profileUpdateSuccess: "تم تحديث الملف الشخصي بنجاح",
+    
+    // Error Messages
+    invalidPassword: "كلمة المرور غير صحيحة",
+    accountNotFound: "الحساب غير مسجل. يمكنك إنشاء حساب جديد",
+    tooManyAttempts: "عدد المحاولات تجاوز الحد. حاول لاحقًا",
+    serverConnectionError: "تعذر الاتصال بالخادم",
+    googleLoginFailed: "فشل تسجيل الدخول عبر Google",
+    registrationFailed: "فشل التسجيل. يرجى المحاولة مرة أخرى",
+    networkError: "خطأ في الشبكة. يرجى التحقق من اتصالك",
+    emailNotVerified: "يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول",
+    accountDisabled: "الحساب معطل، يرجى التواصل مع الدعم",
+    accountLocked: "الحساب مقفل مؤقتاً، يرجى المحاولة لاحقاً",
+    captchaRequired: "يرجى إكمال التحقق من الأمان",
+    
+    // Warning Messages
+    sessionExpired: "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى",
+    unsavedChanges: "لديك تغييرات غير محفوظة. هل أنت متأكد من المغادرة؟",
+    
+    // Info Messages
+    processing: "جاري معالجة طلبك...",
     orderNumber: "رقم الطلب",
     status: "الحالة",
     date: "التاريخ",
@@ -298,7 +353,6 @@ export const translations = {
     logIn: "تسجيل الدخول",
     signUp: "تسجيل",
     continueWithAction: "متابعة الإجراء",
-    invalidCredentials: "بيانات الدخول غير صحيحة. يرجى التحقق من البريد الإلكتروني وكلمة المرور.",
-    accountNotFound: "الحساب غير موجود في نظامنا."
+    invalidCredentials: "بيانات الدخول غير صحيحة. يرجى التحقق من البريد الإلكتروني وكلمة المرور."
   }
 };

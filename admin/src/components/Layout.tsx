@@ -1,8 +1,11 @@
 import { useState, ReactNode } from 'react';
-import { Layout as AntLayout, Menu, Avatar, Dropdown, Button, Badge } from 'antd';
+import { Layout as AntLayout, Menu, Avatar, Dropdown, Button, Badge, Space, Typography } from 'antd';
 import {
   DashboardOutlined,
   ShoppingOutlined,
+  AppstoreOutlined,
+  FireOutlined,
+  GiftOutlined,
   FileTextOutlined,
   UserOutlined,
   SettingOutlined,
@@ -14,11 +17,19 @@ import {
   TeamOutlined,
   MessageOutlined,
   LogoutOutlined,
+  CustomerServiceOutlined,
+  ShopOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  BellOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const { Header, Sider, Content } = AntLayout;
+const { Text } = Typography;
 
 interface LayoutProps {
   children: ReactNode;
@@ -29,67 +40,93 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { t, isRTL } = useLanguage();
 
   const menuItems = [
     {
       key: '/dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: t('dashboard'),
     },
     {
       key: '/products',
       icon: <ShoppingOutlined />,
-      label: 'Products',
+      label: t('products'),
+    },
+    {
+      key: '/categories',
+      icon: <AppstoreOutlined />,
+      label: t('categories'),
+    },
+    {
+      key: '/flash-sales',
+      icon: <FireOutlined />,
+      label: t('flashSales'),
+    },
+    {
+      key: '/coupons',
+      icon: <GiftOutlined />,
+      label: t('coupons'),
     },
     {
       key: '/orders',
       icon: <FileTextOutlined />,
-      label: 'Orders',
+      label: t('orders'),
     },
     {
       key: '/customers',
       icon: <UserOutlined />,
-      label: 'Customers',
+      label: t('customers'),
     },
     {
       key: '/inventory',
       icon: <InboxOutlined />,
-      label: 'Inventory',
+      label: t('inventory'),
     },
     {
       key: '/shipping',
       icon: <TruckOutlined />,
-      label: 'Shipping',
+      label: t('shipping'),
     },
     {
       key: '/cms',
       icon: <EditOutlined />,
-      label: 'CMS',
+      label: t('cms'),
     },
     {
       key: '/reports',
       icon: <BarChartOutlined />,
-      label: 'Reports',
+      label: t('reports'),
     },
     {
       key: '/users',
       icon: <TeamOutlined />,
-      label: 'Users',
+      label: t('users'),
     },
     {
       key: '/chat',
       icon: <MessageOutlined />,
-      label: 'AI Chat',
+      label: t('aiChat'),
+    },
+    {
+      key: '/chat-support',
+      icon: <CustomerServiceOutlined />,
+      label: t('chatSupport'),
+    },
+    {
+      key: '/multi-store',
+      icon: <ShopOutlined />,
+      label: t('multiStore'),
     },
     {
       key: '/audit-logs',
       icon: <AuditOutlined />,
-      label: 'Audit Logs',
+      label: t('auditLogs'),
     },
     {
       key: '/settings',
       icon: <SettingOutlined />,
-      label: 'Settings',
+      label: t('settings'),
     },
   ];
 
@@ -106,12 +143,12 @@ const Layout = ({ children }: LayoutProps) => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: 'Profile',
+      label: t('profile'),
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: 'Settings',
+      label: t('settings'),
     },
     {
       type: 'divider' as const,
@@ -119,73 +156,140 @@ const Layout = ({ children }: LayoutProps) => {
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: 'Logout',
+      label: t('logout'),
       onClick: handleLogout,
     },
   ];
 
   return (
-    <AntLayout style={{ minHeight: '100vh' }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        theme="dark"
-        width={250}
-      >
-        <div className="p-4 text-center">
-          <h2 className="text-white text-lg font-bold">
+    <div className="admin-layout" dir={isRTL ? 'rtl' : 'ltr'}>
+      <AntLayout style={{ minHeight: '100vh', background: 'transparent' }}>
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          className="admin-sidebar"
+          width={280}
+          collapsedWidth={80}
+          style={{
+            background: 'transparent',
+            borderRight: '1px solid var(--border-primary)',
+          }}
+        >
+          <div className="glass" style={{
+            height: '64px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '16px',
+            borderRadius: 'var(--radius-xl)',
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+            color: '#000000',
+            fontWeight: '700',
+            fontSize: collapsed ? 'var(--text-lg)' : 'var(--text-xl)',
+            boxShadow: '0 8px 25px var(--primary-300)',
+          }}>
             {collapsed ? 'SA' : 'Soleva Admin'}
-          </h2>
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={handleMenuClick}
-        />
-      </Sider>
-      
-      <AntLayout>
-        <Header className="bg-white shadow-sm px-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-800">
-              {menuItems.find(item => item.key === location.pathname)?.label || 'Admin Panel'}
-            </h1>
           </div>
           
-          <div className="flex items-center space-x-4">
-            <Badge count={5} size="small">
-              <Button
-                type="text"
-                icon={<MessageOutlined />}
-                onClick={() => navigate('/chat')}
-              />
-            </Badge>
-            
-            <Dropdown
-              menu={{ items: userMenuItems }}
-              placement="bottomRight"
-              arrow
-            >
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <Avatar
-                  src={user?.avatar}
-                  icon={<UserOutlined />}
-                  size="small"
-                />
-                <span className="text-gray-700">{user?.name}</span>
-              </div>
-            </Dropdown>
-          </div>
-        </Header>
+          <Menu
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            onClick={handleMenuClick}
+            className="admin-menu"
+            style={{ 
+              border: 'none',
+              background: 'transparent',
+              padding: '0 16px',
+            }}
+            theme="light"
+          />
+        </Sider>
         
-        <Content className="p-6 bg-gray-50">
-          {children}
-        </Content>
+        <AntLayout style={{ background: 'transparent' }}>
+          <Header className="admin-header" style={{
+            background: 'transparent',
+            padding: '0 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '64px',
+            lineHeight: '64px',
+          }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              className="btn-ghost"
+              style={{ 
+                fontSize: '16px', 
+                width: 48, 
+                height: 48,
+                borderRadius: 'var(--radius-lg)',
+                color: 'var(--text-primary)',
+              }}
+            />
+            
+            <Space size="middle">
+              <Badge count={5} size="small">
+                <Button 
+                  type="text" 
+                  icon={<BellOutlined />} 
+                  className="btn-ghost"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--text-primary)',
+                  }}
+                />
+              </Badge>
+              
+              <LanguageSwitcher />
+              
+              <Dropdown
+                menu={{ items: userMenuItems }}
+                placement={isRTL ? 'bottomLeft' : 'bottomRight'}
+                trigger={['click']}
+              >
+                <Space style={{ cursor: 'pointer' }} className="user-profile">
+                  <Avatar
+                    src={user?.avatar}
+                    icon={<UserOutlined />}
+                    style={{ 
+                      backgroundColor: 'var(--primary)',
+                      color: '#000000',
+                      border: '2px solid var(--primary-200)',
+                    }}
+                  />
+                  {!collapsed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                      <Text strong style={{ color: 'var(--text-primary)', fontSize: 'var(--text-sm)' }}>
+                        {user?.name || user?.email}
+                      </Text>
+                      <Text style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-xs)' }}>
+                        {user?.role}
+                      </Text>
+                    </div>
+                  )}
+                </Space>
+              </Dropdown>
+            </Space>
+          </Header>
+          
+          <Content className="admin-content">
+            <div className="glass animate-fade-in-up" style={{
+              padding: 'var(--space-6)',
+              minHeight: 'calc(100vh - 112px)',
+              borderRadius: 'var(--radius-xl)',
+            }}>
+              {children}
+            </div>
+          </Content>
+        </AntLayout>
       </AntLayout>
-    </AntLayout>
+    </div>
   );
 };
 

@@ -55,7 +55,7 @@ class EncryptionService {
       const iv = crypto.randomBytes(IV_LENGTH);
       const key = this.deriveKey(salt, options.key);
 
-      const cipher = crypto.createCipher(ALGORITHM, key);
+      const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
       cipher.setAAD(salt); // Additional authenticated data
 
       let encrypted = cipher.update(plaintext, 'utf8', 'hex');
@@ -80,14 +80,14 @@ class EncryptionService {
    */
   decrypt(encryptedData: EncryptedData, options: EncryptionOptions = {}): string {
     try {
-      const { encrypted, salt, tag } = encryptedData;
+      const { encrypted, iv, salt, tag } = encryptedData;
       
       const saltBuffer = Buffer.from(salt, 'hex');
-      // const ivBuffer = Buffer.from(iv, 'hex'); // Unused
+      const ivBuffer = Buffer.from(iv, 'hex');
       const tagBuffer = Buffer.from(tag, 'hex');
       const key = this.deriveKey(saltBuffer, options.key);
 
-      const decipher = crypto.createDecipher(ALGORITHM, key);
+      const decipher = crypto.createDecipheriv(ALGORITHM, key, ivBuffer);
       decipher.setAAD(saltBuffer);
       decipher.setAuthTag(tagBuffer);
 
@@ -173,7 +173,7 @@ class EncryptionService {
     const iv = crypto.randomBytes(IV_LENGTH);
     const key = this.deriveKey(salt, options.key);
 
-    const cipher = crypto.createCipher(ALGORITHM, key);
+    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
     cipher.setAAD(salt);
 
     const encrypted = Buffer.concat([
@@ -208,7 +208,7 @@ class EncryptionService {
 
     // Read IV
     const ivLength = encryptedBuffer.readUInt8(offset++);
-    // const iv = encryptedBuffer.subarray(offset, offset + ivLength); // Unused
+    const iv = encryptedBuffer.subarray(offset, offset + ivLength);
     offset += ivLength;
 
     // Read tag
@@ -220,7 +220,7 @@ class EncryptionService {
     const encrypted = encryptedBuffer.subarray(offset);
 
     const key = this.deriveKey(salt, options.key);
-    const decipher = crypto.createDecipher(ALGORITHM, key);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAAD(salt);
     decipher.setAuthTag(tag);
 

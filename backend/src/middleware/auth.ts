@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { PrismaClient, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -11,16 +11,17 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     name: string;
     role: UserRole;
+    preferredLanguage: string;
   };
 }
 
 export const auth = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
       res.status(401).json({
@@ -30,7 +31,14 @@ export const auth = async (
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    interface JwtPayload {
+      userId: string;
+      email: string;
+      iat: number;
+      exp: number;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     
     // Get fresh user data from database
     const user = await prisma.user.findUnique({
@@ -40,6 +48,7 @@ export const auth = async (
         email: true,
         name: true,
         role: true,
+        preferredLanguage: true,
         isActive: true,
         isVerified: true
       }
@@ -59,7 +68,14 @@ export const auth = async (
       data: { lastLoginAt: new Date() }
     });
 
-    req.user = { ...user, userId: user.id };
+    (req as AuthenticatedRequest).user = { 
+      userId: user.id,
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role as UserRole,
+      preferredLanguage: user.preferredLanguage || 'en'
+    };
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -79,8 +95,9 @@ export const auth = async (
 };
 
 export const requireRole = (allowedRoles: UserRole[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    if (!req.user) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const authReq = req as AuthenticatedRequest;
+    if (!authReq.user) {
       res.status(401).json({
         error: 'Access denied',
         message: 'Authentication required'
@@ -88,7 +105,7 @@ export const requireRole = (allowedRoles: UserRole[]) => {
       return;
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
+    if (!allowedRoles.includes(authReq.user.role)) {
       res.status(403).json({
         error: 'Access denied',
         message: 'Insufficient permissions'
@@ -126,14 +143,14 @@ export const optionalAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
       next();
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -142,12 +159,17 @@ export const optionalAuth = async (
         email: true,
         name: true,
         role: true,
+        preferredLanguage: true,
         isActive: true
       }
     });
 
     if (user && user.isActive) {
-      req.user = { ...user, userId: user.id };
+      (req as AuthenticatedRequest).user = { 
+        ...user, 
+        userId: user.id,
+        preferredLanguage: user.preferredLanguage || 'en'
+      };
     }
 
     next();

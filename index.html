@@ -15,7 +15,7 @@
     <meta name="distribution" content="global" />
     <meta name="rating" content="general" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Soleva" />
     
@@ -50,22 +50,35 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://images.pexels.com" />
     
-    <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" as="style" />
-    
-    <!-- Load fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    
     <!-- DNS prefetch for performance -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://images.pexels.com" />
     
+    <!-- Load fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BXTE45WYZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-BXTE45WYZH');
+    </script>
+    
+    <!-- Google Sign-In Libraries -->
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
+    
     <!-- Performance optimizations -->
     <link rel="preload" as="image" href="/logo.png" />
     
-    <title>Soleva Store - Complete E-commerce Application</title>
+    <!-- Preload critical API endpoints -->
+    <link rel="preload" as="fetch" href="https://api.solevaeg.com/api/v1/products" crossorigin />
+    
+    <!-- Resource hints for better performance -->
+    <link rel="prefetch" href="https://api.solevaeg.com/api/v1/categories" />
+    <link rel="prefetch" href="https://api.solevaeg.com/api/v1/collections" />
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -130,6 +143,12 @@
   </head>
   <body class="optimize-text antialiased">
     <div id="root"></div>
+    
+    <!-- Google Sign-In Configuration (handled by React component) -->
+    <!-- The React SocialLogin component handles all Google Sign-In functionality -->
+    
+    <!-- Google Sign-In is handled by React SocialLogin component -->
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

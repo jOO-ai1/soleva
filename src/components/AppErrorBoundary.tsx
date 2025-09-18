@@ -1,16 +1,17 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import * as React from 'react';
+import { ServiceUnavailable } from './ErrorBoundary';
 
 interface Props {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 interface State {
   hasError: boolean;
   error?: Error;
-  errorInfo?: ErrorInfo;
+  errorInfo?: React.ErrorInfo;
 }
 
-class AppErrorBoundary extends Component<Props, State> {
+class AppErrorBoundary extends React.Component<Props, State> {
   public state: State = {
     hasError: false
   };
@@ -19,13 +20,33 @@ class AppErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('App Error Boundary caught an error:', error, errorInfo);
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log error in development, use proper error reporting in production
+    if (process.env.NODE_ENV === 'development') {
+      console.error('App Error Boundary caught an error:', error, errorInfo);
+    }
     this.setState({ errorInfo });
   }
 
   public render() {
     if (this.state.hasError) {
+      // Check if this is likely a network/API error
+      const isNetworkError = this.state.error?.message?.includes('fetch') || 
+                            this.state.error?.message?.includes('network') ||
+                            this.state.error?.message?.includes('API') ||
+                            this.state.error?.message?.includes('CORS');
+
+      if (isNetworkError) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <ServiceUnavailable 
+              onRetry={() => window.location.reload()}
+              className="max-w-md"
+            />
+          </div>
+        );
+      }
+
       return (
         <div style={{
           minHeight: '100vh',
@@ -58,10 +79,10 @@ class AppErrorBoundary extends Component<Props, State> {
               <li>Browser compatibility issues</li>
             </ul>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {this.state.error && (
               <details style={{ textAlign: 'left', marginBottom: '2rem' }}>
                 <summary style={{ cursor: 'pointer', fontWeight: 'bold', marginBottom: '1rem' }}>
-                  Error Details (Development Mode)
+                  Error Details
                 </summary>
                 <pre style={{
                   backgroundColor: '#f8f9fa',
@@ -70,6 +91,7 @@ class AppErrorBoundary extends Component<Props, State> {
                   overflow: 'auto',
                   fontSize: '0.875rem'
                 }}>
+                  {this.state.error.message}
                   {this.state.error.stack}
                 </pre>
                 {this.state.errorInfo && (

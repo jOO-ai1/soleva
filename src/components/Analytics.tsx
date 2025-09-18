@@ -1,33 +1,144 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+const { useEffect, useCallback } = React;
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 // import { useCart } from '../contexts/CartContext'; // Unused for now
 
 // Google Analytics 4
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
-    fbq: (...args: any[]) => void;
-    gtm: any;
+    gtag: (...args: unknown[]) => void;
+    dataLayer: unknown[];
+    fbq: (...args: unknown[]) => void;
+    gtm: unknown;
   }
 }
 
 interface AnalyticsProps {
-  children: React.ReactNode;
+  children: any;
 }
 
-const Analytics: React.FC<AnalyticsProps> = ({ children }) => {
+const Analytics = ({ children }: AnalyticsProps) => {
   const location = useLocation();
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   // const { cart } = useCart(); // Unused for now
+
+  const initializeGA4 = useCallback(() => {
+    const GA4_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID;
+    
+    if (!GA4_ID || GA4_ID === 'G-XXXXXXXXXX') {
+      // GA4 not configured
+      return;
+    }
+
+    // Load GA4 script
+    const script = document.createElement('script') as HTMLScriptElement;
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`;
+    document.head.appendChild(script);
+
+    // Initialize dataLayer and gtag
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(...args: unknown[]) {
+      window.dataLayer.push(args);
+    };
+
+    window.gtag('js', new Date());
+    window.gtag('config', GA4_ID, {
+      page_title: document.title,
+      page_location: window.location.href,
+      send_page_view: true,
+      // Enhanced ecommerce
+      custom_map: {
+        custom_parameter_1: 'user_type',
+        custom_parameter_2: 'cart_value'
+      }
+    });
+
+    // Set user properties if logged in
+    if (user) {
+      window.gtag('config', GA4_ID, {
+        user_id: user.id,
+        custom_map: {
+          user_type: user.role || 'customer'
+        }
+      });
+    }
+  }, []);
+
+  const initializeFacebookPixel = useCallback(() => {
+    const PIXEL_ID = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
+    
+    if (!PIXEL_ID || PIXEL_ID === 'CHANGE_THIS_PIXEL_ID' || PIXEL_ID.trim() === '') {
+      // Facebook Pixel not configured or temporarily disabled
+      console.log('Facebook Pixel initialization skipped - PIXEL_ID not configured');
+      return;
+    }
+
+    // Facebook Pixel Code
+    (function(f: Window, b: Document, e: string, v: string, n?: any, t?: HTMLScriptElement, s?: Element) {
+      if((f as any).fbq) return;
+      n = f.fbq = function(...args: any[]) {
+        n.callMethod ? n.callMethod(...args) : n.queue.push(args);
+      };
+      if(!(f as any)._fbq) (f as any)._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e) as HTMLScriptElement;
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      if (s && s.parentNode) {
+        s.parentNode.insertBefore(t, s);
+      }
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+    window.fbq('init', PIXEL_ID);
+    window.fbq('track', 'PageView');
+
+    // Track user if logged in
+    if (user) {
+      window.fbq('track', 'CompleteRegistration', {
+        content_name: 'User Login'
+      });
+    }
+  }, []);
+
+  const initializeGTM = () => {
+    const GTM_ID = import.meta.env.VITE_GTM_CONTAINER_ID;
+    
+    if (!GTM_ID || GTM_ID === 'GTM-XXXXXXX') {
+      // GTM not configured
+      return;
+    }
+
+    // Google Tag Manager
+    (function(w: Window, d: Document, s: string, l: string, i: string) {
+      (w as any)[l] = (w as any)[l] || [];
+      (w as any)[l].push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+      const f = d.getElementsByTagName(s)[0];
+      const j = d.createElement(s) as HTMLScriptElement;
+      const dl = l !== 'dataLayer' ? '&l=' + l : '';
+      j.async = true;
+      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      if (f && f.parentNode) {
+        f.parentNode.insertBefore(j, f);
+      }
+    })(window, document, 'script', 'dataLayer', GTM_ID);
+  };
 
   // Initialize analytics on mount
   useEffect(() => {
     initializeGA4();
     initializeFacebookPixel();
     initializeGTM();
-  }, []);
+  }, [initializeGA4, initializeFacebookPixel]);
 
   // Track page views
   useEffect(() => {
@@ -40,113 +151,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ children }) => {
       trackLogin(user.id, 'email');
     }
   }, [user]);
-
-  const initializeGA4 = () => {
-    const GA4_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID;
-    
-    if (!GA4_ID || GA4_ID === 'G-XXXXXXXXXX') {
-      // GA4 not configured
-      return;
-    }
-
-    // Load GA4 script
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`;
-    document.head.appendChild(script);
-
-    // Initialize dataLayer and gtag
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function() {
-      window.dataLayer.push(arguments);
-    };
-
-    window.gtag('js', new Date());
-    if (window.gtag) {
-      window.gtag('config', GA4_ID, {
-        page_title: document.title,
-        page_location: window.location.href,
-        send_page_view: true,
-        // Enhanced ecommerce
-        custom_map: {
-          custom_parameter_1: 'user_type',
-          custom_parameter_2: 'cart_value'
-        }
-      });
-    }
-
-    // Set user properties if logged in
-    if (user) {
-      window.gtag('config', GA4_ID, {
-        user_id: user.id,
-        custom_map: {
-          user_type: user.role || 'customer'
-        }
-      });
-    }
-  };
-
-  const initializeFacebookPixel = () => {
-    const PIXEL_ID = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
-    
-    if (!PIXEL_ID || PIXEL_ID === 'CHANGE_THIS_PIXEL_ID' || PIXEL_ID.trim() === '') {
-      // Facebook Pixel not configured or temporarily disabled
-      console.log('Facebook Pixel initialization skipped - PIXEL_ID not configured');
-      return;
-    }
-
-    // Facebook Pixel Code
-    (function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
-      if(f.fbq) return;
-      n = f.fbq = function() {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      };
-      if(!f._fbq) f._fbq = n;
-      n.push = n;
-      n.loaded = !0;
-      n.version = '2.0';
-      n.queue = [];
-      t = b.createElement(e);
-      t.async = !0;
-      t.src = v;
-      s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s);
-    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-
-    window.fbq('init', PIXEL_ID);
-    window.fbq('track', 'PageView');
-
-    // Track user if logged in
-    if (user) {
-      window.fbq('track', 'CompleteRegistration', {
-        content_name: 'User Login'
-      });
-    }
-  };
-
-  const initializeGTM = () => {
-    const GTM_ID = import.meta.env.VITE_GTM_CONTAINER_ID;
-    
-    if (!GTM_ID || GTM_ID === 'GTM-XXXXXXX') {
-      // GTM not configured
-      return;
-    }
-
-    // Google Tag Manager
-    (function(w: any, d: any, s: any, l: any, i: any) {
-      w[l] = w[l] || [];
-      w[l].push({
-        'gtm.start': new Date().getTime(),
-        event: 'gtm.js'
-      });
-      var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s),
-          dl = l != 'dataLayer' ? '&l=' + l : '';
-      j.async = true;
-      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', GTM_ID);
-  };
 
   return <>{children}</>;
 };
@@ -175,7 +179,15 @@ export const trackPageView = (page: string) => {
   }
 };
 
-export const trackPurchase = (orderId: string, value: number, currency: string = 'EGP', items: any[]) => {
+interface PurchaseItem {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  price: number;
+}
+
+export const trackPurchase = (orderId: string, value: number, currency: string = 'EGP', items: PurchaseItem[]) => {
   // GA4 Enhanced Ecommerce
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', 'purchase', {
@@ -216,7 +228,14 @@ export const trackPurchase = (orderId: string, value: number, currency: string =
   }
 };
 
-export const trackAddToCart = (item: any) => {
+interface CartItem {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+}
+
+export const trackAddToCart = (item: CartItem) => {
   // GA4
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', 'add_to_cart', {
@@ -255,7 +274,7 @@ export const trackAddToCart = (item: any) => {
   }
 };
 
-export const trackRemoveFromCart = (item: any) => {
+export const trackRemoveFromCart = (item: CartItem) => {
   // GA4
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', 'remove_from_cart', {
@@ -284,7 +303,7 @@ export const trackRemoveFromCart = (item: any) => {
   }
 };
 
-export const trackViewItem = (item: any) => {
+export const trackViewItem = (item: CartItem) => {
   // GA4
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', 'view_item', {
@@ -322,7 +341,7 @@ export const trackViewItem = (item: any) => {
   }
 };
 
-export const trackBeginCheckout = (items: any[], value: number) => {
+export const trackBeginCheckout = (items: PurchaseItem[], value: number) => {
   // GA4
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', 'begin_checkout', {

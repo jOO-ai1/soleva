@@ -10,7 +10,7 @@ import {
   FiAlertCircle,
   FiInfo
 } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang, useTranslation } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';
 import GlassButton from '../components/GlassButton';
@@ -62,7 +62,8 @@ interface ReturnFormData {
 const ReturnRequestPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { lang } = useLang();
   const t = useTranslation();
   const { showToast } = useToast();

@@ -3,18 +3,30 @@ import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiGrid, FiList, FiFilter, FiSearch } from "react-icons/fi";
 import { useLang, useTranslation } from "../contexts/LangContext";
-import { useFavorites } from "../contexts/FavoritesContext";
-import { products } from "../data/products";
+import { useProducts } from "../hooks/useApi";
 import GlassCard from "../components/GlassCard";
 import GlassButton from "../components/GlassButton";
-import FavoriteButton from "../components/FavoriteButton";
 import SectionTitle from "../components/SectionTitle";
 import clsx from "clsx";
+
+type Localized = Record<string, string>;
+
+interface ProductDTO {
+  id: string;
+  slug: string;
+  name: Localized;
+  description: Localized;
+  images: string[] | string;
+  basePrice: number | string;
+  salePrice?: number | string | null;
+  isFeatured?: boolean;
+  category?: { slug?: string } | null;
+  collection?: { slug?: string } | null;
+}
 
 export const ProductsPage: React.FC = () => {
   const { lang } = useLang();
   const t = useTranslation();
-  const { favorites } = useFavorites();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const collectionParam = searchParams.get("collection");
@@ -24,6 +36,10 @@ export const ProductsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<"name" | "price-low" | "price-high">("name");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch products from API
+  const { data: productsResponse, loading: productsLoading, error: productsError } = useProducts();
+  const products: ProductDTO[] = (productsResponse as ProductDTO[] | null) || [];
 
   const categories = [
     { id: "all", label: lang === "ar" ? "الكل" : "All" },
@@ -55,32 +71,37 @@ export const ProductsPage: React.FC = () => {
     }
   };
   // Filter and sort products
-  let filteredProducts = selectedCategory === "all"
+  let filteredProducts: ProductDTO[] = selectedCategory === "all"
     ? products
-    : products.filter((p) => p.collection === selectedCategory);
+    : products.filter((p: ProductDTO) => {
+        if (selectedCategory === "mens") return p.category?.slug === "mens-shoes";
+        if (selectedCategory === "womens") return p.category?.slug === "womens-shoes";
+        if (selectedCategory === "basics") return p.collection?.slug === "essentials";
+        return false;
+      });
 
   // Apply search filter
   if (searchQuery.trim()) {
-    filteredProducts = filteredProducts.filter(product =>
-      product.name[lang].toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.desc[lang].toLowerCase().includes(searchQuery.toLowerCase())
+    filteredProducts = filteredProducts.filter((product: ProductDTO) =>
+      product.name[lang]?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description[lang]?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }
 
   // Apply price filter
   filteredProducts = filteredProducts.filter(
-    (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
+    (p: ProductDTO) => Number(p.basePrice) >= priceRange[0] && Number(p.basePrice) <= priceRange[1]
   );
 
   // Apply sorting
   filteredProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
-        return a.price - b.price;
+        return Number(a.basePrice) - Number(b.basePrice);
       case "price-high":
-        return b.price - a.price;
+        return Number(b.basePrice) - Number(a.basePrice);
       default:
-        return a.name[lang].localeCompare(b.name[lang]);
+        return a.name[lang]?.localeCompare(b.name[lang] || "") || 0;
     }
   });
 
@@ -261,8 +282,46 @@ export const ProductsPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Products Grid/List */}
-            {filteredProducts.length === 0 ? (
+            {/* Loading State */}
+            {productsLoading ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-16"
+              >
+                <GlassCard className="max-w-md mx-auto">
+                  <div className="text-6xl mb-4">⏳</div>
+                  <h3 className="text-xl font-semibold mb-2 text-text-primary">
+                    {lang === "ar" ? "جاري التحميل..." : "Loading..."}
+                  </h3>
+                  <p className="text-text-secondary">
+                    {lang === "ar" 
+                      ? "جاري جلب المنتجات"
+                      : "Fetching products"
+                    }
+                  </p>
+                </GlassCard>
+              </motion.div>
+            ) : productsError ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-16"
+              >
+                <GlassCard className="max-w-md mx-auto">
+                  <div className="text-6xl mb-4">❌</div>
+                  <h3 className="text-xl font-semibold mb-2 text-text-primary">
+                    {lang === "ar" ? "خطأ في التحميل" : "Loading Error"}
+                  </h3>
+                  <p className="text-text-secondary">
+                    {lang === "ar" 
+                      ? "حدث خطأ أثناء جلب المنتجات. يرجى المحاولة مرة أخرى."
+                      : "An error occurred while fetching products. Please try again."
+                    }
+                  </p>
+                </GlassCard>
+              </motion.div>
+            ) : filteredProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -291,7 +350,7 @@ export const ProductsPage: React.FC = () => {
                     : "flex flex-col space-y-6"
                 )}
               >
-                {filteredProducts.map((product, index) => (
+                {filteredProducts.map((product: ProductDTO, index: number) => (
                   <motion.div
                     key={product.id}
                     layout
@@ -304,21 +363,21 @@ export const ProductsPage: React.FC = () => {
                       viewMode === "list" && "flex flex-row items-center gap-6 p-6"
                     )}
                   >
-                    <Link to={`/product/${product.id}`} className="block h-full">
+                    <Link to={`/product/${product.slug}`} className="block h-full">
                       <div className={clsx(
                         "product-card-image relative overflow-hidden",
                         viewMode === "list" && "w-48 h-48 flex-shrink-0"
                       )}>
                         <img
-                          src={product.image}
-                          alt={product.name[lang]}
+                          src={Array.isArray(product.images) ? product.images[0] : product.images}
+                          alt={product.name[lang] || product.name.en}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           loading={index < 6 ? "eager" : "lazy"}
                           decoding="async"
                           width="300"
                           height="300"
                         />
-                        <FavoriteButton productId={product.id} />
+                        {/* Favorites disabled for API products with string IDs */}
                       </div>
                       
                       <div className={clsx(
@@ -326,13 +385,24 @@ export const ProductsPage: React.FC = () => {
                         viewMode === "list" && "flex-1"
                       )}>
                         <h3 className="product-card-title">
-                          {product.name[lang]}
+                          {product.name[lang] || product.name.en}
                         </h3>
                         <p className="product-card-description line-clamp-2">
-                          {product.desc[lang]}
+                          {product.description[lang] || product.description.en}
                         </p>
                         <div className="product-card-price">
-                          {product.price} {t("egp")}
+                          {product.salePrice ? (
+                            <>
+                              <span className="line-through text-text-secondary mr-2">
+                                {Number(product.basePrice)} {t("egp")}
+                              </span>
+                              <span className="text-primary font-semibold">
+                                {Number(product.salePrice)} {t("egp")}
+                              </span>
+                            </>
+                          ) : (
+                            <span>{Number(product.basePrice)} {t("egp")}</span>
+                          )}
                         </div>
                         <div className="product-card-actions">
                           <GlassButton 

@@ -7,30 +7,13 @@ echo "🔧 Starting Nginx with SSL certificate detection..."
 
 # Check if SSL certificates exist
 if [ -f "/etc/letsencrypt/live/solevaeg.com/fullchain.pem" ] && [ -f "/etc/letsencrypt/live/solevaeg.com/privkey.pem" ]; then
-    echo "✅ SSL certificates found, using production configuration"
-    # Remove any existing active configuration
-    rm -f /etc/nginx/conf.d/active.conf
-    # Use the production configuration with SSL
-    cp /etc/nginx/conf.d/production.conf /etc/nginx/conf.d/active.conf
+    echo "✅ SSL certificates found, configuration files already mounted"
+    # Configuration files are already mounted from host
 else
     echo "⚠️  SSL certificates not found, creating HTTP-only configuration"
     # Create HTTP-only configuration
     cat > /etc/nginx/conf.d/active.conf << 'EOF'
-# Upstream definitions
-upstream backend {
-    server backend:3001;
-    keepalive 32;
-}
-
-upstream frontend {
-    server frontend:80;
-    keepalive 32;
-}
-
-upstream admin {
-    server admin:80;
-    keepalive 32;
-}
+# HTTP-only configuration (no SSL)
 
 # HTTP-only configuration (no SSL)
 server {
@@ -72,14 +55,19 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         
-        # CORS headers
-        add_header Access-Control-Allow-Origin "http://solevaeg.com" always;
+        # CORS headers - use map to handle multiple origins properly
+        set $cors_origin "";
+        if ($http_origin ~* "^https?://(solevaeg\.com|admin\.solevaeg\.com)$") {
+            set $cors_origin $http_origin;
+        }
+        
+        add_header Access-Control-Allow-Origin $cors_origin always;
         add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
         add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Requested-With" always;
         add_header Access-Control-Allow-Credentials "true" always;
         
         if ($request_method = 'OPTIONS') {
-            add_header Access-Control-Allow-Origin "http://solevaeg.com";
+            add_header Access-Control-Allow-Origin $cors_origin;
             add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
             add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Requested-With";
             add_header Access-Control-Allow-Credentials "true";

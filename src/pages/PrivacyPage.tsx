@@ -1,12 +1,10 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { FiShield, FiLock, FiEye, FiUsers } from 'react-icons/fi';
-import { useLang, useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 import GlassCard from '../components/GlassCard';
 
 export default function PrivacyPage() {
   const { lang } = useLang();
-  const t = useTranslation();
 
   const sections = [
     {

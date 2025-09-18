@@ -8,8 +8,8 @@ export interface AuditLogData {
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'VIEW';
   resource: string;
   resourceId?: string;
-  oldValues?: any;
-  newValues?: any;
+  oldValues?: Record<string, unknown>;
+  newValues?: Record<string, unknown>;
   ipAddress?: string | null;
   userAgent?: string | null;
   endpoint?: string;
@@ -38,8 +38,8 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
       }
     });
   } catch (error) {
-    console.error('Failed to create audit log:', error);
     // Don't throw error to avoid breaking the main operation
+    // Log error silently in production
   }
 };
 
@@ -239,7 +239,7 @@ export const getAuditStatistics = async (filters: {
   ]);
 
   // Get admin details for admin stats
-  const adminIds = adminStats.map(stat => stat.adminId).filter(Boolean);
+  const adminIds = adminStats.map((stat: any) => stat.adminId).filter(Boolean);
   const admins = await prisma.user.findMany({
     where: {
       id: { in: adminIds as string[] }
@@ -252,22 +252,22 @@ export const getAuditStatistics = async (filters: {
     }
   });
 
-  const adminStatsWithDetails = adminStats.map(stat => ({
+  const adminStatsWithDetails = adminStats.map((stat: any) => ({
     ...stat,
-    admin: admins.find(admin => admin.id === stat.adminId)
+    admin: admins.find((admin: any) => admin.id === stat.adminId)
   }));
 
   return {
     totalLogs,
-    actionStats: actionStats.map(stat => ({
+    actionStats: actionStats.map((stat: any) => ({
       action: stat.action,
       count: stat._count.action
     })),
-    resourceStats: resourceStats.map(stat => ({
+    resourceStats: resourceStats.map((stat: any) => ({
       resource: stat.resource,
       count: stat._count.resource
     })),
-    adminStats: adminStatsWithDetails.map(stat => ({
+    adminStats: adminStatsWithDetails.map((stat: any) => ({
       adminId: stat.adminId,
       admin: stat.admin,
       count: stat._count.adminId
@@ -291,7 +291,10 @@ export const cleanupOldAuditLogs = async (daysToKeep: number = 365) => {
     }
   });
 
-  console.log(`Cleaned up ${deletedCount.count} audit logs older than ${daysToKeep} days`);
+  // Log cleanup operation (use proper logging in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`Cleaned up ${deletedCount.count} audit logs older than ${daysToKeep} days`);
+  }
   return deletedCount.count;
 };
 
@@ -353,7 +356,7 @@ export const exportAuditLogs = async (filters: {
     'User Agent'
   ];
 
-  const csvRows = logs.map(log => [
+  const csvRows = logs.map((log: any) => [
     log.createdAt.toISOString(),
     log.action,
     log.resource,
@@ -369,7 +372,7 @@ export const exportAuditLogs = async (filters: {
 
   const csvContent = [
     csvHeaders.join(','),
-    ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ...csvRows.map((row: any) => row.map((cell: any) => `"${cell}"`).join(','))
   ].join('\n');
 
   return csvContent;

@@ -1,24 +1,33 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+
+// Import React hooks
+const { useState } = React;
 import { motion } from 'framer-motion';
 import { FaGoogle, FaFacebook } from 'react-icons/fa';
-import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '../contexts/ToastContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang } from '../contexts/LangContext';
 
 interface SocialLoginProps {
   mode: 'login' | 'register';
   onSuccess?: () => void;
+  onRevokeSuccess?: () => void;
 }
 
-const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
+const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSuccess }: SocialLoginProps) => {
   const [loading, setLoading] = useState<string | null>(null);
-  const { socialLogin } = useAuth();
-  const { showToast } = useToast();
+  const auth = useAuthSafe();
+  const socialLogin = auth?.socialLogin;
   const { lang } = useLang();
 
   const handleGoogleLogin = async () => {
     try {
       setLoading('google');
+      
+      // Check if Google Client ID is configured
+      const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+      if (!googleClientId) {
+        return;
+      }
       
       // Load Google Identity Services
       if (!window.google) {
@@ -49,32 +58,34 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
         }
       });
     } catch (error) {
-      console.error('Google login error:', error);
-      showToast(
-        lang === 'ar' ? 'فشل في تسجيل الدخول بجوجل' : 'Google login failed'
-      );
+      // Log error in development, use proper error reporting in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Google login error:', error);
+      }
       setLoading(null);
     }
   };
 
   const handleGoogleCallback = async (response: any) => {
     try {
-      const result = await socialLogin('google', response.credential);
-      if (result.success) {
-        showToast(
-          lang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'
-        );
-        onSuccess?.();
-      } else {
-        showToast(
-          result.message || (lang === 'ar' ? 'فشل في تسجيل الدخول بجوجل' : 'Google login failed')
-        );
+      if (!response?.credential) {
+        throw new Error('No credential received from Google');
       }
-    } catch (error) {
-      console.error('Google callback error:', error);
-      showToast(
-        lang === 'ar' ? 'فشل في تسجيل الدخول' : 'Login failed'
-      );
+
+      if (!socialLogin) {
+        return;
+      }
+
+      const result = await socialLogin('google', { credential: response.credential });
+      if (result.success) {
+        onSuccess?.();
+      }
+    } catch (error: any) {
+      // Log error in development, use proper error reporting in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Google callback error:', error);
+      }
+      // Error handling is now done by the AuthContext with notification banners
     } finally {
       setLoading(null);
     }
@@ -85,9 +96,6 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
       // Check if Facebook login is enabled
       const facebookAppId = import.meta.env.VITE_FACEBOOK_APP_ID;
       if (!facebookAppId || facebookAppId.trim() === '') {
-        showToast(
-          lang === 'ar' ? 'تسجيل الدخول بفيسبوك غير متاح حالياً' : 'Facebook login is temporarily unavailable'
-        );
         return;
       }
 
@@ -112,6 +120,10 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
           try {
             // Get user profile
             window.FB.api('/me', { fields: 'name,email,picture' }, async (userInfo: any) => {
+              if (!socialLogin) {
+                return;
+              }
+              
               const result = await socialLogin('facebook', {
                 accessToken: response.authResponse.accessToken,
                 userID: response.authResponse.userID,
@@ -119,35 +131,57 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
               });
 
               if (result.success) {
-                showToast(
-                  lang === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful'
-                );
                 onSuccess?.();
-              } else {
-                showToast(
-                  result.message || (lang === 'ar' ? 'فشل في تسجيل الدخول بفيسبوك' : 'Facebook login failed')
-                );
               }
             });
           } catch (error) {
-            console.error('Facebook profile fetch error:', error);
-            showToast(
-              lang === 'ar' ? 'فشل في الحصول على بيانات الملف الشخصي' : 'Failed to get profile data'
-            );
+            // Log error in development, use proper error reporting in production
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Facebook profile fetch error:', error);
+            }
+            // Error handling is now done by the AuthContext with notification banners
           }
-        } else {
-          showToast(
-            lang === 'ar' ? 'تم إلغاء تسجيل الدخول' : 'Login cancelled'
-          );
         }
         setLoading(null);
       }, { scope: 'email,public_profile' });
     } catch (error) {
-      console.error('Facebook login error:', error);
-      showToast(
-        lang === 'ar' ? 'فشل في تسجيل الدخول بفيسبوك' : 'Facebook login failed'
-      );
+      // Log error in development, use proper error reporting in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Facebook login error:', error);
+      }
+      // Error handling is now done by the AuthContext with notification banners
       setLoading(null);
+    }
+  };
+
+  // Google consent revocation function
+  const revokeGoogleConsent = async (email: string): Promise<void> => {
+    try {
+      // Check if Google Client ID is configured
+      const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+      if (!googleClientId) {
+        throw new Error('Google Client ID not configured');
+      }
+      
+      // Load Google Identity Services if not already loaded
+      if (!window.google) {
+        await loadGoogleScript();
+      }
+
+      // Revoke Google consent
+      window.google.accounts.id.revoke(email, (done: any) => {
+        // Log in development only
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Google consent revoked for:', email);
+        }
+        onRevokeSuccess?.();
+      });
+    } catch (error) {
+      // Log error in development, use proper error reporting in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Google consent revocation error:', error);
+      }
+      // Error handling is now done by the AuthContext with notification banners
     }
   };
 
@@ -212,7 +246,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
             {loading === 'google' ? (
               <div className="loading-spinner"></div>
             ) : (
-              <FaGoogle className="social-icon" />
+              <FaGoogle />
             )}
             <span className="social-text">
               {loading === 'google'
@@ -237,7 +271,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess }) => {
               {loading === 'facebook' ? (
                 <div className="loading-spinner"></div>
               ) : (
-                <FaFacebook className="social-icon" />
+                <FaFacebook />
               )}
               <span className="social-text">
                 {loading === 'facebook'
@@ -390,5 +424,6 @@ declare global {
     FB: any;
   }
 }
+
 
 export default SocialLogin;

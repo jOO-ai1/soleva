@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
+const { useState, useEffect, useRef, useCallback } = React;
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_CONFIG } from '../config/api';
 import { 
   FiMessageCircle, 
   FiX, 
@@ -11,7 +13,7 @@ import {
   FiWifi,
   FiWifiOff
 } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';
 import { useAuthGuard } from '../hooks/useAuthGuard';
@@ -42,7 +44,7 @@ interface Conversation {
   updatedAt: Date;
 }
 
-const ChatWidget: React.FC = () => {
+const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
@@ -69,7 +71,8 @@ const ChatWidget: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { lang } = useLang();
   const { showToast } = useToast();
 
@@ -80,7 +83,7 @@ const ChatWidget: React.FC = () => {
   const checkAvailability = useCallback(async () => {
     try {
       // First try to get availability from backend
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/availability?language=${lang}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/availability?language=${lang}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,12 +106,39 @@ const ChatWidget: React.FC = () => {
     }
   }, [lang]);
 
+  const createNewConversation = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(user ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {})
+        },
+        body: JSON.stringify({
+          source: 'WEBSITE',
+          customerName: user?.name,
+          customerEmail: user?.email
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setConversation(data.data);
+        
+        // Send welcome message
+        await sendWelcomeMessage();
+      }
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+    }
+  }, [user]);
+
   const initializeChat = useCallback(async () => {
     try {
       setLoading(true);
       
       // Check if user has an existing open conversation
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/conversations/current`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations/current`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,34 +168,7 @@ const ChatWidget: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
-
-  const createNewConversation = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/conversations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(user ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {})
-        },
-        body: JSON.stringify({
-          source: 'WEBSITE',
-          customerName: user?.name,
-          customerEmail: user?.email
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setConversation(data.data);
-        
-        // Send welcome message
-        await sendWelcomeMessage();
-      }
-    } catch (error) {
-      console.error('Failed to create conversation:', error);
-    }
-  };
+  }, [user, createNewConversation]);
 
   const sendWelcomeMessage = async () => {
     const welcomeMessage: Message = {
@@ -207,12 +210,12 @@ const ChatWidget: React.FC = () => {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev: Message[]) => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/messages`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +239,6 @@ const ChatWidget: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to send message:', error);
       showToast(
         lang === 'ar' ? 'فشل في إرسال الرسالة' : 'Failed to send message'
       );
@@ -272,7 +274,7 @@ const ChatWidget: React.FC = () => {
       }
 
       // Generate AI response with user data access
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/ai-response`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/ai-response`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -308,7 +310,7 @@ const ChatWidget: React.FC = () => {
           }
         };
 
-        setMessages(prev => [...prev, aiMessage]);
+        setMessages((prev: Message[]) => [...prev, aiMessage]);
       }
     } catch (error) {
       console.error('AI response error:', error);
@@ -326,7 +328,7 @@ const ChatWidget: React.FC = () => {
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, fallbackMessage]);
+      setMessages((prev: Message[]) => [...prev, fallbackMessage]);
     }
   };
 
@@ -378,7 +380,7 @@ const ChatWidget: React.FC = () => {
       const orderNumber = orderNumberMatch[0];
       
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/orders/track/${orderNumber}`, {
+        const response = await fetch(`${API_CONFIG.BASE_URL}/orders/track/${orderNumber}`, {
           headers: user ? {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           } : {}
@@ -399,7 +401,7 @@ const ChatWidget: React.FC = () => {
             metadata: { order }
           };
 
-          setMessages(prev => [...prev, orderInfoMessage]);
+          setMessages((prev: Message[]) => [...prev, orderInfoMessage]);
         } else {
           const errorMessage: Message = {
             id: Date.now().toString() + '_error',
@@ -413,7 +415,7 @@ const ChatWidget: React.FC = () => {
             timestamp: new Date()
           };
 
-          setMessages(prev => [...prev, errorMessage]);
+          setMessages((prev: Message[]) => [...prev, errorMessage]);
         }
       } catch (error) {
         console.error('Order tracking error:', error);
@@ -431,7 +433,7 @@ const ChatWidget: React.FC = () => {
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, askOrderMessage]);
+      setMessages((prev: Message[]) => [...prev, askOrderMessage]);
     }
   };
 
@@ -463,7 +465,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
   const handleProductRecommendations = async (message: string) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/products/search?q=${encodeURIComponent(message)}&limit=3`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/search?q=${encodeURIComponent(message)}&limit=3`, {
         headers: user ? {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         } : {}
@@ -485,7 +487,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
             metadata: { products }
           };
 
-          setMessages(prev => [...prev, productMessage]);
+          setMessages((prev: Message[]) => [...prev, productMessage]);
         } else {
           const noProductsMessage: Message = {
             id: Date.now().toString() + '_no_products',
@@ -499,7 +501,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
             timestamp: new Date()
           };
 
-          setMessages(prev => [...prev, noProductsMessage]);
+          setMessages((prev: Message[]) => [...prev, noProductsMessage]);
         }
       }
     } catch (error) {
@@ -540,7 +542,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
           timestamp: new Date()
         };
 
-        setMessages(prev => [...prev, faqMessage]);
+        setMessages((prev: Message[]) => [...prev, faqMessage]);
         return;
       }
     }
@@ -558,7 +560,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, generalHelpMessage]);
+    setMessages((prev: Message[]) => [...prev, generalHelpMessage]);
   };
 
   const formatProductRecommendations = (products: any[]): string => {
@@ -586,7 +588,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
     // Request human agent and check queue status
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/request-human`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/request-human`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -613,7 +615,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
             isFromAI: false,
             timestamp: new Date()
           };
-          setMessages(prev => [...prev, queueMessage]);
+          setMessages((prev: Message[]) => [...prev, queueMessage]);
         } else {
           // User is connected to human agent
           setChatMode('HUMAN');
@@ -627,7 +629,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
             isFromAI: false,
             timestamp: new Date()
           };
-          setMessages(prev => [...prev, switchMessage]);
+          setMessages((prev: Message[]) => [...prev, switchMessage]);
         }
       } else {
         // Handle error
@@ -641,7 +643,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
           isFromAI: false,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, errorMessage]);
+        setMessages((prev: Message[]) => [...prev, errorMessage]);
       }
     } catch (error) {
       console.error('Failed to request human agent:', error);
@@ -655,7 +657,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         isFromAI: false,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev: Message[]) => [...prev, errorMessage]);
     }
   };
 
@@ -663,7 +665,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     if (!conversation) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/conversations/${conversation?.id}/messages?since=${messages[messages.length - 1]?.timestamp || new Date().toISOString()}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations/${conversation?.id}/messages?since=${messages[messages.length - 1]?.timestamp || new Date().toISOString()}`, {
         headers: user ? {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         } : {}
@@ -672,18 +674,18 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
       if (response.ok) {
         const data = await response.json();
         if (data.data && data.data.length > 0) {
-          setMessages(prev => [...prev, ...data.data]);
+          setMessages((prev: Message[]) => [...prev, ...data.data]);
           
           // Update unread count if widget is closed
           if (!isOpen) {
-            setUnreadCount(prev => prev + data.data.length);
+            setUnreadCount((prev: number) => prev + data.data.length);
           }
         }
       }
     } catch (error) {
       console.error('Failed to check for new messages:', error);
     }
-  }, [conversation, messages, user]);
+  }, [conversation, messages, user, isOpen]);
 
   const handleFileUpload = async (file: File) => {
     if (!conversation) return;
@@ -693,7 +695,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
       formData.append('file', file);
       formData.append('conversationId', conversation?.id || '');
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/v1/chat/upload`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/upload`, {
         method: 'POST',
         headers: user ? {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -715,7 +717,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
           attachments: [data.data.url]
         };
 
-        setMessages(prev => [...prev, fileMessage]);
+        setMessages((prev: Message[]) => [...prev, fileMessage]);
       }
     } catch (error) {
       console.error('File upload error:', error);
@@ -759,7 +761,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
     return statusMap[status as keyof typeof statusMap]?.[language] || status;
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -955,7 +957,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
                         <span>{lang === 'ar' ? 'جاري التحميل...' : 'Loading...'}</span>
                       </div>
                     ) : (
-                      messages.map((message) => (
+                      messages.map((message: Message) => (
                         <div
                           key={message.id}
                           className={`message ${message.senderType === 'CUSTOMER' ? 'user' : 'bot'}`}
@@ -991,7 +993,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
                             <div className="message-text">
                               {message.type === 'PRODUCT_LINK' ? (
                                 <div className="product-message">
-                                  {message.content.split('\n').map((line, index) => {
+                                  {message.content.split('\n').map((line: string, index: number) => {
                                     if (line.includes('[عرض المنتج]') || line.includes('[View Product]')) {
                                       const linkMatch = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
                                       if (linkMatch) {
@@ -1019,7 +1021,7 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
 
                             {message.attachments && message.attachments.length > 0 && (
                               <div className="message-attachments">
-                                {message.attachments.map((attachment, index) => (
+                                {message.attachments.map((attachment: string, index: number) => (
                                   <a 
                                     key={index}
                                     href={attachment}

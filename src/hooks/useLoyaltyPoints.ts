@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
 interface LoyaltyTransaction {
@@ -98,7 +98,8 @@ const LOYALTY_TIERS: LoyaltyTier[] = [
 export const useLoyaltyPoints = () => {
   const [loyaltyData, setLoyaltyData] = useState<LoyaltyProgram | null>(null);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { showToast } = useToast();
 
   // Load loyalty data

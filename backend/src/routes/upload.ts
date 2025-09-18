@@ -294,6 +294,177 @@ router.post('/avatar',
  *                   items:
  *                     type: string
  */
+/**
+ * @swagger
+ * /api/v1/upload/product:
+ *   post:
+ *     summary: Upload product image
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Product image file (JPG, PNG, WebP)
+ *     responses:
+ *       200:
+ *         description: Product image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ */
+router.post('/product',
+  auth,
+  scanFile,
+  uploadSingleImage,
+  processSingleImage,
+  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+    if (!req.file) {
+      throw new ValidationError('Image file is required');
+    }
+
+    const processedImage = (req as any).processedImage;
+
+    res.json({
+      success: true,
+      message: 'Product image uploaded successfully',
+      data: processedImage
+    });
+  })
+);
+
+/**
+ * @swagger
+ * /api/v1/upload/category:
+ *   post:
+ *     summary: Upload category image
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Category image file (JPG, PNG, WebP)
+ *     responses:
+ *       200:
+ *         description: Category image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ */
+router.post('/category',
+  auth,
+  scanFile,
+  uploadSingleImage,
+  processSingleImage,
+  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+    if (!req.file) {
+      throw new ValidationError('Image file is required');
+    }
+
+    const processedImage = (req as any).processedImage;
+
+    res.json({
+      success: true,
+      message: 'Category image uploaded successfully',
+      data: processedImage
+    });
+  })
+);
+
+/**
+ * @swagger
+ * /api/v1/upload/flash-sale:
+ *   post:
+ *     summary: Upload flash sale banner image
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Flash sale banner image file (JPG, PNG, WebP)
+ *     responses:
+ *       200:
+ *         description: Flash sale banner uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ */
+router.post('/flash-sale',
+  auth,
+  scanFile,
+  uploadSingleImage,
+  processSingleImage,
+  asyncHandler(async (req: AuthenticatedRequest, res: any): Promise<void> => {
+    if (!req.file) {
+      throw new ValidationError('Image file is required');
+    }
+
+    const processedImage = (req as any).processedImage;
+
+    res.json({
+      success: true,
+      message: 'Flash sale banner uploaded successfully',
+      data: processedImage
+    });
+  })
+);
+
 router.post('/validate', asyncHandler(async (req: any, res: any) => {
   const { filename, size, mimetype } = req.body;
   const errors: string[] = [];

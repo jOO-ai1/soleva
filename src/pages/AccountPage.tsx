@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { FiUser, FiFileText, FiBox, FiMapPin, FiLogOut, FiEdit3, FiSave } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang, useTranslation } from '../contexts/LangContext';
 // GlassCard import removed as it's not used
 import GlassButton from '../components/GlassButton';
 
 export default function AccountPage() {
-  const { user, logout } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
+  const logout = auth?.logout;
   const { lang } = useLang();
   const t = useTranslation();
   const [tab, setTab] = useState("profile");
@@ -152,9 +155,16 @@ export default function AccountPage() {
             {tab === "orders" && (
               <div>
                 <h2 className="text-2xl font-bold mb-6">{t("orders")}</h2>
-                <div className="text-center py-12 text-gray-500">
-                  <FiFileText size={48} className="mx-auto mb-4 opacity-50" />
-                  <p>{t("ordersPlaceholder")}</p>
+                <div className="text-center py-8">
+                  <FiFileText size={48} className="mx-auto mb-4 text-[#d1b16a]" />
+                  <p className="text-gray-600 mb-6">View and manage all your orders</p>
+                  <Link 
+                    to="/orders" 
+                    className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
+                  >
+                    <FiFileText className="mr-2" />
+                    View All Orders
+                  </Link>
                 </div>
               </div>
             )}
@@ -162,9 +172,16 @@ export default function AccountPage() {
             {tab === "tracking" && (
               <div>
                 <h2 className="text-2xl font-bold mb-6">{t("orderTracking")}</h2>
-                <div className="text-center py-12 text-gray-500">
-                  <FiBox size={48} className="mx-auto mb-4 opacity-50" />
-                  <p>{t("orderTrackingPlaceholder")}</p>
+                <div className="text-center py-8">
+                  <FiBox size={48} className="mx-auto mb-4 text-[#d1b16a]" />
+                  <p className="text-gray-600 mb-6">Track your orders and view delivery status</p>
+                  <Link 
+                    to="/order-tracking" 
+                    className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"
+                  >
+                    <FiBox className="mr-2" />
+                    Track Orders
+                  </Link>
                 </div>
               </div>
             )}

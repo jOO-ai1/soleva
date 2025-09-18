@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiMenu, FiShoppingCart, FiUser, FiHeart } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useTranslation } from '../contexts/LangContext';
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { cart } = useCart();
   const { favorites } = useFavorites();
   const t = useTranslation();

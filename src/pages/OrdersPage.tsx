@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FiFileText, FiPackage, FiTruck, FiCheckCircle, FiClock, FiXCircle, FiRefreshCw } from 'react-icons/fi';
 import { useTranslation } from '../contexts/LangContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { ordersApi } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import { Link } from 'react-router-dom';
@@ -85,7 +85,8 @@ const getStatusColor = (status: string) => {
 
 export default function OrdersPage() {
   const t = useTranslation();
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -105,8 +106,9 @@ export default function OrdersPage() {
       const response = await ordersApi.getAll({ page: currentPage, limit: 10 });
       
       if (response.success) {
-        setOrders(response.data);
-        setTotalPages(response.pagination?.pages || 1);
+        setOrders(response.data as Order[]);
+        const pages = (response as any).pagination?.pages as number | undefined;
+        setTotalPages(pages || 1);
       } else {
         setError('Failed to fetch orders');
       }
@@ -196,7 +198,7 @@ export default function OrdersPage() {
           <div className="text-center py-12">
             <FiFileText size={64} className="mx-auto mb-4 text-[#d1b16a]" />
             <h2 className="text-xl font-semibold mb-2">No orders yet</h2>
-            <p className="text-gray-600 mb-6">You haven't placed any orders yet</p>
+            <p className="text-gray-600 mb-6">You have no previous orders yet.</p>
             <Link 
               to="/products" 
               className="inline-flex items-center px-6 py-3 bg-[#d1b16a] text-white rounded-lg hover:bg-[#b89a5a] transition-colors"

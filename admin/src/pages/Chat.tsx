@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Card,
   Input,
@@ -15,7 +15,6 @@ import {
   Modal,
   Form,
   message,
-  Divider,
 } from 'antd';
 import {
   SendOutlined,
@@ -27,30 +26,13 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons';
 import { chatAPI } from '../services/api';
+import type { Conversation } from '../types/api';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'admin' | 'ai';
-  timestamp: string;
-  isRead: boolean;
-}
-
-interface Conversation {
-  id: string;
-  customerId: string;
-  customerName: string;
-  customerEmail: string;
-  status: 'active' | 'resolved' | 'pending';
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-  messages: Message[];
-}
+// Using Conversation and Message types from API types
 
 const Chat: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -63,21 +45,11 @@ const Chat: React.FC = () => {
   const [aiPrompt, setAiPrompt] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchConversations();
-  }, []);
-
-  useEffect(() => {
-    if (selectedConversation) {
-      scrollToBottom();
-    }
-  }, [selectedConversation]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       setLoading(true);
       const response = await chatAPI.getConversations({
@@ -87,20 +59,30 @@ const Chat: React.FC = () => {
       if (response.success && response.data) {
         setConversations(response.data);
       }
-    } catch (error) {
+    } catch {
       message.error('Failed to fetch conversations');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus]);
+
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  useEffect(() => {
+    if (selectedConversation) {
+      scrollToBottom();
+    }
+  }, [selectedConversation]);
 
   const handleSelectConversation = async (conversationId: string) => {
     try {
       const response = await chatAPI.getConversation(conversationId);
       if (response.success && response.data) {
-        setSelectedConversation(response.data);
+        setSelectedConversation(response.data as Conversation);
       }
-    } catch (error) {
+    } catch {
       message.error('Failed to fetch conversation details');
     }
   };
@@ -118,7 +100,7 @@ const Chat: React.FC = () => {
       } else {
         message.error('Failed to send message');
       }
-    } catch (error) {
+    } catch {
       message.error('Failed to send message');
     }
   };
@@ -130,12 +112,12 @@ const Chat: React.FC = () => {
         message.success('Status updated successfully');
         fetchConversations();
         if (selectedConversation?.id === conversationId) {
-          setSelectedConversation(prev => prev ? { ...prev, status: status as any } : null);
+          setSelectedConversation(prev => prev ? { ...prev, status: status as 'active' | 'resolved' | 'pending' } : null);
         }
       } else {
         message.error('Failed to update status');
       }
-    } catch (error) {
+    } catch {
       message.error('Failed to update status');
     }
   };
@@ -157,7 +139,7 @@ const Chat: React.FC = () => {
       setAiModalVisible(false);
       setAiPrompt('');
       message.success('AI response sent successfully');
-    } catch (error) {
+    } catch {
       message.error('Failed to send AI response');
     }
   };

@@ -1,590 +1,482 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  Button,
-  Space,
-  Modal,
-  Form,
-  Select,
-  Input,
-  Tag,
-  Card,
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  Card, 
+  Table, 
+  Button, 
+  Space, 
+  Input, 
+  Select, 
+  Tag, 
+  Modal, 
+  Form, 
+  Typography,
   Row,
   Col,
-  Typography,
-  Descriptions,
-  Timeline,
-  InputNumber,
-  message,
-  Popconfirm,
-  Tabs,
-  Divider,
+  Statistic,
+  Descriptions
 } from 'antd';
 import {
-  EyeOutlined,
-  EditOutlined,
   SearchOutlined,
-  FilterOutlined,
+  EyeOutlined,
+  TruckOutlined,
   DollarOutlined,
-  UndoOutlined,
+  ShoppingOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useNotification } from '../components/NotificationSystem';
 import { ordersAPI } from '../services/api';
-import type { ColumnsType } from 'antd/es/table';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { Search } = Input;
 const { Option } = Select;
-const { TextArea } = Input;
-const { TabPane } = Tabs;
-
-interface OrderItem {
-  id: string;
-  product: {
-    id: string;
-    name: string;
-    images: string[];
-  };
-  variant?: {
-    id: string;
-    size: string;
-    color: string;
-  };
-  quantity: number;
-  price: number;
-  total: number;
-}
 
 interface Order {
   id: string;
   orderNumber: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  address: {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  shippingAddress: {
     street: string;
     city: string;
     state: string;
     zipCode: string;
     country: string;
   };
-  items: OrderItem[];
-  totalAmount: number;
-  orderStatus: string;
-  paymentStatus: string;
-  shippingStatus: string;
-  timeline: Array<{
+  items: Array<{
     id: string;
-    status: string;
-    timestamp: string;
-    notes?: string;
+    name: string;
+    quantity: number;
+    price: number;
+    image: string;
   }>;
   createdAt: string;
   updatedAt: string;
+  notes?: string;
 }
 
-const Orders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+const Orders: React.FC = () => {
+  const { t } = useLanguage();
+  const { showSuccess, showError } = useNotification();
   const [loading, setLoading] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [statusModalVisible, setStatusModalVisible] = useState(false);
-  const [refundModalVisible, setRefundModalVisible] = useState(false);
-  const [form] = Form.useForm();
-  const [refundForm] = Form.useForm();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchText, setSearchText] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
-  const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<string>('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [_form] = Form.useForm();
 
-  const orderStatuses = [
-    'PENDING',
-    'CONFIRMED',
-    'PROCESSING',
-    'SHIPPED',
-    'DELIVERED',
-    'CANCELLED',
-    'RETURNED',
-  ];
-
-  const paymentStatuses = ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED'];
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await ordersAPI.getAll({
-        search: searchText,
-        status: filterStatus,
-      });
-      
-      if (response.success && response.data) {
-        setOrders(response.data);
+      const response = await ordersAPI.getAll();
+      if (response.success) {
+        setOrders(response.data || []);
       }
     } catch (error) {
-      message.error('Failed to fetch orders');
+      console.error('Error fetching orders:', error);
+      showError(t('error'), t('fetchOrdersError'));
     } finally {
       setLoading(false);
     }
+  }, [showError, t]);
+
+  const filterOrders = useCallback(() => {
+    let filtered = orders;
+
+    if (searchText) {
+      filtered = filtered.filter(order =>
+        order.orderNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+        order.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+        order.customerEmail.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    if (selectedStatus) {
+      filtered = filtered.filter(order => order.status === selectedStatus);
+    }
+
+    if (selectedPaymentStatus) {
+      filtered = filtered.filter(order => order.paymentStatus === selectedPaymentStatus);
+    }
+
+    setFilteredOrders(filtered);
+  }, [orders, searchText, selectedStatus, selectedPaymentStatus]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  useEffect(() => {
+    filterOrders();
+  }, [filterOrders]);
+
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalVisible(true);
   };
 
-  const handleViewOrder = async (orderId: string) => {
+  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     try {
-      const response = await ordersAPI.getById(orderId);
-      if (response.success && response.data) {
-        setSelectedOrder(response.data);
-        setModalVisible(true);
+      const response = await ordersAPI.updateStatus(orderId, newStatus);
+      if (response.success) {
+        showSuccess(t('updateSuccess'));
+        fetchOrders();
+      } else {
+        showError(t('error'), response.message || t('updateError'));
       }
     } catch (error) {
-      message.error('Failed to fetch order details');
+      console.error('Error updating order status:', error);
+      showError(t('error'), t('updateError'));
     }
   };
 
-  const handleUpdateStatus = async (values: { status: string; notes?: string }) => {
-    if (!selectedOrder) return;
-
+  const handleProcessRefund = async (orderId: string, amount: number, reason: string) => {
     try {
-      const response = await ordersAPI.updateStatus(selectedOrder.id, values.status, values.notes);
+      const response = await ordersAPI.processRefund(orderId, amount, reason);
       if (response.success) {
-        message.success('Order status updated successfully');
-        setStatusModalVisible(false);
+        showSuccess(t('refundProcessed'));
         fetchOrders();
-        if (modalVisible) {
-          handleViewOrder(selectedOrder.id);
-        }
       } else {
-        message.error('Failed to update order status');
+        showError(t('error'), response.message || t('refundError'));
       }
     } catch (error) {
-      message.error('Failed to update order status');
-    }
-  };
-
-  const handleProcessRefund = async (values: { amount: number; reason: string }) => {
-    if (!selectedOrder) return;
-
-    try {
-      const response = await ordersAPI.processRefund(selectedOrder.id, values.amount, values.reason);
-      if (response.success) {
-        message.success('Refund processed successfully');
-        setRefundModalVisible(false);
-        fetchOrders();
-        if (modalVisible) {
-          handleViewOrder(selectedOrder.id);
-        }
-      } else {
-        message.error('Failed to process refund');
-      }
-    } catch (error) {
-      message.error('Failed to process refund');
+      console.error('Error processing refund:', error);
+      showError(t('error'), t('refundError'));
     }
   };
 
   const getStatusColor = (status: string) => {
-    const colors: { [key: string]: string } = {
-      PENDING: 'orange',
-      CONFIRMED: 'blue',
-      PROCESSING: 'purple',
-      SHIPPED: 'cyan',
-      DELIVERED: 'green',
-      CANCELLED: 'red',
-      RETURNED: 'volcano',
-      PAID: 'green',
-      FAILED: 'red',
-      REFUNDED: 'orange',
-      PARTIALLY_REFUNDED: 'yellow',
-    };
-    return colors[status] || 'default';
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'processing': return 'processing';
+      case 'shipped': return 'blue';
+      case 'delivered': return 'success';
+      case 'cancelled': return 'error';
+      case 'refunded': return 'default';
+      default: return 'default';
+    }
   };
 
-  const columns: ColumnsType<Order> = [
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'paid': return 'success';
+      case 'failed': return 'error';
+      case 'refunded': return 'default';
+      default: return 'default';
+    }
+  };
+
+  const columns = [
     {
-      title: 'Order Number',
+      title: t('orderNumber'),
       dataIndex: 'orderNumber',
       key: 'orderNumber',
+      render: (text: string) => (
+        <Text strong style={{ color: 'var(--primary)' }}>{text}</Text>
+      ),
+    },
+    {
+      title: t('customerName'),
+      dataIndex: 'customerName',
+      key: 'customerName',
       render: (text: string, record: Order) => (
-        <Button
-          type="link"
-          onClick={() => handleViewOrder(record.id)}
-          style={{ padding: 0 }}
-        >
-          {text}
-        </Button>
+        <div>
+          <Text strong>{text}</Text>
+          <div>
+            <Text type="secondary" style={{ fontSize: 'var(--text-xs)' }}>
+              {record.customerEmail}
+            </Text>
+          </div>
+        </div>
       ),
     },
     {
-      title: 'Customer',
-      dataIndex: ['user', 'name'],
-      key: 'customer',
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.user.name.toLowerCase().includes(value.toString().toLowerCase()) ||
-        record.user.email.toLowerCase().includes(value.toString().toLowerCase()),
+      title: t('total'),
+      dataIndex: 'total',
+      key: 'total',
+      render: (total: number) => (
+        <Text strong style={{ color: 'var(--primary)' }}>
+          ${total.toFixed(2)}
+        </Text>
+      ),
     },
     {
-      title: 'Total Amount',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (amount: number) => `$${amount.toFixed(2)}`,
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
-    },
-    {
-      title: 'Order Status',
-      dataIndex: 'orderStatus',
-      key: 'orderStatus',
+      title: t('orderStatus'),
+      dataIndex: 'status',
+      key: 'status',
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
+        <Tag color={getStatusColor(status)}>
+          {t(status as any)}
+        </Tag>
       ),
-      filters: orderStatuses.map(status => ({ text: status, value: status })),
-      onFilter: (value, record) => record.orderStatus === value,
     },
     {
-      title: 'Payment Status',
+      title: t('paymentStatus'),
       dataIndex: 'paymentStatus',
       key: 'paymentStatus',
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
+        <Tag color={getPaymentStatusColor(status)}>
+          {t(status as any)}
+        </Tag>
       ),
-      filters: paymentStatuses.map(status => ({ text: status, value: status })),
-      onFilter: (value, record) => record.paymentStatus === value,
     },
     {
-      title: 'Date',
+      title: t('orderDate'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date: string) => new Date(date).toLocaleDateString(),
-      sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
     {
-      title: 'Actions',
+      title: t('actions'),
       key: 'actions',
-      width: 200,
-      render: (_, record) => (
+      render: (_, record: Order) => (
         <Space>
-          <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewOrder(record.id)}
+          <Button 
+            type="text" 
+            icon={<EyeOutlined />} 
+            size="small"
+            onClick={() => handleViewOrder(record)}
+          />
+          <Select
+            size="small"
+            value={record.status}
+            onChange={(value) => handleUpdateStatus(record.id, value)}
+            style={{ width: 120 }}
           >
-            View
-          </Button>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setSelectedOrder(record);
-              setStatusModalVisible(true);
-            }}
-          >
-            Update Status
-          </Button>
-          {record.paymentStatus === 'PAID' && (
-            <Button
-              type="text"
-              icon={<DollarOutlined />}
-              onClick={() => {
-                setSelectedOrder(record);
-                setRefundModalVisible(true);
-              }}
-            >
-              Refund
-            </Button>
-          )}
+            <Option value="pending">{t('pending')}</Option>
+            <Option value="processing">{t('processing')}</Option>
+            <Option value="shipped">{t('shipped')}</Option>
+            <Option value="delivered">{t('delivered')}</Option>
+            <Option value="cancelled">{t('cancelled')}</Option>
+          </Select>
         </Space>
       ),
     },
   ];
 
+  const stats = {
+    totalOrders: orders.length,
+    pendingOrders: orders.filter(o => o.status === 'pending').length,
+    processingOrders: orders.filter(o => o.status === 'processing').length,
+    totalRevenue: orders.reduce((sum, o) => sum + o.total, 0),
+  };
+
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2} style={{ margin: 0 }}>Orders Management</Title>
+    <div className="orders-container">
+      <div style={{ marginBottom: 'var(--space-6)' }}>
+        <Title level={2} style={{ color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>
+          {t('orders')}
+        </Title>
+        <Text style={{ color: 'var(--text-secondary)' }}>
+          {t('manageOrdersDescription')}
+        </Text>
       </div>
 
-      <Card>
-        <div className="mb-4">
-          <Row gutter={16}>
-            <Col span={8}>
-              <Input
-                placeholder="Search orders..."
-                prefix={<SearchOutlined />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                onPressEnter={fetchOrders}
-              />
-            </Col>
-            <Col span={6}>
-              <Select
-                placeholder="Filter by status"
-                style={{ width: '100%' }}
-                value={filterStatus}
-                onChange={setFilterStatus}
-                allowClear
-              >
-                {orderStatuses.map(status => (
-                  <Option key={status} value={status}>{status}</Option>
-                ))}
-              </Select>
-            </Col>
-            <Col span={6}>
-              <Select
-                placeholder="Filter by payment status"
-                style={{ width: '100%' }}
-                value={filterPaymentStatus}
-                onChange={setFilterPaymentStatus}
-                allowClear
-              >
-                {paymentStatuses.map(status => (
-                  <Option key={status} value={status}>{status}</Option>
-                ))}
-              </Select>
-            </Col>
-            <Col span={4}>
-              <Button
-                icon={<FilterOutlined />}
-                onClick={fetchOrders}
-                style={{ width: '100%' }}
-              >
-                Apply Filters
-              </Button>
-            </Col>
-          </Row>
-        </div>
+      {/* Stats Cards */}
+      <Row gutter={[24, 24]} style={{ marginBottom: 'var(--space-6)' }}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <Statistic
+              title={t('totalOrders')}
+              value={stats.totalOrders}
+              prefix={<ShoppingOutlined style={{ color: 'var(--primary)' }} />}
+              valueStyle={{ color: 'var(--primary)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <Statistic
+              title={t('pendingOrders')}
+              value={stats.pendingOrders}
+              prefix={<ClockCircleOutlined style={{ color: 'var(--warning)' }} />}
+              valueStyle={{ color: 'var(--warning)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <Statistic
+              title={t('processingOrders')}
+              value={stats.processingOrders}
+              prefix={<TruckOutlined style={{ color: 'var(--info)' }} />}
+              valueStyle={{ color: 'var(--info)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <Statistic
+              title={t('totalRevenue')}
+              value={stats.totalRevenue}
+              prefix={<DollarOutlined style={{ color: 'var(--success)' }} />}
+              valueStyle={{ color: 'var(--success)' }}
+              precision={2}
+            />
+          </Card>
+        </Col>
+      </Row>
 
+      {/* Filters */}
+      <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.5s', marginBottom: 'var(--space-6)' }}>
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={12} md={6}>
+            <Search
+              placeholder={t('searchOrders')}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              prefix={<SearchOutlined />}
+              style={{ width: '100%' }}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Select
+              placeholder={t('orderStatus')}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              style={{ width: '100%' }}
+              allowClear
+            >
+              <Option value="pending">{t('pending')}</Option>
+              <Option value="processing">{t('processing')}</Option>
+              <Option value="shipped">{t('shipped')}</Option>
+              <Option value="delivered">{t('delivered')}</Option>
+              <Option value="cancelled">{t('cancelled')}</Option>
+              <Option value="refunded">{t('refunded')}</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Select
+              placeholder={t('paymentStatus')}
+              value={selectedPaymentStatus}
+              onChange={setSelectedPaymentStatus}
+              style={{ width: '100%' }}
+              allowClear
+            >
+              <Option value="pending">{t('pending')}</Option>
+              <Option value="paid">{t('paid')}</Option>
+              <Option value="failed">{t('failed')}</Option>
+              <Option value="refunded">{t('refunded')}</Option>
+            </Select>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Orders Table */}
+      <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
         <Table
           columns={columns}
-          dataSource={orders}
+          dataSource={filteredOrders}
           rowKey="id"
           loading={loading}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} orders`,
+            showTotal: (total, range) => 
+              `${range[0]}-${range[1]} of ${total} ${t('orders')}`,
           }}
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1000 }}
         />
       </Card>
 
       {/* Order Details Modal */}
       <Modal
-        title={`Order Details - ${selectedOrder?.orderNumber}`}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        title={`${t('orderDetails')} - ${selectedOrder?.orderNumber}`}
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        width={800}
+        className="glass"
         footer={null}
-        width={1000}
       >
         {selectedOrder && (
-          <Tabs defaultActiveKey="details">
-            <TabPane tab="Order Details" key="details">
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="Order Number" span={1}>
-                  {selectedOrder.orderNumber}
-                </Descriptions.Item>
-                <Descriptions.Item label="Order Status" span={1}>
-                  <Tag color={getStatusColor(selectedOrder.orderStatus)}>
-                    {selectedOrder.orderStatus}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="Payment Status" span={1}>
-                  <Tag color={getStatusColor(selectedOrder.paymentStatus)}>
-                    {selectedOrder.paymentStatus}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="Total Amount" span={1}>
-                  ${selectedOrder.totalAmount.toFixed(2)}
-                </Descriptions.Item>
-                <Descriptions.Item label="Customer Name" span={1}>
-                  {selectedOrder.user.name}
-                </Descriptions.Item>
-                <Descriptions.Item label="Customer Email" span={1}>
-                  {selectedOrder.user.email}
-                </Descriptions.Item>
-                <Descriptions.Item label="Customer Phone" span={1}>
-                  {selectedOrder.user.phone || 'N/A'}
-                </Descriptions.Item>
-                <Descriptions.Item label="Order Date" span={1}>
-                  {new Date(selectedOrder.createdAt).toLocaleString()}
-                </Descriptions.Item>
-              </Descriptions>
+          <div>
+            <Row gutter={[24, 24]}>
+              <Col span={12}>
+                <Card title={t('customerInfo')} size="small">
+                  <Descriptions column={1} size="small">
+                    <Descriptions.Item label={t('customerName')}>
+                      {selectedOrder.customerName}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('customerEmail')}>
+                      {selectedOrder.customerEmail}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('customerPhone')}>
+                      {selectedOrder.customerPhone}
+                    </Descriptions.Item>
+                  </Descriptions>
+                </Card>
+              </Col>
+              <Col span={12}>
+                <Card title={t('orderInfo')} size="small">
+                  <Descriptions column={1} size="small">
+                    <Descriptions.Item label={t('orderNumber')}>
+                      {selectedOrder.orderNumber}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('orderDate')}>
+                      {new Date(selectedOrder.createdAt).toLocaleString()}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={t('total')}>
+                      <Text strong style={{ color: 'var(--primary)' }}>
+                        ${selectedOrder.total.toFixed(2)}
+                      </Text>
+                    </Descriptions.Item>
+                  </Descriptions>
+                </Card>
+              </Col>
+            </Row>
 
-              <Divider />
+            <Card title={t('shippingAddress')} size="small" style={{ marginTop: 'var(--space-4)' }}>
+              <Text>
+                {selectedOrder.shippingAddress.street}<br />
+                {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.zipCode}<br />
+                {selectedOrder.shippingAddress.country}
+              </Text>
+            </Card>
 
-              <Title level={4}>Shipping Address</Title>
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="Street" span={2}>
-                  {selectedOrder.address.street}
-                </Descriptions.Item>
-                <Descriptions.Item label="City" span={1}>
-                  {selectedOrder.address.city}
-                </Descriptions.Item>
-                <Descriptions.Item label="State" span={1}>
-                  {selectedOrder.address.state}
-                </Descriptions.Item>
-                <Descriptions.Item label="ZIP Code" span={1}>
-                  {selectedOrder.address.zipCode}
-                </Descriptions.Item>
-                <Descriptions.Item label="Country" span={1}>
-                  {selectedOrder.address.country}
-                </Descriptions.Item>
-              </Descriptions>
-            </TabPane>
-
-            <TabPane tab="Order Items" key="items">
+            <Card title={t('orderItems')} size="small" style={{ marginTop: 'var(--space-4)' }}>
               <Table
                 dataSource={selectedOrder.items}
-                rowKey="id"
-                pagination={false}
                 columns={[
-                  {
-                    title: 'Product',
-                    key: 'product',
-                    render: (_, record) => (
-                      <div>
-                        <div className="font-medium">{record.product.name}</div>
-                        {record.variant && (
-                          <div className="text-sm text-gray-500">
-                            {record.variant.size} - {record.variant.color}
-                          </div>
-                        )}
-                      </div>
-                    ),
-                  },
-                  {
-                    title: 'Quantity',
-                    dataIndex: 'quantity',
-                    key: 'quantity',
-                  },
-                  {
-                    title: 'Price',
-                    dataIndex: 'price',
+                  { title: t('productName'), dataIndex: 'name', key: 'name' },
+                  { title: t('quantity'), dataIndex: 'quantity', key: 'quantity' },
+                  { 
+                    title: t('price'), 
+                    dataIndex: 'price', 
                     key: 'price',
-                    render: (price: number) => `$${price.toFixed(2)}`,
-                  },
-                  {
-                    title: 'Total',
-                    dataIndex: 'total',
-                    key: 'total',
-                    render: (total: number) => `$${total.toFixed(2)}`,
+                    render: (price: number) => `$${price.toFixed(2)}`
                   },
                 ]}
+                pagination={false}
+                size="small"
               />
-            </TabPane>
+            </Card>
 
-            <TabPane tab="Order Timeline" key="timeline">
-              <Timeline
-                items={selectedOrder.timeline.map(item => ({
-                  color: getStatusColor(item.status),
-                  children: (
-                    <div>
-                      <div className="font-medium">{item.status}</div>
-                      <div className="text-sm text-gray-500">
-                        {new Date(item.timestamp).toLocaleString()}
-                      </div>
-                      {item.notes && (
-                        <div className="text-sm mt-1">{item.notes}</div>
-                      )}
-                    </div>
-                  ),
-                }))}
-              />
-            </TabPane>
-          </Tabs>
+            <div style={{ marginTop: 'var(--space-4)', textAlign: 'right' }}>
+              <Space>
+                <Button onClick={() => setIsModalVisible(false)}>
+                  {t('close')}
+                </Button>
+                {selectedOrder.status !== 'delivered' && selectedOrder.status !== 'cancelled' && (
+                  <Button
+                    type="primary"
+                    onClick={() => handleUpdateStatus(selectedOrder.id, 'delivered')}
+                  >
+                    {t('markAsDelivered')}
+                  </Button>
+                )}
+              </Space>
+            </div>
+          </div>
         )}
-      </Modal>
-
-      {/* Update Status Modal */}
-      <Modal
-        title="Update Order Status"
-        open={statusModalVisible}
-        onCancel={() => setStatusModalVisible(false)}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleUpdateStatus}
-          initialValues={{ status: selectedOrder?.orderStatus }}
-        >
-          <Form.Item
-            name="status"
-            label="Order Status"
-            rules={[{ required: true, message: 'Please select status' }]}
-          >
-            <Select placeholder="Select status">
-              {orderStatuses.map(status => (
-                <Option key={status} value={status}>{status}</Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="notes"
-            label="Notes (Optional)"
-          >
-            <TextArea rows={3} placeholder="Add any notes about this status change" />
-          </Form.Item>
-
-          <div className="flex justify-end space-x-2">
-            <Button onClick={() => setStatusModalVisible(false)}>
-              Cancel
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Update Status
-            </Button>
-          </div>
-        </Form>
-      </Modal>
-
-      {/* Refund Modal */}
-      <Modal
-        title="Process Refund"
-        open={refundModalVisible}
-        onCancel={() => setRefundModalVisible(false)}
-        footer={null}
-      >
-        <Form
-          form={refundForm}
-          layout="vertical"
-          onFinish={handleProcessRefund}
-          initialValues={{ amount: selectedOrder?.totalAmount }}
-        >
-          <Form.Item
-            name="amount"
-            label="Refund Amount"
-            rules={[{ required: true, message: 'Please enter refund amount' }]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              max={selectedOrder?.totalAmount}
-              step={0.01}
-              formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '')) || 0}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="reason"
-            label="Refund Reason"
-            rules={[{ required: true, message: 'Please enter refund reason' }]}
-          >
-            <TextArea rows={3} placeholder="Enter reason for refund" />
-          </Form.Item>
-
-          <div className="flex justify-end space-x-2">
-            <Button onClick={() => setRefundModalVisible(false)}>
-              Cancel
-            </Button>
-            <Button type="primary" htmlType="submit" danger>
-              Process Refund
-            </Button>
-          </div>
-        </Form>
       </Modal>
     </div>
   );

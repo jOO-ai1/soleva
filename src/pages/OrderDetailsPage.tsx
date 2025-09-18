@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiPackage, FiTruck, FiCheckCircle, FiClock, FiXCircle, FiRefreshCw, FiMapPin, FiCalendar, FiArrowLeft, FiDownload } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { ordersApi } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import { useParams, Link } from 'react-router-dom';
@@ -96,7 +96,8 @@ const getStatusColor = (status: string) => {
 };
 
 export default function OrderDetailsPage() {
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { orderId } = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);

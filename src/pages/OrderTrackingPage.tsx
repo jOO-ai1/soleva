@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiBox, FiSearch, FiPackage, FiTruck, FiCheckCircle, FiClock, FiXCircle, FiRefreshCw, FiMapPin, FiCalendar } from 'react-icons/fi';
 import { useTranslation } from '../contexts/LangContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { ordersApi } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import { useParams, Link } from 'react-router-dom';
@@ -89,7 +89,8 @@ const getStatusColor = (status: string) => {
 
 export default function OrderTrackingPage() {
   const t = useTranslation();
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { orderNumber } = useParams<{ orderNumber: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
@@ -109,7 +110,7 @@ export default function OrderTrackingPage() {
       const response = await ordersApi.track(identifier);
       
       if (response.success) {
-        setOrder(response.data);
+        setOrder(response.data as Order);
       } else {
         setError('Order not found');
       }
@@ -246,6 +247,9 @@ export default function OrderTrackingPage() {
                 <div>
                   <h2 className="text-2xl font-bold">Order #{order.orderNumber}</h2>
                   <p className="text-gray-600">Placed on {formatDate(order.createdAt)}</p>
+                  <p className="text-lg font-medium mt-2 text-[#d1b16a]">
+                    Your order is {order.orderStatus.toLowerCase().replace('_', ' ')}.
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col lg:items-end space-y-2">

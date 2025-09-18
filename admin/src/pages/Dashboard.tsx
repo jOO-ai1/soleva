@@ -1,348 +1,380 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, Row, Col, Statistic, Table, Progress, Button, Space, Typography, Spin, Alert } from 'antd';
 import {
-  Row,
-  Col,
-  Card,
-  Statistic,
-  Typography,
-  Table,
-  Tag,
-  Space,
-  Button,
-  DatePicker,
-  Select,
-  Spin,
-} from 'antd';
-import {
-  ShoppingCartOutlined,
+  ShoppingOutlined,
   UserOutlined,
   DollarOutlined,
-  InboxOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
+  RiseOutlined,
   EyeOutlined,
+  EditOutlined,
+  PlusOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import { useNavigate } from 'react-router-dom';
-import { dashboardAPI } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
-import dayjs from 'dayjs';
+import { dashboardAPI } from '../services/api';
 
 const { Title, Text } = Typography;
-const { RangePicker } = DatePicker;
 
 interface DashboardStats {
+  totalSales: number;
   totalOrders: number;
-  totalRevenue: number;
   totalCustomers: number;
-  lowStockItems: number;
-  ordersGrowth: number;
-  revenueGrowth: number;
-  customersGrowth: number;
+  totalProducts: number;
+  revenue: number;
+  growth: number;
 }
 
 interface RecentOrder {
   id: string;
-  orderNumber: string;
-  customer: string;
+  customerName: string;
   total: number;
   status: string;
-  createdAt: string;
+  date: string;
 }
 
-const Dashboard = () => {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
-  const [salesData, setSalesData] = useState<any[]>([]);
-  const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [dateRange, setDateRange] = useState([
-    dayjs().subtract(30, 'days'),
-    dayjs(),
-  ]);
-  const navigate = useNavigate();
-  const { language } = useLanguage();
+interface TopProduct {
+  id: string;
+  name: string;
+  sales: number;
+  revenue: number;
+  growth: number;
+}
 
-  const fetchDashboardData = async () => {
+const Dashboard: React.FC = () => {
+  const { t } = useLanguage();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalSales: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+    revenue: 0,
+    growth: 0,
+  });
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const [statsRes, ordersRes] = await Promise.all([
-        dashboardAPI.getStats(),
-        dashboardAPI.getRecentOrders(),
-      ]);
+      setError(null);
 
-      if (statsRes.success && statsRes.data) {
-        setStats(statsRes.data);
+      // Fetch real dashboard stats from API
+      const statsResponse = await dashboardAPI.getStats();
+      if (statsResponse.success) {
+        setStats({
+          totalSales: statsResponse.data.totalOrders || 0,
+          totalOrders: statsResponse.data.totalOrders || 0,
+          totalCustomers: statsResponse.data.totalCustomers || 0,
+          totalProducts: 0, // This would need a separate API call
+          revenue: statsResponse.data.totalRevenue || 0,
+          growth: statsResponse.data.revenueGrowth || 0,
+        });
       }
-      
-      if (ordersRes.success && ordersRes.data) {
-        setRecentOrders(ordersRes.data);
+
+      // Fetch recent orders from API
+      const ordersResponse = await dashboardAPI.getRecentOrders();
+      if (ordersResponse.success) {
+        setRecentOrders(ordersResponse.data.map((order: any) => ({
+          id: order.id || order.orderNumber,
+          customerName: order.customerName || order.customer?.name || 'Unknown Customer',
+          total: order.total || order.amount || 0,
+          status: order.status || 'pending',
+          date: order.createdAt || order.date || new Date().toISOString(),
+        })));
       }
 
-      // Mock data for charts (replace with real API calls when available)
-      setSalesData([
-        { date: '2024-01-01', sales: 12000 },
-        { date: '2024-01-02', sales: 15000 },
-        { date: '2024-01-03', sales: 18000 },
-        { date: '2024-01-04', sales: 14000 },
-        { date: '2024-01-05', sales: 16000 },
-        { date: '2024-01-06', sales: 20000 },
-        { date: '2024-01-07', sales: 17000 },
-      ]);
-
-      setCategoryData([
-        { name: 'Sneakers', value: 35 },
-        { name: 'Boots', value: 25 },
-        { name: 'Sandals', value: 20 },
-        { name: 'Dress Shoes', value: 15 },
-        { name: 'Others', value: 5 },
-      ]);
-    } catch (error) {
-      // Failed to fetch dashboard data
+      // Fetch analytics for top products
+      const analyticsResponse = await dashboardAPI.getAnalytics('30d');
+      if (analyticsResponse.success) {
+        setTopProducts((analyticsResponse.data.topProducts || []).map((product: any) => ({
+          id: product.productId || product.id,
+          name: product.productName || product.name || 'Unknown Product',
+          sales: product.sales || 0,
+          revenue: product.revenue || 0,
+          growth: product.growth || 0,
+        })));
+      }
+    } catch (err) {
+      console.error('Dashboard data fetch error:', err);
+      setError(t('error'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchDashboardData();
-  }, [dateRange]);
+  }, [fetchDashboardData]);
 
-  const orderColumns = [
+  const recentOrdersColumns = [
     {
-      title: 'Order Number',
-      dataIndex: 'orderNumber',
-      key: 'orderNumber',
-      render: (text: string, record: RecentOrder) => (
-        <Button
-          type="link"
-          onClick={() => navigate(`/orders/${record.id}`)}
-          style={{ padding: 0 }}
-        >
-          {text}
-        </Button>
+      title: t('orderNumber'),
+      dataIndex: 'id',
+      key: 'id',
+      render: (id: string) => <Text code>#{id.slice(-8)}</Text>,
+    },
+    {
+      title: t('customerName'),
+      dataIndex: 'customerName',
+      key: 'customerName',
+    },
+    {
+      title: t('orderTotal'),
+      dataIndex: 'total',
+      key: 'total',
+      render: (total: number) => (
+        <Text strong style={{ color: 'var(--primary)' }}>
+          ${total.toFixed(2)}
+        </Text>
       ),
     },
     {
-      title: 'Customer',
-      dataIndex: 'customer',
-      key: 'customer',
-    },
-    {
-      title: 'Total',
-      dataIndex: 'total',
-      key: 'total',
-      render: (value: number) => `$${value.toFixed(2)}`,
-    },
-    {
-      title: 'Status',
+      title: t('orderStatus'),
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => {
-        const colors = {
-          PENDING: 'orange',
-          CONFIRMED: 'blue',
-          PROCESSING: 'purple',
-          SHIPPED: 'cyan',
-          DELIVERED: 'green',
-          CANCELLED: 'red',
-        };
-        return <Tag color={colors[status as keyof typeof colors]}>{status}</Tag>;
-      },
+      render: (status: string) => (
+        <span
+          style={{
+            padding: '4px 8px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 'var(--text-xs)',
+            fontWeight: '500',
+            background: status === 'completed' ? 'var(--success)' : 'var(--warning)',
+            color: 'white',
+          }}
+        >
+          {t(status as any)}
+        </span>
+      ),
     },
     {
-      title: 'Date',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: t('orderDate'),
+      dataIndex: 'date',
+      key: 'date',
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Actions',
-      key: 'action',
-      render: (record: RecentOrder) => (
-        <Button
-          type="text"
-          icon={<EyeOutlined />}
-          onClick={() => navigate(`/orders/${record.id}`)}
-        >
-          View
-        </Button>
+      title: t('actions'),
+      key: 'actions',
+      render: () => (
+        <Space>
+          <Button type="text" icon={<EyeOutlined />} size="small" />
+          <Button type="text" icon={<EditOutlined />} size="small" />
+        </Space>
       ),
     },
   ];
 
-  const pieColors = ['#d1b16a', '#b8965a', '#e4c97d', '#a67c4a', '#f0d98b'];
+  const topProductsColumns = [
+    {
+      title: t('productName'),
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: t('sales'),
+      dataIndex: 'sales',
+      key: 'sales',
+      render: (sales: number) => (
+        <Text strong>{sales.toLocaleString()}</Text>
+      ),
+    },
+    {
+      title: t('revenue'),
+      dataIndex: 'revenue',
+      key: 'revenue',
+      render: (revenue: number) => (
+        <Text strong style={{ color: 'var(--primary)' }}>
+          ${revenue.toFixed(2)}
+        </Text>
+      ),
+    },
+    {
+      title: t('growth'),
+      dataIndex: 'growth',
+      key: 'growth',
+      render: (growth: number) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Progress
+            percent={Math.abs(growth)}
+            size="small"
+            status={growth >= 0 ? 'success' : 'exception'}
+            style={{ width: '60px' }}
+          />
+          <Text style={{ color: growth >= 0 ? 'var(--success)' : 'var(--error)' }}>
+            {growth >= 0 ? '+' : ''}{growth.toFixed(1)}%
+          </Text>
+        </div>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px' 
+      }}>
         <Spin size="large" />
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <Alert
+        message={t('error')}
+        description={error}
+        type="error"
+        showIcon
+        action={
+          <Button size="small" onClick={fetchDashboardData}>
+            {t('refresh')}
+          </Button>
+        }
+      />
+    );
+  }
+
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={2} style={{ margin: 0 }}>Dashboard</Title>
-        <Space>
-          <RangePicker
-            value={[dateRange[0], dateRange[1]]}
-            onChange={(dates: any) => {
-              if (dates && dates[0] && dates[1]) {
-                setDateRange([dates[0], dates[1]]);
-              }
-            }}
-          />
-        </Space>
+    <div className="dashboard-container">
+      <div style={{ marginBottom: 'var(--space-6)' }}>
+        <Title level={2} style={{ color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>
+          {t('dashboard')}
+        </Title>
+        <Text style={{ color: 'var(--text-secondary)' }}>
+          {t('welcomeBack')} - {new Date().toLocaleDateString()}
+        </Text>
       </div>
 
-      {/* Key Metrics */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+      {/* Stats Cards */}
+      <Row gutter={[24, 24]} style={{ marginBottom: 'var(--space-8)' }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <Statistic
-              title='Total Orders'
-              value={stats?.totalOrders || 0}
-              prefix={<ShoppingCartOutlined />}
-              suffix={
-                <span style={{ fontSize: 12, color: stats?.ordersGrowth >= 0 ? '#10b981' : '#ef4444' }}>
-                  {stats?.ordersGrowth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                  {Math.abs(stats?.ordersGrowth || 0)}%
-                </span>
-              }
+              title={t('totalSales')}
+              value={stats.totalSales}
+              prefix={<ShoppingOutlined style={{ color: 'var(--primary)' }} />}
+              valueStyle={{ color: 'var(--primary)' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Statistic
-              title='Total Revenue'
-              value={stats?.totalRevenue || 0}
-              prefix={<DollarOutlined />}
-              suffix='EGP'
-              precision={0}
-              formatter={(value) => `${Number(value).toLocaleString()}`}
+              title={t('totalOrders')}
+              value={stats.totalOrders}
+              prefix={<FileTextOutlined style={{ color: 'var(--info)' }} />}
+              valueStyle={{ color: 'var(--info)' }}
             />
-            <div style={{ fontSize: 12, color: stats?.revenueGrowth >= 0 ? '#10b981' : '#ef4444', marginTop: 8 }}>
-              {stats?.revenueGrowth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-              {Math.abs(stats?.revenueGrowth || 0)}% from last period
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <Statistic
+              title={t('totalCustomers')}
+              value={stats.totalCustomers}
+              prefix={<UserOutlined style={{ color: 'var(--success)' }} />}
+              valueStyle={{ color: 'var(--success)' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="glass animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <Statistic
+              title={t('revenue')}
+              value={stats.revenue}
+              prefix={<DollarOutlined style={{ color: 'var(--warning)' }} />}
+              valueStyle={{ color: 'var(--warning)' }}
+              precision={2}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Charts and Tables */}
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={16}>
+          <Card 
+            className="glass animate-fade-in-up" 
+            style={{ animationDelay: '0.5s' }}
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+                  {t('recentOrders')}
+                </Title>
+                <Button type="primary" icon={<PlusOutlined />} size="small">
+                  {t('create')}
+                </Button>
+              </div>
+            }
+          >
+            <Table
+              columns={recentOrdersColumns}
+              dataSource={recentOrders}
+              rowKey="id"
+              pagination={{ pageSize: 5 }}
+              size="small"
+            />
+          </Card>
+        </Col>
+        
+        <Col xs={24} lg={8}>
+          <Card 
+            className="glass animate-fade-in-up" 
+            style={{ animationDelay: '0.6s' }}
+            title={
+              <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+                {t('topProducts')}
+              </Title>
+            }
+          >
+            <Table
+              columns={topProductsColumns}
+              dataSource={topProducts}
+              rowKey="id"
+              pagination={false}
+              size="small"
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Growth Chart Placeholder */}
+      <Row gutter={[24, 24]} style={{ marginTop: 'var(--space-6)' }}>
+        <Col span={24}>
+          <Card 
+            className="glass animate-fade-in-up" 
+            style={{ animationDelay: '0.7s' }}
+            title={
+              <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+                {t('salesChart')}
+              </Title>
+            }
+          >
+            <div style={{ 
+              height: '300px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%)',
+              borderRadius: 'var(--radius-lg)',
+              border: '2px dashed var(--primary-200)',
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <RiseOutlined style={{ fontSize: '48px', color: 'var(--primary)', marginBottom: 'var(--space-4)' }} />
+                <Text style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-lg)' }}>
+                  {t('chartPlaceholder')}
+                </Text>
+              </div>
             </div>
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title='Total Customers'
-              value={stats?.totalCustomers || 0}
-              prefix={<UserOutlined />}
-              suffix={
-                <span style={{ fontSize: 12, color: stats?.customersGrowth >= 0 ? '#10b981' : '#ef4444' }}>
-                  {stats?.customersGrowth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                  {Math.abs(stats?.customersGrowth || 0)}%
-                </span>
-              }
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title='Low Stock Items'
-              value={stats?.lowStockItems || 0}
-              prefix={<InboxOutlined />}
-              valueStyle={{ color: stats?.lowStockItems > 0 ? '#ef4444' : '#10b981' }}
-            />
-            <Button
-              type="link"
-              size="small"
-              onClick={() => navigate('/inventory')}
-              style={{ padding: 0, marginTop: 8 }}
-            >
-View Inventory
-            </Button>
-          </Card>
-        </Col>
       </Row>
-
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        {/* Sales Chart */}
-        <Col xs={24} lg={16}>
-          <Card title='Sales Trend' style={{ height: 400 }}>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip formatter={(value) => [`${value} EGP`, 'Sales']} />
-                <Line
-                  type="monotone"
-                  dataKey="sales"
-                  stroke="#d1b16a"
-                  strokeWidth={2}
-                  dot={{ fill: '#d1b16a', strokeWidth: 2, r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-
-        {/* Category Distribution */}
-        <Col xs={24} lg={8}>
-          <Card title='Top Products' style={{ height: 400 }}>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [`${value}`, 'Sales']} />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Recent Orders */}
-      <Card
-        title='Recent Orders'
-        extra={
-          <Button type="primary" onClick={() => navigate('/orders')}>
-            All Orders
-          </Button>
-        }
-      >
-        <Table
-          columns={orderColumns}
-          dataSource={recentOrders}
-          rowKey="id"
-          pagination={{ pageSize: 10 }}
-          scroll={{ x: 800 }}
-        />
-      </Card>
     </div>
   );
 };

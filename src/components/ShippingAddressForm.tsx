@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+const { useState, useEffect, FormEvent } = React;
 import { motion } from 'framer-motion';
-import { FiMapPin, FiUser, FiPhone, FiHome, FiInfo } from 'react-icons/fi';
+import { FiMapPin, FiUser, FiHome, FiInfo } from 'react-icons/fi';
 import { useLang, useTranslation } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';
 import GlassButton from './GlassButton';
@@ -47,18 +48,18 @@ interface AddressFormData {
 }
 
 interface ShippingAddressFormProps {
-  initialData?: Partial<AddressFormData>;
-  onSubmit: (data: AddressFormData) => Promise<void>;
-  onCancel?: () => void;
+  initialData?: any;
+  onSubmit: any;
+  onCancel?: any;
   loading?: boolean;
 }
 
-const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
+const ShippingAddressForm = ({
   initialData,
   onSubmit,
   onCancel,
   loading = false
-}) => {
+}: ShippingAddressFormProps) => {
   const [formData, setFormData] = useState<AddressFormData>({
     recipientName: '',
     phone: '',
@@ -85,38 +86,9 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { lang } = useLang();
-  const t = useTranslation();
   const { showToast } = useToast();
 
-  // Load governorates on component mount
-  useEffect(() => {
-    loadGovernorates();
-  }, []);
-
-  // Load centers when governorate changes
-  useEffect(() => {
-    if (formData.governorateId) {
-      loadCenters(formData.governorateId);
-      setFormData(prev => ({ ...prev, centerId: '', villageId: '' }));
-      setCenters([]);
-      setVillages([]);
-    }
-  }, [formData.governorateId]);
-
-  // Load villages when center changes
-  useEffect(() => {
-    if (formData.centerId) {
-      loadVillages(formData.centerId);
-      setFormData(prev => ({ ...prev, villageId: '' }));
-      setVillages([]);
-    }
-  }, [formData.centerId]);
-
-  // Calculate shipping cost when address changes
-  useEffect(() => {
-    calculateShippingCost();
-  }, [formData.governorateId, formData.centerId, formData.villageId]);
-
+  // Function declarations
   const loadGovernorates = async () => {
     try {
       setLoadingData(true);
@@ -128,10 +100,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
       }
     } catch (error) {
       console.error('Failed to load governorates:', error);
-      showToast(
-        lang === 'ar' ? 'فشل في تحميل المحافظات' : 'Failed to load governorates',
-        'error'
-      );
+      showToast('Failed to load governorates');
     } finally {
       setLoadingData(false);
     }
@@ -139,54 +108,101 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
 
   const loadCenters = async (governorateId: string) => {
     try {
-      const selectedGov = governorates.find(g => g.id === governorateId);
-      if (selectedGov) {
-        setCenters(selectedGov.centers);
+      setLoadingData(true);
+      const response = await fetch(`/api/v1/shipping/centers?governorateId=${governorateId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setCenters(data.data);
       }
     } catch (error) {
       console.error('Failed to load centers:', error);
+      showToast('Failed to load centers');
+    } finally {
+      setLoadingData(false);
     }
   };
 
   const loadVillages = async (centerId: string) => {
     try {
-      const selectedCenter = centers.find(c => c.id === centerId);
-      if (selectedCenter) {
-        setVillages(selectedCenter.villages);
+      setLoadingData(true);
+      const response = await fetch(`/api/v1/shipping/villages?centerId=${centerId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setVillages(data.data);
       }
     } catch (error) {
       console.error('Failed to load villages:', error);
+      showToast('Failed to load villages');
+    } finally {
+      setLoadingData(false);
     }
   };
 
-  const calculateShippingCost = async () => {
+  const calculateShippingCost = () => {
     if (!formData.governorateId) {
       setShippingCost(0);
       return;
     }
-
-    try {
-      const response = await fetch('/api/v1/shipping/calculate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          governorateId: formData.governorateId,
-          centerId: formData.centerId || undefined,
-          villageId: formData.villageId || undefined,
-          orderTotal: 0 // Will be calculated at checkout
-        })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setShippingCost(data.data.cost);
-      }
-    } catch (error) {
-      console.error('Failed to calculate shipping cost:', error);
+    
+    const governorate = governorates.find((g: GovernorateData) => g.id === formData.governorateId);
+    if (!governorate) {
+      setShippingCost(0);
+      return;
     }
+    
+    if (formData.centerId) {
+      const center = governorate.centers.find((c: CenterData) => c.id === formData.centerId);
+      if (center && center.shippingCost !== undefined) {
+        setShippingCost(center.shippingCost);
+        return;
+      }
+    }
+    
+    if (formData.villageId && formData.centerId) {
+      const center = governorate.centers.find((c: CenterData) => c.id === formData.centerId);
+      if (center) {
+        const village = center.villages.find((v: VillageData) => v.id === formData.villageId);
+        if (village && village.shippingCost !== undefined) {
+          setShippingCost(village.shippingCost);
+          return;
+        }
+      }
+    }
+    
+    setShippingCost(governorate.shippingCost);
   };
+
+  // Load governorates on component mount
+  useEffect(() => {
+    loadGovernorates();
+  }, [loadGovernorates]);
+
+  // Load centers when governorate changes
+  useEffect(() => {
+    if (formData.governorateId) {
+      loadCenters(formData.governorateId);
+      setFormData((prev: any) => ({ ...prev, centerId: '', villageId: '' }));
+      setCenters([]);
+      setVillages([]);
+    }
+  }, [formData.governorateId]);
+
+  // Load villages when center changes
+  useEffect(() => {
+    if (formData.centerId) {
+      loadVillages(formData.centerId);
+      setFormData((prev: any) => ({ ...prev, villageId: '' }));
+      setVillages([]);
+    }
+  }, [formData.centerId]);
+
+  // Calculate shipping cost when address changes
+  useEffect(() => {
+    calculateShippingCost();
+  }, [formData.governorateId, formData.centerId, formData.villageId]);
+
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -230,8 +246,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
     
     if (!validateForm()) {
       showToast(
-        lang === 'ar' ? 'يرجى تصحيح الأخطاء في النموذج' : 'Please correct the errors in the form',
-        'error'
+        lang === 'ar' ? 'يرجى تصحيح الأخطاء في النموذج' : 'Please correct the errors in the form'
       );
       return;
     }
@@ -244,17 +259,14 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
   };
 
   const handleInputChange = (field: keyof AddressFormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev: any) => ({ ...prev, [field]: '' }));
     }
   };
 
-  const selectedGovernorate = governorates.find(g => g.id === formData.governorateId);
-  const selectedCenter = centers.find(c => c.id === formData.centerId);
-  const selectedVillage = villages.find(v => v.id === formData.villageId);
 
   return (
     <motion.form
@@ -344,9 +356,9 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
                   : (lang === 'ar' ? 'اختر المحافظة' : 'Select Governorate')
                 }
               </option>
-              {governorates.map(gov => (
+              {governorates.map((gov: GovernorateData) => (
                 <option key={gov.id} value={gov.id}>
-                  {gov.name[lang]} - {gov.shippingCost} {lang === 'ar' ? 'ج.م' : 'EGP'}
+                  {(gov.name as any)[lang]} - {gov.shippingCost} {lang === 'ar' ? 'ج.م' : 'EGP'}
                 </option>
               ))}
             </select>
@@ -370,9 +382,9 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
                   : (lang === 'ar' ? 'اختر المركز' : 'Select Center')
                 }
               </option>
-              {centers.map(center => (
+              {centers.map((center: CenterData) => (
                 <option key={center.id} value={center.id}>
-                  {center.name[lang]}
+                  {(center.name as any)[lang]}
                   {center.shippingCost && ` - ${center.shippingCost} ${lang === 'ar' ? 'ج.م' : 'EGP'}`}
                 </option>
               ))}
@@ -397,9 +409,9 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
                   : (lang === 'ar' ? 'اختر القرية (اختياري)' : 'Select Village (Optional)')
                 }
               </option>
-              {villages.map(village => (
+              {villages.map((village: VillageData) => (
                 <option key={village.id} value={village.id}>
-                  {village.name[lang]} ({village.type})
+                  {(village.name as any)[lang]} ({village.type})
                   {village.shippingCost && ` - ${village.shippingCost} ${lang === 'ar' ? 'ج.م' : 'EGP'}`}
                 </option>
               ))}
@@ -550,18 +562,17 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
       {/* Form Actions */}
       <div className="form-actions">
         {onCancel && (
-          <GlassButton
+          <button
             type="button"
-            variant="secondary"
+            className="btn btn-secondary"
             onClick={onCancel}
             disabled={loading}
           >
             {lang === 'ar' ? 'إلغاء' : 'Cancel'}
-          </GlassButton>
+          </button>
         )}
         
         <GlassButton
-          type="submit"
           variant="primary"
           loading={loading}
           className="submit-button"
@@ -573,7 +584,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
         </GlassButton>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .shipping-address-form {
           max-width: 800px;
           margin: 0 auto;

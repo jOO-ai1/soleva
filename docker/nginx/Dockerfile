@@ -5,7 +5,7 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Copy custom configuration files
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY conf.d/production.conf /etc/nginx/conf.d/production.conf
+COPY conf.d/ /etc/nginx/conf.d/
 COPY startup.sh /usr/local/bin/startup.sh
 
 # Create necessary directories

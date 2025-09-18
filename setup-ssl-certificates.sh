@@ -49,14 +49,14 @@ start_services_for_certbot() {
     echo "🚀 Starting services for certificate generation..."
     
     # Start only the services needed for certificate generation
-    docker-compose up -d nginx
+    docker compose up -d nginx
     
     # Wait for Nginx to be ready
     echo "⏳ Waiting for Nginx to be ready..."
     sleep 10
     
     # Check if Nginx is running
-    if docker-compose ps nginx | grep -q "Up"; then
+    if docker compose ps nginx | grep -q "Up"; then
         echo "✅ Nginx is running"
     else
         echo "❌ Nginx failed to start"
@@ -72,7 +72,7 @@ generate_ssl_certificates() {
     echo "🔐 Generating SSL certificates for $domain..."
     
     # Create certbot command
-    local certbot_cmd="docker-compose run --rm certbot certonly --webroot -w /var/www/certbot"
+    local certbot_cmd="docker compose run --rm certbot certonly --webroot -w /var/www/certbot"
     
     # Add domains
     certbot_cmd="$certbot_cmd -d $domain"
@@ -132,17 +132,17 @@ restart_nginx_with_ssl() {
     echo "🔄 Restarting Nginx with SSL configuration..."
     
     # Rebuild Nginx image to pick up SSL certificates
-    docker-compose build nginx
+    docker compose build nginx
     
     # Restart Nginx
-    docker-compose up -d nginx
+    docker compose up -d nginx
     
     # Wait for Nginx to be ready
     echo "⏳ Waiting for Nginx to be ready..."
     sleep 10
     
     # Check if Nginx is running
-    if docker-compose ps nginx | grep -q "Up"; then
+    if docker compose ps nginx | grep -q "Up"; then
         echo "✅ Nginx is running with SSL"
         return 0
     else

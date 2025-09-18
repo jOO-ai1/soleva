@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuthSafe } from './AuthContext';
 import { favoritesApi } from '../services/api';
 
 interface FavoritesContextType {
@@ -15,12 +15,49 @@ interface FavoritesContextType {
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuth();
+  const auth = useAuthSafe();
+  const isAuthenticated = auth?.isAuthenticated || false;
+  const user = auth?.user;
   const [favorites, setFavorites] = useState<number[]>(() => {
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
   });
   const [isGuestFavorites, setIsGuestFavorites] = useState(!isAuthenticated);
+  
+  // Define before effects to avoid "used before declaration" error
+  const syncFavoritesWithServer = useCallback(async () => {
+    if (!isAuthenticated || !user) return;
+    
+    try {
+      // Get server favorites
+      const serverResponse = await favoritesApi.getAll();
+      const serverFavorites: any[] = (serverResponse.data as any[]) || [];
+      
+      // Merge guest favorites with server favorites
+      const guestFavorites = favorites;
+      
+      // Add guest favorites that don't exist on server
+      const newFavorites = guestFavorites.filter(guestId => 
+        !serverFavorites.some((serverFav: any) => serverFav.productId === guestId)
+      );
+      
+      // Add new favorites to server
+      for (const productId of newFavorites) {
+        try {
+          await favoritesApi.add(productId);
+        } catch (error) {
+          console.error(`Failed to add favorite ${productId} to server:`, error);
+        }
+      }
+      
+      // Update local favorites with server data
+      const updatedFavorites: number[] = serverFavorites.map((fav: any) => fav.productId);
+      setFavorites(updatedFavorites);
+      setIsGuestFavorites(false);
+    } catch (error) {
+      console.error('Failed to sync favorites with server:', error);
+    }
+  }, [isAuthenticated, user, favorites]);
   
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
@@ -76,39 +113,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const syncFavoritesWithServer = useCallback(async () => {
-    if (!isAuthenticated || !user) return;
-    
-    try {
-      // Get server favorites
-      const serverResponse = await favoritesApi.getAll();
-      const serverFavorites = serverResponse.data || [];
-      
-      // Merge guest favorites with server favorites
-      const guestFavorites = favorites;
-      
-      // Add guest favorites that don't exist on server
-      const newFavorites = guestFavorites.filter(guestId => 
-        !serverFavorites.some(serverFav => serverFav.productId === guestId)
-      );
-      
-      // Add new favorites to server
-      for (const productId of newFavorites) {
-        try {
-          await favoritesApi.add(productId);
-        } catch (error) {
-          console.error(`Failed to add favorite ${productId} to server:`, error);
-        }
-      }
-      
-      // Update local favorites with server data
-      const updatedFavorites = serverFavorites.map(fav => fav.productId);
-      setFavorites(updatedFavorites);
-      setIsGuestFavorites(false);
-    } catch (error) {
-      console.error('Failed to sync favorites with server:', error);
-    }
-  }, [isAuthenticated, user, favorites]);
+  
   
   return (
     <FavoritesContext.Provider value={{ 

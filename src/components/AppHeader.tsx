@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiMoon, FiSun, FiHeart } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthSafe } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -13,7 +13,8 @@ import clsx from 'clsx';
 export default function AppHeader() {
   const { lang, setLang } = useLang();
   const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
+  const auth = useAuthSafe();
+  const user = auth?.user;
   const { cart } = useCart();
   const { favorites } = useFavorites();
   const t = useTranslation();

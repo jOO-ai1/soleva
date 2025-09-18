@@ -1,7 +1,14 @@
 #!/bin/bash
 
+# =============================================================================
+# DEPRECATED: This script is deprecated. Use ./deploy.sh instead.
+# =============================================================================
 # Complete Project Setup and Deployment Script
 # This script handles full project setup, fixes, and deployment automatically
+# 
+# WARNING: This script is deprecated and will be removed in future versions.
+# Please use the new ./deploy.sh script for all deployments.
+# =============================================================================
 
 set -e
 
