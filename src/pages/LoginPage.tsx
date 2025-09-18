@@ -85,11 +85,11 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
-    } finally {setIsLoading(false);}}
-
-  return (
+    } finally {setIsLoading(false);}}return (
     <div className="container mx-auto py-10 px-4">
       <motion.div
         initial={{ opacity: 0, y: 30 }}

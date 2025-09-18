@@ -179,11 +179,11 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // FCP observation not supported
       } // Largest Contentful Paint
-      const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}
-        });
-
+      const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
       } catch (e) {
@@ -193,11 +193,11 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // LCP observation not supported
       } // Cumulative Layout Shift
-      const clsObserver = new PerformanceObserver((list) => {let clsValue = 0;for (const entry of list.getEntries()) {if (!(entry as any).hadRecentInput) {clsValue += (entry as any).value;
-            }
-          }
+      const clsObserver = new PerformanceObserver((list) => {let clsValue = 0;for (const entry of list.getEntries()) {if (!(entry as any).hadRecentInput) {clsValue += (entry as any).value;}}
           metrics.cls = clsValue;
         });
 
@@ -210,11 +210,11 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // CLS observation not supported
       } // Interaction to Next Paint (experimental)
-      const inpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.inp = Math.max(...entries.map((entry) => (entry as any).processingDuration || 0));}
-        });
-
+      const inpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.inp = Math.max(...entries.map((entry) => (entry as any).processingDuration || 0));}});
       try {
         inpObserver.observe({ entryTypes: ['event'] });
       } catch (e) {
@@ -224,11 +224,11 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // INP observation not supported
       } // Resolve after a delay to collect metrics
-      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();
-
-          metrics.loadTime = performance.now() - startTime;
+      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;
           resolve(metrics as PerformanceMetrics);
         }, 5000);
     });
@@ -264,12 +264,12 @@ export const useDeviceDetection = () => {
 
 
 
+
+
       // Failed to log device data
     }};const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {if (deviceInfo.isLowSpec) {// Force light mode for better performance
-      if (theme === 'dark') {setTheme('light');
-        // Adaptive mode: Switched to light theme for better performance
+      if (theme === 'dark') {setTheme('light'); // Adaptive mode: Switched to light theme for better performance
       }
-
       // Reduce animation intensity
       document.documentElement.style.setProperty('--animation-duration', '0.1s');
       document.documentElement.style.setProperty('--transition-duration', '0.1s');

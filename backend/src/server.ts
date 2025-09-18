@@ -329,17 +329,19 @@ apiRouter.get('/config', async (_req, res) => {
 
 
 
-      // Continue with default settings
-    }try {integrationSettings = await prisma.integrationSettings.findFirst();} catch (dbError) {
-
-
 
 
       // Continue with default settings
-    } // Default configuration if no settings found
-    const defaultConfig = { store: { name: { en: 'Soleva', ar: 'سوليفا' }, description: { en: 'Luxury Footwear', ar: 'أحذية فاخرة' }, currency: 'EGP',
-        timezone: 'Africa/Cairo',
-        language: 'en',
+    }
+    
+    try {
+      integrationSettings = await prisma.integrationSettings.findFirst();
+    } catch (dbError) {
+      // Continue with default settings
+    }
+    
+    // Default configuration if no settings found
+    const defaultConfig = { store: { name: { en: 'Soleva', ar: 'سوليفا' }, description: { en: 'Luxury Footwear', ar: 'أحذية فاخرة' }, currency: 'EGP', timezone: 'Africa/Cairo', language: 'en',
         socialMedia: {
           facebook: '',
           instagram: '',

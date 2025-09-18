@@ -416,9 +416,17 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
 
 
 
+
+
       // Failed to refresh user data
-    }};const forgotPassword = async (email: string, phoneNumber: string) => {try {const response = await authApi.forgotPassword({ email, phoneNumber });return {
-        success: response.success,
+    }
+  };
+  
+  const forgotPassword = async (email: string, phoneNumber: string) => {
+    try {
+      const response = await authApi.forgotPassword({ email, phoneNumber });
+      return { 
+        success: response.success, 
         message: response.message
       };
     } catch (error: any) {
@@ -458,8 +466,8 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
       refreshUser
     }}>
       {children}
-    </AuthContext.Provider>);
-
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
