@@ -1,5 +1,8 @@
-import * as React from 'react';
-import { ServiceUnavailable } from './ErrorBoundary';
+import React from 'react';
+import { useLang } from '../contexts/LangContext';
+import GlassCard from './GlassCard';
+import GlassButton from './GlassButton';
+import { FiRefreshCw, FiHome, FiAlertTriangle } from 'react-icons/fi';
 
 interface Props {
   children: React.ReactNode;
@@ -11,137 +14,99 @@ interface State {
   errorInfo?: React.ErrorInfo;
 }
 
-class AppErrorBoundary extends React.Component<Props, State> {
-  public state: State = {
-    hasError: false
+export class AppErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return {
+      hasError: true,
+      error
+    };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    this.setState({
+      error,
+      errorInfo
+    });
+    console.error('App Error Boundary caught error:', error, errorInfo);
+  }
+
+  handleReload = () => {
+    window.location.reload();
   };
 
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
+  handleGoHome = () => {
+    window.location.href = '/';
+  };
 
-  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error in development, use proper error reporting in production
-    if (process.env.NODE_ENV === 'development') {
-      console.error('App Error Boundary caught an error:', error, errorInfo);
-    }
-    this.setState({ errorInfo });
-  }
-
-  public render() {
+  render() {
     if (this.state.hasError) {
-      // Check if this is likely a network/API error
-      const isNetworkError = this.state.error?.message?.includes('fetch') ||
-      this.state.error?.message?.includes('network') ||
-      this.state.error?.message?.includes('API') ||
-      this.state.error?.message?.includes('CORS');
-
-      if (isNetworkError) {
-        return (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <ServiceUnavailable
-              onRetry={() => window.location.reload()}
-              className="max-w-md" />
-
-          </div>);
-
-      }
-
       return (
-        <div style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          fontFamily: 'Arial, sans-serif'
-        }}>
-          <div style={{
-            maxWidth: '600px',
-            margin: '0 auto',
-            padding: '2rem',
-            textAlign: 'center',
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚠️</div>
-            <h1 style={{ color: '#dc3545', marginBottom: '1rem' }}>
+        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100">
+          <GlassCard className="max-w-md mx-auto text-center">
+            <div className="text-6xl mb-6">
+              <FiAlertTriangle className="mx-auto text-red-500" />
+            </div>
+            
+            <h1 className="text-2xl font-bold text-red-600 mb-4">
               Application Error
             </h1>
-            <p style={{ color: '#6c757d', marginBottom: '2rem' }}>
+            
+            <p className="text-gray-600 mb-6">
               Something went wrong while loading the application. This might be due to:
             </p>
-            <ul style={{ textAlign: 'left', color: '#6c757d', marginBottom: '2rem' }}>
-              <li>Network connectivity issues</li>
-              <li>API server problems</li>
-              <li>JavaScript configuration errors</li>
-              <li>Browser compatibility issues</li>
-            </ul>
             
-            {this.state.error &&
-            <details style={{ textAlign: 'left', marginBottom: '2rem' }}>
-                <summary style={{ cursor: 'pointer', fontWeight: 'bold', marginBottom: '1rem' }}>
-                  Error Details
-                </summary>
-                <pre style={{
-                backgroundColor: '#f8f9fa',
-                padding: '1rem',
-                borderRadius: '4px',
-                overflow: 'auto',
-                fontSize: '0.875rem'
-              }}>
-                  {this.state.error.message}
-                  {this.state.error.stack}
-                </pre>
-                {this.state.errorInfo &&
-              <pre style={{
-                backgroundColor: '#f8f9fa',
-                padding: '1rem',
-                borderRadius: '4px',
-                overflow: 'auto',
-                fontSize: '0.875rem',
-                marginTop: '1rem'
-              }}>
-                    {this.state.errorInfo.componentStack}
-                  </pre>
-              }
-              </details>
-            }
-            
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button
-                onClick={() => window.location.reload()}
-                style={{
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '1rem'
-                }}>
-
-                Refresh Page
-              </button>
-              <button
-                onClick={() => window.location.href = '/'}
-                style={{
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '1rem'
-                }}>
-
-                Go Home
-              </button>
+            <div className="text-left mb-6 space-y-2">
+              <div className="text-sm text-gray-500">• Network connectivity issues</div>
+              <div className="text-sm text-gray-500">• API server problems</div>
+              <div className="text-sm text-gray-500">• JavaScript configuration errors</div>
+              <div className="text-sm text-gray-500">• Browser compatibility issues</div>
             </div>
-          </div>
-        </div>);
 
+            {process.env.NODE_ENV === 'development' && this.state.error && (
+              <details className="mb-6 text-left">
+                <summary className="cursor-pointer text-sm font-medium text-gray-700 mb-2">
+                  ▶ Error Details
+                </summary>
+                <div className="bg-red-50 p-3 rounded border text-xs overflow-auto max-h-32">
+                  <div className="font-mono text-red-800">
+                    {this.state.error.toString()}
+                  </div>
+                  {this.state.errorInfo?.componentStack && (
+                    <div className="mt-2 text-red-700">
+                      {this.state.errorInfo.componentStack}
+                    </div>
+                  )}
+                </div>
+              </details>
+            )}
+            
+            <div className="flex flex-col gap-3">
+              <GlassButton
+                onClick={this.handleReload}
+                variant="primary"
+                className="w-full"
+              >
+                <FiRefreshCw className="mr-2" />
+                Refresh Page
+              </GlassButton>
+              
+              <GlassButton
+                onClick={this.handleGoHome}
+                variant="secondary"
+                className="w-full"
+              >
+                <FiHome className="mr-2" />
+                Go Home
+              </GlassButton>
+            </div>
+          </GlassCard>
+        </div>
+      );
     }
 
     return this.props.children;

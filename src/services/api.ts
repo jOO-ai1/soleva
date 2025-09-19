@@ -212,17 +212,19 @@ export const authApi = {
 
 export const productsApi = {
   getAll: async (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) => {
-    // Use Supabase API instead of external API
+    // Always use Supabase API with graceful fallback to mock data
     try {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getAll(params);
     } catch (error) {
-      console.error('API connection error:', error);
-      // Return empty data as fallback
+      console.warn('Using fallback data due to API connection error:', error);
+      // Return mock data as fallback with proper structure
+      const { getMockProducts } = await import('./mockData');
       return Promise.resolve({
-        data: [],
+        data: getMockProducts(),
         status: 200,
-        success: true
+        success: true,
+        message: 'Using offline data'
       });
     }
   },
@@ -232,7 +234,21 @@ export const productsApi = {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getById(id);
     } catch (error) {
-      console.error('API connection error:', error);
+      console.warn('Using fallback data for product ID:', id, error);
+      // Try to find product in mock data
+      const { getMockProducts } = await import('./mockData');
+      const mockProducts = getMockProducts();
+      const product = mockProducts.find(p => p.id === id.toString());
+      
+      if (product) {
+        return Promise.resolve({
+          data: product,
+          status: 200,
+          success: true,
+          message: 'Using offline data'
+        });
+      }
+      
       throw {
         message: 'Product not found',
         status: 404
@@ -245,11 +261,21 @@ export const productsApi = {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getAll({ search: query });
     } catch (error) {
-      console.error('API connection error:', error);
+      console.warn('Using fallback data for search:', query, error);
+      const { getMockProducts } = await import('./mockData');
+      const mockProducts = getMockProducts();
+      const filteredProducts = mockProducts.filter(product => 
+        product.name.en.toLowerCase().includes(query.toLowerCase()) ||
+        product.name.ar.toLowerCase().includes(query.toLowerCase()) ||
+        product.description.en.toLowerCase().includes(query.toLowerCase()) ||
+        product.description.ar.toLowerCase().includes(query.toLowerCase())
+      );
+      
       return Promise.resolve({
-        data: [],
+        data: filteredProducts,
         status: 200,
-        success: true
+        success: true,
+        message: 'Using offline data'
       });
     }
   }
@@ -261,11 +287,13 @@ export const categoriesApi = {
       const { supabaseCategoriesApi } = await import('./supabaseApi');
       return await supabaseCategoriesApi.getAll();
     } catch (error) {
-      console.error('API connection error:', error);
+      console.warn('Using fallback data for categories:', error);
+      const { getMockCategories } = await import('./mockData');
       return Promise.resolve({
-        data: [],
+        data: getMockCategories(),
         status: 200,
-        success: true
+        success: true,
+        message: 'Using offline data'
       });
     }
   }
@@ -277,11 +305,13 @@ export const collectionsApi = {
       const { supabaseCollectionsApi } = await import('./supabaseApi');
       return await supabaseCollectionsApi.getAll();
     } catch (error) {
-      console.error('API connection error:', error);
+      console.warn('Using fallback data for collections:', error);
+      const { getMockCollections } = await import('./mockData');
       return Promise.resolve({
-        data: [],
+        data: getMockCollections(),
         status: 200,
-        success: true
+        success: true,
+        message: 'Using offline data'
       });
     }
   },
@@ -291,11 +321,25 @@ export const collectionsApi = {
       const { supabaseCollectionsApi } = await import('./supabaseApi');
       return await supabaseCollectionsApi.getAll();
     } catch (error) {
-      console.error('API connection error:', error);
+      console.warn('Using fallback data for collection:', id, error);
+      const { getMockCollections } = await import('./mockData');
+      const mockCollections = getMockCollections();
+      const collection = mockCollections.find(c => c.slug === id);
+      
+      if (collection) {
+        return Promise.resolve({
+          data: [collection],
+          status: 200,
+          success: true,
+          message: 'Using offline data'
+        });
+      }
+      
       return Promise.resolve({
         data: [],
         status: 200,
-        success: true
+        success: true,
+        message: 'Collection not found'
       });
     }
   },
@@ -305,11 +349,18 @@ export const collectionsApi = {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getAll({ collection: id });
     } catch (error) {
-      console.error('API connection error:', error);
+      console.warn('Using fallback data for collection products:', id, error);
+      const { getMockProducts } = await import('./mockData');
+      const mockProducts = getMockProducts();
+      const filteredProducts = mockProducts.filter(product => 
+        product.collection && product.collection.slug === id
+      );
+      
       return Promise.resolve({
-        data: [],
+        data: filteredProducts,
         status: 200,
-        success: true
+        success: true,
+        message: 'Using offline data'
       });
     }
   }

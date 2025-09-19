@@ -13,7 +13,7 @@ import ChatWidget from './ChatWidget';
 import ProtectedRoute from './ProtectedRoute';
 
 // Critical components loaded immediately
-import Home from '../pages/Home';
+import SafeHome from './SafeHome';
 import { ProductsPage } from '../pages/ProductsPage';
 import ProductPage from '../pages/ProductPage';
 
@@ -76,7 +76,7 @@ export default function RoutesWrapper() {
           <Suspense fallback={<LoadingFallback />}>
             <AnimatePresence mode="wait">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<SafeHome />} />
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/collections/:id" element={<CollectionPage />} />
                 <Route path="/product/:id" element={<ProductPage />} />

@@ -9,7 +9,7 @@ import { FavoritesProvider } from './contexts/FavoritesContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { initializeDatabase, createSampleData } from './utils/initializeDatabase';
 import RoutesWrapper from "./components/RoutesWrapper";
-import AppErrorBoundary from './components/AppErrorBoundary';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 import AppLoader from './components/AppLoader';
 import { setDocumentTitle } from './utils/documentTitle';
 

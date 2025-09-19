@@ -70,12 +70,30 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
             setUser(response.data as User);
             setIsAuthenticated(true);
           } else {
+            // Clear invalid tokens
             safeRemoveItem('auth_token');
+            safeRemoveItem('refresh_token');
             safeRemoveItem('user');
           }
         } catch (error) {
+          // Clear invalid tokens on error
+          console.warn('Auth check failed, clearing tokens:', error);
           safeRemoveItem('auth_token');
+          safeRemoveItem('refresh_token');
           safeRemoveItem('user');
+        }
+      } else {
+        // Check if user data exists in storage without token
+        const userData = safeGetItem('user');
+        if (userData) {
+          try {
+            const parsedUser = JSON.parse(userData);
+            // Don't set as authenticated without token, but keep user data for display
+            setUser(parsedUser);
+          } catch (error) {
+            console.warn('Invalid user data in storage, clearing:', error);
+            safeRemoveItem('user');
+          }
         }
       }
       setLoading(false);
