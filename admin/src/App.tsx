@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { RBACProvider } from './contexts/RBACContext';
 import { NotificationProvider } from './components/NotificationSystem';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -24,6 +25,9 @@ import AuditLogs from './pages/AuditLogs';
 import Chat from './pages/Chat';
 import ChatSupport from './pages/ChatSupport';
 import MultiStore from './pages/MultiStore';
+import Suppliers from './pages/Suppliers';
+import Investors from './pages/Investors';
+import GuestAnalytics from './pages/GuestAnalytics';
 import './styles/globals.css';
 import './styles/design-system.css';
 
@@ -33,6 +37,7 @@ function App() {
       <LanguageProvider>
         <NotificationProvider>
           <AuthProvider>
+            <RBACProvider>
             <Router>
               <div className="App">
                 <Routes>
@@ -61,6 +66,9 @@ function App() {
                             <Route path="/chat" element={<Chat />} />
                             <Route path="/chat-support/*" element={<ChatSupport />} />
                             <Route path="/multi-store/*" element={<MultiStore />} />
+                            <Route path="/suppliers/*" element={<Suppliers />} />
+                            <Route path="/investors/*" element={<Investors />} />
+                            <Route path="/guest-analytics/*" element={<GuestAnalytics />} />
                           </Routes>
                         </Layout>
                       </ProtectedRoute>
@@ -69,6 +77,7 @@ function App() {
                 </Routes>
               </div>
             </Router>
+            </RBACProvider>
           </AuthProvider>
         </NotificationProvider>
       </LanguageProvider>

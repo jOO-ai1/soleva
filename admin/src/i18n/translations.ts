@@ -16,6 +16,11 @@ export const translations = {
     aiChat: 'AI Chat',
     chatSupport: 'Chat Support',
     multiStore: 'Multi-Store',
+    suppliers: 'Suppliers',
+    investors: 'Investors',
+    guestAnalytics: 'Guest Analytics',
+    aiChatSupport: 'AI Chat Support',
+    luxuryBranding: 'Luxury Branding',
     auditLogs: 'Audit Logs',
     settings: 'Settings',
 

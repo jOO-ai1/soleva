@@ -31,6 +31,7 @@ import {
   FilterOutlined } from
 '@ant-design/icons';
 import { productsAPI } from '../services/api';
+import ProductForm from '../components/ProductForm';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Title } = Typography;
@@ -224,7 +225,11 @@ const Products = () => {
     title: 'Price',
     dataIndex: 'price',
     key: 'price',
-    render: (price: number) => `$${price.toFixed(2)}`,
+    render: (price: number) => (
+      <span className="currency-egp">
+        {price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+      </span>
+    ),
     sorter: (a, b) => a.price - b.price
   },
   {
@@ -370,156 +375,34 @@ const Products = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={800}>
+        width={1200}
+        className="modal-luxury">
 
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}>
+        <ProductForm
+          initialData={editingProduct}
+          onSubmit={async (data) => {
+            try {
+              let response;
+              if (editingProduct) {
+                response = await productsAPI.update(editingProduct.id, data);
+              } else {
+                response = await productsAPI.create(data);
+              }
 
-          <Tabs defaultActiveKey="basic">
-            <TabPane tab="Basic Information" key="basic">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="name"
-                    label="Product Name"
-                    rules={[{ required: true, message: 'Please enter product name' }]}>
-
-                    <Input placeholder="Enter product name" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="price"
-                    label="Price"
-                    rules={[{ required: true, message: 'Please enter price' }]}>
-
-                    <InputNumber
-                      style={{ width: '100%' }}
-                      placeholder="0.00"
-                      min={0}
-                      step={0.01}
-                      formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      parser={(value) => parseFloat(value!.replace(/\$\s?|(,*)/g, '')) as any} />
-
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item
-                name="description"
-                label="Description"
-                rules={[{ required: true, message: 'Please enter description' }]}>
-
-                <TextArea rows={4} placeholder="Enter product description" />
-              </Form.Item>
-
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item
-                    name="category"
-                    label="Category"
-                    rules={[{ required: true, message: 'Please select category' }]}>
-
-                    <Select placeholder="Select category">
-                      {categories.map((cat) =>
-                      <Option key={cat} value={cat}>{cat}</Option>
-                      )}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="brand"
-                    label="Brand"
-                    rules={[{ required: true, message: 'Please select brand' }]}>
-
-                    <Select placeholder="Select brand">
-                      {brands.map((brand) =>
-                      <Option key={brand} value={brand}>{brand}</Option>
-                      )}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="stockQuantity"
-                    label="Stock Quantity"
-                    rules={[{ required: true, message: 'Please enter stock quantity' }]}>
-
-                    <InputNumber
-                      style={{ width: '100%' }}
-                      placeholder="0"
-                      min={0} />
-
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item
-                name="isActive"
-                label="Status"
-                valuePropName="checked">
-
-                <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
-              </Form.Item>
-            </TabPane>
-
-            <TabPane tab="Images" key="images">
-              <div className="mb-4">
-                <Upload
-                  beforeUpload={handleImageUpload}
-                  showUploadList={false}
-                  accept="image/*">
-
-                  <Button
-                    icon={<UploadOutlined />}
-                    loading={uploading}>
-
-                    Upload Image
-                  </Button>
-                </Upload>
-              </div>
-
-              <div className="grid grid-cols-4 gap-4">
-                {uploadedImages.map((image, index) =>
-                <div key={index} className="relative">
-                    <Image
-                    width={150}
-                    height={150}
-                    src={image}
-                    style={{ objectFit: 'cover', borderRadius: 8 }} />
-
-                    <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => removeImage(index)}
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      right: 4,
-                      background: 'rgba(255, 255, 255, 0.8)'
-                    }} />
-
-                  </div>
-                )}
-              </div>
-            </TabPane>
-          </Tabs>
-
-          <Divider />
-
-          <div className="flex justify-end space-x-2">
-            <Button onClick={() => setModalVisible(false)}>
-              Cancel
-            </Button>
-            <Button type="primary" htmlType="submit">
-              {editingProduct ? 'Update Product' : 'Create Product'}
-            </Button>
-          </div>
-        </Form>
+              if (response.success) {
+                message.success(`Product ${editingProduct ? 'updated' : 'created'} successfully`);
+                setModalVisible(false);
+                fetchProducts();
+              } else {
+                throw new Error('API request failed');
+              }
+            } catch (error) {
+              message.error(`Failed to ${editingProduct ? 'update' : 'create'} product`);
+              throw error;
+            }
+          }}
+          loading={false}
+        />
       </Modal>
     </div>);
 
