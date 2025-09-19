@@ -80,11 +80,11 @@ export default function App() {
           <AppLoader>
             <LangProvider>
               <ThemeProvider>
-                <FavoritesProvider>
-                  <AuthProvider>
-                    <CartProvider>
-                      <ToastProvider>
-                        <NotificationProvider>
+                <NotificationProvider>
+                  <FavoritesProvider>
+                    <AuthProvider>
+                      <CartProvider>
+                        <ToastProvider>
                           <GlobalErrorHandler />
                           <NetworkErrorHandler />
                           <RoutesWrapper />
@@ -96,12 +96,11 @@ export default function App() {
                               expand
                               duration={4000}
                               visibleToasts={5} />
-
-                        </NotificationProvider>
-                      </ToastProvider>
-                    </CartProvider>
-                  </AuthProvider>
-                </FavoritesProvider>
+                        </ToastProvider>
+                      </CartProvider>
+                    </AuthProvider>
+                  </FavoritesProvider>
+                </NotificationProvider>
               </ThemeProvider>
             </LangProvider>
           </AppLoader>
