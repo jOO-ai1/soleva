@@ -15,19 +15,19 @@ export function safeSetItem(key: string, value: string): void {
     if (typeof window === 'undefined' || !window.localStorage) return;
     window.localStorage.setItem(key, value);
   } catch {
-    // ignore write errors (quota, privacy mode, etc.)
-  }
-}
 
+
+    // ignore write errors (quota, privacy mode, etc.)
+  }}
 export function safeRemoveItem(key: string): void {
   try {
     if (typeof window === 'undefined' || !window.localStorage) return;
     window.localStorage.removeItem(key);
   } catch {
-    // ignore
-  }
-}
 
+
+    // ignore
+  }}
 export function safeJSONParse<T>(value: string | null, fallback: T): T {
   if (value == null) return fallback;
   try {
