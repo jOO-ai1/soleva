@@ -39,7 +39,7 @@ export const ProductsPage: React.FC = () => {
 
   // Fetch products from API
   const { data: productsResponse, loading: productsLoading, error: productsError } = useProducts();
-  const products: ProductDTO[] = productsResponse as ProductDTO[] | null || [];
+  const products: ProductDTO[] = Array.isArray(productsResponse) ? productsResponse : (productsResponse?.data || []);
 
   const categories = [
   { id: "all", label: lang === "ar" ? "الكل" : "All" },
