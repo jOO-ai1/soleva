@@ -200,6 +200,8 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
@@ -296,9 +298,7 @@ export default function RegisterPage() {
                 </div>
                 <input type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('confirmPassword', e.target.value)} className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`} placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
 
-                <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 
                   {showConfirmPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}

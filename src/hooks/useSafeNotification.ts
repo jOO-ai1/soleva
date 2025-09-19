@@ -10,10 +10,10 @@ export const useSafeNotification = () => {
     const { NotificationProvider } = require('../contexts/NotificationContext');
     notificationContext = useContext(NotificationProvider);
   } catch {
-    // Context not available, use fallback
-  }
 
-  const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+
+    // Context not available, use fallback
+  }const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     // Use toast as fallback if context not available
     switch (type) {
       case 'success':

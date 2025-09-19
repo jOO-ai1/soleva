@@ -25,8 +25,8 @@ const OfflineIndicator: React.FC = () => {
         <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
         <span className="text-sm font-medium">You're offline</span>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OfflineIndicator;

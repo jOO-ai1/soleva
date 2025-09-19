@@ -23,7 +23,7 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('App Error Boundary caught an error:', error, errorInfo);
-    
+
     // Show user-friendly error notification
     toast.error('Application Error', {
       description: 'Something went wrong. The page will reload automatically.',
@@ -49,13 +49,13 @@ export class AppErrorBoundary extends Component<Props, State> {
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+
               Reload Now
             </button>
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;
