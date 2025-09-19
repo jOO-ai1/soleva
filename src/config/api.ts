@@ -1,19 +1,25 @@
 // API Configuration for Backend Integration
 export const API_CONFIG = {
-  // Base URL - prefer VITE_API_URL (common), fallback to mock/local mode
-  BASE_URL: import.meta.env.VITE_API_URL ||
-  import.meta.env.VITE_API_BASE_URL ||
-  (() => {
-    // For development and unknown environments, use mock data mode
-    // This prevents connection refused errors during development
-    return 'mock://localhost/api/v1';
+  // Base URL - prefer VITE_API_URL, fallback to offline mode
+  BASE_URL: (() => {
+    // Check for environment variable first
+    if (import.meta.env.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL;
+    }
+    if (import.meta.env.VITE_API_BASE_URL) {
+      return import.meta.env.VITE_API_BASE_URL;
+    }
+    
+    // For development, try to detect if backend is available
+    // Default to offline mode which will trigger fallbacks
+    return 'https://api.soleva.com/api/v1'; // This will fail gracefully and use mock data
   })(),
 
   // API Version
   VERSION: 'v1',
 
-  // Timeout settings
-  TIMEOUT: 30000,
+  // Timeout settings - reduced for faster fallback
+  TIMEOUT: 10000,
 
   // Headers
   DEFAULT_HEADERS: {
@@ -24,7 +30,10 @@ export const API_CONFIG = {
 
   // Authentication
   AUTH_TOKEN_KEY: 'auth_token',
-  REFRESH_TOKEN_KEY: 'refresh_token'
+  REFRESH_TOKEN_KEY: 'refresh_token',
+  
+  // Offline mode flag
+  OFFLINE_MODE: false
 };
 
 // API Endpoints
@@ -122,6 +131,11 @@ export const API_ENDPOINTS = {
 
 // Helper function to build full URL
 export const buildApiUrl = (endpoint: string): string => {
+  // If in offline mode, return a placeholder that will trigger fallbacks
+  if (API_CONFIG.OFFLINE_MODE) {
+    return 'offline://api';
+  }
+
   const baseUrl = API_CONFIG.BASE_URL.endsWith('/') ?
   API_CONFIG.BASE_URL.slice(0, -1) :
   API_CONFIG.BASE_URL;

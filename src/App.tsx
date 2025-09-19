@@ -12,6 +12,7 @@ import RoutesWrapper from "./components/RoutesWrapper";
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import AppLoader from './components/AppLoader';
 import { setDocumentTitle } from './utils/documentTitle';
+import OfflineIndicator from './components/OfflineIndicator';
 
 export default function App() {
   // Set the base document title on app initialization
@@ -23,18 +24,30 @@ export default function App() {
     setDocumentTitle();
   }, []);
 
-  // Initialize database on app startup
+  // Initialize database on app startup with better error handling
   useEffect(() => {
     const setupDatabase = async () => {
       try {
+        console.log('🚀 Initializing Soleva application...');
         const isInitialized = await initializeDatabase();
+        
         if (isInitialized) {
+          console.log('✅ Database initialized successfully');
           // Try to create sample data if it doesn't exist
-          await createSampleData();
+          try {
+            await createSampleData();
+            console.log('✅ Sample data created/verified');
+          } catch (sampleDataError) {
+            console.warn('⚠️ Sample data creation failed, continuing with empty database:', sampleDataError);
+          }
+        } else {
+          console.warn('⚠️ Database initialization incomplete, using fallback mode');
         }
+        
+        console.log('✅ Soleva application ready');
       } catch (error) {
-        console.warn('Database setup warning:', error);
-        // Continue anyway - the app should still work with empty data
+        console.warn('⚠️ Database setup warning, app will continue in offline mode:', error);
+        // The app should still work with mock data fallbacks
       }
     };
 
@@ -52,6 +65,7 @@ export default function App() {
                   <ToastProvider>
                     <NotificationProvider>
                       <RoutesWrapper />
+                      <OfflineIndicator />
                     </NotificationProvider>
                   </ToastProvider>
                 </CartProvider>
