@@ -138,17 +138,17 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
 * Get audit logs with filtering and pagination
 */export const getAuditLogs = async (filters: {userId?: string;adminId?: string;action?: string;resource?: string;startDate?: Date;endDate?: Date;page?: number;limit?: number;}) => {const { userId, adminId, action, resource, startDate, endDate, page = 1, limit = 50 } = filters;const skip = (page - 1) * limit;const where: any = {};if (userId) where.userId = userId;if (adminId) where.adminId = adminId;if (action) where.action = action;if (resource) where.resource = resource;if (startDate || endDate) {where.createdAt = {};if (startDate) where.createdAt.gte = startDate;if (endDate) where.createdAt.lte = endDate;}const [logs, total] = await Promise.all([prisma.auditLog.findMany({ where, include: { user: { select: { id: true, name: true, email: true } }, admin: { select: { id: true, name: true, email: true, role: true } } }, orderBy: { createdAt: 'desc' }, skip, take: limit }), prisma.auditLog.count({ where })]);return { logs, pagination: { page, limit, total, pages: Math.ceil(total / limit) } };}; /**
 * Get audit trail for a specific resource
-*/export const getResourceAuditTrail = async (resource: string, resourceId: string) => {return await prisma.auditLog.findMany({ where: { resource, resourceId }, include: { user: { select: { id: true, name: true, email: true } }, admin: { select: { id: true, name: true, email: true,
-            role: true
-          }
-        }
-      },
+*/export const getResourceAuditTrail = async (resource: string, resourceId: string) => {return await prisma.auditLog.findMany({ where: { resource, resourceId }, include: { user: { select: { id: true, name: true, email: true } }, admin: { select: { id: true, name: true, email: true, role: true } } },
       orderBy: { createdAt: 'desc' }
     });
 };
