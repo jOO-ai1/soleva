@@ -5,15 +5,15 @@ import { PrismaClient } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import {
-  checkAccountLockout 
-} from '../middleware/validation';
+  checkAccountLockout } from
+'../middleware/validation';
 import {
   generateEmailVerificationToken,
-  sendVerificationEmail 
-} from '../middleware/emailVerification';
+  sendVerificationEmail } from
+'../middleware/emailVerification';
 import {
-  generateSecureToken 
-} from '../middleware/secureSession';
+  generateSecureToken } from
+'../middleware/secureSession';
 
 const prisma = new PrismaClient();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
