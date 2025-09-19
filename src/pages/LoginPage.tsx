@@ -139,6 +139,8 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
@@ -201,9 +203,7 @@ export default function LoginPage() {
           </form>
 
           <div className="text-center mt-4">
-            <Link
-            to="/forgot-password"
-            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors text-sm">
+            <Link to="/forgot-password" className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors text-sm">
 
               {lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot Password?"}
             </Link>

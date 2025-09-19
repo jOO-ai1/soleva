@@ -1,164 +1,155 @@
-import { supabase, Product, Category, Collection } from './supabase';
-import { ApiResponse, ApiError } from './api';
+import { supabase } from './supabase';
 
-// Helper function to transform Supabase data to API format
-function transformProduct(product: any): any {
-  return {
-    id: product.id.toString(),
-    slug: product.slug,
-    name: product.name,
-    description: product.description,
-    images: product.images || ['/api/placeholder/300/300'],
-    basePrice: product.base_price,
-    salePrice: product.sale_price,
-    isFeatured: product.is_featured,
-    category: product.category ? {
-      slug: product.category.slug
-    } : null,
-    collection: product.collection ? {
-      slug: product.collection.slug
-    } : null
-  };
-}
-
+// Supabase API handlers with proper error handling
 export const supabaseProductsApi = {
-  async getAll(params?: any): Promise<ApiResponse<any[]>> {
+  async getAll(params?: { page?: number; per_page?: number; search?: string; collection?: string }) {
     try {
-      let query = supabase.
-      from('products').
-      select(`
+      let query = supabase
+        .from('products')
+        .select(`
           *,
           category:categories(*),
           collection:collections(*)
         `);
 
+      // Apply filters
       if (params?.search) {
-        query = query.or(`name->>en.ilike.%${params.search}%,name->>ar.ilike.%${params.search}%`);
+        query = query.or(`name->en.ilike.%${params.search}%,name->ar.ilike.%${params.search}%`);
+      }
+
+      if (params?.collection) {
+        query = query.eq('collections.slug', params.collection);
+      }
+
+      // Apply pagination
+      if (params?.page && params?.per_page) {
+        const from = (params.page - 1) * params.per_page;
+        const to = from + params.per_page - 1;
+        query = query.range(from, to);
       }
 
       const { data, error } = await query;
 
-      if (error) {
-        console.warn('Supabase error, using mock data:', error);
-        // Return mock data if tables don't exist yet
-        const { getMockProducts } = await import('./mockData');
-        return {
-          data: getMockProducts(),
-          status: 200,
-          success: true,
-          message: 'Using offline data - database not available'
-        };
-      }
+      if (error) throw error;
 
-      const transformedProducts = (data || []).map(transformProduct);
+      // Transform data to match expected format
+      const transformedData = (data || []).map((item: any) => ({
+        id: item.id.toString(),
+        slug: item.slug,
+        name: item.name,
+        description: item.description,
+        images: item.images,
+        basePrice: item.base_price,
+        salePrice: item.sale_price,
+        isFeatured: item.is_featured,
+        category: item.category,
+        collection: item.collection,
+      }));
 
       return {
-        data: transformedProducts,
-        status: 200,
-        success: true
-      };
-    } catch (error: any) {
-      console.warn('API error, using mock data:', error);
-      // Return mock data as fallback
-      const { getMockProducts } = await import('./mockData');
-      return {
-        data: getMockProducts(),
+        data: transformedData,
         status: 200,
         success: true,
-        message: 'Using offline data - connection failed'
+        message: 'Products fetched successfully'
+      };
+    } catch (error) {
+      console.error('Supabase products API error:', error);
+      throw {
+        message: 'Failed to fetch products',
+        status: 500
       };
     }
   },
 
-  async getById(id: number): Promise<ApiResponse<any>> {
+  async getById(id: number) {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select(`
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
           *,
           category:categories(*),
           collection:collections(*)
-        `).
-      eq('id', id).
-      single();
+        `)
+        .eq('id', id)
+        .single();
 
-      if (error) {
-        throw {
-          message: error.message,
-          status: 404
-        } as ApiError;
-      }
+      if (error) throw error;
+
+      // Transform data to match expected format
+      const transformedData = {
+        id: data.id.toString(),
+        slug: data.slug,
+        name: data.name,
+        description: data.description,
+        images: data.images,
+        basePrice: data.base_price,
+        salePrice: data.sale_price,
+        isFeatured: data.is_featured,
+        category: data.category,
+        collection: data.collection,
+      };
 
       return {
-        data: transformProduct(data),
+        data: transformedData,
         status: 200,
-        success: true
+        success: true,
+        message: 'Product fetched successfully'
       };
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Supabase product API error:', error);
       throw {
-        message: 'Product not found',
-        status: 404
-      } as ApiError;
+        message: 'Failed to fetch product',
+        status: 500
+      };
     }
   }
 };
 
 export const supabaseCategoriesApi = {
-  async getAll(): Promise<ApiResponse<Category[]>> {
+  async getAll() {
     try {
-      const { data, error } = await supabase.
-      from('categories').
-      select('*');
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*');
 
-      if (error) {
-        throw {
-          message: error.message,
-          status: 500
-        } as ApiError;
-      }
+      if (error) throw error;
 
       return {
         data: data || [],
         status: 200,
-        success: true
+        success: true,
+        message: 'Categories fetched successfully'
       };
-    } catch (error: any) {
-      return {
-        data: [],
-        status: 200,
-        success: true
+    } catch (error) {
+      console.error('Supabase categories API error:', error);
+      throw {
+        message: 'Failed to fetch categories',
+        status: 500
       };
     }
   }
 };
 
 export const supabaseCollectionsApi = {
-  async getAll(): Promise<ApiResponse<Collection[]>> {
+  async getAll() {
     try {
-      const { data, error } = await supabase.
-      from('collections').
-      select('*');
+      const { data, error } = await supabase
+        .from('collections')
+        .select('*');
 
-      if (error) {
-        console.warn('Supabase collections error:', error);
-        return {
-          data: [],
-          status: 200,
-          success: true
-        };
-      }
+      if (error) throw error;
 
       return {
         data: data || [],
         status: 200,
-        success: true
+        success: true,
+        message: 'Collections fetched successfully'
       };
-    } catch (error: any) {
-      console.warn('Collections API error:', error);
-      return {
-        data: [],
-        status: 200,
-        success: true
+    } catch (error) {
+      console.error('Supabase collections API error:', error);
+      throw {
+        message: 'Failed to fetch collections',
+        status: 500
       };
     }
   }

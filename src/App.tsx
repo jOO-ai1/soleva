@@ -41,34 +41,25 @@ export default function App() {
     setupDatabase();
   }, []);
 
-  try {
-    return (
-      <AppErrorBoundary>
-          <AppLoader>
-            <LangProvider>
-              <ThemeProvider>
-                <FavoritesProvider>
-                  <AuthProvider>
-                    <CartProvider>
-                      <ToastProvider>
-                        <NotificationProvider>
-                          <RoutesWrapper />
-                        </NotificationProvider>
-                      </ToastProvider>
-                    </CartProvider>
-                  </AuthProvider>
-                </FavoritesProvider>
-              </ThemeProvider>
-            </LangProvider>
-          </AppLoader>
-        </AppErrorBoundary>);
-
-
-  } catch (error) {
-    // Log error in development, use proper error reporting in production
-    if (process.env.NODE_ENV === 'development') {
-      console.error('App initialization error:', error);
-    }
-    throw error;
-  }
+  return (
+    <AppErrorBoundary>
+      <AppLoader>
+        <LangProvider>
+          <ThemeProvider>
+            <FavoritesProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <ToastProvider>
+                    <NotificationProvider>
+                      <RoutesWrapper />
+                    </NotificationProvider>
+                  </ToastProvider>
+                </CartProvider>
+              </AuthProvider>
+            </FavoritesProvider>
+          </ThemeProvider>
+        </LangProvider>
+      </AppLoader>
+    </AppErrorBoundary>
+  );
 }

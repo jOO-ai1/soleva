@@ -38,17 +38,24 @@ options: {
       setRetryCount(0);
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError);
+      
+      // Provide user-friendly error messages
+      const friendlyError = {
+        ...apiError,
+        message: apiError.message || 'An error occurred while fetching data'
+      };
+      
+      setError(friendlyError);
 
       // Call error callback if provided
       if (onError) {
-        onError(apiError);
+        onError(friendlyError);
       }
 
-      // Retry logic for network errors and server errors
+      // Retry logic for network errors and server errors only
       if (retryOnError && retryCount < maxRetries && (
-      apiError.status === 0 || // Network error
-      apiError.status >= 500 // Server error
+        apiError.status === 0 || // Network error
+        apiError.status >= 500 // Server error
       )) {
         setRetryCount((prev) => prev + 1);
         setTimeout(() => {

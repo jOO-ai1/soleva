@@ -13,10 +13,15 @@ export default function Home() {
   const { lang } = useLang();
   const t = useTranslation();
 
-  // Fetch products from API
+  // Fetch products from API with error handling
   const { data: productsResponse, loading: productsLoading, error: productsError } = useProducts();
-  const products = productsResponse || [];
+  
+  // Safely handle products data
+  const products = Array.isArray(productsResponse) ? productsResponse : [];
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 6);
+  
+  // Show fallback content if API fails but don't crash
+  const hasProductData = !productsLoading && products.length > 0;
 
   const features = [
   {

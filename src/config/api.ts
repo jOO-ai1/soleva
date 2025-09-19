@@ -1,32 +1,12 @@
 // API Configuration for Backend Integration
 export const API_CONFIG = {
-  // Base URL - prefer VITE_API_URL (common), fallback to environment detection
+  // Base URL - prefer VITE_API_URL (common), fallback to mock/local mode
   BASE_URL: import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_API_BASE_URL ||
   (() => {
-    // Always use environment variables or default to localhost in development
-    if (import.meta.env.DEV) {
-      return 'http://localhost:3001/api/v1';
-    }
-
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      // Production domains
-      if (hostname === 'solevaeg.com' || hostname === 'www.solevaeg.com') {
-        return 'https://api.solevaeg.com/api/v1';
-      }
-      // EasySite deployment
-      if (hostname.includes('easysite.ai')) {
-        // Use relative API for EasySite deployments to avoid CORS
-        return '/api/v1';
-      }
-      // Development and localhost
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168.')) {
-        return 'http://localhost:3001/api/v1';
-      }
-    }
-    // Default fallback - use relative path to avoid connection issues
-    return '/api/v1';
+    // For development and unknown environments, use mock data mode
+    // This prevents connection refused errors during development
+    return 'mock://localhost/api/v1';
   })(),
 
   // API Version

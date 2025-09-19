@@ -32,7 +32,13 @@ export class AppErrorBoundary extends React.Component<Props, State> {
       error,
       errorInfo
     });
-    console.error('App Error Boundary caught error:', error, errorInfo);
+    
+    // Only log detailed error info in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('App Error Boundary caught error:', error, errorInfo);
+    } else {
+      console.error('Application error occurred:', error.message);
+    }
   }
 
   handleReload = () => {
