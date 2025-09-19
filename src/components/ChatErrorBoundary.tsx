@@ -21,14 +21,14 @@ interface ErrorFallbackProps {
   onReport: () => void;
 }
 
-const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ 
-  error, 
-  errorInfo, 
+const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
+  error,
+  errorInfo,
   onRetry,
-  onReport 
+  onReport
 }) => {
-  const isArabic = document.documentElement.dir === 'rtl' || 
-                   document.documentElement.lang === 'ar';
+  const isArabic = document.documentElement.dir === 'rtl' ||
+  document.documentElement.lang === 'ar';
 
   return (
     <div className="chat-error-fallback">
@@ -42,30 +42,30 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
         </h3>
         
         <p className="error-description">
-          {isArabic ? 
-            'عذراً، حدث خطأ غير متوقع في نظام المحادثة. يمكنك المحاولة مرة أخرى أو الاتصال بنا مباشرة.' :
-            'Sorry, an unexpected error occurred in the chat system. You can try again or contact us directly.'
+          {isArabic ?
+          'عذراً، حدث خطأ غير متوقع في نظام المحادثة. يمكنك المحاولة مرة أخرى أو الاتصال بنا مباشرة.' :
+          'Sorry, an unexpected error occurred in the chat system. You can try again or contact us directly.'
           }
         </p>
 
-        {error && (
-          <details className="error-details">
+        {error &&
+        <details className="error-details">
             <summary>
               {isArabic ? 'تفاصيل الخطأ التقنية' : 'Technical Error Details'}
             </summary>
             <pre className="error-stack">
               <strong>Error:</strong> {error.message}
-              {error.stack && (
-                <>
+              {error.stack &&
+            <>
                   <br />
                   <strong>Stack:</strong>
                   <br />
                   {error.stack}
                 </>
-              )}
+            }
             </pre>
           </details>
-        )}
+        }
 
         <div className="error-actions">
           <button onClick={onRetry} className="retry-button">
@@ -81,9 +81,9 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
 
         <div className="error-help">
           <p>
-            {isArabic ? 
-              'يمكنك أيضاً تجديد الصفحة أو مسح ذاكرة التخزين المؤقت للمتصفح.' :
-              'You can also refresh the page or clear your browser cache.'
+            {isArabic ?
+            'يمكنك أيضاً تجديد الصفحة أو مسح ذاكرة التخزين المؤقت للمتصفح.' :
+            'You can also refresh the page or clear your browser cache.'
             }
           </p>
         </div>
@@ -239,8 +239,8 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
           border-color: rgba(255, 255, 255, 0.1);
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 };
 
 class ChatErrorBoundary extends Component<Props, State> {
@@ -264,7 +264,7 @@ class ChatErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('🚨 Chat Error Boundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo
@@ -289,26 +289,26 @@ class ChatErrorBoundary extends Component<Props, State> {
 
     // Here you could send to your error reporting service
     try {
+
+
+
+
+
+
+
+
+
+
       // Example: Sentry, LogRocket, or custom endpoint
       // window.gtag?.('event', 'exception', {
       //   description: error.message,
       //   fatal: false
       // });
-    } catch (reportingError) {
-      console.error('Failed to report chat error:', reportingError);
-    }
-  };
-
-  private handleRetry = () => {
-    console.info('🔄 Retrying chat after error...');
-    
-    // Clear error state
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      errorId: ''
-    });
+    } catch (reportingError) {console.error('Failed to report chat error:', reportingError);}};private handleRetry = () => {console.info('🔄 Retrying chat after error...'); // Clear error state
+    this.setState({ hasError: false, error: null,
+        errorInfo: null,
+        errorId: ''
+      });
 
     // Clear any potentially corrupted chat data
     try {
@@ -322,7 +322,7 @@ class ChatErrorBoundary extends Component<Props, State> {
 
   private handleReport = () => {
     console.info('📞 Redirecting to contact form...');
-    
+
     // Open contact form or phone number
     const contactUrl = window.location.origin + '/contact';
     window.open(contactUrl, '_blank');
@@ -331,15 +331,15 @@ class ChatErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       const FallbackComponent = this.props.fallback || DefaultErrorFallback;
-      
+
       return (
         <FallbackComponent
           error={this.state.error}
           errorInfo={this.state.errorInfo}
           onRetry={this.handleRetry}
-          onReport={this.handleReport}
-        />
-      );
+          onReport={this.handleReport} />);
+
+
     }
 
     return this.props.children;

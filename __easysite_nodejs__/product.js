@@ -1,168 +1,142 @@
+// Get a single product by ID
 function product(id) {
-  // Mock products data
-  const mockProducts = [
-  {
-    id: '1',
-    slug: 'classic-leather-sneakers',
-    name: {
-      en: 'Classic Leather Sneakers',
-      ar: 'حذاء رياضي جلدي كلاسيكي'
-    },
-    description: {
-      en: 'Premium leather sneakers with comfortable cushioning and classic design.',
-      ar: 'حذاء رياضي من الجلد الفاخر مع وسادة مريحة وتصميم كلاسيكي.'
-    },
-    price: 129.99,
-    basePrice: 159.99,
-    salePrice: 129.99,
-    images: [
-    'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-    'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'],
-
-    sizes: [38, 39, 40, 41, 42, 43, 44],
-    colors: ['Black', 'White', 'Brown'],
-    category: {
+  const allProducts = [
+    {
       id: '1',
-      name: { en: 'Sneakers', ar: 'أحذية رياضية' },
-      slug: 'sneakers'
+      name: { en: 'Classic Oxford Shoes', ar: 'حذاء أكسفورد كلاسيكي' },
+      description: { 
+        en: 'Premium leather Oxford shoes perfect for formal occasions',
+        ar: 'حذاء أكسفورد من الجلد الفاخر مثالي للمناسبات الرسمية'
+      },
+      price: 1200,
+      originalPrice: 1500,
+      images: [
+        'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=600',
+        'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600'
+      ],
+      category: {
+        id: '1',
+        name: { en: 'Men\'s Shoes', ar: 'أحذية رجالي' },
+        slug: 'mens-shoes'
+      },
+      collection: {
+        id: '2',
+        name: { en: 'Best Sellers', ar: 'الأكثر مبيعاً' },
+        slug: 'best-sellers'
+      },
+      sizes: [40, 41, 42, 43, 44, 45],
+      colors: ['Black', 'Brown', 'Dark Brown'],
+      rating: 4.8,
+      reviewCount: 24,
+      inStock: true,
+      featured: true
     },
-    collection: {
-      id: '1',
-      name: { en: 'Classic Collection', ar: 'المجموعة الكلاسيكية' },
-      slug: 'classic'
-    },
-    isNew: false,
-    isFeatured: true,
-    inStock: true,
-    stockCount: 15
-  },
-  {
-    id: '2',
-    slug: 'running-shoes-pro',
-    name: {
-      en: 'Running Shoes Pro',
-      ar: 'حذاء الجري المحترف'
-    },
-    description: {
-      en: 'High-performance running shoes with advanced cushioning technology.',
-      ar: 'حذاء جري عالي الأداء بتقنية وسادة متقدمة.'
-    },
-    price: 189.99,
-    basePrice: 189.99,
-    images: [
-    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-    'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400'],
-
-    sizes: [38, 39, 40, 41, 42, 43, 44, 45],
-    colors: ['Blue', 'Red', 'Black'],
-    category: {
+    {
       id: '2',
-      name: { en: 'Running', ar: 'الجري' },
-      slug: 'running'
+      name: { en: 'Elegant High Heels', ar: 'كعب عالي أنيق' },
+      description: { 
+        en: 'Stylish high heel shoes for special occasions',
+        ar: 'حذاء بكعب عالي أنيق للمناسبات الخاصة'
+      },
+      price: 800,
+      images: ['https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600'],
+      category: {
+        id: '2',
+        name: { en: 'Women\'s Shoes', ar: 'أحذية حريمي' },
+        slug: 'womens-shoes'
+      },
+      collection: {
+        id: '1',
+        name: { en: 'New Arrivals', ar: 'وصل حديثاً' },
+        slug: 'new-arrivals'
+      },
+      sizes: [35, 36, 37, 38, 39, 40],
+      colors: ['Black', 'Red', 'Nude'],
+      rating: 4.6,
+      reviewCount: 18,
+      inStock: true,
+      featured: false
     },
-    collection: {
-      id: '2',
-      name: { en: 'Sport Collection', ar: 'المجموعة الرياضية' },
-      slug: 'sport'
-    },
-    isNew: true,
-    isFeatured: true,
-    inStock: true,
-    stockCount: 8
-  },
-  {
-    id: '3',
-    slug: 'casual-loafers',
-    name: {
-      en: 'Casual Loafers',
-      ar: 'حذاء كاجوال'
-    },
-    description: {
-      en: 'Comfortable casual loafers perfect for everyday wear.',
-      ar: 'حذاء كاجوال مريح مثالي للاستخدام اليومي.'
-    },
-    price: 79.99,
-    basePrice: 99.99,
-    salePrice: 79.99,
-    images: [
-    'https://images.unsplash.com/photo-1582897085656-c636d006a246?w=400'],
-
-    sizes: [39, 40, 41, 42, 43],
-    colors: ['Brown', 'Black', 'Tan'],
-    category: {
+    {
       id: '3',
-      name: { en: 'Casual', ar: 'كاجوال' },
-      slug: 'casual'
+      name: { en: 'Running Sneakers', ar: 'حذاء جري رياضي' },
+      description: { 
+        en: 'Comfortable running shoes with advanced cushioning',
+        ar: 'حذاء جري مريح مع وسائد متطورة'
+      },
+      price: 950,
+      images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'],
+      category: {
+        id: '3',
+        name: { en: 'Sports Shoes', ar: 'أحذية رياضية' },
+        slug: 'sports-shoes'
+      },
+      collection: {
+        id: '1',
+        name: { en: 'New Arrivals', ar: 'وصل حديثاً' },
+        slug: 'new-arrivals'
+      },
+      sizes: [38, 39, 40, 41, 42, 43, 44],
+      colors: ['White', 'Black', 'Blue', 'Red'],
+      rating: 4.7,
+      reviewCount: 32,
+      inStock: true,
+      featured: true
     },
-    inStock: true,
-    stockCount: 12
-  },
-  {
-    id: '4',
-    slug: 'formal-oxford-shoes',
-    name: {
-      en: 'Formal Oxford Shoes',
-      ar: 'حذاء أوكسفورد رسمي'
-    },
-    description: {
-      en: 'Elegant Oxford shoes for formal occasions and business wear.',
-      ar: 'حذاء أوكسفورد أنيق للمناسبات الرسمية والعمل.'
-    },
-    price: 199.99,
-    basePrice: 199.99,
-    images: [
-    'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400'],
-
-    sizes: [38, 39, 40, 41, 42, 43, 44],
-    colors: ['Black', 'Brown'],
-    category: {
+    {
       id: '4',
-      name: { en: 'Formal', ar: 'رسمي' },
-      slug: 'formal'
+      name: { en: 'Casual Loafers', ar: 'حذاء كاجوال بدون رباط' },
+      description: { 
+        en: 'Comfortable casual loafers for everyday wear',
+        ar: 'حذاء كاجوال مريح للاستخدام اليومي'
+      },
+      price: 600,
+      images: ['https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600'],
+      category: {
+        id: '1',
+        name: { en: 'Men\'s Shoes', ar: 'أحذية رجالي' },
+        slug: 'mens-shoes'
+      },
+      sizes: [40, 41, 42, 43, 44],
+      colors: ['Brown', 'Black', 'Tan'],
+      rating: 4.4,
+      reviewCount: 15,
+      inStock: true,
+      featured: false
     },
-    collection: {
-      id: '3',
-      name: { en: 'Business Collection', ar: 'مجموعة الأعمال' },
-      slug: 'business'
-    },
-    inStock: true,
-    stockCount: 5
-  },
-  {
-    id: '5',
-    slug: 'summer-sandals',
-    name: {
-      en: 'Summer Sandals',
-      ar: 'صندل صيفي'
-    },
-    description: {
-      en: 'Comfortable summer sandals with adjustable straps.',
-      ar: 'صندل صيفي مريح بأحزمة قابلة للتعديل.'
-    },
-    price: 49.99,
-    basePrice: 49.99,
-    images: [
-    'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400'],
-
-    sizes: [38, 39, 40, 41, 42, 43],
-    colors: ['Brown', 'Black', 'Tan'],
-    category: {
+    {
       id: '5',
-      name: { en: 'Sandals', ar: 'صنادل' },
-      slug: 'sandals'
-    },
-    isNew: true,
-    inStock: true,
-    stockCount: 20
-  }];
+      name: { en: 'Ballet Flats', ar: 'حذاء باليه مسطح' },
+      description: { 
+        en: 'Elegant ballet flats for comfort and style',
+        ar: 'حذاء باليه مسطح أنيق للراحة والأناقة'
+      },
+      price: 400,
+      images: ['https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?w=600'],
+      category: {
+        id: '2',
+        name: { en: 'Women\'s Shoes', ar: 'أحذية حريمي' },
+        slug: 'womens-shoes'
+      },
+      collection: {
+        id: '2',
+        name: { en: 'Best Sellers', ar: 'الأكثر مبيعاً' },
+        slug: 'best-sellers'
+      },
+      sizes: [35, 36, 37, 38, 39, 40],
+      colors: ['Black', 'Brown', 'Pink', 'Beige'],
+      rating: 4.5,
+      reviewCount: 22,
+      inStock: true,
+      featured: false
+    }
+  ];
 
-
-  // Find product by id
-  const product = mockProducts.find((p) => p.id === id.toString());
-
-  if (!product) {
-    throw new Error('Product not found');
+  const foundProduct = allProducts.find(p => p.id === id.toString());
+  
+  if (!foundProduct) {
+    throw new Error(`Product with ID ${id} not found`);
   }
 
-  return product;
+  return foundProduct;
 }

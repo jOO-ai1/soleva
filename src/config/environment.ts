@@ -28,7 +28,7 @@ class EnvironmentConfigHandler {
 
     // Primary API URL sources (in order of preference)
     const apiUrl = this.getApiUrl();
-    
+
     // Chat-specific API URL
     const chatApiUrl = this.getChatApiUrl() || apiUrl;
 
@@ -46,11 +46,11 @@ class EnvironmentConfigHandler {
   private getApiUrl(): string {
     // Try multiple environment variable names
     const envUrls = [
-      import.meta.env.VITE_API_URL,
-      import.meta.env.VITE_API_BASE_URL,
-      import.meta.env.VITE_BACKEND_URL,
-      import.meta.env.VITE_SERVER_URL
-    ].filter(Boolean);
+    import.meta.env.VITE_API_URL,
+    import.meta.env.VITE_API_BASE_URL,
+    import.meta.env.VITE_BACKEND_URL,
+    import.meta.env.VITE_SERVER_URL].
+    filter(Boolean);
 
     if (envUrls.length > 0) {
       return envUrls[0];
@@ -61,14 +61,14 @@ class EnvironmentConfigHandler {
       // Try to construct from current domain
       const protocol = window.location.protocol;
       const hostname = window.location.hostname;
-      
+
       // Common production API patterns
       const possibleUrls = [
-        `${protocol}//api.${hostname}`,
-        `${protocol}//${hostname}/api`,
-        `${protocol}//${hostname.replace('www.', 'api.')}`,
-        'https://api.solevaeg.com/api/v1'
-      ];
+      `${protocol}//api.${hostname}`,
+      `${protocol}//${hostname}/api`,
+      `${protocol}//${hostname.replace('www.', 'api.')}`,
+      'https://api.solevaeg.com/api/v1'];
+
 
       return possibleUrls[0];
     }

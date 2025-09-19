@@ -262,6 +262,10 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
@@ -288,12 +292,8 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
     `]); // Get admin details for admin stats
   const adminIds = adminStats.map((stat: any) => stat.adminId).filter(Boolean);const admins = await prisma.user.findMany({ where: { id: { in: adminIds as string[] } }, select: { id: true, name: true, email: true, role: true } });const adminStatsWithDetails = adminStats.map((stat: any) => ({ ...stat, admin: admins.find((admin: any) => admin.id === stat.adminId) }));return { totalLogs, actionStats: actionStats.map((stat: any) => ({ action: stat.action, count: stat._count.action })), resourceStats: resourceStats.map((stat: any) => ({ resource: stat.resource, count: stat._count.resource })), adminStats: adminStatsWithDetails.map((stat: any) => ({ adminId: stat.adminId, admin: stat.admin, count: stat._count.adminId })), dailyStats };}; /**
 * Clean up old audit logs (for maintenance)
-*/export const cleanupOldAuditLogs = async (daysToKeep: number = 365) => {const cutoffDate = new Date();cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);const deletedCount = await prisma.auditLog.deleteMany({ where: { createdAt: { lt: cutoffDate } }
-    });
-
-  // Log cleanup operation (use proper logging in production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`Cleaned up ${deletedCount.count} audit logs older than ${daysToKeep} days`);
+*/export const cleanupOldAuditLogs = async (daysToKeep: number = 365) => {const cutoffDate = new Date();cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);const deletedCount = await prisma.auditLog.deleteMany({ where: { createdAt: { lt: cutoffDate } } }); // Log cleanup operation (use proper logging in production)
+  if (process.env.NODE_ENV === 'development') {console.log(`Cleaned up ${deletedCount.count} audit logs older than ${daysToKeep} days`);
   }
   return deletedCount.count;
 };

@@ -88,7 +88,7 @@ const ChatWidget = () => {
       // First try to get availability from backend
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
+
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/availability?language=${lang}`, {
         method: 'GET',
         headers: {
@@ -118,7 +118,7 @@ const ChatWidget = () => {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
+
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations`, {
         method: 'POST',
         headers: {
@@ -147,7 +147,7 @@ const ChatWidget = () => {
       }
     } catch (error) {
       console.info('🔄 Failed to create server conversation, using offline mode:', error instanceof Error ? error.message : 'Unknown error');
-      
+
       // Create offline conversation
       const offlineConversation: Conversation = {
         id: `offline_${Date.now()}`,
@@ -157,16 +157,16 @@ const ChatWidget = () => {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+
       setConversation(offlineConversation);
-      
+
       // Send offline welcome message
       await sendWelcomeMessage();
-      
+
       // Show user notification about offline mode
       showToast(
-        lang === 'ar' ? 
-        '🔄 تم التبديل إلى الوضع دون اتصال. ستعمل المحادثة محلياً.' : 
+        lang === 'ar' ?
+        '🔄 تم التبديل إلى الوضع دون اتصال. ستعمل المحادثة محلياً.' :
         '🔄 Switched to offline mode. Chat will work locally.'
       );
     }
@@ -179,7 +179,7 @@ const ChatWidget = () => {
       // Check if user has an existing open conversation
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
-      
+
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations/current`, {
         method: 'POST',
         headers: {
@@ -263,7 +263,7 @@ const ChatWidget = () => {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
-      
+
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/messages`, {
         method: 'POST',
         headers: {
@@ -295,18 +295,18 @@ const ChatWidget = () => {
       }
     } catch (error) {
       console.info('🔄 Failed to send message to server, handling offline:', error instanceof Error ? error.message : 'Unknown error');
-      
+
       // Handle message offline if chat mode is AI
       if (chatMode === 'AI') {
         await handleAIResponse(inputMessage.trim());
       } else {
         // For human mode, show appropriate message
         showToast(
-          lang === 'ar' ? 
-          '⚠️ لا يمكن الاتصال بالخادم. جاري المحاولة في الوضع دون اتصال.' : 
+          lang === 'ar' ?
+          '⚠️ لا يمكن الاتصال بالخادم. جاري المحاولة في الوضع دون اتصال.' :
           '⚠️ Cannot connect to server. Trying offline mode.'
         );
-        
+
         // Switch to AI mode as fallback
         setChatMode('AI');
         await handleAIResponse(inputMessage.trim());
@@ -346,7 +346,7 @@ const ChatWidget = () => {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000);
-        
+
         const response = await fetch(`${API_CONFIG.BASE_URL}/chat/ai-response`, {
           method: 'POST',
           headers: {
@@ -907,11 +907,11 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
   return (
     <ChatErrorBoundary>
       {/* Use ChatDock for better architecture */}
-      <ChatDock 
+      <ChatDock
         isOpen={isOpen}
         onToggle={openChat}
-        onClose={closeChat}
-      />
+        onClose={closeChat} />
+
 
       {/* Chat Widget Button */}
       <AnimatePresence>
@@ -1686,8 +1686,8 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         onSignUp={handleSignUpClick}
         type={warningType}
         action={actionDescription} />
-    </ChatErrorBoundary>
-  );
+    </ChatErrorBoundary>);
+
 
 };
 

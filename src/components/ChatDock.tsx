@@ -37,11 +37,11 @@ const ChatDock: React.FC<ChatDockProps> = ({ isOpen, onToggle, onClose }) => {
     if (!isOpen) return;
 
     setIsConnecting(true);
-    
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
-      
+
       const response = await fetch(`${getChatApiUrl()}/chat/status`, {
         method: 'GET',
         headers: {
@@ -66,14 +66,14 @@ const ChatDock: React.FC<ChatDockProps> = ({ isOpen, onToggle, onClose }) => {
       }
     } catch (error) {
       console.info('🔄 Chat service status check failed, using offline mode:', error instanceof Error ? error.message : 'Unknown error');
-      
+
       setStatus({
         isConnected: false,
         isAvailable: true,
         mode: 'AI',
-        message: lang === 'ar' ? 
-          'تعمل المحادثة في الوضع دون اتصال' : 
-          'Chat is running in offline mode'
+        message: lang === 'ar' ?
+        'تعمل المحادثة في الوضع دون اتصال' :
+        'Chat is running in offline mode'
       });
     } finally {
       setIsConnecting(false);
@@ -99,9 +99,9 @@ const ChatDock: React.FC<ChatDockProps> = ({ isOpen, onToggle, onClose }) => {
     }
 
     if (status.queuePosition) {
-      return lang === 'ar' ? 
-        `في الطابور: ${status.queuePosition}` : 
-        `Queue position: ${status.queuePosition}`;
+      return lang === 'ar' ?
+      `في الطابور: ${status.queuePosition}` :
+      `Queue position: ${status.queuePosition}`;
     }
 
     if (status.mode === 'HUMAN') {
@@ -129,19 +129,19 @@ const ChatDock: React.FC<ChatDockProps> = ({ isOpen, onToggle, onClose }) => {
     <div className="chat-dock">
       {/* Chat Button - shown when closed */}
       <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            className="chat-dock-button-container"
-          >
+        {!isOpen &&
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          className="chat-dock-button-container">
+
             {/* Status indicator */}
             <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="chat-status-tooltip"
-            >
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="chat-status-tooltip">
+
               <div className={`status-indicator ${getStatusColor()}`}>
                 {status.isConnected ? <FiWifi size={14} /> : <FiWifiOff size={14} />}
               </div>
@@ -149,72 +149,72 @@ const ChatDock: React.FC<ChatDockProps> = ({ isOpen, onToggle, onClose }) => {
             </motion.div>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onToggle}
-              className="chat-dock-button"
-              aria-label={lang === 'ar' ? 'فتح المحادثة' : 'Open chat'}
-            >
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onToggle}
+            className="chat-dock-button"
+            aria-label={lang === 'ar' ? 'فتح المحادثة' : 'Open chat'}>
+
               <FiMessageCircle size={24} />
-              {unreadCount > 0 && (
-                <span className="unread-badge">{unreadCount}</span>
-              )}
+              {unreadCount > 0 &&
+            <span className="unread-badge">{unreadCount}</span>
+            }
             </motion.button>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       {/* Chat Window Header - shown when open */}
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="chat-dock-header"
-          >
+        {isOpen &&
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="chat-dock-header">
+
             <div className="chat-dock-info">
               <div className="chat-status">
                 <div className={`status-dot ${status.isConnected ? 'connected' : 'disconnected'}`} />
                 <span className="status-text">{getStatusMessage()}</span>
               </div>
               
-              {status.message && (
-                <div className="status-message">
+              {status.message &&
+            <div className="status-message">
                   {status.message}
                 </div>
-              )}
+            }
               
-              {!status.isConnected && (
-                <button 
-                  onClick={handleRetryConnection}
-                  className="retry-button"
-                  disabled={isConnecting}
-                >
+              {!status.isConnected &&
+            <button
+              onClick={handleRetryConnection}
+              className="retry-button"
+              disabled={isConnecting}>
+
                   {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
                 </button>
-              )}
+            }
             </div>
 
             <div className="chat-dock-actions">
               <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="chat-action-btn"
-                aria-label={isMinimized ? (lang === 'ar' ? 'توسيع' : 'Expand') : (lang === 'ar' ? 'تصغير' : 'Minimize')}
-              >
+              onClick={() => setIsMinimized(!isMinimized)}
+              className="chat-action-btn"
+              aria-label={isMinimized ? lang === 'ar' ? 'توسيع' : 'Expand' : lang === 'ar' ? 'تصغير' : 'Minimize'}>
+
                 {isMinimized ? <FiMaximize2 size={16} /> : <FiMinimize2 size={16} />}
               </button>
               
               <button
-                onClick={onClose}
-                className="chat-action-btn"
-                aria-label={lang === 'ar' ? 'إغلاق' : 'Close'}
-              >
+              onClick={onClose}
+              className="chat-action-btn"
+              aria-label={lang === 'ar' ? 'إغلاق' : 'Close'}>
+
                 <FiX size={16} />
               </button>
             </div>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       <style>{`
@@ -404,8 +404,8 @@ const ChatDock: React.FC<ChatDockProps> = ({ isOpen, onToggle, onClose }) => {
           border-color: rgba(255, 255, 255, 0.1);
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ChatDock;

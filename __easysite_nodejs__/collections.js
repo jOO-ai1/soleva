@@ -1,39 +1,38 @@
+// Get all product collections
 function collections() {
-  const mockCollections = [
-  {
-    id: '1',
-    name: { en: 'Classic Collection', ar: 'المجموعة الكلاسيكية' },
-    slug: 'classic',
-    description: {
-      en: 'Timeless designs that never go out of style',
-      ar: 'تصاميم خالدة لا تخرج عن الموضة أبداً'
+  return [
+    {
+      id: '1',
+      name: { en: 'New Arrivals', ar: 'وصل حديثاً' },
+      description: {
+        en: 'Latest collection of premium footwear',
+        ar: 'أحدث مجموعة من الأحذية الفاخرة'
+      },
+      slug: 'new-arrivals',
+      image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600',
+      featured: true
     },
-    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-    productCount: 1
-  },
-  {
-    id: '2',
-    name: { en: 'Sport Collection', ar: 'المجموعة الرياضية' },
-    slug: 'sport',
-    description: {
-      en: 'High-performance athletic footwear',
-      ar: 'أحذية رياضية عالية الأداء'
+    {
+      id: '2',
+      name: { en: 'Best Sellers', ar: 'الأكثر مبيعاً' },
+      description: {
+        en: 'Our most popular shoes loved by customers',
+        ar: 'أشهر أحذيتنا المحبوبة من العملاء'
+      },
+      slug: 'best-sellers',
+      image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600',
+      featured: true
     },
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-    productCount: 1
-  },
-  {
-    id: '3',
-    name: { en: 'Business Collection', ar: 'مجموعة الأعمال' },
-    slug: 'business',
-    description: {
-      en: 'Professional footwear for the workplace',
-      ar: 'أحذية مهنية لمكان العمل'
-    },
-    image: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400',
-    productCount: 1
-  }];
-
-
-  return mockCollections;
+    {
+      id: '3',
+      name: { en: 'Limited Edition', ar: 'إصدار محدود' },
+      description: {
+        en: 'Exclusive limited edition designs',
+        ar: 'تصاميم حصرية بإصدار محدود'
+      },
+      slug: 'limited-edition',
+      image: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600',
+      featured: false
+    }
+  ];
 }
