@@ -5,11 +5,11 @@ export class AppError extends Error {
   public readonly isOperational: boolean;
 
   constructor(
-    message: string,
-    code: string = 'GENERIC_ERROR',
-    statusCode?: number,
-    isOperational: boolean = true
-  ) {
+  message: string,
+  code: string = 'GENERIC_ERROR',
+  statusCode?: number,
+  isOperational: boolean = true)
+  {
     super(message);
     this.code = code;
     this.statusCode = statusCode;
@@ -25,37 +25,37 @@ export const ErrorCodes = {
   NETWORK_ERROR: 'NETWORK_ERROR',
   CONNECTION_REFUSED: 'CONNECTION_REFUSED',
   TIMEOUT: 'TIMEOUT',
-  
+
   // API errors
   API_UNAVAILABLE: 'API_UNAVAILABLE',
   INVALID_RESPONSE: 'INVALID_RESPONSE',
   RATE_LIMITED: 'RATE_LIMITED',
-  
+
   // Auth errors
   AUTH_FAILED: 'AUTH_FAILED',
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
   UNAUTHORIZED: 'UNAUTHORIZED',
-  
+
   // Data errors
   DATA_NOT_FOUND: 'DATA_NOT_FOUND',
   INVALID_DATA: 'INVALID_DATA',
-  
+
   // General errors
   UNKNOWN_ERROR: 'UNKNOWN_ERROR'
 } as const;
 
 export function handleApiError(error: any): AppError {
   // Network connection errors
-  if (error.message?.includes('net::ERR_CONNECTION_REFUSED') || 
-      error.message?.includes('Failed to fetch') ||
-      error.code === 'ECONNREFUSED') {
+  if (error.message?.includes('net::ERR_CONNECTION_REFUSED') ||
+  error.message?.includes('Failed to fetch') ||
+  error.code === 'ECONNREFUSED') {
     return new AppError(
       'Unable to connect to server. The application will use offline data.',
       ErrorCodes.CONNECTION_REFUSED,
       0
     );
   }
-  
+
   // Timeout errors
   if (error.message?.includes('timeout') || error.message?.includes('Request timeout')) {
     return new AppError(
@@ -64,7 +64,7 @@ export function handleApiError(error: any): AppError {
       408
     );
   }
-  
+
   // Rate limiting
   if (error.status === 429 || error.statusCode === 429) {
     return new AppError(
@@ -73,7 +73,7 @@ export function handleApiError(error: any): AppError {
       429
     );
   }
-  
+
   // Authentication errors
   if (error.status === 401 || error.statusCode === 401) {
     return new AppError(
@@ -82,7 +82,7 @@ export function handleApiError(error: any): AppError {
       401
     );
   }
-  
+
   // Not found
   if (error.status === 404 || error.statusCode === 404) {
     return new AppError(
@@ -91,7 +91,7 @@ export function handleApiError(error: any): AppError {
       404
     );
   }
-  
+
   // Server errors
   if (error.status >= 500 || error.statusCode >= 500) {
     return new AppError(
@@ -100,7 +100,7 @@ export function handleApiError(error: any): AppError {
       error.status || error.statusCode || 500
     );
   }
-  
+
   // Generic error
   return new AppError(
     error.message || 'An unexpected error occurred.',
@@ -112,7 +112,7 @@ export function handleApiError(error: any): AppError {
 export function logError(error: Error | AppError, context?: string) {
   const timestamp = new Date().toISOString();
   const contextStr = context ? `[${context}]` : '';
-  
+
   if (import.meta.env.DEV) {
     console.error(`${timestamp} ${contextStr} Error:`, {
       message: error.message,
@@ -125,12 +125,12 @@ export function logError(error: Error | AppError, context?: string) {
 
 export function isRecoverableError(error: AppError): boolean {
   const recoverableErrors = [
-    ErrorCodes.NETWORK_ERROR,
-    ErrorCodes.CONNECTION_REFUSED,
-    ErrorCodes.TIMEOUT,
-    ErrorCodes.RATE_LIMITED,
-    ErrorCodes.API_UNAVAILABLE
-  ];
-  
+  ErrorCodes.NETWORK_ERROR,
+  ErrorCodes.CONNECTION_REFUSED,
+  ErrorCodes.TIMEOUT,
+  ErrorCodes.RATE_LIMITED,
+  ErrorCodes.API_UNAVAILABLE];
+
+
   return recoverableErrors.includes(error.code as any);
 }

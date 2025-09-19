@@ -8,7 +8,7 @@ export const API_CONFIG = {
     if (import.meta.env.DEV) {
       return 'http://localhost:3001/api/v1';
     }
-    
+
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       // Production domains

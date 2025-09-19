@@ -67,8 +67,8 @@ export class AppErrorBoundary extends React.Component<Props, State> {
               <div className="text-sm text-gray-500">• Browser compatibility issues</div>
             </div>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mb-6 text-left">
+            {process.env.NODE_ENV === 'development' && this.state.error &&
+            <details className="mb-6 text-left">
                 <summary className="cursor-pointer text-sm font-medium text-gray-700 mb-2">
                   ▶ Error Details
                 </summary>
@@ -76,21 +76,21 @@ export class AppErrorBoundary extends React.Component<Props, State> {
                   <div className="font-mono text-red-800">
                     {this.state.error.toString()}
                   </div>
-                  {this.state.errorInfo?.componentStack && (
-                    <div className="mt-2 text-red-700">
+                  {this.state.errorInfo?.componentStack &&
+                <div className="mt-2 text-red-700">
                       {this.state.errorInfo.componentStack}
                     </div>
-                  )}
+                }
                 </div>
               </details>
-            )}
+            }
             
             <div className="flex flex-col gap-3">
               <GlassButton
                 onClick={this.handleReload}
                 variant="primary"
-                className="w-full"
-              >
+                className="w-full">
+
                 <FiRefreshCw className="mr-2" />
                 Refresh Page
               </GlassButton>
@@ -98,15 +98,15 @@ export class AppErrorBoundary extends React.Component<Props, State> {
               <GlassButton
                 onClick={this.handleGoHome}
                 variant="secondary"
-                className="w-full"
-              >
+                className="w-full">
+
                 <FiHome className="mr-2" />
                 Go Home
               </GlassButton>
             </div>
           </GlassCard>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;

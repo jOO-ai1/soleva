@@ -54,6 +54,8 @@ class PlaceholderSentryService {
 
 
 
+
+
     // Sentry initialization disabled
   }captureException(_error: Error, _context?: Record<string, any>) {
 

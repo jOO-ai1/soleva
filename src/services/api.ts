@@ -238,8 +238,8 @@ export const productsApi = {
       // Try to find product in mock data
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
-      const product = mockProducts.find(p => p.id === id.toString());
-      
+      const product = mockProducts.find((p) => p.id === id.toString());
+
       if (product) {
         return Promise.resolve({
           data: product,
@@ -248,7 +248,7 @@ export const productsApi = {
           message: 'Using offline data'
         });
       }
-      
+
       throw {
         message: 'Product not found',
         status: 404
@@ -264,13 +264,13 @@ export const productsApi = {
       console.warn('Using fallback data for search:', query, error);
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
-      const filteredProducts = mockProducts.filter(product => 
-        product.name.en.toLowerCase().includes(query.toLowerCase()) ||
-        product.name.ar.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.en.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.ar.toLowerCase().includes(query.toLowerCase())
+      const filteredProducts = mockProducts.filter((product) =>
+      product.name.en.toLowerCase().includes(query.toLowerCase()) ||
+      product.name.ar.toLowerCase().includes(query.toLowerCase()) ||
+      product.description.en.toLowerCase().includes(query.toLowerCase()) ||
+      product.description.ar.toLowerCase().includes(query.toLowerCase())
       );
-      
+
       return Promise.resolve({
         data: filteredProducts,
         status: 200,
@@ -324,8 +324,8 @@ export const collectionsApi = {
       console.warn('Using fallback data for collection:', id, error);
       const { getMockCollections } = await import('./mockData');
       const mockCollections = getMockCollections();
-      const collection = mockCollections.find(c => c.slug === id);
-      
+      const collection = mockCollections.find((c) => c.slug === id);
+
       if (collection) {
         return Promise.resolve({
           data: [collection],
@@ -334,7 +334,7 @@ export const collectionsApi = {
           message: 'Using offline data'
         });
       }
-      
+
       return Promise.resolve({
         data: [],
         status: 200,
@@ -352,10 +352,10 @@ export const collectionsApi = {
       console.warn('Using fallback data for collection products:', id, error);
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
-      const filteredProducts = mockProducts.filter(product => 
-        product.collection && product.collection.slug === id
+      const filteredProducts = mockProducts.filter((product) =>
+      product.collection && product.collection.slug === id
       );
-      
+
       return Promise.resolve({
         data: filteredProducts,
         status: 200,

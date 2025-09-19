@@ -19,8 +19,8 @@ export default function SafeHome() {
                 alt="Soleva"
                 className="h-16 w-auto transition-all duration-300 hover:scale-105 drop-shadow-sm object-contain"
                 loading="eager"
-                decoding="async"
-              />
+                decoding="async" />
+
             </div>
           </div>
           
@@ -30,8 +30,8 @@ export default function SafeHome() {
           
           <p className="text-xl mb-12 max-w-2xl mx-auto">
             {lang === 'ar' ?
-              'اكتشف مجموعة أحذية فاخرة بتصميم عصري وجودة لا مثيل لها' :
-              'Discover premium footwear with modern design and unmatched quality'
+            'اكتشف مجموعة أحذية فاخرة بتصميم عصري وجودة لا مثيل لها' :
+            'Discover premium footwear with modern design and unmatched quality'
             }
           </p>
           
@@ -54,8 +54,8 @@ export default function SafeHome() {
             </h2>
             <p className="text-xl max-w-2xl mx-auto">
               {lang === 'ar' ?
-                'نقدم لك أفضل تجربة تسوق مع ضمان الجودة والخدمة المتميزة' :
-                'We provide the best shopping experience with quality assurance and exceptional service'
+              'نقدم لك أفضل تجربة تسوق مع ضمان الجودة والخدمة المتميزة' :
+              'We provide the best shopping experience with quality assurance and exceptional service'
               }
             </p>
           </div>
@@ -103,8 +103,8 @@ export default function SafeHome() {
             </h2>
             <p className="text-xl max-w-2xl mx-auto">
               {lang === 'ar' ?
-                'منتجات مختارة بعناية خصيصاً لك' :
-                'Handpicked items just for you'
+              'منتجات مختارة بعناية خصيصاً لك' :
+              'Handpicked items just for you'
               }
             </p>
           </div>
@@ -117,8 +117,8 @@ export default function SafeHome() {
               </h3>
               <p className="text-text-secondary">
                 {lang === 'ar' ?
-                  'جاري جلب المنتجات المميزة' :
-                  'Fetching featured products'
+                'جاري جلب المنتجات المميزة' :
+                'Fetching featured products'
                 }
               </p>
             </GlassCard>
@@ -133,6 +133,6 @@ export default function SafeHome() {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>);
+
 }
