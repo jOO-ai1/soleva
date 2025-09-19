@@ -201,6 +201,8 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // FCP observation not supported
       } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});try {lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });} catch (e) {
@@ -250,14 +252,14 @@ export const useDeviceDetection = () => {
       } // Resolve after a delay to collect metrics
       setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;resolve(metrics as PerformanceMetrics);}, 5000);});};const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {try {// Get IP and location info
       const ipResponse = await fetch('https://ipapi.co/json/');const ipData = await ipResponse.json();const logData = { ...deviceInfo, ...metrics, ipAddress: ipData.ip, country: ipData.country_name, city: ipData.city, timestamp: new Date().toISOString() }; // Send to backend
-      await fetch('/api/v1/analytics/device-log', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(logData)
-      });
+      await fetch('/api/v1/analytics/device-log', { method: 'POST', headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(logData)
+        });
     } catch (error) {
+
+
 
 
 
@@ -312,10 +314,8 @@ export const useDeviceDetection = () => {
       `;document.head.appendChild(style); // Adaptive mode enabled: Reduced animations and effects for low-spec device
     }};useEffect(() => {const initializeDeviceDetection = async () => {// Detect device capabilities
         const device = detectDevice();setDeviceInfo(device); // Measure performance metrics
-        const metrics = await measurePerformanceMetrics();setPerformanceMetrics(metrics);
-        // Enable adaptive mode if needed
+        const metrics = await measurePerformanceMetrics();setPerformanceMetrics(metrics); // Enable adaptive mode if needed
         enableAdaptiveMode(device);
-
         // Log data to backend
         await logDeviceData(device, metrics);
       };

@@ -180,28 +180,34 @@ export const apiClient = new ApiClient();
 // Specific API service functions
 export const authApi = {
   login: (credentials: {email: string;password: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
+    apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
 
   register: (userData: {name: string;email: string;phoneNumber: string;password: string;password_confirmation: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
+    apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
 
   logout: () =>
-  apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
+    apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
 
   getProfile: () =>
-  apiClient.get(API_ENDPOINTS.AUTH.PROFILE),
+    apiClient.get(API_ENDPOINTS.AUTH.PROFILE),
 
   updateProfile: (data: any) =>
-  apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
+    apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
 
   disconnectGoogle: () =>
-  apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
+    apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
 
   forgotPassword: (data: {email: string;phoneNumber: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
+    apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
 
   resetPassword: (data: {token: string;newPassword: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data)
+    apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
+
+  refreshToken: () =>
+    apiClient.post(API_ENDPOINTS.AUTH.REFRESH),
+
+  verifyEmail: (token: string) =>
+    apiClient.post('/auth/verify-email', { token })
 };
 
 export const productsApi = {

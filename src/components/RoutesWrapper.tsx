@@ -37,11 +37,11 @@ const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
 const TermsPage = lazy(() => import('../pages/TermsPage'));
 
 // Loading fallback component
-const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
+const LoadingFallback = () =>
+<div className="min-h-screen flex items-center justify-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
+  </div>;
+
 
 
 // Scroll to top component

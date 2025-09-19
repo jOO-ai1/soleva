@@ -43,6 +43,8 @@ export function safeSetItem(key: string, value: string): void {
 
 
 
+
+
     // ignore write errors (quota, privacy mode, etc.)
   }}export function safeRemoveItem(key: string): void {try {if (typeof window === 'undefined' || !window.localStorage) return;window.localStorage.removeItem(key);} catch {
 

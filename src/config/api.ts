@@ -1,11 +1,23 @@
 // API Configuration for Backend Integration
 export const API_CONFIG = {
-  // Base URL - prefer VITE_API_URL (common), fallback to VITE_API_BASE_URL
-  BASE_URL:
-  import.meta.env.VITE_API_URL || (
-  typeof window !== 'undefined' && (window.location.hostname === 'solevaeg.com' || window.location.hostname === 'www.solevaeg.com') ?
-  'https://api.solevaeg.com/api/v1' :
-  'http://localhost:3001/api/v1'),
+  // Base URL - prefer VITE_API_URL (common), fallback to environment detection
+  BASE_URL: import.meta.env.VITE_API_URL || 
+    import.meta.env.VITE_API_BASE_URL ||
+    (() => {
+      if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        // Production domains
+        if (hostname === 'solevaeg.com' || hostname === 'www.solevaeg.com') {
+          return 'https://api.solevaeg.com/api/v1';
+        }
+        // Development and localhost
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168.')) {
+          return 'http://localhost:3001/api/v1';
+        }
+      }
+      // Default fallback
+      return 'http://localhost:3001/api/v1';
+    })(),
 
   // API Version
   VERSION: 'v1',
@@ -16,7 +28,8 @@ export const API_CONFIG = {
   // Headers
   DEFAULT_HEADERS: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
 
   // Authentication
