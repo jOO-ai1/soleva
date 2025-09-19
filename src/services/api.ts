@@ -76,7 +76,7 @@ class ApiClient {
 
         const response = await withTimeout(fetch(url, config), API_CONFIG.TIMEOUT);
         let data: any = null;
-        
+
         // Some endpoints may return 204 No Content
         if (response.status !== 204) {
           try {
@@ -91,7 +91,7 @@ class ApiClient {
           if (response.status >= 500) {
             throw new Error(`Server error ${response.status}`);
           }
-          
+
           // For 4xx errors, don't retry but throw with proper structure
           throw {
             message: data && (data.message || data.error) || 'An error occurred',
@@ -111,24 +111,32 @@ class ApiClient {
       return await retryWithBackoff(() => doFetch());
     } catch (error) {
       // Network-related errors - these should trigger fallback logic
-      if (error instanceof TypeError || 
-          (error instanceof Error && error.message.includes('Failed to fetch')) ||
-          (error instanceof Error && error.message.includes('Offline mode'))) {
+      if (error instanceof TypeError ||
+      error instanceof Error && (
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('Offline mode') ||
+        error.message.includes('net::ERR_CONNECTION_REFUSED') ||
+        error.message.includes('NetworkError') ||
+        error.message.includes('ERR_INTERNET_DISCONNECTED')
+      )) {
+        // Don't throw error for network issues - return offline response
+        console.warn('Network error detected, using offline mode:', error.message);
         throw {
           message: 'Using offline data due to network connectivity issues',
           status: 0,
-          offline: true
-        } as ApiError & { offline: boolean };
+          offline: true,
+          fallback: true
+        } as ApiError & {offline: boolean; fallback: boolean;};
       }
-      
+
       if (error instanceof Error && error.message === 'Request timeout') {
         throw {
           message: 'Request timeout. Using cached data if available.',
           status: 0,
           offline: true
-        } as ApiError & { offline: boolean };
+        } as ApiError & {offline: boolean;};
       }
-      
+
       throw error;
     }
   }

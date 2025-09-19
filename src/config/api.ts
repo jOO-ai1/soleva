@@ -9,10 +9,15 @@ export const API_CONFIG = {
     if (import.meta.env.VITE_API_BASE_URL) {
       return import.meta.env.VITE_API_BASE_URL;
     }
-    
+
     // For development, try to detect if backend is available
-    // Default to offline mode which will trigger fallbacks
-    return 'https://api.soleva.com/api/v1'; // This will fail gracefully and use mock data
+    // For development, try localhost first, then fallback to mock data
+    if (import.meta.env.DEV) {
+      return 'http://localhost:3001/api/v1';
+    }
+    
+    // Production fallback - this will gracefully fail and use mock data
+    return 'offline://api'; // This will trigger fallback mechanism
   })(),
 
   // API Version
@@ -31,7 +36,7 @@ export const API_CONFIG = {
   // Authentication
   AUTH_TOKEN_KEY: 'auth_token',
   REFRESH_TOKEN_KEY: 'refresh_token',
-  
+
   // Offline mode flag
   OFFLINE_MODE: false
 };

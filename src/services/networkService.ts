@@ -63,16 +63,16 @@ class NetworkService {
       });
 
       clearTimeout(timeoutId);
-      
+
       this.status.apiAvailable = response.ok;
       this.status.lastCheck = now;
-      
+
       if (!this.status.apiAvailable) {
         console.log('⚠️ API server not responding, using offline mode');
       } else {
         console.log('✅ API server is available');
       }
-      
+
     } catch (error) {
       console.log('⚠️ API check failed, using offline mode:', error instanceof Error ? error.message : 'Unknown error');
       this.status.apiAvailable = false;
@@ -93,7 +93,7 @@ class NetworkService {
   }
 
   private notifyListeners() {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener({ ...this.status });
       } catch (error) {

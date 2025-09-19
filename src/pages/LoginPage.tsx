@@ -145,6 +145,8 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
@@ -228,9 +230,7 @@ export default function LoginPage() {
       </motion.div>
       
       {/* Auth Warning Modal */}
-      <AuthWarningModal isOpen={showWarning} onClose={handleCloseWarning}
-      onLogin={handleLoginClick}
-      onSignUp={handleSignUpClick}
+      <AuthWarningModal isOpen={showWarning} onClose={handleCloseWarning} onLogin={handleLoginClick} onSignUp={handleSignUpClick}
       type={warningType} />
 
     </div>;

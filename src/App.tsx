@@ -10,9 +10,14 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { initializeDatabase, createSampleData } from './utils/initializeDatabase';
 import RoutesWrapper from "./components/RoutesWrapper";
 import { AppErrorBoundary } from './components/AppErrorBoundary';
+import ComprehensiveErrorBoundary from './components/ComprehensiveErrorBoundary';
+import NetworkErrorHandler from './components/NetworkErrorHandler';
+import GlobalErrorHandler from './components/GlobalErrorHandler';
+import SafeContextProvider from './components/SafeContextProvider';
 import AppLoader from './components/AppLoader';
 import { setDocumentTitle } from './utils/documentTitle';
 import OfflineIndicator from './components/OfflineIndicator';
+import { Toaster } from 'sonner';
 
 export default function App() {
   // Set the base document title on app initialization
@@ -30,7 +35,7 @@ export default function App() {
       try {
         console.log('🚀 Initializing Soleva application...');
         const isInitialized = await initializeDatabase();
-        
+
         if (isInitialized) {
           console.log('✅ Database initialized successfully');
           // Try to create sample data if it doesn't exist
@@ -43,7 +48,7 @@ export default function App() {
         } else {
           console.warn('⚠️ Database initialization incomplete, using fallback mode');
         }
-        
+
         console.log('✅ Soleva application ready');
       } catch (error) {
         console.warn('⚠️ Database setup warning, app will continue in offline mode:', error);
@@ -56,24 +61,38 @@ export default function App() {
 
   return (
     <AppErrorBoundary>
-      <AppLoader>
-        <LangProvider>
-          <ThemeProvider>
-            <FavoritesProvider>
-              <AuthProvider>
-                <CartProvider>
-                  <ToastProvider>
-                    <NotificationProvider>
-                      <RoutesWrapper />
-                      <OfflineIndicator />
-                    </NotificationProvider>
-                  </ToastProvider>
-                </CartProvider>
-              </AuthProvider>
-            </FavoritesProvider>
-          </ThemeProvider>
-        </LangProvider>
-      </AppLoader>
+      <ComprehensiveErrorBoundary>
+        <SafeContextProvider>
+          <AppLoader>
+            <LangProvider>
+              <ThemeProvider>
+                <FavoritesProvider>
+                  <AuthProvider>
+                    <CartProvider>
+                      <ToastProvider>
+                        <NotificationProvider>
+                          <GlobalErrorHandler />
+                          <NetworkErrorHandler />
+                          <RoutesWrapper />
+                          <OfflineIndicator />
+                          <Toaster
+                            position="top-right"
+                            closeButton
+                            richColors
+                            expand
+                            duration={4000}
+                            visibleToasts={5}
+                          />
+                        </NotificationProvider>
+                      </ToastProvider>
+                    </CartProvider>
+                  </AuthProvider>
+                </FavoritesProvider>
+              </ThemeProvider>
+            </LangProvider>
+          </AppLoader>
+        </SafeContextProvider>
+      </ComprehensiveErrorBoundary>
     </AppErrorBoundary>);
 
 }
