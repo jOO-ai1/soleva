@@ -236,46 +236,21 @@ export const authApi = {
 export const productsApi = {
   getAll: async (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) => {
     try {
-      // Check if we're in development or if API is available
-      if (import.meta.env.DEV || window.location.hostname === 'localhost') {
-        console.info('🔄 Development mode - Using mock data with enhanced features');
-        const { getMockProducts } = await import('./mockData');
-        const mockProducts = getMockProducts();
-
-        // Apply filters if provided
-        let filteredProducts = mockProducts;
-
-        if (params?.search) {
-          const searchTerm = params.search.toLowerCase();
-          filteredProducts = filteredProducts.filter((product) =>
-          product.name.en.toLowerCase().includes(searchTerm) ||
-          product.name.ar.toLowerCase().includes(searchTerm) ||
-          product.description.en.toLowerCase().includes(searchTerm) ||
-          product.description.ar.toLowerCase().includes(searchTerm)
-          );
-        }
-
-        if (params?.collection) {
-          filteredProducts = filteredProducts.filter((product) =>
-          product.collection?.slug === params.collection
-          );
-        }
-
-        return Promise.resolve({
-          data: filteredProducts,
-          status: 200,
-          success: true,
-          message: 'Using development mock data'
-        });
-      }
-
-      // Try Supabase API in production
-      const { supabaseProductsApi } = await import('./supabaseApi');
-      const response = await supabaseProductsApi.getAll(params);
-      console.info('✅ Successfully loaded products from API');
-      return response;
+      // Use local Node.js API endpoints
+      const response = await window.ezsite.apis.run({
+        path: 'products',
+        param: [params]
+      });
+      
+      console.info('✅ Successfully loaded products from local API');
+      return {
+        data: response.data || response,
+        status: 200,
+        success: true,
+        message: 'Loaded from local API'
+      };
     } catch (error) {
-      console.info('🔄 API connection failed, gracefully using fallback data:', error.message || error);
+      console.info('🔄 Local API failed, using fallback data:', error.message || error);
 
       // Enhanced fallback with error context
       const { getMockProducts } = await import('./mockData');
@@ -304,7 +279,7 @@ export const productsApi = {
         data: filteredProducts,
         status: 200,
         success: true,
-        message: 'Using offline data due to network connectivity issues',
+        message: 'Using offline data due to API connectivity issues',
         fallback: true,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -313,8 +288,17 @@ export const productsApi = {
 
   getById: async (id: number) => {
     try {
-      const { supabaseProductsApi } = await import('./supabaseApi');
-      return await supabaseProductsApi.getById(id);
+      const response = await window.ezsite.apis.run({
+        path: 'product',
+        param: [id]
+      });
+      
+      return {
+        data: response,
+        status: 200,
+        success: true,
+        message: 'Loaded from local API'
+      };
     } catch (error) {
       console.info('🔄 Using fallback data for product ID:', id, error.message || error);
       // Try to find product in mock data
@@ -366,8 +350,17 @@ export const productsApi = {
 export const categoriesApi = {
   getAll: async () => {
     try {
-      const { supabaseCategoriesApi } = await import('./supabaseApi');
-      return await supabaseCategoriesApi.getAll();
+      const response = await window.ezsite.apis.run({
+        path: 'categories',
+        param: []
+      });
+      
+      return {
+        data: response,
+        status: 200,
+        success: true,
+        message: 'Loaded from local API'
+      };
     } catch (error) {
       console.info('🔄 Using fallback data for categories:', error.message || error);
       const { getMockCategories } = await import('./mockData');
@@ -384,8 +377,17 @@ export const categoriesApi = {
 export const collectionsApi = {
   getAll: async () => {
     try {
-      const { supabaseCollectionsApi } = await import('./supabaseApi');
-      return await supabaseCollectionsApi.getAll();
+      const response = await window.ezsite.apis.run({
+        path: 'collections',
+        param: []
+      });
+      
+      return {
+        data: response,
+        status: 200,
+        success: true,
+        message: 'Loaded from local API'
+      };
     } catch (error) {
       console.info('🔄 Using fallback data for collections:', error.message || error);
       const { getMockCollections } = await import('./mockData');

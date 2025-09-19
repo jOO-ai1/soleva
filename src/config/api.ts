@@ -10,14 +10,8 @@ export const API_CONFIG = {
       return import.meta.env.VITE_API_BASE_URL;
     }
 
-    // For development, try to detect if backend is available
-    // For development, try localhost first, then fallback to mock data
-    if (import.meta.env.DEV) {
-      return 'http://localhost:3001/api/v1';
-    }
-
-    // Production fallback - this will gracefully fail and use mock data
-    return 'offline://api'; // This will trigger fallback mechanism
+    // Always use local API endpoints now
+    return 'local://api'; // This will trigger local API calls
   })(),
 
   // API Version

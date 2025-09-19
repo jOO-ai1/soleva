@@ -58,12 +58,12 @@ const fallbackNotification: NotificationContextType = {
 
 
 
+
+
     // Sonner handles this automatically
   }, clearAllNotifications: () => {toast.dismiss();} };export const useSafeNotification = (): NotificationContextType => {try {// Try to get the notification context from the actual provider
     const { useNotification } = require('../contexts/NotificationContext');const context = useNotification();return context;} catch (error) {// If the context is not available, use the fallback
-    console.warn('NotificationProvider not found, using fallback notifications');
-    return fallbackNotification;
-  }
+    console.warn('NotificationProvider not found, using fallback notifications');return fallbackNotification;}
 };
 
 export default useSafeNotification;
