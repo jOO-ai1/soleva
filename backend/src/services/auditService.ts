@@ -162,6 +162,10 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
@@ -170,11 +174,7 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 * Get audit trail for a specific resource
 */export const getResourceAuditTrail = async (resource: string, resourceId: string) => {return await prisma.auditLog.findMany({ where: { resource, resourceId }, include: { user: { select: { id: true, name: true, email: true } }, admin: { select: { id: true, name: true, email: true, role: true } } }, orderBy: { createdAt: 'desc' } });}; /**
 * Get audit statistics
-*/export const getAuditStatistics = async (filters: {startDate?: Date;endDate?: Date;}) => {const { startDate, endDate } = filters;const where: any = {};if (startDate || endDate) {where.createdAt = {};if (startDate) where.createdAt.gte = startDate;if (endDate) where.createdAt.lte = endDate;}const [totalLogs,
-  actionStats,
-  resourceStats,
-  adminStats,
-  dailyStats] =
+*/export const getAuditStatistics = async (filters: {startDate?: Date;endDate?: Date;}) => {const { startDate, endDate } = filters;const where: any = {};if (startDate || endDate) {where.createdAt = {};if (startDate) where.createdAt.gte = startDate;if (endDate) where.createdAt.lte = endDate;}const [totalLogs, actionStats, resourceStats, adminStats, dailyStats] =
   await Promise.all([
   // Total logs count
   prisma.auditLog.count({ where }),

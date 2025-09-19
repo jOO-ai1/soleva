@@ -2,11 +2,11 @@ import { supabase } from './supabase';
 
 // Supabase API handlers with proper error handling
 export const supabaseProductsApi = {
-  async getAll(params?: { page?: number; per_page?: number; search?: string; collection?: string }) {
+  async getAll(params?: {page?: number;per_page?: number;search?: string;collection?: string;}) {
     try {
-      let query = supabase
-        .from('products')
-        .select(`
+      let query = supabase.
+      from('products').
+      select(`
           *,
           category:categories(*),
           collection:collections(*)
@@ -43,7 +43,7 @@ export const supabaseProductsApi = {
         salePrice: item.sale_price,
         isFeatured: item.is_featured,
         category: item.category,
-        collection: item.collection,
+        collection: item.collection
       }));
 
       return {
@@ -63,15 +63,15 @@ export const supabaseProductsApi = {
 
   async getById(id: number) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
+      const { data, error } = await supabase.
+      from('products').
+      select(`
           *,
           category:categories(*),
           collection:collections(*)
-        `)
-        .eq('id', id)
-        .single();
+        `).
+      eq('id', id).
+      single();
 
       if (error) throw error;
 
@@ -86,7 +86,7 @@ export const supabaseProductsApi = {
         salePrice: data.sale_price,
         isFeatured: data.is_featured,
         category: data.category,
-        collection: data.collection,
+        collection: data.collection
       };
 
       return {
@@ -108,9 +108,9 @@ export const supabaseProductsApi = {
 export const supabaseCategoriesApi = {
   async getAll() {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*');
+      const { data, error } = await supabase.
+      from('categories').
+      select('*');
 
       if (error) throw error;
 
@@ -133,9 +133,9 @@ export const supabaseCategoriesApi = {
 export const supabaseCollectionsApi = {
   async getAll() {
     try {
-      const { data, error } = await supabase
-        .from('collections')
-        .select('*');
+      const { data, error } = await supabase.
+      from('collections').
+      select('*');
 
       if (error) throw error;
 

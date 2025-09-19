@@ -141,6 +141,8 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
@@ -215,9 +217,7 @@ export default function LoginPage() {
             <p className="text-gray-600">
               {t("dontAccount")}
             </p>
-            <Link
-            to="/register"
-            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
+            <Link to="/register" className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
 
               {t("register")}
             </Link>

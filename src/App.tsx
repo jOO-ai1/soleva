@@ -60,6 +60,6 @@ export default function App() {
           </ThemeProvider>
         </LangProvider>
       </AppLoader>
-    </AppErrorBoundary>
-  );
+    </AppErrorBoundary>);
+
 }

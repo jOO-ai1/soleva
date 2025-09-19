@@ -15,11 +15,11 @@ export default function Home() {
 
   // Fetch products from API with error handling
   const { data: productsResponse, loading: productsLoading, error: productsError } = useProducts();
-  
+
   // Safely handle products data
   const products = Array.isArray(productsResponse) ? productsResponse : [];
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 6);
-  
+
   // Show fallback content if API fails but don't crash
   const hasProductData = !productsLoading && products.length > 0;
 
