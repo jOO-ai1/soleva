@@ -113,12 +113,12 @@ class ApiClient {
       // Network-related errors - these should trigger fallback logic
       if (error instanceof TypeError ||
       error instanceof Error && (
-        error.message.includes('Failed to fetch') ||
-        error.message.includes('Offline mode') ||
-        error.message.includes('net::ERR_CONNECTION_REFUSED') ||
-        error.message.includes('NetworkError') ||
-        error.message.includes('ERR_INTERNET_DISCONNECTED')
-      )) {
+      error.message.includes('Failed to fetch') ||
+      error.message.includes('Offline mode') ||
+      error.message.includes('net::ERR_CONNECTION_REFUSED') ||
+      error.message.includes('NetworkError') ||
+      error.message.includes('ERR_INTERNET_DISCONNECTED')))
+      {
         // Don't throw error for network issues - return offline response
         console.warn('Network error detected, using offline mode:', error.message);
         throw {
@@ -126,7 +126,7 @@ class ApiClient {
           status: 0,
           offline: true,
           fallback: true
-        } as ApiError & {offline: boolean; fallback: boolean;};
+        } as ApiError & {offline: boolean;fallback: boolean;};
       }
 
       if (error instanceof Error && error.message === 'Request timeout') {

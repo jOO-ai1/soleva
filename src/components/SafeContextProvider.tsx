@@ -2,13 +2,13 @@ import React, { ReactNode } from 'react';
 import { toast } from 'sonner';
 
 // Fallback notification context that prevents the "useNotification must be used within a NotificationProvider" error
-const FallbackNotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const FallbackNotificationProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
   const fallbackContext = {
     notifications: [],
     showNotification: (notification: any) => {
       toast(notification.title, {
         description: notification.message,
-        duration: notification.duration || 4000,
+        duration: notification.duration || 4000
       });
     },
     showSuccess: (title: string, message: string) => {
@@ -24,7 +24,7 @@ const FallbackNotificationProvider: React.FC<{ children: ReactNode }> = ({ child
       toast.info(title, { description: message });
     },
     removeNotification: () => {},
-    clearAllNotifications: () => {},
+    clearAllNotifications: () => {}
   };
 
   // Create a simple context provider
@@ -33,8 +33,8 @@ const FallbackNotificationProvider: React.FC<{ children: ReactNode }> = ({ child
   return (
     <NotificationContext.Provider value={fallbackContext}>
       {children}
-    </NotificationContext.Provider>
-  );
+    </NotificationContext.Provider>);
+
 };
 
 interface SafeContextProviderProps {
@@ -45,8 +45,8 @@ const SafeContextProvider: React.FC<SafeContextProviderProps> = ({ children }) =
   return (
     <FallbackNotificationProvider>
       {children}
-    </FallbackNotificationProvider>
-  );
+    </FallbackNotificationProvider>);
+
 };
 
 export default SafeContextProvider;

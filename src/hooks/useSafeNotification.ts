@@ -18,7 +18,7 @@ const fallbackNotification: NotificationContextType = {
   notifications: [],
   showNotification: (notification: any) => {
     const { type = 'info', title, message, duration = 4000 } = notification;
-    
+
     switch (type) {
       case 'success':
         toast.success(title, { description: message, duration });
@@ -46,11 +46,11 @@ const fallbackNotification: NotificationContextType = {
     toast.info(title, { description: message, duration: options.duration || 4000 });
   },
   removeNotification: () => {
+
+
     // Sonner handles this automatically
-  },
-  clearAllNotifications: () => {
-    toast.dismiss();
-  },
+  }, clearAllNotifications: () => {toast.dismiss();
+  }
 };
 
 export const useSafeNotification = (): NotificationContextType => {

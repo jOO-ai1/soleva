@@ -241,6 +241,8 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // FCP observation not supported
       } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});try {lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });} catch (e) {

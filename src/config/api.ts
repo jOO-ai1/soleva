@@ -15,7 +15,7 @@ export const API_CONFIG = {
     if (import.meta.env.DEV) {
       return 'http://localhost:3001/api/v1';
     }
-    
+
     // Production fallback - this will gracefully fail and use mock data
     return 'offline://api'; // This will trigger fallback mechanism
   })(),
