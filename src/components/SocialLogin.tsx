@@ -4,7 +4,7 @@ import * as React from 'react';
 const { useState } = React;
 import { motion } from 'framer-motion';
 import { FaGoogle, FaFacebook } from 'react-icons/fa';
-import { useAuthSafe } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useLang } from '../contexts/LangContext';
 
 interface SocialLoginProps {
@@ -15,7 +15,7 @@ interface SocialLoginProps {
 
 const SocialLogin: React.FC<SocialLoginProps> = ({ mode, onSuccess, onRevokeSuccess }: SocialLoginProps) => {
   const [loading, setLoading] = useState<string | null>(null);
-  const auth = useAuthSafe();
+  const auth = useAuth();
   const socialLogin = auth?.socialLogin;
   const { lang } = useLang();
 

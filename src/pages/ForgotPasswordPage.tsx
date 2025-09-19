@@ -10,15 +10,27 @@ import { HiArrowLeft } from 'react-icons/hi';
 // Import React hooks
 const { useState } = React;
 import { useToast } from '../contexts/ToastContext';
-import { useLang, useTranslation } from '../contexts/LangContext';
-import { useAuthSafe } from '../contexts/AuthContext';
+import { useLang } from '../contexts/LangContext';
+import { useAuth } from '../contexts/AuthContext';
 import GlassCard from '../components/GlassCard';
 
 export default function ForgotPasswordPage() {
   const { showToast } = useToast();
   const { lang } = useLang();
-  const t = useTranslation();
-  const auth = useAuthSafe();
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      en: {
+        email: 'Email',
+        requiredField: 'This field is required'
+      },
+      ar: {
+        email: 'البريد الإلكتروني',
+        requiredField: 'هذا الحقل مطلوب'
+      }
+    };
+    return translations[lang]?.[key] || key;
+  };
+  const auth = useAuth();
   const forgotPassword = auth?.forgotPassword;
   const resetPassword = auth?.resetPassword;
 

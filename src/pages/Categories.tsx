@@ -20,8 +20,8 @@ const CategoriesPage: React.FC = () => {
         </div>
       </div>
       <Categories />
-    </div>
-  );
+    </div>);
+
 };
 
 export default CategoriesPage;

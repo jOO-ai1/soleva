@@ -11,12 +11,12 @@ const CollectionPage: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse" />
-          ))}
+          {[1, 2, 3].map((i) =>
+          <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse" />
+          )}
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (error) {
@@ -25,8 +25,8 @@ const CollectionPage: React.FC = () => {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600">{t('error.loadingCollections')}</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -41,25 +41,25 @@ const CollectionPage: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {collections?.map((collection, index) => (
-          <motion.div
-            key={collection.id}
-            className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
+        {collections?.map((collection, index) =>
+        <motion.div
+          key={collection.id}
+          className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}>
+
             <div className="relative h-56 overflow-hidden">
               <img
-                src={collection.image}
-                alt={collection.name[i18n.language] || collection.name.en}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-              {collection.isFeatured && (
-                <div className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              src={collection.image}
+              alt={collection.name[i18n.language] || collection.name.en}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+
+              {collection.isFeatured &&
+            <div className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                   {t('collections.featured')}
                 </div>
-              )}
+            }
             </div>
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -78,10 +78,10 @@ const CollectionPage: React.FC = () => {
               </div>
             </div>
           </motion.div>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default CollectionPage;

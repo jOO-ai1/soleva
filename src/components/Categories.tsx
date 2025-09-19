@@ -11,12 +11,12 @@ const Categories: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-gray-200 rounded-lg h-64 animate-pulse" />
-          ))}
+          {[1, 2, 3].map((i) =>
+          <div key={i} className="bg-gray-200 rounded-lg h-64 animate-pulse" />
+          )}
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (error) {
@@ -25,8 +25,8 @@ const Categories: React.FC = () => {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600">{t('error.loadingCategories')}</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -41,20 +41,20 @@ const Categories: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories?.map((category, index) => (
-          <motion.div
-            key={category.id}
-            className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
+        {categories?.map((category, index) =>
+        <motion.div
+          key={category.id}
+          className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}>
+
             <div className="relative h-48 overflow-hidden">
               <img
-                src={category.image}
-                alt={category.name[i18n.language] || category.name.en}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
+              src={category.image}
+              alt={category.name[i18n.language] || category.name.en}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+
             </div>
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -73,10 +73,10 @@ const Categories: React.FC = () => {
               </div>
             </div>
           </motion.div>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Categories;

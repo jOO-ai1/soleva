@@ -1,13 +1,13 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuthSafe } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const auth = useAuthSafe();
+  const auth = useAuth();
   const user = auth?.user;
 
   // Show loading state while auth is initializing

@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiShoppingCart, FiArrowLeft, FiCheck } from "react-icons/fi";
 import clsx from "clsx";
-import { useLang, useTranslation } from "../contexts/LangContext";
+import { useLang } from "../contexts/LangContext";
 import { useCart } from "../contexts/CartContext";
 import { useToast } from "../contexts/ToastContext";
 import { useAuthGuard } from "../hooks/useAuthGuard";

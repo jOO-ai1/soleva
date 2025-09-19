@@ -1,12 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiFileText, FiCreditCard, FiTruck, FiRotateCcw, FiShield, FiFile } from 'react-icons/fi';
-import { useLang, useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 import GlassCard from '../components/GlassCard';
 
 export default function TermsPage() {
   const { lang } = useLang();
-  const t = useTranslation();
 
   const sections = [
   {

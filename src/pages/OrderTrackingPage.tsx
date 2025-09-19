@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiBox, FiSearch, FiPackage, FiTruck, FiCheckCircle, FiClock, FiXCircle, FiRefreshCw, FiMapPin, FiCalendar } from 'react-icons/fi';
-import { useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 import { useAuthSafe } from '../contexts/AuthContext';
 import { ordersApi } from '../services/api';
 import GlassCard from '../components/GlassCard';
@@ -88,7 +88,8 @@ const getStatusColor = (status: string) => {
 };
 
 export default function OrderTrackingPage() {
-  const t = useTranslation();
+  const { lang } = useLang();
+  const t = (key: string) => key; // Simple fallback translation function
   const auth = useAuthSafe();
   const user = auth?.user;
   const { orderNumber } = useParams<{orderNumber: string;}>();

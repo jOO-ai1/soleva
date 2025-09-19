@@ -1,13 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiTarget, FiHeart, FiTrendingUp, FiUsers } from 'react-icons/fi';
-import { useLang, useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 import GlassCard from '../components/GlassCard';
 import Logo from '../components/Logo';
 
 export default function AboutPage() {
   const { lang } = useLang();
-  const t = useTranslation();
 
   const values = [
   {
@@ -72,7 +71,7 @@ export default function AboutPage() {
           <Logo size="large" className="justify-center" />
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-[#111]">
-          {t("aboutUs")}
+          {lang === 'ar' ? 'من نحن' : 'About Us'}
         </h1>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
           {lang === 'ar' ?
@@ -93,7 +92,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-[#d1b16a]">
-                {t("ourStory")}
+                {lang === 'ar' ? 'قصتنا' : 'Our Story'}
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>

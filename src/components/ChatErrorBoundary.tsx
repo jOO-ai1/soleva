@@ -339,6 +339,16 @@ class ChatErrorBoundary extends Component<Props, State> {
 
 
 
+
+
+
+
+
+
+
+
+
+
       // Example: Sentry, LogRocket, or custom endpoint
       // window.gtag?.('event', 'exception', {
       //   description: error.message,

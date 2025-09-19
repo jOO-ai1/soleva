@@ -1,178 +1,83 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMoon, FiSun, FiHeart } from 'react-icons/fi';
-import { useAuthSafe } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
-import { useFavorites } from '../contexts/FavoritesContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { useLang, useTranslation } from '../contexts/LangContext';
-import Logo from './Logo';
-import MobileMenu from './MobileMenu';
-import clsx from 'clsx';
+import { useLang } from '../contexts/LangContext';
 
-export default function AppHeader() {
+const AppHeader: React.FC = () => {
+  const { itemsCount } = useCart();
   const { lang, setLang } = useLang();
-  const { theme, setTheme } = useTheme();
-  const auth = useAuthSafe();
-  const user = auth?.user;
-  const { cart } = useCart();
-  const { favorites } = useFavorites();
-  const t = useTranslation();
-  const location = useLocation();
-  const navigate = useNavigate();
-  // Mobile menu state removed as it's not used in this component
-
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-  const toggleLang = () => setLang(lang === "ar" ? "en" : "ar");
-
-  const handleCollectionClick = (collection: string) => {
-    const currentPath = location.pathname;
-    const newPath = `/products?collection=${collection}`;
-
-    if (currentPath !== '/products' || !location.search.includes(`collection=${collection}`)) {
-      navigate(newPath);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  const navLinks = [
-  { to: '/', label: t('home') },
-  {
-    to: null,
-    label: t('collections'),
-    isDropdown: true,
-    subItems: [
-    { collection: 'mens', label: lang === 'ar' ? 'رجالي' : 'Men' },
-    { collection: 'womens', label: lang === 'ar' ? 'نسائي' : 'Women' },
-    { collection: 'basics', label: lang === 'ar' ? 'أساسي' : 'Essentials' }]
-
-  },
-  { to: '/about', label: t('aboutUs') },
-  { to: '/contact', label: t('contactUs') }];
-
-
-  const isActiveLink = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
-  };
 
   return (
-    <header className="nav" role="banner" aria-label="Main navigation">
-      <div className="nav-container">
-        {/* Logo */}
-        <Logo size="medium" />
-
-        {/* Desktop Navigation */}
-        <nav className="nav-links hidden md:flex" role="navigation">
-          {navLinks.map((link) =>
-          <div key={link.to || link.label} className="relative group">
-              {link.isDropdown ?
-            <>
-                  <button
-                className="nav-link flex items-center gap-1"
-                aria-expanded="false">
-
-                    {link.label}
-                    <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  {/* Dropdown Menu */}
-                  <div className="absolute top-full left-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                    <div className="modern-glass-card rounded-xl shadow-xl border border-border-primary overflow-hidden">
-                      {link.subItems?.map((subItem) =>
-                  <button
-                    key={subItem.collection}
-                    onClick={() => handleCollectionClick(subItem.collection)}
-                    className={clsx(
-                      'block w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-primary hover:text-black',
-                      location.search.includes(`collection=${subItem.collection}`) ? 'bg-primary text-black' : 'text-text-primary'
-                    )}>
-
-                          {subItem.label}
-                        </button>
-                  )}
-                    </div>
-                  </div>
-                </> :
-
-            <Link
-              to={link.to!}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-              className={clsx(
-                'nav-link',
-                isActiveLink(link.to!) && 'text-primary bg-primary-50'
-              )}
-              aria-current={isActiveLink(link.to!) ? 'page' : undefined}>
-
-                  {link.label}
-                </Link>
-            }
+    <motion.header
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg"
+    >
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Soleva
             </div>
-          )}
-        </nav>
-
-        {/* Actions */}
-        <div className="nav-actions">
-          {/* Favorites - Desktop */}
-          <Link
-            to="/favorites"
-            className="hidden md:flex nav-link relative"
-            aria-label={`${t("favorites")} ${favorites.length > 0 ? `(${favorites.length} items)` : ''}`}>
-
-            <FiHeart size={20} />
-            {favorites.length > 0 &&
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs font-bold flex items-center justify-center" aria-hidden="true">
-                {favorites.length}
-              </span>
-            }
           </Link>
 
-          {/* Cart - Desktop */}
-          <Link
-            to="/cart"
-            className="hidden md:flex nav-link relative"
-            aria-label={`${t("cart")} ${cart.length > 0 ? `(${cart.length} items)` : ''}`}>
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-gray-700 hover:text-purple-600 transition-colors">
+              Home
+            </Link>
+            <Link to="/products" className="text-gray-700 hover:text-purple-600 transition-colors">
+              Products
+            </Link>
+            <Link to="/about" className="text-gray-700 hover:text-purple-600 transition-colors">
+              About
+            </Link>
+            <Link to="/contact" className="text-gray-700 hover:text-purple-600 transition-colors">
+              Contact
+            </Link>
+          </nav>
 
-            <FiShoppingCart size={20} />
-            {cart.length > 0 &&
-            <span className="absolute -top-1 -right-1 bg-primary text-black rounded-full w-5 h-5 text-xs font-bold flex items-center justify-center" aria-hidden="true">
-                {cart.length}
-              </span>
-            }
-          </Link>
+          {/* Right side actions */}
+          <div className="flex items-center space-x-4">
+            {/* Language Toggle */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+              className="px-3 py-1 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+            >
+              {lang === 'en' ? 'عربي' : 'EN'}
+            </button>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="btn btn-ghost p-3 interactive-hover min-h-[44px] min-w-[44px]"
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
+            {/* Cart */}
+            <Link
+              to="/cart"
+              className="relative p-2 text-gray-700 hover:text-purple-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0V19a2 2 0 002 2h9a2 2 0 002-2v-1M9 7h6" />
+              </svg>
+              {itemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemsCount}
+                </span>
+              )}
+            </Link>
 
-            {theme === "dark" ? <FiSun size={20} /> : <FiMoon size={20} />}
-          </button>
-
-          {/* Language Toggle */}
-          <button
-            onClick={toggleLang}
-            className="btn btn-ghost px-4 py-3 text-base font-bold interactive-hover min-h-[44px]"
-            aria-label={`Switch to ${lang === "ar" ? "English" : "Arabic"} language`}>
-
-            {lang === "ar" ? "EN" : "AR"}
-          </button>
-
-          {/* Account - Desktop */}
-          <Link
-            to={user ? "/account" : "/login"}
-            className="hidden md:flex btn btn-ghost p-3 interactive-hover min-h-[44px] min-w-[44px]"
-            aria-label={user ? t("account") : t("login")}>
-
-            <FiUser size={20} />
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <MobileMenu />
+            {/* Account */}
+            <Link
+              to="/account"
+              className="p-2 text-gray-700 hover:text-purple-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
+    </motion.header>
+  );
+};
 
-    </header>);
-
-}
+export default AppHeader;

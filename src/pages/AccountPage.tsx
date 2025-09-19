@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiUser, FiFileText, FiBox, FiMapPin, FiLogOut, FiEdit3, FiSave } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useAuthSafe } from '../contexts/AuthContext';
-import { useLang, useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 // GlassCard import removed as it's not used
 import GlassButton from '../components/GlassButton';
 

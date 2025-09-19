@@ -20,8 +20,8 @@ const CollectionsPage: React.FC = () => {
         </div>
       </div>
       <CollectionPage />
-    </div>
-  );
+    </div>);
+
 };
 
 export default CollectionsPage;

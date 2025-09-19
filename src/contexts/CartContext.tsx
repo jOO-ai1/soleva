@@ -1,143 +1,87 @@
-import * as React from 'react';
-
-// Import React hooks
-const { createContext, useContext, useEffect, useState, useCallback } = React;
-import { readJSON, safeSetItem } from '../utils/storage';
-import { useAuthSafe } from './AuthContext';
-import { cartApi } from '../services/api';
+import React, { createContext, useContext, useState } from 'react';
 
 interface CartItem {
   id: number;
-  name: {ar: string;en: string;};
+  name: string;
   price: number;
-  image: string;
-  color: string;
-  size: number;
-  qty: number;
-}
-
-interface Product {
-  id: number;
-  name: {ar: string;en: string;};
-  price: number;
-  image: string;
+  quantity: number;
+  size?: string;
+  color?: string;
+  image?: string;
 }
 
 interface CartContextType {
-  cart: CartItem[];
-  addToCart: (product: Product, color: string, size: number) => void;
-  removeFromCart: (id: number, color: string, size: number) => void;
-  updateQty: (id: number, color: string, size: number, qty: number) => void;
+  items: CartItem[];
+  itemsCount: number;
+  totalPrice: number;
+  addItem: (item: CartItem) => void;
+  removeItem: (id: number) => void;
+  updateQuantity: (id: number, quantity: number) => void;
   clearCart: () => void;
-  syncCartWithServer: () => Promise<void>;
-  isGuestCart: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: {children: React.ReactNode;}) {
-  const auth = useAuthSafe();
-  const isAuthenticated = auth?.isAuthenticated || false;
-  const user = auth?.user;
-  const [cart, setCart] = useState<CartItem[]>(() => readJSON<CartItem[]>("cart", []));
-  const [isGuestCart, setIsGuestCart] = useState(!isAuthenticated);
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [items, setItems] = useState<CartItem[]>([]);
 
-  const syncCartWithServer = useCallback(async () => {
-    if (!isAuthenticated || !user) return;
-    try {
-      // Fetch current server cart
-      const serverResponse = await cartApi.get();
-      const serverCart: any[] = serverResponse.data as any[] || [];
-
-      // Merge guest cart with server cart
-      const guestCart = cart;
-      guestCart.forEach((guestItem: CartItem) => {
-        const existsOnServer = serverCart.some((serverItem: any) =>
-        serverItem.productId === String(guestItem.id) &&
-        serverItem.variant?.color === guestItem.color &&
-        serverItem.variant?.size === guestItem.size
-        );
-
-        if (!existsOnServer) {
-          // Best-effort add to server cart
-          cartApi.add(guestItem.id, guestItem.color, guestItem.size, guestItem.qty).catch(() => {});
-        }
-      });
-
-      const updatedCart: CartItem[] = serverCart.map((serverItem: any) => ({
-        id: parseInt(serverItem.productId, 10),
-        name: serverItem.product?.name ?? { ar: '', en: '' },
-        price: serverItem.product?.price ?? 0,
-        image: serverItem.product?.images?.[0] || '',
-        color: serverItem.variant?.color || '',
-        size: serverItem.variant?.size || 0,
-        qty: serverItem.quantity ?? 1
-      }));
-
-      setCart(updatedCart);
-      setIsGuestCart(false);
-    } catch (error) {
-      console.error('Failed to sync cart with server:', error);
-    }
-  }, [isAuthenticated, user, cart]);
-
-  useEffect(() => {
-    safeSetItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  // Sync cart when user logs in
-  useEffect(() => {
-    if (isAuthenticated && user && isGuestCart) {
-      syncCartWithServer();
-    }
-    setIsGuestCart(!isAuthenticated);
-  }, [isAuthenticated, user, isGuestCart, syncCartWithServer]);
-
-  const addToCart = (product: Product, color: string, size: number) => {
-    setCart((prev: CartItem[]) => {
-      const exist = prev.find((item: CartItem) => item.id === product.id && item.color === color && item.size === size);
-      if (exist) {
-        return prev.map((item: CartItem) =>
-        item.id === product.id && item.color === color && item.size === size ?
-        { ...item, qty: item.qty + 1 } :
-        item
+  const addItem = (item: CartItem) => {
+    setItems(prev => {
+      const existingItem = prev.find(i => i.id === item.id);
+      if (existingItem) {
+        return prev.map(i => 
+          i.id === item.id 
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
         );
       }
-      return [...prev, { ...product, color, size, qty: 1 }];
+      return [...prev, item];
     });
   };
 
-  const removeFromCart = (id: number, color: string, size: number) =>
-  setCart((prev: CartItem[]) => prev.filter((item: CartItem) => !(item.id === id && item.color === color && item.size === size)));
+  const removeItem = (id: number) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  };
 
-  const updateQty = (id: number, color: string, size: number, qty: number) =>
-  setCart((prev: CartItem[]) => prev.map((item: CartItem) =>
-  item.id === id && item.color === color && item.size === size ?
-  { ...item, qty: Math.max(1, qty) } :
-  item
-  ));
+  const updateQuantity = (id: number, quantity: number) => {
+    if (quantity <= 0) {
+      removeItem(id);
+      return;
+    }
+    
+    setItems(prev => 
+      prev.map(item => 
+        item.id === id ? { ...item, quantity } : item
+      )
+    );
+  };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setItems([]);
+  };
+
+  const itemsCount = items.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = items.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   return (
     <CartContext.Provider value={{
-      cart,
-      addToCart,
-      removeFromCart,
-      updateQty,
-      clearCart,
-      syncCartWithServer,
-      isGuestCart
+      items,
+      itemsCount,
+      totalPrice,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart
     }}>
       {children}
-    </CartContext.Provider>);
+    </CartContext.Provider>
+  );
+};
 
-}
-
-export function useCart() {
+export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within CartProvider');
+  if (context === undefined) {
+    throw new Error('useCart must be used within a CartProvider');
   }
   return context;
-}
+};

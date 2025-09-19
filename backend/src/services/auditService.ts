@@ -282,6 +282,10 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
@@ -312,11 +316,7 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
   if (process.env.NODE_ENV === 'development') {console.log(`Cleaned up ${deletedCount.count} audit logs older than ${daysToKeep} days`);}return deletedCount.count;}; /**
 * Export audit logs to CSV format
 */export const exportAuditLogs = async (filters: {userId?: string;adminId?: string;action?: string;resource?: string;startDate?: Date;endDate?: Date;}) => {// Build where clause without undefined values
-  const whereClause: any = {};if (filters.userId) whereClause.userId = filters.userId;if (filters.adminId) whereClause.adminId = filters.adminId;
-  if (filters.action) whereClause.action = filters.action;
-  if (filters.resource) whereClause.resource = filters.resource;
-  if (filters.startDate || filters.endDate) {
-    whereClause.createdAt = {};
+  const whereClause: any = {};if (filters.userId) whereClause.userId = filters.userId;if (filters.adminId) whereClause.adminId = filters.adminId;if (filters.action) whereClause.action = filters.action;if (filters.resource) whereClause.resource = filters.resource;if (filters.startDate || filters.endDate) {whereClause.createdAt = {};
     if (filters.startDate) whereClause.createdAt.gte = filters.startDate;
     if (filters.endDate) whereClause.createdAt.lte = filters.endDate;
   }

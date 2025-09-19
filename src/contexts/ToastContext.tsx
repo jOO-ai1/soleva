@@ -1,43 +1,34 @@
-import React, { createContext, useContext, useState } from 'react';
-import * as Toast from '@radix-ui/react-toast';
+import React, { createContext, useContext } from 'react';
+import { toast } from 'sonner';
 
 interface ToastContextType {
-  showToast: (message: string) => void;
+  success: (message: string) => void;
+  error: (message: string) => void;
+  info: (message: string) => void;
+  warning: (message: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export function ToastProvider({ children }: {children: React.ReactNode;}) {
-  const [open, setOpen] = useState(false);
-  const [msg, setMsg] = useState("");
-
-  const showToast = (message: string) => {
-    setMsg(message);
-    setOpen(false);
-    setTimeout(() => setOpen(true), 50);
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const contextValue: ToastContextType = {
+    success: (message: string) => toast.success(message),
+    error: (message: string) => toast.error(message),
+    info: (message: string) => toast.info(message),
+    warning: (message: string) => toast.warning(message),
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
-      <Toast.Provider swipeDirection="right">
-        {children}
-        <Toast.Root
-          open={open}
-          onOpenChange={setOpen}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 glass px-7 py-4 shadow-lg z-[9999] flex items-center gap-3 text-lg font-semibold text-[#111]">
+    <ToastContext.Provider value={contextValue}>
+      {children}
+    </ToastContext.Provider>
+  );
+};
 
-          <Toast.Title>{msg}</Toast.Title>
-        </Toast.Root>
-        <Toast.Viewport />
-      </Toast.Provider>
-    </ToastContext.Provider>);
-
-}
-
-export function useToast() {
+export const useToast = () => {
   const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
+  if (context === undefined) {
+    throw new Error('useToast must be used within a ToastProvider');
   }
   return context;
-}
+};

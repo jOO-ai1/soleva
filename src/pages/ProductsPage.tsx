@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiGrid, FiList, FiFilter, FiSearch } from "react-icons/fi";
-import { useLang, useTranslation } from "../contexts/LangContext";
+import { useLang } from "../contexts/LangContext";
 import { useProducts } from "../hooks/useApi";
 import GlassCard from "../components/GlassCard";
 import GlassButton from "../components/GlassButton";

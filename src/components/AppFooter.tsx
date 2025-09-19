@@ -1,190 +1,75 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiFacebook, FiInstagram, FiMail, FiMapPin, FiMessageCircle } from 'react-icons/fi';
-import { useLang, useTranslation } from '../contexts/LangContext';
-import Logo from './Logo';
+import { motion } from 'framer-motion';
 
-export default function AppFooter() {
-  const { lang } = useLang();
-  const t = useTranslation();
-  const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    company: [
-    { label: t('aboutUs'), to: '/about' },
-    { label: t('contactUs'), to: '/contact' },
-    { label: lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy', to: '/privacy' },
-    { label: lang === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions', to: '/terms' }],
-
-    shop: [
-    { label: t('products'), to: '/products' },
-    { label: t('favorites'), to: '/favorites' },
-    { label: t('cart'), to: '/cart' },
-    { label: t('orders'), to: '/orders' }],
-
-    support: [
-    { label: lang === 'ar' ? 'مركز المساعدة' : 'Help Center', to: '/help' },
-    { label: lang === 'ar' ? 'الشحن والتوصيل' : 'Shipping & Delivery', to: '/shipping' },
-    { label: lang === 'ar' ? 'الإرجاع والاستبدال' : 'Returns & Exchanges', to: '/returns' },
-    { label: lang === 'ar' ? 'دليل المقاسات' : 'Size Guide', to: '/size-guide' }]
-
-  };
-
-  const contactInfo = [
-  {
-    icon: <FiMessageCircle size={16} />,
-    text: '010 2835 4015',
-    href: 'https://wa.me/201028354015'
-  },
-  {
-    icon: <FiMail size={16} />,
-    text: 'info@solevaeg.com',
-    href: 'mailto:info@solevaeg.com'
-  },
-  {
-    icon: <FiMapPin size={16} />,
-    text: lang === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt',
-    href: null
-  }];
-
-
-  const socialLinks = [
-  { icon: <FiFacebook size={20} />, href: 'https://www.facebook.com/solevaeg', label: 'Facebook' },
-  { icon: <FiInstagram size={20} />, href: 'https://www.instagram.com/soleva.eg/', label: 'Instagram' }
-  // Twitter link hidden but kept for future use
-  // { icon: <FiTwitter size={20} />, href: 'https://twitter.com/soleva', label: 'Twitter' }
-  ];
-
+const AppFooter: React.FC = () => {
   return (
-    <footer className="section bg-bg-secondary border-t border-border-primary" role="contentinfo">
-      <div className="container">
-        <div className="modern-glass-card p-8 lg:p-12 rounded-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            {/* Brand Section */}
-            <div className="lg:col-span-1">
-              <Logo size="medium" className="mb-6" />
-              <p className="text-text-secondary mb-6 leading-relaxed">
-                {lang === 'ar' ?
-                'سوليفا - علامة تجارية مصرية رائدة في صناعة الأحذية الفاخرة. نقدم لك أفضل المنتجات بجودة عالية وتصميم عصري.' :
-                'Soleva - A leading Egyptian brand in premium footwear manufacturing. We offer you the best products with high quality and modern design.'
-                }
-              </p>
-              
-              {/* Social Links */}
-              <div className="flex gap-3">
-                {socialLinks.map((social, index) =>
-                <a
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 modern-glass-button hover:bg-primary hover:text-black rounded-full flex items-center justify-center transition-all duration-300"
-                  aria-label={social.label}>
-
-                    {social.icon}
-                  </a>
-                )}
-              </div>
+    <motion.footer
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="bg-gray-900 text-white py-12 mt-20"
+    >
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Company Info */}
+          <div>
+            <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+              Soleva
             </div>
-
-            {/* Company Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-text-primary">
-                {lang === 'ar' ? 'الشركة' : 'Company'}
-              </h3>
-              <ul className="space-y-3">
-                {footerLinks.company.map((link, index) =>
-                <li key={index}>
-                    <Link
-                    to={link.to}
-                    className="text-text-secondary hover:text-primary transition-colors duration-200">
-
-                      {link.label}
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* Shop Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-text-primary">
-                {lang === 'ar' ? 'التسوق' : 'Shop'}
-              </h3>
-              <ul className="space-y-3">
-                {footerLinks.shop.map((link, index) =>
-                <li key={index}>
-                    <Link
-                    to={link.to}
-                    className="text-text-secondary hover:text-primary transition-colors duration-200">
-
-                      {link.label}
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-text-primary">
-                {lang === 'ar' ? 'تواصل معنا' : 'Contact Us'}
-              </h3>
-              <ul className="space-y-3">
-                {contactInfo.map((contact, index) =>
-                <li key={index} className="flex items-center gap-3">
-                    <span className="text-primary">{contact.icon}</span>
-                    {contact.href ?
-                  <a
-                    href={contact.href}
-                    className="text-text-secondary hover:text-primary transition-colors duration-200">
-
-                        {contact.text}
-                      </a> :
-
-                  <span className="text-text-secondary">{contact.text}</span>
-                  }
-                  </li>
-                )}
-              </ul>
-
-              {/* Business Hours */}
-              <div className="mt-6">
-                <h4 className="font-semibold mb-2 text-text-primary">
-                  {lang === 'ar' ? 'ساعات العمل' : 'Business Hours'}
-                </h4>
-                <div className="text-sm text-text-secondary space-y-1">
-                  <div className="flex justify-between">
-                    <span>{lang === 'ar' ? 'السبت - الخميس' : 'Sat - Thu'}:</span>
-                    <span>9:00 AM - 8:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{lang === 'ar' ? 'الجمعة' : 'Friday'}:</span>
-                    <span>2:00 PM - 8:00 PM</span>
-                  </div>
-                </div>
-              </div>
+            <p className="text-gray-400 mb-4">
+              Premium luxury footwear designed for comfort and style.
+            </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M20 10C20 4.477 15.523 0 10 0S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z" clipRule="evenodd" />
+                </svg>
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+                </svg>
+              </a>
             </div>
           </div>
 
-          {/* Bottom Section */}
-          <div className="pt-8 border-t border-border-secondary">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-text-secondary text-sm text-center md:text-left">
-                {lang === 'ar' ?
-                `© ${currentYear} جميع الحقوق محفوظة لـ سوليفا. مقر الشركة: القاهرة، مصر.` :
-                `© ${currentYear} All rights reserved for Soleva. Headquarters: Cairo, Egypt.`
-                }
-              </p>
-              
-              <div className="flex items-center gap-4 text-sm text-text-secondary">
-                <span>{lang === 'ar' ? 'صُنع بـ' : 'Made with'}</span>
-                <span className="text-red-500">♥</span>
-                <span>{lang === 'ar' ? 'في مصر' : 'in Egypt'}</span>
-              </div>
-            </div>
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><Link to="/products" className="text-gray-400 hover:text-white transition-colors">Products</Link></li>
+              <li><Link to="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link to="/favorites" className="text-gray-400 hover:text-white transition-colors">Favorites</Link></li>
+            </ul>
+          </div>
+
+          {/* Customer Service */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
+            <ul className="space-y-2">
+              <li><Link to="/orders" className="text-gray-400 hover:text-white transition-colors">My Orders</Link></li>
+              <li><Link to="/order-tracking" className="text-gray-400 hover:text-white transition-colors">Track Order</Link></li>
+              <li><Link to="/account" className="text-gray-400 hover:text-white transition-colors">My Account</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2">
+              <li><Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
+            </ul>
           </div>
         </div>
-      </div>
-    </footer>);
 
-}
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <p>&copy; 2024 Soleva. All rights reserved.</p>
+        </div>
+      </div>
+    </motion.footer>
+  );
+};
+
+export default AppFooter;

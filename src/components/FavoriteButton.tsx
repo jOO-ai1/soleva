@@ -4,7 +4,7 @@ import { FiHeart } from 'react-icons/fi';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useToast } from '../contexts/ToastContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 import AuthWarningModal from './AuthWarningModal';
 import clsx from 'clsx';
@@ -25,7 +25,7 @@ export default function FavoriteButton({
   const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
   const { theme } = useTheme();
-  const t = useTranslation();
+  const { lang } = useLang();
   const [isAnimating, setIsAnimating] = useState(false);
 
   const {
@@ -44,7 +44,7 @@ export default function FavoriteButton({
     toggleFavorite(productId);
 
     if (showToastProp) {
-      const message = isCurrentlyFavorite ? t("removeFromFavorites") : t("addToFavorites");
+      const message = isCurrentlyFavorite ? "removeFromFavorites" : "addToFavorites";
       showToast(message);
     }
 
@@ -74,7 +74,7 @@ export default function FavoriteButton({
         whileTap={{ scale: 0.85 }}
         whileHover={{ scale: 1.15 }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        aria-label={isCurrentlyFavorite ? t("removeFromFavorites") : t("addToFavorites")}
+        aria-label={isCurrentlyFavorite ? "removeFromFavorites" : "addToFavorites"}
         style={{
           width: size * 2.2,
           height: size * 2.2,

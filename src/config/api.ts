@@ -26,7 +26,7 @@ export const API_CONFIG = {
   REFRESH_TOKEN_KEY: 'refresh_token',
 
   // Offline mode flag
-  OFFLINE_MODE: false
+  OFFLINE_MODE: true
 };
 
 // API Endpoints

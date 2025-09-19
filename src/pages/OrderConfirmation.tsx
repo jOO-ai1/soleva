@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiHome } from 'react-icons/fi';
-import { useLang, useTranslation } from '../contexts/LangContext';
+import { useLang } from '../contexts/LangContext';
 import GlassCard from '../components/GlassCard';
 import GlassButton from '../components/GlassButton';
 
