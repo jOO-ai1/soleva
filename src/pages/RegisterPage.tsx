@@ -158,11 +158,11 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
-        } else {
-          // Execute pending action if there was one, otherwise go to account
-          const actionExecuted = executePendingAction();
-          if (!actionExecuted) {
+        } else {// Execute pending action if there was one, otherwise go to account
+          const actionExecuted = executePendingAction();if (!actionExecuted) {
             navigate("/account");
           }
         }
@@ -234,17 +234,17 @@ export default function RegisterPage() {
                   </svg>
                 </div>
                 <input type="tel"
-              value={formData.phoneNumber}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phoneNumber', e.target.value)}
-              className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-              errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-              }
-              placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"} />
+                value={formData.phoneNumber}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phoneNumber', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.phoneNumber ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أدخل رقم هاتفك" : "Enter your phone number"} />
 
               </div>
               {errors.phoneNumber &&
-            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-            }
+              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+              }
             </div>
 
             {/* Password Field */}
@@ -257,25 +257,25 @@ export default function RegisterPage() {
                   <HiLockClosed size={20} />
                 </div>
                 <input
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('password', e.target.value)}
-                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                }
-                placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('password', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />
 
                 <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 
                   {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
               {errors.password &&
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            }
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              }
             </div>
 
             {/* Confirm Password Field */}
@@ -288,40 +288,40 @@ export default function RegisterPage() {
                   <HiLockClosed size={20} />
                 </div>
                 <input
-                type={showConfirmPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('confirmPassword', e.target.value)}
-                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                }
-                placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('confirmPassword', e.target.value)}
+                  className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                  errors.confirmPassword ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                  }
+                  placeholder={lang === "ar" ? "أعد كتابة كلمة المرور" : "Confirm your password"} />
 
                 <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 
                   {showConfirmPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
               </div>
               {errors.confirmPassword &&
-            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-            }
+              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+              }
             </div>
 
             <button
-            type="submit"
-            className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
-            disabled={isLoading}>
+              type="submit"
+              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
+              disabled={isLoading}>
 
               {isLoading ?
-            <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
+              <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
 
-            <>
+              <>
                   <HiUsers />
                   {t("createAccount")}
                 </>
-            }
+              }
             </button>
           </form>
 
@@ -332,8 +332,8 @@ export default function RegisterPage() {
               {t("alreadyAccount")}
             </p>
             <Link
-            to="/login"
-            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
+              to="/login"
+              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
 
               {t("login")}
             </Link>
@@ -343,12 +343,12 @@ export default function RegisterPage() {
       
       {/* Auth Warning Modal */}
       <AuthWarningModal
-      isOpen={showWarning}
-      onClose={handleCloseWarning}
-      onLogin={handleLoginClick}
-      onSignUp={handleSignUpClick}
-      type={warningType} />
+        isOpen={showWarning}
+        onClose={handleCloseWarning}
+        onLogin={handleLoginClick}
+        onSignUp={handleSignUpClick}
+        type={warningType} />
 
-    </div>
-  );
+    </div>);
+
 }

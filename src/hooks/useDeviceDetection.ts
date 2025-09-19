@@ -59,11 +59,11 @@ export const useDeviceDetection = () => {
 
     // OS detection
     let os = 'unknown';
-    if (/Windows/i.test(userAgent)) os = 'Windows';
-    else if (/Mac/i.test(userAgent)) os = 'macOS';
-    else if (/Linux/i.test(userAgent)) os = 'Linux';
-    else if (/Android/i.test(userAgent)) os = 'Android';
-    else if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
+    if (/Windows/i.test(userAgent)) os = 'Windows';else
+    if (/Mac/i.test(userAgent)) os = 'macOS';else
+    if (/Linux/i.test(userAgent)) os = 'Linux';else
+    if (/Android/i.test(userAgent)) os = 'Android';else
+    if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
 
     // Browser detection
     let browser = 'unknown';
@@ -173,6 +173,8 @@ export const useDeviceDetection = () => {
       try {
         fcpObserver.observe({ entryTypes: ['paint'] });
       } catch (e) {
+
+
 
 
 

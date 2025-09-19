@@ -121,10 +121,10 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
-      }
-    } catch (error: any) {
-      console.error('Login error:', error);
+      }} catch (error: any) {console.error('Login error:', error);
       // Error handling is now done by the AuthContext with notification banners
     } finally {
       setIsLoading(false);
@@ -180,30 +180,30 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password &&
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            }
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              }
             </div>
 
             <button
-            type="submit"
-            className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
-            disabled={isLoading}>
+              type="submit"
+              className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2"
+              disabled={isLoading}>
 
               {isLoading ?
-            <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
+              <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
 
-            <>
+              <>
                   <HiLogin />
                   {t("login")}
                 </>
-            }
+              }
             </button>
           </form>
 
           <div className="text-center mt-4">
             <Link
-            to="/forgot-password"
-            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors text-sm">
+              to="/forgot-password"
+              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors text-sm">
 
               {lang === "ar" ? "نسيت كلمة المرور؟" : "Forgot Password?"}
             </Link>
@@ -216,8 +216,8 @@ export default function LoginPage() {
               {t("dontAccount")}
             </p>
             <Link
-            to="/register"
-            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
+              to="/register"
+              className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
 
               {t("register")}
             </Link>
@@ -227,12 +227,12 @@ export default function LoginPage() {
       
       {/* Auth Warning Modal */}
       <AuthWarningModal
-      isOpen={showWarning}
-      onClose={handleCloseWarning}
-      onLogin={handleLoginClick}
-      onSignUp={handleSignUpClick}
-      type={warningType} />
+        isOpen={showWarning}
+        onClose={handleCloseWarning}
+        onLogin={handleLoginClick}
+        onSignUp={handleSignUpClick}
+        type={warningType} />
 
-    </div>
-  );
+    </div>);
+
 }
