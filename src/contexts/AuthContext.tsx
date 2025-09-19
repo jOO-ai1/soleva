@@ -477,8 +477,8 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
       refreshUser
     }}>
       {children}
-    </AuthContext.Provider>
-  );
+    </AuthContext.Provider>);
+
 }
 
 export function useAuth() {

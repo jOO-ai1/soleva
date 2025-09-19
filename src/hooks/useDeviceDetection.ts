@@ -59,18 +59,18 @@ export const useDeviceDetection = () => {
 
     // OS detection
     let os = 'unknown';
-    if (/Windows/i.test(userAgent)) os = 'Windows';
-    else if (/Mac/i.test(userAgent)) os = 'macOS';
-    else if (/Linux/i.test(userAgent)) os = 'Linux';
-    else if (/Android/i.test(userAgent)) os = 'Android';
-    else if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
+    if (/Windows/i.test(userAgent)) os = 'Windows';else
+    if (/Mac/i.test(userAgent)) os = 'macOS';else
+    if (/Linux/i.test(userAgent)) os = 'Linux';else
+    if (/Android/i.test(userAgent)) os = 'Android';else
+    if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
 
     // Browser detection
     let browser = 'unknown';
-    if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) browser = 'Chrome';
-    else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
-    else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = 'Safari';
-    else if (/Edge/i.test(userAgent)) browser = 'Edge';
+    if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) browser = 'Chrome';else
+    if (/Firefox/i.test(userAgent)) browser = 'Firefox';else
+    if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = 'Safari';else
+    if (/Edge/i.test(userAgent)) browser = 'Edge';
 
     // Performance level assessment
     const performanceScore = calculatePerformanceScore({
@@ -173,10 +173,10 @@ export const useDeviceDetection = () => {
       try {
         fcpObserver.observe({ entryTypes: ['paint'] });
       } catch (e) {
-        // FCP observation not supported
-      }
 
-      // Largest Contentful Paint
+
+        // FCP observation not supported
+      } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         if (entries.length > 0) {
@@ -187,10 +187,10 @@ export const useDeviceDetection = () => {
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
       } catch (e) {
-        // LCP observation not supported
-      }
 
-      // Cumulative Layout Shift
+
+        // LCP observation not supported
+      } // Cumulative Layout Shift
       const clsObserver = new PerformanceObserver((list) => {
         let clsValue = 0;
         for (const entry of list.getEntries()) {
@@ -204,10 +204,10 @@ export const useDeviceDetection = () => {
       try {
         clsObserver.observe({ entryTypes: ['layout-shift'] });
       } catch (e) {
-        // CLS observation not supported
-      }
 
-      // Interaction to Next Paint (experimental)
+
+        // CLS observation not supported
+      } // Interaction to Next Paint (experimental)
       const inpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         if (entries.length > 0) {
@@ -218,10 +218,10 @@ export const useDeviceDetection = () => {
       try {
         inpObserver.observe({ entryTypes: ['event'] });
       } catch (e) {
-        // INP observation not supported
-      }
 
-      // Resolve after a delay to collect metrics
+
+        // INP observation not supported
+      } // Resolve after a delay to collect metrics
       setTimeout(() => {
         fcpObserver.disconnect();
         lcpObserver.disconnect();
@@ -238,7 +238,7 @@ export const useDeviceDetection = () => {
       // Get IP and location info
       const ipResponse = await fetch('https://ipapi.co/json/');
       const ipData = await ipResponse.json();
-      
+
       const logData = {
         ...deviceInfo,
         ...metrics,
@@ -255,10 +255,10 @@ export const useDeviceDetection = () => {
         body: JSON.stringify(logData)
       });
     } catch (error) {
-      // Failed to log device data
-    }
-  };
 
+
+      // Failed to log device data
+    }};
   const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {
     if (deviceInfo.isLowSpec) {
       // Force light mode for better performance

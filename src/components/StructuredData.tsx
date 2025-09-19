@@ -354,17 +354,17 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data, product, br
 
   return (
     <Helmet>
-      {schemaArray.map((schemaItem, index) => (
-        <script
-          key={index}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(schemaItem, null, 2)
-          }}
-        />
-      ))}
-    </Helmet>
-  );
+      {schemaArray.map((schemaItem, index) =>
+      <script
+        key={index}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(schemaItem, null, 2)
+        }} />
+
+      )}
+    </Helmet>);
+
 };
 
 export default StructuredData;
