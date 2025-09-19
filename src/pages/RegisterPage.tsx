@@ -140,6 +140,8 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
@@ -168,13 +170,11 @@ export default function RegisterPage() {
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                   <FiUser size={20} />
                 </div>
-                <input type="text"
-              value={formData.name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('name', e.target.value)}
-              className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-              errors.name ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-              }
-              placeholder={lang === "ar" ? "أدخل اسمك الكامل" : "Enter your full name"} />
+                <input type="text" value={formData.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('name', e.target.value)}
+                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                errors.name ? 'border-red-400' : 'border-[#d1b16a]/40'}`
+                }
+                placeholder={lang === "ar" ? "أدخل اسمك الكامل" : "Enter your full name"} />
 
               </div>
               {errors.name &&
