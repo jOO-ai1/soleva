@@ -86,24 +86,24 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
   private isTransientError = (error?: Error): boolean => {
     if (!error) return false;
-    
+
     const transientPatterns = [
-      'network',
-      'fetch',
-      'timeout',
-      'connection',
-      'temporary',
-      'ChunkLoadError'
-    ];
-    
-    return transientPatterns.some(pattern => 
-      error.message.toLowerCase().includes(pattern.toLowerCase())
+    'network',
+    'fetch',
+    'timeout',
+    'connection',
+    'temporary',
+    'ChunkLoadError'];
+
+
+    return transientPatterns.some((pattern) =>
+    error.message.toLowerCase().includes(pattern.toLowerCase())
     );
   };
 
   private scheduleAutoRetry = () => {
     const delay = Math.min(1000 * Math.pow(2, this.state.retryCount), 10000); // Exponential backoff
-    
+
     this.retryTimeoutId = setTimeout(() => {
       console.info('🔄 Executing auto-retry...');
       this.handleRetry(true);
@@ -119,9 +119,9 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
   private getErrorCategory = (): string => {
     if (!this.state.error) return 'unknown';
-    
+
     const message = this.state.error.message.toLowerCase();
-    
+
     if (message.includes('network') || message.includes('fetch') || message.includes('connection')) {
       return 'network';
     }
@@ -136,21 +136,21 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
   private getErrorSeverity = (): 'low' | 'medium' | 'high' | 'critical' => {
     const category = this.getErrorCategory();
-    
+
     switch (category) {
-      case 'network': return 'medium';
-      case 'resource': return 'low';
-      case 'render': return 'high';
-      default: return 'medium';
+      case 'network':return 'medium';
+      case 'resource':return 'low';
+      case 'render':return 'high';
+      default:return 'medium';
     }
   };
 
   private getRecoveryOptions = () => {
     const category = this.getErrorCategory();
     const severity = this.getErrorSeverity();
-    
+
     const options = [];
-    
+
     // Always show retry option
     options.push({
       icon: <FiRefreshCw />,
@@ -158,7 +158,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       action: () => this.handleRetry(),
       primary: true
     });
-    
+
     // Network-specific options
     if (category === 'network') {
       options.push({
@@ -168,7 +168,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
         secondary: true
       });
     }
-    
+
     // Always show home option for high severity
     if (severity === 'high' || severity === 'critical') {
       options.push({
@@ -178,14 +178,14 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
         secondary: true
       });
     }
-    
+
     return options;
   };
 
   private handleRetry = (isAutoRetry = false) => {
     console.info(isAutoRetry ? '🔄 Auto-retry initiated' : '👆 Manual retry initiated');
-    
-    this.setState(prevState => ({
+
+    this.setState((prevState) => ({
       hasError: false,
       error: undefined,
       errorInfo: undefined,
@@ -200,18 +200,18 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
   private getErrorTitle = (): string => {
     const category = this.getErrorCategory();
-    
+
     switch (category) {
-      case 'network': return 'Connection Problem';
-      case 'resource': return 'Loading Error';
-      case 'render': return 'Display Error';
-      default: return 'Application Error';
+      case 'network':return 'Connection Problem';
+      case 'resource':return 'Loading Error';
+      case 'render':return 'Display Error';
+      default:return 'Application Error';
     }
   };
 
   private getErrorMessage = (): string => {
     const category = this.getErrorCategory();
-    
+
     switch (category) {
       case 'network':
         return 'Unable to connect to our servers. Please check your internet connection and try again.';
@@ -241,90 +241,90 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
+            transition={{ duration: 0.5 }}>
+
             <GlassCard className="max-w-md mx-auto text-center">
               {/* Error Icon */}
-              <motion.div 
+              <motion.div
                 className="text-6xl mb-6"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-              >
+                transition={{ delay: 0.2, type: "spring" }}>
+
                 <FiAlertTriangle className={`mx-auto ${
-                  severity === 'critical' ? 'text-red-600' :
-                  severity === 'high' ? 'text-red-500' :
-                  severity === 'medium' ? 'text-orange-500' :
-                  'text-yellow-500'
-                }`} />
+                severity === 'critical' ? 'text-red-600' :
+                severity === 'high' ? 'text-red-500' :
+                severity === 'medium' ? 'text-orange-500' :
+                'text-yellow-500'}`
+                } />
               </motion.div>
               
               {/* Error Title */}
-              <motion.h1 
+              <motion.h1
                 className={`text-2xl font-bold mb-4 ${
-                  severity === 'critical' || severity === 'high' 
-                    ? 'text-red-600' 
-                    : 'text-orange-600'
-                }`}
+                severity === 'critical' || severity === 'high' ?
+                'text-red-600' :
+                'text-orange-600'}`
+                }
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
+                transition={{ delay: 0.3 }}>
+
                 {errorTitle}
               </motion.h1>
               
               {/* Error Message */}
-              <motion.p 
+              <motion.p
                 className="text-gray-600 mb-6 leading-relaxed"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
+                transition={{ delay: 0.4 }}>
+
                 {errorMessage}
               </motion.p>
 
               {/* Retry Information */}
-              {this.state.retryCount > 0 && (
-                <motion.div 
-                  className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ delay: 0.5 }}
-                >
+              {this.state.retryCount > 0 &&
+              <motion.div
+                className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                transition={{ delay: 0.5 }}>
+
                   <p className="text-sm text-blue-700">
                     Retry attempt: {this.state.retryCount}/3
                   </p>
                 </motion.div>
-              )}
+              }
 
               {/* Recovery Options */}
-              <motion.div 
+              <motion.div
                 className="space-y-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                {recoveryOptions.map((option, index) => (
-                  <GlassButton
-                    key={index}
-                    onClick={option.action}
-                    variant={option.primary ? "primary" : "secondary"}
-                    className="w-full flex items-center justify-center gap-2"
-                  >
+                transition={{ delay: 0.6 }}>
+
+                {recoveryOptions.map((option, index) =>
+                <GlassButton
+                  key={index}
+                  onClick={option.action}
+                  variant={option.primary ? "primary" : "secondary"}
+                  className="w-full flex items-center justify-center gap-2">
+
                     {option.icon}
                     {option.label}
                   </GlassButton>
-                ))}
+                )}
               </motion.div>
 
               {/* Error Details (Development Only) */}
-              {import.meta.env.DEV && this.props.showDetails && this.state.error && (
-                <motion.details 
-                  className="mt-6 text-left"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
+              {import.meta.env.DEV && this.props.showDetails && this.state.error &&
+              <motion.details
+                className="mt-6 text-left"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}>
+
                   <summary className="cursor-pointer text-sm font-medium text-gray-700 mb-2 hover:text-gray-900">
                     🔧 Developer Details
                   </summary>
@@ -332,32 +332,32 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                     <div className="font-mono text-red-800 mb-2">
                       <strong>Error:</strong> {this.state.error.toString()}
                     </div>
-                    {this.state.errorInfo?.componentStack && (
-                      <div className="font-mono text-gray-700">
+                    {this.state.errorInfo?.componentStack &&
+                  <div className="font-mono text-gray-700">
                         <strong>Stack:</strong>
                         <pre className="whitespace-pre-wrap mt-1">
                           {this.state.errorInfo.componentStack.slice(0, 500)}
                           {this.state.errorInfo.componentStack.length > 500 && '...'}
                         </pre>
                       </div>
-                    )}
+                  }
                   </div>
                 </motion.details>
-              )}
+              }
 
               {/* Help Text */}
-              <motion.div 
+              <motion.div
                 className="mt-6 text-xs text-gray-500"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-              >
+                transition={{ delay: 1 }}>
+
                 If the problem persists, please contact support or try again later.
               </motion.div>
             </GlassCard>
           </motion.div>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;

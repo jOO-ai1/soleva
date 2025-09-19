@@ -31,7 +31,7 @@ class NetworkService {
 
   private getInitialStatus(): NetworkStatus {
     const connection = this.getConnection();
-    
+
     return {
       isOnline: navigator.onLine,
       isSlowConnection: this.isSlowConnection(connection),
@@ -43,23 +43,23 @@ class NetworkService {
   }
 
   private getConnection(): any {
-    return (navigator as any).connection || 
-           (navigator as any).mozConnection || 
-           (navigator as any).webkitConnection;
+    return (navigator as any).connection ||
+    (navigator as any).mozConnection ||
+    (navigator as any).webkitConnection;
   }
 
   private isSlowConnection(connection: any): boolean {
     if (!connection) return false;
-    
-    return connection.effectiveType === 'slow-2g' || 
-           connection.effectiveType === '2g' || 
-           connection.downlink < 1;
+
+    return connection.effectiveType === 'slow-2g' ||
+    connection.effectiveType === '2g' ||
+    connection.downlink < 1;
   }
 
   private setupEventListeners() {
     window.addEventListener('online', this.handleOnline);
     window.addEventListener('offline', this.handleOffline);
-    
+
     const connection = this.getConnection();
     if (connection) {
       connection.addEventListener('change', this.handleConnectionChange);
@@ -86,7 +86,7 @@ class NetworkService {
       downlink: connection?.downlink || 0,
       rtt: connection?.rtt || 0
     };
-    
+
     console.info('📶 Connection quality changed:', newStatus);
     this.updateStatus(newStatus);
   };
@@ -97,7 +97,7 @@ class NetworkService {
   }
 
   private notifyListeners() {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(this.currentStatus);
       } catch (error) {
@@ -118,18 +118,18 @@ class NetworkService {
 
     try {
       const start = performance.now();
-      
+
       // Use a small image to test connection
-      const response = await fetch('/favicon.ico', { 
+      const response = await fetch('/favicon.ico', {
         method: 'HEAD',
         cache: 'no-cache'
       });
-      
+
       const end = performance.now();
       const responseTime = end - start;
-      
+
       const isSlowConnection = responseTime > 2000 || !response.ok;
-      
+
       if (isSlowConnection !== this.currentStatus.isSlowConnection) {
         this.updateStatus({ isSlowConnection });
       }
@@ -153,10 +153,10 @@ class NetworkService {
 
   public subscribe(listener: (status: NetworkStatus) => void): () => void {
     this.listeners.add(listener);
-    
+
     // Immediately notify with current status
     listener(this.currentStatus);
-    
+
     return () => this.listeners.delete(listener);
   }
 
@@ -171,7 +171,7 @@ class NetworkService {
 
   private async processRetryQueue() {
     console.info(`🔄 Processing retry queue (${this.retryQueue.size} operations)`);
-    
+
     const promises = Array.from(this.retryQueue.entries()).map(async ([key, operation]) => {
       try {
         await operation();
@@ -181,20 +181,20 @@ class NetworkService {
         console.warn(`❌ Retry operation failed: ${key}`, error);
       }
     });
-    
+
     await Promise.allSettled(promises);
   }
 
   public async withNetworkFallback<T>(
-    operation: () => Promise<T>,
-    fallback: () => T | Promise<T>,
-    options?: {
-      timeout?: number;
-      retryKey?: string;
-    }
-  ): Promise<T> {
+  operation: () => Promise<T>,
+  fallback: () => T | Promise<T>,
+  options?: {
+    timeout?: number;
+    retryKey?: string;
+  })
+  : Promise<T> {
     const timeout = options?.timeout || 10000;
-    
+
     if (!this.isOnline()) {
       console.info('📴 Offline mode - using fallback');
       return await fallback();
@@ -211,44 +211,44 @@ class NetworkService {
       return result;
     } catch (error) {
       console.warn('Network operation failed, using fallback:', error);
-      
+
       // Add to retry queue if key provided
       if (options?.retryKey) {
         this.addToRetryQueue(options.retryKey, operation);
       }
-      
+
       return await fallback();
     }
   }
 
   public createNetworkError(
-    message: string, 
-    type: NetworkError['type'] = 'unknown',
-    options?: {
-      status?: number;
-      retryAfter?: number;
-      cause?: Error;
-    }
-  ): NetworkError {
+  message: string,
+  type: NetworkError['type'] = 'unknown',
+  options?: {
+    status?: number;
+    retryAfter?: number;
+    cause?: Error;
+  })
+  : NetworkError {
     const error = new Error(message) as NetworkError;
     error.type = type;
     error.status = options?.status;
     error.retryAfter = options?.retryAfter;
     error.recoverable = type !== 'client' && type !== 'unknown';
     error.cause = options?.cause;
-    
+
     return error;
   }
 
   public destroy() {
     window.removeEventListener('online', this.handleOnline);
     window.removeEventListener('offline', this.handleOffline);
-    
+
     const connection = this.getConnection();
     if (connection) {
       connection.removeEventListener('change', this.handleConnectionChange);
     }
-    
+
     this.listeners.clear();
     this.retryQueue.clear();
   }
@@ -280,11 +280,11 @@ export const getNetworkErrorMessage = (error: NetworkError): string => {
 // React hook for network status
 export const useNetworkStatus = () => {
   const [status, setStatus] = React.useState(networkService.getStatus());
-  
+
   React.useEffect(() => {
     return networkService.subscribe(setStatus);
   }, []);
-  
+
   return status;
 };
 

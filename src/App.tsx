@@ -36,17 +36,17 @@ export default function App() {
     const setupApplication = async () => {
       try {
         console.log('🚀 Initializing Soleva application with enhanced error handling...');
-        
+
         // Log environment information
         const envInfo = environmentHandler.getEnvironmentInfo();
         console.log('🔍 Environment detected:', envInfo);
-        
+
         // Check if we're in recovery mode
         if (environmentHandler.isRecoveryMode()) {
           console.log('🛡️ Running in recovery mode with fallback data');
           return;
         }
-        
+
         const isInitialized = await initializeDatabase();
 
         if (isInitialized) {
@@ -90,12 +90,12 @@ export default function App() {
                           <RoutesWrapper />
                           <OfflineIndicator />
                           <Toaster
-                            position="top-right"
-                            closeButton
-                            richColors
-                            expand
-                            duration={4000}
-                            visibleToasts={5} />
+                              position="top-right"
+                              closeButton
+                              richColors
+                              expand
+                              duration={4000}
+                              visibleToasts={5} />
 
                         </NotificationProvider>
                       </ToastProvider>

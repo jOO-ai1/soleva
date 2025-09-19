@@ -241,26 +241,26 @@ export const productsApi = {
         console.info('🔄 Development mode - Using mock data with enhanced features');
         const { getMockProducts } = await import('./mockData');
         const mockProducts = getMockProducts();
-        
+
         // Apply filters if provided
         let filteredProducts = mockProducts;
-        
+
         if (params?.search) {
           const searchTerm = params.search.toLowerCase();
-          filteredProducts = filteredProducts.filter(product =>
-            product.name.en.toLowerCase().includes(searchTerm) ||
-            product.name.ar.toLowerCase().includes(searchTerm) ||
-            product.description.en.toLowerCase().includes(searchTerm) ||
-            product.description.ar.toLowerCase().includes(searchTerm)
+          filteredProducts = filteredProducts.filter((product) =>
+          product.name.en.toLowerCase().includes(searchTerm) ||
+          product.name.ar.toLowerCase().includes(searchTerm) ||
+          product.description.en.toLowerCase().includes(searchTerm) ||
+          product.description.ar.toLowerCase().includes(searchTerm)
           );
         }
-        
+
         if (params?.collection) {
-          filteredProducts = filteredProducts.filter(product =>
-            product.collection?.slug === params.collection
+          filteredProducts = filteredProducts.filter((product) =>
+          product.collection?.slug === params.collection
           );
         }
-        
+
         return Promise.resolve({
           data: filteredProducts,
           status: 200,
@@ -276,30 +276,30 @@ export const productsApi = {
       return response;
     } catch (error) {
       console.warn('⚠️ API connection failed, using fallback data:', error);
-      
+
       // Enhanced fallback with error context
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
-      
+
       // Apply same filtering logic as above
       let filteredProducts = mockProducts;
-      
+
       if (params?.search) {
         const searchTerm = params.search.toLowerCase();
-        filteredProducts = filteredProducts.filter(product =>
-          product.name.en.toLowerCase().includes(searchTerm) ||
-          product.name.ar.toLowerCase().includes(searchTerm) ||
-          product.description.en.toLowerCase().includes(searchTerm) ||
-          product.description.ar.toLowerCase().includes(searchTerm)
+        filteredProducts = filteredProducts.filter((product) =>
+        product.name.en.toLowerCase().includes(searchTerm) ||
+        product.name.ar.toLowerCase().includes(searchTerm) ||
+        product.description.en.toLowerCase().includes(searchTerm) ||
+        product.description.ar.toLowerCase().includes(searchTerm)
         );
       }
-      
+
       if (params?.collection) {
-        filteredProducts = filteredProducts.filter(product =>
-          product.collection?.slug === params.collection
+        filteredProducts = filteredProducts.filter((product) =>
+        product.collection?.slug === params.collection
         );
       }
-      
+
       return Promise.resolve({
         data: filteredProducts,
         status: 200,
