@@ -4,6 +4,7 @@
 
 export interface MockProduct {
   id: string;
+  slug?: string;
   name: {
     en: string;
     ar: string;
@@ -13,6 +14,8 @@ export interface MockProduct {
     ar: string;
   };
   price: number;
+  basePrice?: number;
+  salePrice?: number;
   originalPrice?: number;
   discount?: number;
   images: string[];
@@ -64,6 +67,7 @@ export interface MockCollection {
 const mockProducts: MockProduct[] = [
 {
   id: '1',
+  slug: 'classic-leather-sneakers',
   name: {
     en: 'Classic Leather Sneakers',
     ar: 'حذاء رياضي جلدي كلاسيكي'
@@ -72,16 +76,15 @@ const mockProducts: MockProduct[] = [
     en: 'Premium leather sneakers with comfortable cushioning and classic design.',
     ar: 'حذاء رياضي من الجلد الفاخر مع وسادة مريحة وتصميم كلاسيكي.'
   },
+  price: 129.99,
   basePrice: 159.99,
   salePrice: 129.99,
-  price: 129.99,
   originalPrice: 159.99,
   discount: 19,
-  slug: 'classic-leather-sneakers',
   images: [
-  'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-  'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'],
-
+    'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
+    'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'
+  ],
   sizes: [38, 39, 40, 41, 42, 43, 44],
   colors: ['Black', 'White', 'Brown'],
   category: {
@@ -101,6 +104,7 @@ const mockProducts: MockProduct[] = [
 },
 {
   id: '2',
+  slug: 'running-shoes-pro',
   name: {
     en: 'Running Shoes Pro',
     ar: 'حذاء الجري المحترف'
@@ -109,13 +113,12 @@ const mockProducts: MockProduct[] = [
     en: 'High-performance running shoes with advanced cushioning technology.',
     ar: 'حذاء جري عالي الأداء بتقنية وسادة متقدمة.'
   },
-  basePrice: 189.99,
   price: 189.99,
-  slug: 'running-shoes-pro',
+  basePrice: 189.99,
   images: [
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-  'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400'],
-
+    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
+    'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400'
+  ],
   sizes: [38, 39, 40, 41, 42, 43, 44, 45],
   colors: ['Blue', 'Red', 'Black'],
   category: {
@@ -135,6 +138,7 @@ const mockProducts: MockProduct[] = [
 },
 {
   id: '3',
+  slug: 'casual-loafers',
   name: {
     en: 'Casual Loafers',
     ar: 'حذاء كاجوال'
@@ -143,15 +147,14 @@ const mockProducts: MockProduct[] = [
     en: 'Comfortable casual loafers perfect for everyday wear.',
     ar: 'حذاء كاجوال مريح مثالي للاستخدام اليومي.'
   },
+  price: 79.99,
   basePrice: 99.99,
   salePrice: 79.99,
-  price: 79.99,
   originalPrice: 99.99,
   discount: 20,
-  slug: 'casual-loafers',
   images: [
-  'https://images.unsplash.com/photo-1582897085656-c636d006a246?w=400'],
-
+    'https://images.unsplash.com/photo-1582897085656-c636d006a246?w=400'
+  ],
   sizes: [39, 40, 41, 42, 43],
   colors: ['Brown', 'Black', 'Tan'],
   category: {
@@ -160,10 +163,12 @@ const mockProducts: MockProduct[] = [
     slug: 'casual'
   },
   inStock: true,
+  isFeatured: false,
   stockCount: 12
 },
 {
   id: '4',
+  slug: 'formal-oxford-shoes',
   name: {
     en: 'Formal Oxford Shoes',
     ar: 'حذاء أوكسفورد رسمي'
@@ -172,12 +177,11 @@ const mockProducts: MockProduct[] = [
     en: 'Elegant Oxford shoes for formal occasions and business wear.',
     ar: 'حذاء أوكسفورد أنيق للمناسبات الرسمية والعمل.'
   },
-  basePrice: 199.99,
   price: 199.99,
-  slug: 'formal-oxford-shoes',
+  basePrice: 199.99,
   images: [
-  'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400'],
-
+    'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400'
+  ],
   sizes: [38, 39, 40, 41, 42, 43, 44],
   colors: ['Black', 'Brown'],
   category: {
@@ -191,10 +195,12 @@ const mockProducts: MockProduct[] = [
     slug: 'business'
   },
   inStock: true,
+  isFeatured: false,
   stockCount: 5
 },
 {
   id: '5',
+  slug: 'summer-sandals',
   name: {
     en: 'Summer Sandals',
     ar: 'صندل صيفي'
@@ -203,12 +209,11 @@ const mockProducts: MockProduct[] = [
     en: 'Comfortable summer sandals with adjustable straps.',
     ar: 'صندل صيفي مريح بأحزمة قابلة للتعديل.'
   },
-  basePrice: 49.99,
   price: 49.99,
-  slug: 'summer-sandals',
+  basePrice: 49.99,
   images: [
-  'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400'],
-
+    'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400'
+  ],
   sizes: [38, 39, 40, 41, 42, 43],
   colors: ['Brown', 'Black', 'Tan'],
   category: {
@@ -217,6 +222,7 @@ const mockProducts: MockProduct[] = [
     slug: 'sandals'
   },
   isNew: true,
+  isFeatured: true,
   inStock: true,
   stockCount: 20
 }];

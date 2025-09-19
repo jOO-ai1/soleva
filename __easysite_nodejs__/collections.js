@@ -1,32 +1,39 @@
+function collections() {
+  const mockCollections = [
+    {
+      id: '1',
+      name: { en: 'Classic Collection', ar: 'المجموعة الكلاسيكية' },
+      slug: 'classic',
+      description: {
+        en: 'Timeless designs that never go out of style',
+        ar: 'تصاميم خالدة لا تخرج عن الموضة أبداً'
+      },
+      image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
+      productCount: 1
+    },
+    {
+      id: '2',
+      name: { en: 'Sport Collection', ar: 'المجموعة الرياضية' },
+      slug: 'sport',
+      description: {
+        en: 'High-performance athletic footwear',
+        ar: 'أحذية رياضية عالية الأداء'
+      },
+      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
+      productCount: 1
+    },
+    {
+      id: '3',
+      name: { en: 'Business Collection', ar: 'مجموعة الأعمال' },
+      slug: 'business',
+      description: {
+        en: 'Professional footwear for the workplace',
+        ar: 'أحذية مهنية لمكان العمل'
+      },
+      image: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400',
+      productCount: 1
+    }
+  ];
 
-function getAllCollections() {
-  return [
-  {
-    id: "1",
-    name: { en: "Classic Collection", ar: "المجموعة الكلاسيكية" },
-    slug: "classic",
-    description: { en: "Timeless designs that never go out of style", ar: "تصاميم أبدية لا تخرج من الموضة أبداً" },
-    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&h=400&fit=crop",
-    productCount: 24,
-    featured: true
-  },
-  {
-    id: "2",
-    name: { en: "Sport Collection", ar: "المجموعة الرياضية" },
-    slug: "sport",
-    description: { en: "Athletic footwear for active lifestyles", ar: "أحذية رياضية لأنماط الحياة النشطة" },
-    image: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&h=400&fit=crop",
-    productCount: 31,
-    featured: true
-  },
-  {
-    id: "3",
-    name: { en: "Luxury Collection", ar: "المجموعة الفاخرة" },
-    slug: "luxury",
-    description: { en: "Premium materials and exceptional craftsmanship", ar: "مواد فاخرة وحرفية استثنائية" },
-    image: "https://images.unsplash.com/photo-1608256246200-53e8b47b5788?w=600&h=400&fit=crop",
-    productCount: 18,
-    featured: false
-  }];
-
+  return mockCollections;
 }

@@ -251,14 +251,13 @@ export default function Home() {
                         {product.salePrice ?
                     <>
                             <span className="line-through text-text-secondary mr-2">
-                              {Number(product.basePrice)} {t("egp")}
+                              {Number(product.basePrice || product.price)} {t("egp")}
                             </span>
                             <span className="text-primary font-semibold">
                               {Number(product.salePrice)} {t("egp")}
                             </span>
                           </> :
-
-                    <span>{Number(product.basePrice)} {t("egp")}</span>
+                    <span>{Number(product.basePrice || product.price)} {t("egp")}</span>
                     }
                       </div>
                      <div className="product-card-actions">
