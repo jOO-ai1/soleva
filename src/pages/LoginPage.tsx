@@ -99,6 +99,22 @@ export default function LoginPage() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
@@ -126,19 +142,10 @@ export default function LoginPage() {
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                   <FiUser size={20} />
                 </div>
-                <input type="email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setEmail(e.target.value);
-                  if (errors.email) setErrors({ ...errors, email: '' });
-                }}
-                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                }
-                placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
+                <input type="email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setEmail(e.target.value);if (errors.email) setErrors({ ...errors, email: '' });}} className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`} placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
 
               </div>
-              {errors.email &&
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            }
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
 
             {/* Password Field */}
@@ -150,14 +157,7 @@ export default function LoginPage() {
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                   <HiLockClosed size={20} />
                 </div>
-                <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setPassword(e.target.value);
-                  if (errors.password) setErrors({ ...errors, password: '' });
-                }}
-                className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setPassword(e.target.value);if (errors.password) setErrors({ ...errors, password: '' });}} className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
                 errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`
                 }
                 placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Card,
   Row,
@@ -19,7 +19,14 @@ import {
   Tabs,
   Table,
   Statistic,
-  Progress } from
+  Progress,
+  Layout,
+  List,
+  Divider,
+  Tooltip,
+  Empty,
+  Alert,
+  Timeline } from
 'antd';
 import {
   MessageOutlined,
@@ -36,16 +43,26 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   BarChartOutlined,
-  ThunderboltOutlined } from
+  ThunderboltOutlined,
+  FilterOutlined,
+  SearchOutlined,
+  BellOutlined,
+  StarOutlined,
+  ExclamationCircleOutlined,
+  TeamOutlined,
+  HeartOutlined,
+  CloseCircleOutlined } from
 '@ant-design/icons';
 import { chatAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const { Title } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 const { TabPane } = Tabs;
+const { Content, Sider } = Layout;
 
 interface Conversation {
   id: string;

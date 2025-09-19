@@ -201,7 +201,13 @@ export const authApi = {
   apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
 
   resetPassword: (data: {token: string;newPassword: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data)
+  apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
+
+  refreshToken: () =>
+  apiClient.post(API_ENDPOINTS.AUTH.REFRESH),
+
+  verifyEmail: (token: string) =>
+  apiClient.post('/auth/verify-email', { token })
 };
 
 export const productsApi = {

@@ -21,7 +21,8 @@ import {
   ShopOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  BellOutlined } from
+  BellOutlined,
+  BankOutlined } from
 '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -99,6 +100,11 @@ const Layout = ({ children }: LayoutProps) => {
     label: t('reports')
   },
   {
+    key: '/guest-analytics',
+    icon: <UserOutlined />,
+    label: t('guestAnalytics')
+  },
+  {
     key: '/users',
     icon: <TeamOutlined />,
     label: t('users')
@@ -117,6 +123,16 @@ const Layout = ({ children }: LayoutProps) => {
     key: '/multi-store',
     icon: <ShopOutlined />,
     label: t('multiStore')
+  },
+  {
+    key: '/suppliers',
+    icon: <ShopOutlined />,
+    label: t('suppliers')
+  },
+  {
+    key: '/investors',
+    icon: <BankOutlined />,
+    label: t('investors')
   },
   {
     key: '/audit-logs',

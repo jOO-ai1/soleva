@@ -23,13 +23,23 @@ export const customerLogin = async (req: Request, res: Response): Promise<Respon
   try {
     const { email, password } = req.body;
 
+    // Input validation
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required',
+        error: 'MISSING_CREDENTIALS'
+      });
+    }
+
     // Check account lockout first
     const lockoutCheck = await checkAccountLockout(email);
     if (lockoutCheck.locked) {
       return res.status(401).json({
         success: false,
         message: lockoutCheck.reason || 'Account is locked',
-        error: 'ACCOUNT_LOCKED'
+        error: 'ACCOUNT_LOCKED',
+        retryAfter: lockoutCheck.retryAfter
       });
     }
 
