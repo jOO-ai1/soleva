@@ -157,8 +157,28 @@ start_dev_servers() {
     BACKEND_PID=$!
     cd ..
     
-    # Wait a moment for backend to start
-    sleep 5
+    # Wait for backend to be fully operational
+    print_status "Waiting for backend to be ready..."
+    BACKEND_URL="http://localhost:5000"
+    HEALTH_ENDPOINT="$BACKEND_URL/health"
+    MAX_ATTEMPTS=30
+    ATTEMPT=1
+    
+    while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+        if curl -s -f "$HEALTH_ENDPOINT" > /dev/null 2>&1; then
+            print_success "Backend is ready and responding"
+            break
+        else
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+                print_error "Backend failed to start after $MAX_ATTEMPTS attempts"
+                print_error "Please check the backend logs for errors"
+                exit 1
+            fi
+            print_status "Attempt $ATTEMPT/$MAX_ATTEMPTS: Backend not ready yet, waiting..."
+            sleep 2
+            ATTEMPT=$((ATTEMPT + 1))
+        fi
+    done
     
     # Start frontend in background
     print_status "Starting frontend server..."
