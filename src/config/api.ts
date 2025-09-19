@@ -133,8 +133,8 @@ export const API_ENDPOINTS = {
 // Helper function to build full URL
 export const buildApiUrl = (endpoint: string): string => {
   const baseUrl = API_CONFIG.BASE_URL.endsWith('/') ?
-  API_CONFIG.BASE_URL.slice(0, -1) :
-  API_CONFIG.BASE_URL;
+    API_CONFIG.BASE_URL.slice(0, -1) :
+    API_CONFIG.BASE_URL;
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
@@ -151,6 +151,6 @@ export const getAuthHeaders = (): Record<string, string> => {
   }
 
   return token ?
-  { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` } :
-  API_CONFIG.DEFAULT_HEADERS;
+    { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` } :
+    API_CONFIG.DEFAULT_HEADERS;
 };

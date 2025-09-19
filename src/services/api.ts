@@ -180,34 +180,34 @@ export const apiClient = new ApiClient();
 // Specific API service functions
 export const authApi = {
   login: (credentials: {email: string;password: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
+    apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials),
 
   register: (userData: {name: string;email: string;phoneNumber: string;password: string;password_confirmation: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
+    apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData),
 
   logout: () =>
-  apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
+    apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
 
   getProfile: () =>
-  apiClient.get(API_ENDPOINTS.AUTH.PROFILE),
+    apiClient.get(API_ENDPOINTS.AUTH.PROFILE),
 
   updateProfile: (data: any) =>
-  apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
+    apiClient.put(API_ENDPOINTS.AUTH.PROFILE, data),
 
   disconnectGoogle: () =>
-  apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
+    apiClient.post(API_ENDPOINTS.AUTH.DISCONNECT_GOOGLE),
 
   forgotPassword: (data: {email: string;phoneNumber: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
+    apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
 
   resetPassword: (data: {token: string;newPassword: string;}) =>
-  apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
+    apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
 
   refreshToken: () =>
-  apiClient.post(API_ENDPOINTS.AUTH.REFRESH),
+    apiClient.post(API_ENDPOINTS.AUTH.REFRESH),
 
   verifyEmail: (token: string) =>
-  apiClient.post('/auth/verify-email', { token })
+    apiClient.post('/auth/verify-email', { token })
 };
 
 export const productsApi = {
@@ -317,19 +317,19 @@ export const collectionsApi = {
 
 export const cartApi = {
   get: () =>
-  apiClient.get(API_ENDPOINTS.CART.GET),
+    apiClient.get(API_ENDPOINTS.CART.GET),
 
   add: (productId: number, color: string, size: number, quantity: number = 1) =>
-  apiClient.post(API_ENDPOINTS.CART.ADD, { product_id: productId, color, size, quantity }),
+    apiClient.post(API_ENDPOINTS.CART.ADD, { product_id: productId, color, size, quantity }),
 
   update: (itemId: number, quantity: number) =>
-  apiClient.put(API_ENDPOINTS.CART.UPDATE, { item_id: itemId, quantity }),
+    apiClient.put(API_ENDPOINTS.CART.UPDATE, { item_id: itemId, quantity }),
 
   remove: (itemId: number) =>
-  apiClient.delete(`${API_ENDPOINTS.CART.REMOVE}/${itemId}`),
+    apiClient.delete(`${API_ENDPOINTS.CART.REMOVE}/${itemId}`),
 
   clear: () =>
-  apiClient.delete(API_ENDPOINTS.CART.CLEAR)
+    apiClient.delete(API_ENDPOINTS.CART.CLEAR)
 };
 
 export const ordersApi = {
@@ -339,40 +339,40 @@ export const ordersApi = {
   },
 
   getById: (id: string) =>
-  apiClient.get(API_ENDPOINTS.ORDERS.SHOW(id)),
+    apiClient.get(API_ENDPOINTS.ORDERS.SHOW(id)),
 
   create: (orderData: any) =>
-  apiClient.post(API_ENDPOINTS.ORDERS.CREATE, orderData),
+    apiClient.post(API_ENDPOINTS.ORDERS.CREATE, orderData),
 
   track: (identifier: string) =>
-  apiClient.get(API_ENDPOINTS.ORDERS.TRACK(identifier))
+    apiClient.get(API_ENDPOINTS.ORDERS.TRACK(identifier))
 };
 
 export const favoritesApi = {
   getAll: () =>
-  apiClient.get(API_ENDPOINTS.FAVORITES.LIST),
+    apiClient.get(API_ENDPOINTS.FAVORITES.LIST),
 
   add: (productId: number) =>
-  apiClient.post(API_ENDPOINTS.FAVORITES.ADD, { product_id: productId }),
+    apiClient.post(API_ENDPOINTS.FAVORITES.ADD, { product_id: productId }),
 
   remove: (productId: number) =>
-  apiClient.delete(`${API_ENDPOINTS.FAVORITES.REMOVE}/${productId}`),
+    apiClient.delete(`${API_ENDPOINTS.FAVORITES.REMOVE}/${productId}`),
 
   toggle: (productId: number) =>
-  apiClient.post(API_ENDPOINTS.FAVORITES.TOGGLE, { product_id: productId })
+    apiClient.post(API_ENDPOINTS.FAVORITES.TOGGLE, { product_id: productId })
 };
 
 export const couponsApi = {
   validate: (code: string) =>
-  apiClient.post(API_ENDPOINTS.COUPONS.VALIDATE, { code }),
+    apiClient.post(API_ENDPOINTS.COUPONS.VALIDATE, { code }),
 
   apply: (code: string, cartTotal: number) =>
-  apiClient.post(API_ENDPOINTS.COUPONS.APPLY, { code, cart_total: cartTotal })
+    apiClient.post(API_ENDPOINTS.COUPONS.APPLY, { code, cart_total: cartTotal })
 };
 
 export const contactApi = {
   send: (contactData: {name: string;email: string;subject: string;message: string;}) =>
-  apiClient.post(API_ENDPOINTS.CONTACT.SEND, contactData)
+    apiClient.post(API_ENDPOINTS.CONTACT.SEND, contactData)
 };
 
 export const uploadApi = {
