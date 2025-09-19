@@ -153,17 +153,17 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
         isActive: true,
         validFrom: { lte: new Date() },
         OR: [
-        { validTo: null },
-        { validTo: { gte: new Date() } }],
-
+          { validTo: null },
+          { validTo: { gte: new Date() } }
+        ],
         AND: [
-        {
-          OR: [
-          { usageLimit: null },
-          { usageCount: { lt: prisma.coupon.fields.usageLimit } }]
-
-        }]
-
+          {
+            OR: [
+              { usageLimit: null },
+              { usageCount: { lt: prisma.coupon.fields.usageLimit } }
+            ]
+          }
+        ]
       }
     });
 
@@ -350,34 +350,34 @@ export const getUserOrders = asyncHandler(async (req: AuthenticatedRequest, res:
   const userId = req.user!.id;
 
   const [orders, total] = await Promise.all([
-  prisma.order.findMany({
-    where: { userId },
-    include: {
-      items: {
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              images: true
-            }
-          },
-          variant: {
-            select: {
-              color: true,
-              size: true
+    prisma.order.findMany({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                images: true
+              }
+            },
+            variant: {
+              select: {
+                color: true,
+                size: true
+              }
             }
           }
-        }
+        },
+        address: true
       },
-      address: true
-    },
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take: limit
-  }),
-  prisma.order.count({ where: { userId } })]
-  );
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.order.count({ where: { userId } })
+  ]);
 
   res.json({
     success: true,

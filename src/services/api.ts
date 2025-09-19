@@ -112,13 +112,13 @@ class ApiClient {
     } catch (error) {
       // Network-related errors - these should trigger fallback logic
       if (error instanceof TypeError ||
-      error instanceof Error && (
-      error.message.includes('Failed to fetch') ||
-      error.message.includes('Offline mode') ||
-      error.message.includes('net::ERR_CONNECTION_REFUSED') ||
-      error.message.includes('NetworkError') ||
-      error.message.includes('ERR_INTERNET_DISCONNECTED')))
-      {
+          (error instanceof Error && (
+            error.message.includes('Failed to fetch') ||
+            error.message.includes('Offline mode') ||
+            error.message.includes('net::ERR_CONNECTION_REFUSED') ||
+            error.message.includes('NetworkError') ||
+            error.message.includes('ERR_INTERNET_DISCONNECTED')
+          ))) {
         // Don't throw error for network issues - return offline response
         console.info('🔄 API connection failed, gracefully falling back to offline mode:', error.message);
         throw {
@@ -126,7 +126,7 @@ class ApiClient {
           status: 0,
           offline: true,
           fallback: true
-        } as ApiError & {offline: boolean;fallback: boolean;};
+        } as ApiError & { offline: boolean; fallback: boolean; };
       }
 
       if (error instanceof Error && error.message === 'Request timeout') {
@@ -134,7 +134,7 @@ class ApiClient {
           message: 'Request timeout. Using cached data if available.',
           status: 0,
           offline: true
-        } as ApiError & {offline: boolean;};
+        } as ApiError & { offline: boolean; };
       }
 
       throw error;
@@ -167,10 +167,9 @@ class ApiClient {
     const url = buildApiUrl(endpoint);
     const token = localStorage.getItem(API_CONFIG.AUTH_TOKEN_KEY);
 
-    const headers: Record<string, string> = {};
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = token ?
+      { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` } :
+      API_CONFIG.DEFAULT_HEADERS;
 
     const response = await fetch(url, {
       method: 'POST',

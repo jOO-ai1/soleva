@@ -118,23 +118,23 @@ export const requireRole = (allowedRoles: UserRole[]) => {
 };
 
 export const requireAdmin = requireRole([
-UserRole.ADMIN,
-UserRole.OWNER]
-);
+  UserRole.ADMIN,
+  UserRole.OWNER
+]);
 
 export const requireManager = requireRole([
-UserRole.MANAGER,
-UserRole.ADMIN,
-UserRole.OWNER]
-);
+  UserRole.MANAGER,
+  UserRole.ADMIN,
+  UserRole.OWNER
+]);
 
 export const requireSupport = requireRole([
-UserRole.SUPPORT,
-UserRole.CONTENT,
-UserRole.MANAGER,
-UserRole.ADMIN,
-UserRole.OWNER]
-);
+  UserRole.SUPPORT,
+  UserRole.CONTENT,
+  UserRole.MANAGER,
+  UserRole.ADMIN,
+  UserRole.OWNER
+]);
 
 // Optional authentication - doesn't fail if no token provided
 export const optionalAuth = async (

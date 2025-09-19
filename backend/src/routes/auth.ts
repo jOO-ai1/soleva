@@ -13,13 +13,13 @@ import {
   getCustomerProfile,
   updateCustomerProfile,
   logout as customerLogout,
-  disconnectGoogleAccount } from
-'../controllers/authController';
+  disconnectGoogleAccount
+} from '../controllers/authController';
 import {
   verifyEmailVerificationToken,
   markEmailAsVerified,
-  resendVerificationEmail } from
-'../middleware/emailVerification';
+  resendVerificationEmail
+} from '../middleware/emailVerification';
 import { validateRegistration, validateLogin } from '../middleware/validation';
 import { validateRecaptcha } from '../middleware/captcha';
 import { refreshToken } from '../middleware/secureSession';

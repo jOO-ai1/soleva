@@ -327,7 +327,6 @@ export const googleLogin = async (req: Request, res: Response): Promise<Response
         OR: [
         { email },
         { googleId }]
-
       }
     });
 
@@ -464,7 +463,6 @@ export const facebookLogin = async (req: Request, res: Response): Promise<Respon
         OR: [
         { email },
         { facebookId }]
-
       }
     });
 

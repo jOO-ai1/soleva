@@ -212,6 +212,8 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
@@ -331,9 +333,7 @@ export default function RegisterPage() {
             <p className="text-gray-600">
               {t("alreadyAccount")}
             </p>
-            <Link
-            to="/login"
-            className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
+            <Link to="/login" className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
 
               {t("login")}
             </Link>
