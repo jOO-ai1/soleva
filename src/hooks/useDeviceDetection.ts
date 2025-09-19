@@ -59,18 +59,18 @@ export const useDeviceDetection = () => {
 
     // OS detection
     let os = 'unknown';
-    if (/Windows/i.test(userAgent)) os = 'Windows';else
-    if (/Mac/i.test(userAgent)) os = 'macOS';else
-    if (/Linux/i.test(userAgent)) os = 'Linux';else
-    if (/Android/i.test(userAgent)) os = 'Android';else
-    if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
+    if (/Windows/i.test(userAgent)) os = 'Windows';
+    else if (/Mac/i.test(userAgent)) os = 'macOS';
+    else if (/Linux/i.test(userAgent)) os = 'Linux';
+    else if (/Android/i.test(userAgent)) os = 'Android';
+    else if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
 
     // Browser detection
     let browser = 'unknown';
-    if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) browser = 'Chrome';else
-    if (/Firefox/i.test(userAgent)) browser = 'Firefox';else
-    if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = 'Safari';else
-    if (/Edge/i.test(userAgent)) browser = 'Edge';
+    if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) browser = 'Chrome';
+    else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
+    else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) browser = 'Safari';
+    else if (/Edge/i.test(userAgent)) browser = 'Edge';
 
     // Performance level assessment
     const performanceScore = calculatePerformanceScore({
@@ -173,174 +173,110 @@ export const useDeviceDetection = () => {
       try {
         fcpObserver.observe({ entryTypes: ['paint'] });
       } catch (e) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // FCP observation not supported
-      } // Largest Contentful Paint
-      const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});try {lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });} catch (e) {
+      }
 
+      // Largest Contentful Paint
+      const lcpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        if (entries.length > 0) {
+          metrics.lcp = entries[entries.length - 1].startTime;
+        }
+      });
 
-
-
-
-
-
-
-
-
-
+      try {
+        lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+      } catch (e) {
         // LCP observation not supported
-      } // Cumulative Layout Shift
-      const clsObserver = new PerformanceObserver((list) => {let clsValue = 0;for (const entry of list.getEntries()) {if (!(entry as any).hadRecentInput) {clsValue += (entry as any).value;}}metrics.cls = clsValue;});try {clsObserver.observe({ entryTypes: ['layout-shift'] });} catch (e) {
+      }
 
+      // Cumulative Layout Shift
+      const clsObserver = new PerformanceObserver((list) => {
+        let clsValue = 0;
+        for (const entry of list.getEntries()) {
+          if (!(entry as any).hadRecentInput) {
+            clsValue += (entry as any).value;
+          }
+        }
+        metrics.cls = clsValue;
+      });
 
-
-
-
-
-
-
-
-
-
-
-
-
+      try {
+        clsObserver.observe({ entryTypes: ['layout-shift'] });
+      } catch (e) {
         // CLS observation not supported
-      } // Interaction to Next Paint (experimental)
-      const inpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.inp = Math.max(...entries.map((entry) => (entry as any).processingDuration || 0));}});try {inpObserver.observe({ entryTypes: ['event'] });} catch (e) {
+      }
 
+      // Interaction to Next Paint (experimental)
+      const inpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        if (entries.length > 0) {
+          metrics.inp = Math.max(...entries.map((entry) => (entry as any).processingDuration || 0));
+        }
+      });
 
-
-
-
-
-
-
-
-
-
+      try {
+        inpObserver.observe({ entryTypes: ['event'] });
+      } catch (e) {
         // INP observation not supported
-      } // Resolve after a delay to collect metrics
-      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;resolve(metrics as PerformanceMetrics);}, 5000);});};const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {try {// Get IP and location info
-      const ipResponse = await fetch('https://ipapi.co/json/');const ipData = await ipResponse.json();const logData = { ...deviceInfo, ...metrics, ipAddress: ipData.ip, country: ipData.country_name, city: ipData.city, timestamp: new Date().toISOString() }; // Send to backend
-      await fetch('/api/v1/analytics/device-log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(logData) });} catch (error) {
+      }
 
+      // Resolve after a delay to collect metrics
+      setTimeout(() => {
+        fcpObserver.disconnect();
+        lcpObserver.disconnect();
+        clsObserver.disconnect();
+        inpObserver.disconnect();
+        metrics.loadTime = performance.now() - startTime;
+        resolve(metrics as PerformanceMetrics);
+      }, 5000);
+    });
+  };
 
+  const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {
+    try {
+      // Get IP and location info
+      const ipResponse = await fetch('https://ipapi.co/json/');
+      const ipData = await ipResponse.json();
+      
+      const logData = {
+        ...deviceInfo,
+        ...metrics,
+        ipAddress: ipData.ip,
+        country: ipData.country_name,
+        city: ipData.city,
+        timestamp: new Date().toISOString()
+      };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      // Send to backend
+      await fetch('/api/v1/analytics/device-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(logData)
+      });
+    } catch (error) {
       // Failed to log device data
-    }};const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {if (deviceInfo.isLowSpec) {// Force light mode for better performance
-      if (theme === 'dark') {setTheme('light'); // Adaptive mode: Switched to light theme for better performance
-      } // Reduce animation intensity
-      document.documentElement.style.setProperty('--animation-duration', '0.1s');document.documentElement.style.setProperty('--transition-duration', '0.1s'); // Add adaptive mode class
-      document.body.classList.add('adaptive-mode'); // Disable heavy effects
-      const style = document.createElement('style');style.textContent = `
+    }
+  };
+
+  const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {
+    if (deviceInfo.isLowSpec) {
+      // Force light mode for better performance
+      if (theme === 'dark') {
+        setTheme('light');
+        // Adaptive mode: Switched to light theme for better performance
+      }
+
+      // Reduce animation intensity
+      document.documentElement.style.setProperty('--animation-duration', '0.1s');
+      document.documentElement.style.setProperty('--transition-duration', '0.1s');
+
+      // Add adaptive mode class
+      document.body.classList.add('adaptive-mode');
+
+      // Disable heavy effects
+      const style = document.createElement('style');
+      style.textContent = `
         .adaptive-mode .glass {
           backdrop-filter: none !important;
           -webkit-backdrop-filter: none !important;
@@ -357,10 +293,29 @@ export const useDeviceDetection = () => {
         .adaptive-mode .interactive-hover:hover {
           transform: translateY(-2px) !important;
         }
-      `;document.head.appendChild(style); // Adaptive mode enabled: Reduced animations and effects for low-spec device
-    }};useEffect(() => {const initializeDeviceDetection = async () => {// Detect device capabilities
-        const device = detectDevice();setDeviceInfo(device); // Measure performance metrics
-        const metrics = await measurePerformanceMetrics();setPerformanceMetrics(metrics); // Enable adaptive mode if needed
-        enableAdaptiveMode(device); // Log data to backend
-        await logDeviceData(device, metrics);}; // Run detection after initial render
-      setTimeout(initializeDeviceDetection, 1000);}, []);return { deviceInfo, performanceMetrics, isAdaptiveModeEnabled: deviceInfo?.adaptiveModeEnabled || false };};
+      `;
+      document.head.appendChild(style);
+      // Adaptive mode enabled: Reduced animations and effects for low-spec device
+    }
+  };
+
+  useEffect(() => {
+    const initializeDeviceDetection = async () => {
+      // Detect device capabilities
+      const device = detectDevice();
+      setDeviceInfo(device);
+
+      // Measure performance metrics
+      const metrics = await measurePerformanceMetrics();
+      setPerformanceMetrics(metrics);
+
+      // Enable adaptive mode if needed
+      enableAdaptiveMode(device);
+
+      // Log data to backend
+      await logDeviceData(device, metrics);
+    };
+
+    // Run detection after initial render
+    setTimeout(initializeDeviceDetection, 1000);
+  }, []);return { deviceInfo, performanceMetrics, isAdaptiveModeEnabled: deviceInfo?.adaptiveModeEnabled || false };};

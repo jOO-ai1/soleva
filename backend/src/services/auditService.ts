@@ -190,6 +190,10 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
@@ -201,11 +205,7 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 */export const getAuditStatistics = async (filters: {startDate?: Date;endDate?: Date;}) => {const { startDate, endDate } = filters;const where: any = {};if (startDate || endDate) {where.createdAt = {};if (startDate) where.createdAt.gte = startDate;if (endDate) where.createdAt.lte = endDate;}const [totalLogs, actionStats, resourceStats, adminStats, dailyStats] = await Promise.all([// Total logs count
     prisma.auditLog.count({ where }), // Actions breakdown
     prisma.auditLog.groupBy({ by: ['action'], where, _count: { action: true }, orderBy: { _count: { action: 'desc' } } }), // Resources breakdown
-    prisma.auditLog.groupBy({ by: ['resource'], where, _count: { resource: true }, orderBy: { _count: {
-            resource: 'desc'
-          }
-        }
-      }),
+    prisma.auditLog.groupBy({ by: ['resource'], where, _count: { resource: true }, orderBy: { _count: { resource: 'desc' } } }),
 
     // Admin activity
     prisma.auditLog.groupBy({
