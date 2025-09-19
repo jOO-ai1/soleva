@@ -108,5 +108,4 @@ export default function App() {
         </EnhancedErrorBoundary>
       </ComprehensiveErrorBoundary>
     </AppErrorBoundary>);
-
 }

@@ -11,8 +11,8 @@ import {
   FiMaximize2,
   FiPaperclip,
   FiWifi,
-  FiWifiOff } from
-'react-icons/fi';
+  FiWifiOff 
+} from 'react-icons/fi';
 import { useAuthSafe } from '../contexts/AuthContext';
 import { useLang } from '../contexts/LangContext';
 import { useToast } from '../contexts/ToastContext';

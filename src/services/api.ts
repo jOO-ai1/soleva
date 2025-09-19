@@ -53,9 +53,9 @@ export interface ApiError {
 // Generic API client class
 class ApiClient {
   private async request<T>(
-  endpoint: string,
-  options: RequestInit = {})
-  : Promise<ApiResponse<T>> {
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
     const url = buildApiUrl(endpoint);
     const headers = getAuthHeaders();
 
@@ -112,13 +112,14 @@ class ApiClient {
     } catch (error) {
       // Network-related errors - these should trigger fallback logic
       if (error instanceof TypeError ||
-      error instanceof Error && (
-      error.message.includes('Failed to fetch') ||
-      error.message.includes('Offline mode') ||
-      error.message.includes('net::ERR_CONNECTION_REFUSED') ||
-      error.message.includes('NetworkError') ||
-      error.message.includes('ERR_INTERNET_DISCONNECTED')))
-      {
+          (error instanceof Error && (
+            error.message.includes('Failed to fetch') ||
+            error.message.includes('Offline mode') ||
+            error.message.includes('net::ERR_CONNECTION_REFUSED') ||
+            error.message.includes('NetworkError') ||
+            error.message.includes('ERR_INTERNET_DISCONNECTED')
+          ))
+      ) {
         // Don't throw error for network issues - return offline response
         console.info('🔄 API connection failed, gracefully falling back to offline mode:', error.message);
         throw {
@@ -167,9 +168,9 @@ class ApiClient {
     const url = buildApiUrl(endpoint);
     const token = localStorage.getItem(API_CONFIG.AUTH_TOKEN_KEY);
 
-    const headers = token ?
-    { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` } :
-    API_CONFIG.DEFAULT_HEADERS;
+    const headers = token 
+      ? { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` }
+      : API_CONFIG.DEFAULT_HEADERS;
 
     const response = await fetch(url, {
       method: 'POST',

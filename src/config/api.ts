@@ -140,9 +140,9 @@ export const buildApiUrl = (endpoint: string): string => {
     return 'local://api'; // This will be handled by the Node.js API system
   }
 
-  const baseUrl = API_CONFIG.BASE_URL.endsWith('/') ?
-  API_CONFIG.BASE_URL.slice(0, -1) :
-  API_CONFIG.BASE_URL;
+  const baseUrl = API_CONFIG.BASE_URL.endsWith('/') 
+    ? API_CONFIG.BASE_URL.slice(0, -1) 
+    : API_CONFIG.BASE_URL;
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
@@ -158,7 +158,7 @@ export const getAuthHeaders = (): Record<string, string> => {
     token = null;
   }
 
-  return token ?
-  { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` } :
-  API_CONFIG.DEFAULT_HEADERS;
+  return token 
+    ? { ...API_CONFIG.DEFAULT_HEADERS, Authorization: `Bearer ${token}` }
+    : API_CONFIG.DEFAULT_HEADERS;
 };

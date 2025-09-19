@@ -57,9 +57,9 @@ const swaggerOptions = {
     },
     servers: [
     {
-      url: process.env.NODE_ENV === 'production' ?
-      'https://api.solevaeg.com' :
-      `http://localhost:${port}`,
+      url: process.env.NODE_ENV === 'production' 
+        ? 'https://api.solevaeg.com' 
+        : `http://localhost:${port}`,
       description: process.env.NODE_ENV === 'production' ? 'Production' : 'Development'
     }],
 
@@ -335,7 +335,13 @@ apiRouter.get('/config', async (_req, res) => {
     }
 
     // Default configuration if no settings found
-    const defaultConfig = { store: { name: { en: 'Soleva', ar: 'سوليفا' }, description: { en: 'Luxury Footwear', ar: 'أحذية فاخرة' }, currency: 'EGP', timezone: 'Africa/Cairo', language: 'en',
+    const defaultConfig = { 
+      store: { 
+        name: { en: 'Soleva', ar: 'سوليفا' }, 
+        description: { en: 'Luxury Footwear', ar: 'أحذية فاخرة' }, 
+        currency: 'EGP', 
+        timezone: 'Africa/Cairo', 
+        language: 'en',
         socialMedia: {
           facebook: '',
           instagram: '',
@@ -485,9 +491,9 @@ app.get('/', (_req, res) => {
   res.json({
     message: 'Soleva E-commerce API',
     version: '1.0.0',
-    docs: process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true' ?
-    '/docs' :
-    'Documentation not available in production',
+    docs: process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true' 
+      ? '/docs' 
+      : 'Documentation not available in production',
     health: '/health'
   });
 });

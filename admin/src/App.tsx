@@ -82,7 +82,6 @@ function App() {
         </NotificationProvider>
       </LanguageProvider>
     </Provider>);
-
 }
 
 export default App;
