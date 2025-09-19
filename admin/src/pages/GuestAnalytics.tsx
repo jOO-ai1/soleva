@@ -16,8 +16,8 @@ import {
   List,
   Avatar,
   Tooltip,
-  Badge
-} from 'antd';
+  Badge } from
+'antd';
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -29,8 +29,8 @@ import {
   MobileOutlined,
   DesktopOutlined,
   TabletOutlined,
-  FireOutlined
-} from '@ant-design/icons';
+  FireOutlined } from
+'@ant-design/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const { Title, Text } = Typography;
@@ -69,63 +69,63 @@ const GuestAnalytics: React.FC = () => {
 
   // Mock data for demonstration
   const mockData: GuestActivity[] = [
+  {
+    id: '1',
+    sessionId: 'sess_123456789',
+    ipAddress: '192.168.1.100',
+    country: 'Egypt',
+    city: 'Cairo',
+    device: 'mobile',
+    browser: 'Chrome Mobile',
+    visitDuration: 15,
+    pagesViewed: 8,
+    productsViewed: ['prod_1', 'prod_2', 'prod_3'],
+    cartItems: [
     {
-      id: '1',
-      sessionId: 'sess_123456789',
-      ipAddress: '192.168.1.100',
-      country: 'Egypt',
-      city: 'Cairo',
-      device: 'mobile',
-      browser: 'Chrome Mobile',
-      visitDuration: 15,
-      pagesViewed: 8,
-      productsViewed: ['prod_1', 'prod_2', 'prod_3'],
-      cartItems: [
-        {
-          productId: 'prod_1',
-          productName: 'Luxury Leather Boots',
-          price: 1500,
-          quantity: 1
-        },
-        {
-          productId: 'prod_2',
-          productName: 'Casual Sneakers',
-          price: 800,
-          quantity: 2
-        }
-      ],
-      wishlistItems: ['prod_3', 'prod_4'],
-      lastActivity: '2023-12-10T14:30:00Z',
-      isConverted: false,
-      source: 'organic',
-      referrer: 'google.com'
+      productId: 'prod_1',
+      productName: 'Luxury Leather Boots',
+      price: 1500,
+      quantity: 1
     },
     {
-      id: '2',
-      sessionId: 'sess_987654321',
-      ipAddress: '10.0.0.50',
-      country: 'UAE',
-      city: 'Dubai',
-      device: 'desktop',
-      browser: 'Chrome',
-      visitDuration: 25,
-      pagesViewed: 12,
-      productsViewed: ['prod_5', 'prod_6', 'prod_7', 'prod_8'],
-      cartItems: [
-        {
-          productId: 'prod_5',
-          productName: 'Designer Heels',
-          price: 2200,
-          quantity: 1
-        }
-      ],
-      wishlistItems: ['prod_6', 'prod_7', 'prod_8', 'prod_9'],
-      lastActivity: '2023-12-10T16:45:00Z',
-      isConverted: true,
-      source: 'paid',
-      referrer: 'facebook.com'
-    }
-  ];
+      productId: 'prod_2',
+      productName: 'Casual Sneakers',
+      price: 800,
+      quantity: 2
+    }],
+
+    wishlistItems: ['prod_3', 'prod_4'],
+    lastActivity: '2023-12-10T14:30:00Z',
+    isConverted: false,
+    source: 'organic',
+    referrer: 'google.com'
+  },
+  {
+    id: '2',
+    sessionId: 'sess_987654321',
+    ipAddress: '10.0.0.50',
+    country: 'UAE',
+    city: 'Dubai',
+    device: 'desktop',
+    browser: 'Chrome',
+    visitDuration: 25,
+    pagesViewed: 12,
+    productsViewed: ['prod_5', 'prod_6', 'prod_7', 'prod_8'],
+    cartItems: [
+    {
+      productId: 'prod_5',
+      productName: 'Designer Heels',
+      price: 2200,
+      quantity: 1
+    }],
+
+    wishlistItems: ['prod_6', 'prod_7', 'prod_8', 'prod_9'],
+    lastActivity: '2023-12-10T16:45:00Z',
+    isConverted: true,
+    source: 'paid',
+    referrer: 'facebook.com'
+  }];
+
 
   useEffect(() => {
     setLoading(true);
@@ -138,36 +138,36 @@ const GuestAnalytics: React.FC = () => {
 
   const getDeviceIcon = (device: string) => {
     switch (device) {
-      case 'mobile': return <MobileOutlined />;
-      case 'tablet': return <TabletOutlined />;
-      case 'desktop': return <DesktopOutlined />;
-      default: return <DesktopOutlined />;
+      case 'mobile':return <MobileOutlined />;
+      case 'tablet':return <TabletOutlined />;
+      case 'desktop':return <DesktopOutlined />;
+      default:return <DesktopOutlined />;
     }
   };
 
   const getSourceColor = (source: string) => {
     switch (source) {
-      case 'organic': return 'green';
-      case 'paid': return 'blue';
-      case 'social': return 'purple';
-      case 'direct': return 'gold';
-      case 'email': return 'orange';
-      default: return 'default';
+      case 'organic':return 'green';
+      case 'paid':return 'blue';
+      case 'social':return 'purple';
+      case 'direct':return 'gold';
+      case 'email':return 'orange';
+      default:return 'default';
     }
   };
 
   const columns = [
-    {
-      title: 'Session Info',
-      key: 'session',
-      render: (_: any, record: GuestActivity) => (
-        <div>
+  {
+    title: 'Session Info',
+    key: 'session',
+    render: (_: any, record: GuestActivity) =>
+    <div>
           <div className="flex items-center space-x-2 mb-1">
             {getDeviceIcon(record.device)}
             <Text strong className="text-white">{record.sessionId.slice(-8)}</Text>
-            {record.isConverted && (
-              <Badge status="success" text="Converted" />
-            )}
+            {record.isConverted &&
+        <Badge status="success" text="Converted" />
+        }
           </div>
           <div className="text-xs text-gray-400">
             {record.country}, {record.city}
@@ -176,13 +176,13 @@ const GuestAnalytics: React.FC = () => {
             {record.browser}
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Activity',
-      key: 'activity',
-      render: (_: any, record: GuestActivity) => (
-        <div>
+
+  },
+  {
+    title: 'Activity',
+    key: 'activity',
+    render: (_: any, record: GuestActivity) =>
+    <div>
           <div className="flex items-center space-x-4 mb-2">
             <Tooltip title="Visit Duration">
               <div className="flex items-center space-x-1">
@@ -201,13 +201,13 @@ const GuestAnalytics: React.FC = () => {
             {record.productsViewed.length} products viewed
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Cart & Wishlist',
-      key: 'engagement',
-      render: (_: any, record: GuestActivity) => (
-        <div>
+
+  },
+  {
+    title: 'Cart & Wishlist',
+    key: 'engagement',
+    render: (_: any, record: GuestActivity) =>
+    <div>
           <div className="flex items-center space-x-4 mb-2">
             <Tooltip title="Cart Items">
               <div className="flex items-center space-x-1">
@@ -222,61 +222,61 @@ const GuestAnalytics: React.FC = () => {
               </div>
             </Tooltip>
           </div>
-          {record.cartItems.length > 0 && (
-            <div className="text-xs">
+          {record.cartItems.length > 0 &&
+      <div className="text-xs">
               <span className="currency-egp">
-                {record.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}
+                {record.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}
               </span>
               <span className="text-gray-400 ml-1">cart value</span>
             </div>
-          )}
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Source',
-      key: 'source',
-      render: (_: any, record: GuestActivity) => (
-        <div>
+
+  },
+  {
+    title: 'Source',
+    key: 'source',
+    render: (_: any, record: GuestActivity) =>
+    <div>
           <Tag color={getSourceColor(record.source)}>
             {record.source.toUpperCase()}
           </Tag>
-          {record.referrer && (
-            <div className="text-xs text-gray-400 mt-1">
+          {record.referrer &&
+      <div className="text-xs text-gray-400 mt-1">
               from {record.referrer}
             </div>
-          )}
+      }
         </div>
-      ),
-    },
-    {
-      title: 'Last Activity',
-      key: 'lastActivity',
-      render: (_: any, record: GuestActivity) => (
-        <div className="text-sm text-gray-300">
+
+  },
+  {
+    title: 'Last Activity',
+    key: 'lastActivity',
+    render: (_: any, record: GuestActivity) =>
+    <div className="text-sm text-gray-300">
           {new Date(record.lastActivity).toLocaleString()}
         </div>
-      ),
-    },
-  ];
+
+  }];
+
 
   // Calculate statistics
   const stats = {
     totalSessions: guestActivities.length,
-    totalCartValue: guestActivities.reduce((sum, activity) => 
-      sum + activity.cartItems.reduce((cartSum, item) => cartSum + (item.price * item.quantity), 0), 0
+    totalCartValue: guestActivities.reduce((sum, activity) =>
+    sum + activity.cartItems.reduce((cartSum, item) => cartSum + item.price * item.quantity, 0), 0
     ),
     totalWishlistItems: guestActivities.reduce((sum, activity) => sum + activity.wishlistItems.length, 0),
-    conversionRate: guestActivities.length > 0 ? 
-      (guestActivities.filter(a => a.isConverted).length / guestActivities.length * 100) : 0,
-    avgSessionDuration: guestActivities.length > 0 ? 
-      guestActivities.reduce((sum, a) => sum + a.visitDuration, 0) / guestActivities.length : 0,
+    conversionRate: guestActivities.length > 0 ?
+    guestActivities.filter((a) => a.isConverted).length / guestActivities.length * 100 : 0,
+    avgSessionDuration: guestActivities.length > 0 ?
+    guestActivities.reduce((sum, a) => sum + a.visitDuration, 0) / guestActivities.length : 0,
     topCountries: Object.entries(
       guestActivities.reduce((acc: Record<string, number>, activity) => {
         acc[activity.country] = (acc[activity.country] || 0) + 1;
         return acc;
       }, {})
-    ).sort(([,a], [,b]) => b - a).slice(0, 5)
+    ).sort(([, a], [, b]) => b - a).slice(0, 5)
   };
 
   return (
@@ -289,8 +289,8 @@ const GuestAnalytics: React.FC = () => {
           <Select
             value={timeRange}
             onChange={setTimeRange}
-            style={{ width: 120 }}
-          >
+            style={{ width: 120 }}>
+
             <Option value="1d">Last Day</Option>
             <Option value="7d">Last 7 Days</Option>
             <Option value="30d">Last 30 Days</Option>
@@ -306,8 +306,8 @@ const GuestAnalytics: React.FC = () => {
             <Statistic
               title="Total Sessions"
               value={stats.totalSessions}
-              prefix={<UserOutlined style={{ color: 'var(--primary)' }} />}
-            />
+              prefix={<UserOutlined style={{ color: 'var(--primary)' }} />} />
+
           </Card>
         </Col>
         <Col span={4}>
@@ -317,8 +317,8 @@ const GuestAnalytics: React.FC = () => {
               value={stats.totalCartValue}
               precision={0}
               prefix="EGP"
-              valueStyle={{ color: 'var(--primary)' }}
-            />
+              valueStyle={{ color: 'var(--primary)' }} />
+
           </Card>
         </Col>
         <Col span={4}>
@@ -327,8 +327,8 @@ const GuestAnalytics: React.FC = () => {
               title="Wishlist Items"
               value={stats.totalWishlistItems}
               prefix={<HeartOutlined style={{ color: 'var(--error)' }} />}
-              valueStyle={{ color: 'var(--error)' }}
-            />
+              valueStyle={{ color: 'var(--error)' }} />
+
           </Card>
         </Col>
         <Col span={4}>
@@ -339,8 +339,8 @@ const GuestAnalytics: React.FC = () => {
               precision={1}
               suffix="%"
               prefix={<TrendingUpOutlined style={{ color: 'var(--success)' }} />}
-              valueStyle={{ color: 'var(--success)' }}
-            />
+              valueStyle={{ color: 'var(--success)' }} />
+
           </Card>
         </Col>
         <Col span={4}>
@@ -351,8 +351,8 @@ const GuestAnalytics: React.FC = () => {
               precision={1}
               suffix="min"
               prefix={<ClockCircleOutlined style={{ color: 'var(--info)' }} />}
-              valueStyle={{ color: 'var(--info)' }}
-            />
+              valueStyle={{ color: 'var(--info)' }} />
+
           </Card>
         </Col>
         <Col span={4}>
@@ -361,8 +361,8 @@ const GuestAnalytics: React.FC = () => {
               title="Active Now"
               value={Math.floor(Math.random() * 25) + 5}
               prefix={<FireOutlined style={{ color: 'var(--warning)' }} />}
-              valueStyle={{ color: 'var(--warning)' }}
-            />
+              valueStyle={{ color: 'var(--warning)' }} />
+
           </Card>
         </Col>
       </Row>
@@ -380,17 +380,17 @@ const GuestAnalytics: React.FC = () => {
                 pageSize: 10,
                 showSizeChanger: false,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} sessions`,
-              }}
-            />
+                `${range[0]}-${range[1]} of ${total} sessions`
+              }} />
+
           </Card>
         </Col>
         <Col span={8}>
           <Card title="Top Countries" className="card-luxury mb-4">
             <List
               dataSource={stats.topCountries}
-              renderItem={([country, count]) => (
-                <List.Item>
+              renderItem={([country, count]) =>
+              <List.Item>
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center space-x-2">
                       <GlobalOutlined className="text-gray-400" />
@@ -399,8 +399,8 @@ const GuestAnalytics: React.FC = () => {
                     <Badge count={count} style={{ backgroundColor: 'var(--primary)' }} />
                   </div>
                 </List.Item>
-              )}
-            />
+              } />
+
           </Card>
 
           <Card title="Device Distribution" className="card-luxury">
@@ -439,8 +439,8 @@ const GuestAnalytics: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
-  );
+    </div>);
+
 };
 
 export default GuestAnalytics;

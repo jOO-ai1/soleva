@@ -43,9 +43,9 @@ function App() {
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route
-                    path="/*"
-                    element={
-                    <ProtectedRoute>
+                      path="/*"
+                      element={
+                      <ProtectedRoute>
                         <Layout>
                           <Routes>
                             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -72,7 +72,7 @@ function App() {
                           </Routes>
                         </Layout>
                       </ProtectedRoute>
-                    } />
+                      } />
 
                 </Routes>
               </div>

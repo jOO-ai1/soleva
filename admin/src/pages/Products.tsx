@@ -225,11 +225,11 @@ const Products = () => {
     title: 'Price',
     dataIndex: 'price',
     key: 'price',
-    render: (price: number) => (
-      <span className="currency-egp">
+    render: (price: number) =>
+    <span className="currency-egp">
         {price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-      </span>
-    ),
+      </span>,
+
     sorter: (a, b) => a.price - b.price
   },
   {
@@ -401,8 +401,8 @@ const Products = () => {
               throw error;
             }
           }}
-          loading={false}
-        />
+          loading={false} />
+
       </Modal>
     </div>);
 

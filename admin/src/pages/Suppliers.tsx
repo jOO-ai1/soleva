@@ -19,8 +19,8 @@ import {
   DatePicker,
   InputNumber,
   Avatar,
-  Statistic
-} from 'antd';
+  Statistic } from
+'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -31,8 +31,8 @@ import {
   PhoneOutlined,
   MailOutlined,
   GlobalOutlined,
-  DollarOutlined
-} from '@ant-design/icons';
+  DollarOutlined } from
+'@ant-design/icons';
 import { suppliersAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -64,21 +64,21 @@ interface Supplier {
 }
 
 const COUNTRIES = [
-  'Egypt', 'China', 'India', 'Turkey', 'Italy', 'Spain', 'Germany',
-  'United Kingdom', 'France', 'United States', 'Brazil', 'Vietnam',
-  'Bangladesh', 'Pakistan', 'Thailand', 'Indonesia'
-];
+'Egypt', 'China', 'India', 'Turkey', 'Italy', 'Spain', 'Germany',
+'United Kingdom', 'France', 'United States', 'Brazil', 'Vietnam',
+'Bangladesh', 'Pakistan', 'Thailand', 'Indonesia'];
+
 
 const PAYMENT_TERMS = [
-  'Net 30',
-  'Net 60',
-  'Net 90',
-  'Cash on Delivery',
-  '2/10 Net 30',
-  'Letter of Credit',
-  'Advance Payment',
-  'Payment on Delivery'
-];
+'Net 30',
+'Net 60',
+'Net 90',
+'Cash on Delivery',
+'2/10 Net 30',
+'Letter of Credit',
+'Advance Payment',
+'Payment on Delivery'];
+
 
 const Suppliers: React.FC = () => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -179,10 +179,10 @@ const Suppliers: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'green';
-      case 'inactive': return 'red';
-      case 'pending': return 'orange';
-      default: return 'default';
+      case 'active':return 'green';
+      case 'inactive':return 'red';
+      case 'pending':return 'orange';
+      default:return 'default';
     }
   };
 
@@ -191,27 +191,27 @@ const Suppliers: React.FC = () => {
   };
 
   const columns: ColumnsType<Supplier> = [
-    {
-      title: 'Supplier',
-      key: 'supplier',
-      render: (_, record) => (
-        <Space>
-          <Avatar 
-            icon={<ShopOutlined />} 
-            style={{ backgroundColor: 'var(--primary)' }}
-          />
+  {
+    title: 'Supplier',
+    key: 'supplier',
+    render: (_, record) =>
+    <Space>
+          <Avatar
+        icon={<ShopOutlined />}
+        style={{ backgroundColor: 'var(--primary)' }} />
+
           <div>
             <div className="font-semibold text-white">{record.name}</div>
             <Text type="secondary">{record.contactPerson}</Text>
           </div>
         </Space>
-      ),
-    },
-    {
-      title: 'Contact',
-      key: 'contact',
-      render: (_, record) => (
-        <div>
+
+  },
+  {
+    title: 'Contact',
+    key: 'contact',
+    render: (_, record) =>
+    <div>
           <div className="flex items-center mb-1">
             <MailOutlined className="mr-2 text-gray-400" />
             <span className="text-sm text-gray-300">{record.email}</span>
@@ -221,25 +221,25 @@ const Suppliers: React.FC = () => {
             <span className="text-sm text-gray-300">{record.phone}</span>
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Location',
-      key: 'location',
-      render: (_, record) => (
-        <div>
+
+  },
+  {
+    title: 'Location',
+    key: 'location',
+    render: (_, record) =>
+    <div>
           <div className="text-white">{record.country}</div>
           <Text type="secondary" className="text-xs">
             Delivery: {record.deliveryTime} days
           </Text>
         </div>
-      ),
-    },
-    {
-      title: 'Performance',
-      key: 'performance',
-      render: (_, record) => (
-        <div>
+
+  },
+  {
+    title: 'Performance',
+    key: 'performance',
+    render: (_, record) =>
+    <div>
           <div className="text-yellow-400 mb-1">
             {getRatingStars(record.rating)} ({record.rating}/5)
           </div>
@@ -247,13 +247,13 @@ const Suppliers: React.FC = () => {
             {record.totalOrders} orders
           </div>
         </div>
-      ),
-    },
-    {
-      title: 'Value',
-      key: 'value',
-      render: (_, record) => (
-        <div className="text-right">
+
+  },
+  {
+    title: 'Value',
+    key: 'value',
+    render: (_, record) =>
+    <div className="text-right">
           <div className="currency-egp text-lg font-semibold">
             {record.totalValue.toLocaleString()}
           </div>
@@ -261,55 +261,55 @@ const Suppliers: React.FC = () => {
             {record.paymentTerms}
           </Text>
         </div>
-      ),
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (_, record) => (
-        <Tag color={getStatusColor(record.status)} className="tag-luxury">
+
+  },
+  {
+    title: 'Status',
+    key: 'status',
+    render: (_, record) =>
+    <Tag color={getStatusColor(record.status)} className="tag-luxury">
           {record.status.toUpperCase()}
         </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space>
+
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 150,
+    render: (_, record) =>
+    <Space>
           <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => handleView(record)}
-            className="btn-ghost"
-          />
+        type="text"
+        icon={<EyeOutlined />}
+        onClick={() => handleView(record)}
+        className="btn-ghost" />
+
           <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            className="btn-ghost"
-          />
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => handleEdit(record)}
+        className="btn-ghost" />
+
           <Popconfirm
-            title="Are you sure you want to delete this supplier?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+        title="Are you sure you want to delete this supplier?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No">
+
             <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              className="btn-ghost"
-            />
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          className="btn-ghost" />
+
           </Popconfirm>
         </Space>
-      ),
-    },
-  ];
+
+  }];
+
 
   const totalSuppliers = suppliers.length;
-  const activeSuppliers = suppliers.filter(s => s.status === 'active').length;
+  const activeSuppliers = suppliers.filter((s) => s.status === 'active').length;
   const totalValue = suppliers.reduce((sum, s) => sum + s.totalValue, 0);
   const avgRating = suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length || 0;
 
@@ -323,8 +323,8 @@ const Suppliers: React.FC = () => {
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleAdd}
-          className="btn-primary"
-        >
+          className="btn-primary">
+
           Add Supplier
         </Button>
       </div>
@@ -336,8 +336,8 @@ const Suppliers: React.FC = () => {
             <Statistic
               title="Total Suppliers"
               value={totalSuppliers}
-              prefix={<ShopOutlined style={{ color: 'var(--primary)' }} />}
-            />
+              prefix={<ShopOutlined style={{ color: 'var(--primary)' }} />} />
+
           </Card>
         </Col>
         <Col span={6}>
@@ -345,8 +345,8 @@ const Suppliers: React.FC = () => {
             <Statistic
               title="Active Suppliers"
               value={activeSuppliers}
-              prefix={<UserOutlined style={{ color: 'var(--success)' }} />}
-            />
+              prefix={<UserOutlined style={{ color: 'var(--success)' }} />} />
+
           </Card>
         </Col>
         <Col span={6}>
@@ -357,8 +357,8 @@ const Suppliers: React.FC = () => {
               precision={0}
               prefix="EGP"
               suffix="K"
-              valueStyle={{ color: 'var(--primary)' }}
-            />
+              valueStyle={{ color: 'var(--primary)' }} />
+
           </Card>
         </Col>
         <Col span={6}>
@@ -369,8 +369,8 @@ const Suppliers: React.FC = () => {
               precision={1}
               suffix="/5"
               prefix="⭐"
-              valueStyle={{ color: 'var(--warning)' }}
-            />
+              valueStyle={{ color: 'var(--warning)' }} />
+
           </Card>
         </Col>
       </Row>
@@ -387,10 +387,10 @@ const Suppliers: React.FC = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} suppliers`,
+            `${range[0]}-${range[1]} of ${total} suppliers`
           }}
-          scroll={{ x: 1000 }}
-        />
+          scroll={{ x: 1000 }} />
+
       </Card>
 
       {/* Create/Edit Modal */}
@@ -400,14 +400,14 @@ const Suppliers: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         footer={null}
         width={800}
-        className="modal-luxury"
-      >
+        className="modal-luxury">
+
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
-          className="form-luxury"
-        >
+          className="form-luxury">
+
           <Tabs defaultActiveKey="basic">
             <TabPane tab="Basic Information" key="basic">
               <Row gutter={16}>
@@ -415,8 +415,8 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="name"
                     label="Supplier Name"
-                    rules={[{ required: true, message: 'Please enter supplier name' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter supplier name' }]}>
+
                     <Input placeholder="Enter supplier name" />
                   </Form.Item>
                 </Col>
@@ -424,8 +424,8 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="contactPerson"
                     label="Contact Person"
-                    rules={[{ required: true, message: 'Please enter contact person' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter contact person' }]}>
+
                     <Input placeholder="Enter contact person name" />
                   </Form.Item>
                 </Col>
@@ -437,10 +437,10 @@ const Suppliers: React.FC = () => {
                     name="email"
                     label="Email"
                     rules={[
-                      { required: true, message: 'Please enter email' },
-                      { type: 'email', message: 'Please enter valid email' }
-                    ]}
-                  >
+                    { required: true, message: 'Please enter email' },
+                    { type: 'email', message: 'Please enter valid email' }]
+                    }>
+
                     <Input placeholder="Enter email address" />
                   </Form.Item>
                 </Col>
@@ -448,8 +448,8 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="phone"
                     label="Phone"
-                    rules={[{ required: true, message: 'Please enter phone' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter phone' }]}>
+
                     <Input placeholder="Enter phone number" />
                   </Form.Item>
                 </Col>
@@ -458,8 +458,8 @@ const Suppliers: React.FC = () => {
               <Form.Item
                 name="address"
                 label="Address"
-                rules={[{ required: true, message: 'Please enter address' }]}
-              >
+                rules={[{ required: true, message: 'Please enter address' }]}>
+
                 <TextArea rows={3} placeholder="Enter full address" />
               </Form.Item>
 
@@ -468,20 +468,20 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="country"
                     label="Country"
-                    rules={[{ required: true, message: 'Please select country' }]}
-                  >
+                    rules={[{ required: true, message: 'Please select country' }]}>
+
                     <Select placeholder="Select country">
-                      {COUNTRIES.map(country => (
-                        <Option key={country} value={country}>{country}</Option>
-                      ))}
+                      {COUNTRIES.map((country) =>
+                      <Option key={country} value={country}>{country}</Option>
+                      )}
                     </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
                     name="website"
-                    label="Website"
-                  >
+                    label="Website">
+
                     <Input placeholder="Enter website URL" />
                   </Form.Item>
                 </Col>
@@ -494,12 +494,12 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="paymentTerms"
                     label="Payment Terms"
-                    rules={[{ required: true, message: 'Please select payment terms' }]}
-                  >
+                    rules={[{ required: true, message: 'Please select payment terms' }]}>
+
                     <Select placeholder="Select payment terms">
-                      {PAYMENT_TERMS.map(term => (
-                        <Option key={term} value={term}>{term}</Option>
-                      ))}
+                      {PAYMENT_TERMS.map((term) =>
+                      <Option key={term} value={term}>{term}</Option>
+                      )}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -507,14 +507,14 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="deliveryTime"
                     label="Delivery Time (Days)"
-                    rules={[{ required: true, message: 'Please enter delivery time' }]}
-                  >
+                    rules={[{ required: true, message: 'Please enter delivery time' }]}>
+
                     <InputNumber
                       style={{ width: '100%' }}
                       min={1}
                       max={365}
-                      placeholder="Enter delivery time"
-                    />
+                      placeholder="Enter delivery time" />
+
                   </Form.Item>
                 </Col>
               </Row>
@@ -524,14 +524,14 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="rating"
                     label="Rating"
-                    rules={[{ required: true, message: 'Please select rating' }]}
-                  >
+                    rules={[{ required: true, message: 'Please select rating' }]}>
+
                     <Select placeholder="Select rating">
-                      {[1, 2, 3, 4, 5].map(rating => (
-                        <Option key={rating} value={rating}>
+                      {[1, 2, 3, 4, 5].map((rating) =>
+                      <Option key={rating} value={rating}>
                           {'★'.repeat(rating) + '☆'.repeat(5 - rating)} ({rating}/5)
                         </Option>
-                      ))}
+                      )}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -539,8 +539,8 @@ const Suppliers: React.FC = () => {
                   <Form.Item
                     name="status"
                     label="Status"
-                    rules={[{ required: true, message: 'Please select status' }]}
-                  >
+                    rules={[{ required: true, message: 'Please select status' }]}>
+
                     <Select placeholder="Select status">
                       <Option value="active">Active</Option>
                       <Option value="inactive">Inactive</Option>
@@ -552,8 +552,8 @@ const Suppliers: React.FC = () => {
 
               <Form.Item
                 name="notes"
-                label="Notes"
-              >
+                label="Notes">
+
                 <TextArea rows={4} placeholder="Enter additional notes" />
               </Form.Item>
             </TabPane>
@@ -577,18 +577,18 @@ const Suppliers: React.FC = () => {
         onCancel={() => setDetailModalVisible(false)}
         footer={null}
         width={600}
-        className="modal-luxury"
-      >
-        {selectedSupplier && (
-          <div>
+        className="modal-luxury">
+
+        {selectedSupplier &&
+        <div>
             <Row gutter={24}>
               <Col span={8}>
                 <div className="text-center mb-4">
-                  <Avatar 
-                    size={80} 
-                    icon={<ShopOutlined />} 
-                    style={{ backgroundColor: 'var(--primary)', color: 'var(--text-inverse)' }}
-                  />
+                  <Avatar
+                  size={80}
+                  icon={<ShopOutlined />}
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--text-inverse)' }} />
+
                   <Title level={4} className="mt-2" style={{ color: 'var(--text-primary)' }}>
                     {selectedSupplier.name}
                   </Title>
@@ -637,40 +637,40 @@ const Suppliers: React.FC = () => {
               <Row gutter={16}>
                 <Col span={8}>
                   <Statistic
-                    title="Total Orders"
-                    value={selectedSupplier.totalOrders}
-                    valueStyle={{ color: 'var(--primary)' }}
-                  />
+                  title="Total Orders"
+                  value={selectedSupplier.totalOrders}
+                  valueStyle={{ color: 'var(--primary)' }} />
+
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="Total Value"
-                    value={selectedSupplier.totalValue}
-                    prefix="EGP"
-                    valueStyle={{ color: 'var(--primary)' }}
-                  />
+                  title="Total Value"
+                  value={selectedSupplier.totalValue}
+                  prefix="EGP"
+                  valueStyle={{ color: 'var(--primary)' }} />
+
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="Last Order"
-                    value={selectedSupplier.lastOrderDate || 'Never'}
-                    valueStyle={{ color: 'var(--text-secondary)' }}
-                  />
+                  title="Last Order"
+                  value={selectedSupplier.lastOrderDate || 'Never'}
+                  valueStyle={{ color: 'var(--text-secondary)' }} />
+
                 </Col>
               </Row>
             </div>
 
-            {selectedSupplier.notes && (
-              <div className="mt-6 pt-4 border-t border-gray-600">
+            {selectedSupplier.notes &&
+          <div className="mt-6 pt-4 border-t border-gray-600">
                 <Title level={5} style={{ color: 'var(--text-primary)' }}>Notes:</Title>
                 <p className="text-gray-300">{selectedSupplier.notes}</p>
               </div>
-            )}
+          }
           </div>
-        )}
+        }
       </Modal>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Suppliers;

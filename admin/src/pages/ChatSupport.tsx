@@ -26,8 +26,8 @@ import {
   Tooltip,
   Empty,
   Alert,
-  Timeline
-} from 'antd';
+  Timeline } from
+'antd';
 import {
   MessageOutlined,
   RobotOutlined,
@@ -51,8 +51,8 @@ import {
   ExclamationCircleOutlined,
   TeamOutlined,
   HeartOutlined,
-  CloseCircleOutlined
-} from '@ant-design/icons';
+  CloseCircleOutlined } from
+'@ant-design/icons';
 import { chatAPI } from '../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';

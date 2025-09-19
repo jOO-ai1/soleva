@@ -82,50 +82,50 @@ const ErrorHandler: React.FC<ErrorHandlerProps> = ({
           </Paragraph>
         </div>
 
-        {process.env.NODE_ENV === 'development' && error && (
-          <Alert
-            message="Development Error Details"
-            description={
-              <div style={{ textAlign: 'left', marginTop: '8px' }}>
-                <code style={{ 
-                  background: 'var(--surface-light)', 
-                  padding: '8px', 
-                  borderRadius: '4px',
-                  display: 'block',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.75rem',
-                  whiteSpace: 'pre-wrap'
-                }}>
+        {process.env.NODE_ENV === 'development' && error &&
+        <Alert
+          message="Development Error Details"
+          description={
+          <div style={{ textAlign: 'left', marginTop: '8px' }}>
+                <code style={{
+              background: 'var(--surface-light)',
+              padding: '8px',
+              borderRadius: '4px',
+              display: 'block',
+              color: 'var(--text-primary)',
+              fontSize: '0.75rem',
+              whiteSpace: 'pre-wrap'
+            }}>
                   {error.stack || error.message}
                 </code>
               </div>
-            }
-            type="info"
-            className="mb-6"
-            style={{ textAlign: 'left' }}
-          />
-        )}
+          }
+          type="info"
+          className="mb-6"
+          style={{ textAlign: 'left' }} />
+
+        }
 
         <Space size="middle">
-          {showReload && (
-            <Button 
-              type="primary" 
-              icon={<ReloadOutlined />} 
-              onClick={handleReload}
-              className="btn-primary"
-            >
+          {showReload &&
+          <Button
+            type="primary"
+            icon={<ReloadOutlined />}
+            onClick={handleReload}
+            className="btn-primary">
+
               Try Again
             </Button>
-          )}
-          {showHome && (
-            <Button 
-              icon={<HomeOutlined />} 
-              onClick={handleGoHome}
-              className="btn-ghost"
-            >
+          }
+          {showHome &&
+          <Button
+            icon={<HomeOutlined />}
+            onClick={handleGoHome}
+            className="btn-ghost">
+
               Go to Dashboard
             </Button>
-          )}
+          }
         </Space>
 
         <div className="mt-6 pt-4 border-t border-gray-600">
@@ -134,8 +134,8 @@ const ErrorHandler: React.FC<ErrorHandlerProps> = ({
           </Paragraph>
         </div>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorHandler;

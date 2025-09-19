@@ -28,10 +28,10 @@ const LuxuryDashboardCard: React.FC<LuxuryDashboardCardProps> = ({
   loading = false
 }) => {
   return (
-    <Card 
+    <Card
       className="stats-card hover:transform hover:-translate-y-1 transition-all duration-300"
-      loading={loading}
-    >
+      loading={loading}>
+
       <div className="relative">
         <Statistic
           title={<span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{title}</span>}
@@ -39,37 +39,37 @@ const LuxuryDashboardCard: React.FC<LuxuryDashboardCardProps> = ({
           precision={typeof value === 'number' ? 0 : undefined}
           prefix={prefix}
           suffix={suffix}
-          valueStyle={{ 
+          valueStyle={{
             color: color,
             fontSize: '1.75rem',
             fontWeight: 'bold'
-          }}
-        />
+          }} />
+
         
-        {trend && (
-          <div className="absolute top-2 right-2">
+        {trend &&
+        <div className="absolute top-2 right-2">
             <div className={`text-xs px-2 py-1 rounded-full ${
-              trend.isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-            }`}>
+          trend.isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`
+          }>
               {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}%
             </div>
           </div>
-        )}
+        }
         
-        {progress !== undefined && (
-          <div className="mt-3">
-            <Progress 
-              percent={progress} 
-              showInfo={false} 
-              strokeColor={color}
-              trailColor="rgba(255, 255, 255, 0.1)"
-              size="small"
-            />
+        {progress !== undefined &&
+        <div className="mt-3">
+            <Progress
+            percent={progress}
+            showInfo={false}
+            strokeColor={color}
+            trailColor="rgba(255, 255, 255, 0.1)"
+            size="small" />
+
           </div>
-        )}
+        }
       </div>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default LuxuryDashboardCard;
