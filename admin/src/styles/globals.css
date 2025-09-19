@@ -1,35 +1,495 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import custom properties and base styles */
+@import './design-system.css';
 
-/* Import Luxury Theme */
-@import './luxury-theme.css';
-
-/* Global Styles */
-* {
-  box-sizing: border-box;
+/* Ant Design custom theme */
+:root {
+  /* Primary Colors - Luxury Brand Gold */
+  --primary: #D4AF37;
+  --primary-50: rgba(212, 175, 55, 0.05);
+  --primary-100: rgba(212, 175, 55, 0.1);
+  --primary-200: rgba(212, 175, 55, 0.2);
+  --primary-300: rgba(212, 175, 55, 0.3);
+  --primary-dark: #B8941F;
+  --primary-light: #E4C962;
+  
+  /* Background Colors */
+  --bg-primary: #0A0A0B;
+  --bg-secondary: #1A1A1D;
+  --bg-tertiary: #2A2A2F;
+  
+  /* Glass Effect */
+  --glass-bg: rgba(26, 26, 29, 0.8);
+  --glass-border: rgba(212, 175, 55, 0.2);
+  
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B8B8B8;
+  --text-muted: #8A8A8A;
+  --text-inverse: #000000;
+  
+  /* Status Colors */
+  --success: #52C41A;
+  --warning: #FAAD14;
+  --error: #FF4D4F;
+  --info: #1890FF;
+  
+  /* Border & Shadows */
+  --border-primary: rgba(212, 175, 55, 0.3);
+  --shadow-primary: 0 8px 32px rgba(212, 175, 55, 0.1);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+  
+  /* Spacing & Layout */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s ease-out;
+  --transition-slow: 0.5s ease-out;
 }
 
-html, body {
+/* Base styles */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--background);
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font-family);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* Glass morphism utility class */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* Admin Layout Styles */
+.admin-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0A0A0B 0%, #1A1A1D 50%, #0A0A0B 100%);
+}
+
+.admin-sidebar {
+  background: transparent !important;
+}
+
+.admin-sidebar .ant-layout-sider-children {
+  background: transparent;
+}
+
+.admin-menu {
+  background: transparent !important;
+}
+
+.admin-menu .ant-menu-item {
+  margin: 4px 0;
+  border-radius: var(--radius-lg) !important;
+  background: transparent;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  transition: all var(--transition-normal);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.admin-menu .ant-menu-item:hover,
+.admin-menu .ant-menu-item-selected {
+  background: var(--glass-bg) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--primary-200) !important;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1);
+}
+
+.admin-menu .ant-menu-item .ant-menu-item-icon {
+  color: inherit;
+  font-size: 18px;
+  margin-inline-end: 12px;
+}
+
+.admin-header {
+  border-bottom: 1px solid var(--border-primary);
+  backdrop-filter: blur(20px);
+}
+
+.admin-content {
+  padding: 24px;
+  background: transparent;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border: none;
+  color: var(--text-inverse);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-primary);
+  transition: all var(--transition-normal);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.2);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+}
+
+.btn-ghost:hover {
+  background: var(--glass-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+  backdrop-filter: blur(20px);
+}
+
+/* Card Styles */
+.card-luxury {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+.card-luxury .ant-card-head {
+  background: transparent;
+  border-bottom: 1px solid var(--border-primary);
   color: var(--text-primary);
 }
 
-#root {
-  min-height: 100vh;
-  background: var(--background);
+.card-luxury .ant-card-body {
+  background: transparent;
+  color: var(--text-primary);
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Table Styles */
+.table-luxury {
+  background: transparent;
+}
+
+.table-luxury .ant-table {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.table-luxury .ant-table-thead > tr > th {
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.table-luxury .ant-table-tbody > tr > td {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.table-luxury .ant-table-tbody > tr:hover > td {
+  background: var(--glass-bg) !important;
+}
+
+/* Modal Styles */
+.modal-luxury .ant-modal-content {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  color: var(--text-primary);
+}
+
+.modal-luxury .ant-modal-header {
+  background: transparent;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.modal-luxury .ant-modal-title {
+  color: var(--text-primary);
+}
+
+.modal-luxury .ant-modal-body {
+  background: transparent;
+}
+
+/* Form Styles */
+.form-luxury .ant-form-item-label > label {
+  color: var(--text-primary);
+}
+
+.form-luxury .ant-input,
+.form-luxury .ant-select-selector,
+.form-luxury .ant-input-number,
+.form-luxury .ant-picker {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  border-radius: var(--radius-lg);
+}
+
+.form-luxury .ant-input:hover,
+.form-luxury .ant-select-selector:hover,
+.form-luxury .ant-input-number:hover,
+.form-luxury .ant-picker:hover {
+  border-color: var(--primary);
+}
+
+.form-luxury .ant-input:focus,
+.form-luxury .ant-select-focused .ant-select-selector,
+.form-luxury .ant-input-number-focused,
+.form-luxury .ant-picker-focused {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* Tag Styles */
+.tag-luxury {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(20px);
+  font-weight: 500;
+}
+
+/* Stats Card */
+.stats-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-normal);
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+}
+
+.stats-card .ant-statistic-title {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.stats-card .ant-statistic-content {
+  color: var(--text-primary);
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+/* Currency Styles */
+.currency-egp::before {
+  content: 'EGP ';
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+/* Animation Classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* User Profile */
+.user-profile:hover {
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
+  transition: all var(--transition-normal);
+}
+
+/* Language Switcher */
+.language-switcher-btn {
+  border-radius: var(--radius-lg) !important;
+}
+
+.language-switcher-btn:hover {
+  background: var(--glass-bg) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.flag-icon {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+  padding: 0;
+  background: transparent;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+/* RTL Support */
+[dir="rtl"] .admin-menu .ant-menu-item .ant-menu-item-icon {
+  margin-inline-end: 0;
+  margin-inline-start: 12px;
+}
+
+[dir="rtl"] .flag-icon {
+  margin-right: 0;
+  margin-left: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 16px;
+  }
+  
+  .stats-card {
+    margin-bottom: 16px;
+  }
+  
+  .table-luxury {
+    font-size: var(--text-sm);
+  }
+}
+
+/* Ant Design Overrides */
+.ant-layout {
+  background: transparent !important;
+}
+
+.ant-card {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-xl) !important;
+}
+
+.ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+}
+
+.ant-card-head-title {
+  color: var(--text-primary) !important;
+}
+
+.ant-statistic-title {
+  color: var(--text-secondary) !important;
+}
+
+.ant-statistic-content {
+  color: var(--text-primary) !important;
+}
+
+.ant-table {
+  background: transparent !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--glass-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+}
+
+.ant-table-tbody > tr > td {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-pagination .ant-pagination-item {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--border-primary) !important;
+}
+
+.ant-pagination .ant-pagination-item a {
+  color: var(--text-primary) !important;
+}
+
+.ant-pagination .ant-pagination-item-active {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.ant-pagination .ant-pagination-item-active a {
+  color: var(--text-inverse) !important;
+}
+
+/* Loading and Error States */
+.ant-spin .ant-spin-dot-item {
+  background-color: var(--primary);
+}
+
+.ant-alert {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-lg) !important;
+  backdrop-filter: blur(20px);
+}
+
+.ant-alert-message {
+  color: var(--text-primary) !important;
+}
+
+.ant-alert-description {
+  color: var(--text-secondary) !important;
 }

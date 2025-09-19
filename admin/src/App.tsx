@@ -41,14 +41,19 @@ function App() {
             <Router>
               <div className="App">
                 <Routes>
+                  {/* Login route */}
                   <Route path="/login" element={<Login />} />
+                  
+                  {/* Admin routes - redirect root to dashboard */}
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  
+                  {/* Protected admin routes */}
                   <Route
                       path="/*"
                       element={
                       <ProtectedRoute>
                         <Layout>
                           <Routes>
-                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/products/*" element={<Products />} />
                             <Route path="/categories/*" element={<Categories />} />
@@ -69,6 +74,8 @@ function App() {
                             <Route path="/suppliers/*" element={<Suppliers />} />
                             <Route path="/investors/*" element={<Investors />} />
                             <Route path="/guest-analytics/*" element={<GuestAnalytics />} />
+                            {/* Fallback for unmatched routes */}
+                            <Route path="*" element={<Navigate to="/dashboard" replace />} />
                           </Routes>
                         </Layout>
                       </ProtectedRoute>
