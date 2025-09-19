@@ -235,21 +235,21 @@ class ErrorHandlingService {
 
   private getSeverityEmoji(severity?: LoggedError['severity']): string {
     switch (severity) {
-      case 'low':return '⚠️';
-      case 'medium':return '🔶';
-      case 'high':return '❌';
-      case 'critical':return '🚨';
-      default:return '⚠️';
+      case 'low': return '⚠️';
+      case 'medium': return '🔶';
+      case 'high': return '❌';
+      case 'critical': return '🚨';
+      default: return '⚠️';
     }
   }
 
   private getSeverityStyle(severity?: LoggedError['severity']): string {
     switch (severity) {
-      case 'low':return 'color: orange; font-weight: normal;';
-      case 'medium':return 'color: darkorange; font-weight: bold;';
-      case 'high':return 'color: red; font-weight: bold;';
-      case 'critical':return 'color: darkred; font-weight: bold; font-size: 14px;';
-      default:return 'color: orange; font-weight: normal;';
+      case 'low': return 'color: orange; font-weight: normal;';
+      case 'medium': return 'color: darkorange; font-weight: bold;';
+      case 'high': return 'color: red; font-weight: bold;';
+      case 'critical': return 'color: darkred; font-weight: bold; font-size: 14px;';
+      default: return 'color: orange; font-weight: normal;';
     }
   }
 

@@ -173,6 +173,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 
 
+
+
       // Continue with logout even if API call fails
     } finally {localStorage.removeItem('admin_token');localStorage.removeItem('admin_user');setUser(null);setIsAuthenticated(false);}};const refreshUser = async () => {try {const response = await authAPI.getProfile();if (response.success && response.data) {setUser(response.data);localStorage.setItem('admin_user', JSON.stringify(response.data));}} catch {
 

@@ -119,8 +119,9 @@ class NetworkService {
     try {
       const start = performance.now();
 
-      // Use a small image to test connection
-      const response = await fetch('/favicon.ico', {
+      // Use a lightweight request to test connection quality
+      // Note: Favicon testing removed - configure SEO settings via Project Detail → Settings → SEO
+      const response = await fetch('/manifest.json', {
         method: 'HEAD',
         cache: 'no-cache'
       });

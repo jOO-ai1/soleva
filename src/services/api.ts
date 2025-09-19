@@ -120,7 +120,7 @@ class ApiClient {
       error.message.includes('ERR_INTERNET_DISCONNECTED')))
       {
         // Don't throw error for network issues - return offline response
-        console.warn('Network error detected, using offline mode:', error.message);
+        console.info('🔄 API connection failed, gracefully falling back to offline mode:', error.message);
         throw {
           message: 'Using offline data due to network connectivity issues',
           status: 0,
@@ -275,7 +275,7 @@ export const productsApi = {
       console.info('✅ Successfully loaded products from API');
       return response;
     } catch (error) {
-      console.warn('⚠️ API connection failed, using fallback data:', error);
+      console.info('🔄 API connection failed, gracefully using fallback data:', error.message || error);
 
       // Enhanced fallback with error context
       const { getMockProducts } = await import('./mockData');
@@ -316,7 +316,7 @@ export const productsApi = {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getById(id);
     } catch (error) {
-      console.warn('Using fallback data for product ID:', id, error);
+      console.info('🔄 Using fallback data for product ID:', id, error.message || error);
       // Try to find product in mock data
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
@@ -343,7 +343,7 @@ export const productsApi = {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getAll({ search: query });
     } catch (error) {
-      console.warn('Using fallback data for search:', query, error);
+      console.info('🔄 Using fallback data for search:', query, error.message || error);
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
       const filteredProducts = mockProducts.filter((product) =>
@@ -369,7 +369,7 @@ export const categoriesApi = {
       const { supabaseCategoriesApi } = await import('./supabaseApi');
       return await supabaseCategoriesApi.getAll();
     } catch (error) {
-      console.warn('Using fallback data for categories:', error);
+      console.info('🔄 Using fallback data for categories:', error.message || error);
       const { getMockCategories } = await import('./mockData');
       return Promise.resolve({
         data: getMockCategories(),
@@ -387,7 +387,7 @@ export const collectionsApi = {
       const { supabaseCollectionsApi } = await import('./supabaseApi');
       return await supabaseCollectionsApi.getAll();
     } catch (error) {
-      console.warn('Using fallback data for collections:', error);
+      console.info('🔄 Using fallback data for collections:', error.message || error);
       const { getMockCollections } = await import('./mockData');
       return Promise.resolve({
         data: getMockCollections(),
@@ -403,7 +403,7 @@ export const collectionsApi = {
       const { supabaseCollectionsApi } = await import('./supabaseApi');
       return await supabaseCollectionsApi.getAll();
     } catch (error) {
-      console.warn('Using fallback data for collection:', id, error);
+      console.info('🔄 Using fallback data for collection:', id, error.message || error);
       const { getMockCollections } = await import('./mockData');
       const mockCollections = getMockCollections();
       const collection = mockCollections.find((c) => c.slug === id);
@@ -431,7 +431,7 @@ export const collectionsApi = {
       const { supabaseProductsApi } = await import('./supabaseApi');
       return await supabaseProductsApi.getAll({ collection: id });
     } catch (error) {
-      console.warn('Using fallback data for collection products:', id, error);
+      console.info('🔄 Using fallback data for collection products:', id, error.message || error);
       const { getMockProducts } = await import('./mockData');
       const mockProducts = getMockProducts();
       const filteredProducts = mockProducts.filter((product) =>

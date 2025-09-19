@@ -52,10 +52,10 @@ const fallbackNotification: NotificationContextType = {
 
 
 
+
+
     // Sonner handles this automatically
-  }, clearAllNotifications: () => {toast.dismiss();} };export const useSafeNotification = (): NotificationContextType => {
-  try {
-    // Try to get the notification context from the actual provider
+  }, clearAllNotifications: () => {toast.dismiss();} };export const useSafeNotification = (): NotificationContextType => {try {// Try to get the notification context from the actual provider
     const { useNotification } = require('../contexts/NotificationContext');
     const context = useNotification();
     return context;
