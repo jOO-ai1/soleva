@@ -135,6 +135,8 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
@@ -189,9 +191,7 @@ export default function LoginPage() {
 
             <button type="submit" className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 min-h-[52px] font-bold hover:scale-105 transition-all duration-300 rounded-lg px-4 py-2 flex items-center justify-center gap-2" disabled={isLoading}>
 
-              {isLoading ?
-            <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
-
+              {isLoading ? <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
             <>
                   <HiLogin />
                   {t("login")}
