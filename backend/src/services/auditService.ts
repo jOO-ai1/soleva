@@ -222,6 +222,10 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
@@ -246,11 +250,7 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
       GROUP BY DATE(created_at)
       ORDER BY date DESC
     `]); // Get admin details for admin stats
-  const adminIds = adminStats.map((stat: any) => stat.adminId).filter(Boolean);const admins = await prisma.user.findMany({ where: { id: { in: adminIds as string[] } }, select: { id: true, name: true,
-        email: true,
-        role: true
-      }
-    });
+  const adminIds = adminStats.map((stat: any) => stat.adminId).filter(Boolean);const admins = await prisma.user.findMany({ where: { id: { in: adminIds as string[] } }, select: { id: true, name: true, email: true, role: true } });
 
   const adminStatsWithDetails = adminStats.map((stat: any) => ({
     ...stat,

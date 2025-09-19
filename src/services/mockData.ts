@@ -82,9 +82,9 @@ const mockProducts: MockProduct[] = [
   originalPrice: 159.99,
   discount: 19,
   images: [
-    'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-    'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'
-  ],
+  'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
+  'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400'],
+
   sizes: [38, 39, 40, 41, 42, 43, 44],
   colors: ['Black', 'White', 'Brown'],
   category: {
@@ -116,9 +116,9 @@ const mockProducts: MockProduct[] = [
   price: 189.99,
   basePrice: 189.99,
   images: [
-    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-    'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400'
-  ],
+  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
+  'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400'],
+
   sizes: [38, 39, 40, 41, 42, 43, 44, 45],
   colors: ['Blue', 'Red', 'Black'],
   category: {
@@ -153,8 +153,8 @@ const mockProducts: MockProduct[] = [
   originalPrice: 99.99,
   discount: 20,
   images: [
-    'https://images.unsplash.com/photo-1582897085656-c636d006a246?w=400'
-  ],
+  'https://images.unsplash.com/photo-1582897085656-c636d006a246?w=400'],
+
   sizes: [39, 40, 41, 42, 43],
   colors: ['Brown', 'Black', 'Tan'],
   category: {
@@ -180,8 +180,8 @@ const mockProducts: MockProduct[] = [
   price: 199.99,
   basePrice: 199.99,
   images: [
-    'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400'
-  ],
+  'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400'],
+
   sizes: [38, 39, 40, 41, 42, 43, 44],
   colors: ['Black', 'Brown'],
   category: {
@@ -212,8 +212,8 @@ const mockProducts: MockProduct[] = [
   price: 49.99,
   basePrice: 49.99,
   images: [
-    'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400'
-  ],
+  'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400'],
+
   sizes: [38, 39, 40, 41, 42, 43],
   colors: ['Brown', 'Black', 'Tan'],
   category: {

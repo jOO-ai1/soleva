@@ -187,6 +187,8 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // FCP observation not supported
       } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});try {lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });} catch (e) {
@@ -234,10 +236,8 @@ export const useDeviceDetection = () => {
 
         // INP observation not supported
       } // Resolve after a delay to collect metrics
-      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;resolve(metrics as PerformanceMetrics);}, 5000);});};const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {try {
-      // Get IP and location info
-      const ipResponse = await fetch('https://ipapi.co/json/');
-      const ipData = await ipResponse.json();
+      setTimeout(() => {fcpObserver.disconnect();lcpObserver.disconnect();clsObserver.disconnect();inpObserver.disconnect();metrics.loadTime = performance.now() - startTime;resolve(metrics as PerformanceMetrics);}, 5000);});};const logDeviceData = async (deviceInfo: DeviceInfo, metrics: PerformanceMetrics) => {try {// Get IP and location info
+      const ipResponse = await fetch('https://ipapi.co/json/');const ipData = await ipResponse.json();
 
       const logData = {
         ...deviceInfo,
@@ -269,14 +269,15 @@ export const useDeviceDetection = () => {
 
 
 
+
+
       // Failed to log device data
     }};const enableAdaptiveMode = (deviceInfo: DeviceInfo) => {if (deviceInfo.isLowSpec) {// Force light mode for better performance
       if (theme === 'dark') {setTheme('light'); // Adaptive mode: Switched to light theme for better performance
       } // Reduce animation intensity
       document.documentElement.style.setProperty('--animation-duration', '0.1s');document.documentElement.style.setProperty('--transition-duration', '0.1s'); // Add adaptive mode class
       document.body.classList.add('adaptive-mode'); // Disable heavy effects
-      const style = document.createElement('style');
-      style.textContent = `
+      const style = document.createElement('style');style.textContent = `
         .adaptive-mode .glass {
           backdrop-filter: none !important;
           -webkit-backdrop-filter: none !important;
@@ -293,8 +294,7 @@ export const useDeviceDetection = () => {
         .adaptive-mode .interactive-hover:hover {
           transform: translateY(-2px) !important;
         }
-      `;
-      document.head.appendChild(style);
+      `;document.head.appendChild(style);
       // Adaptive mode enabled: Reduced animations and effects for low-spec device
     }
   };
