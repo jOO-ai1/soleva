@@ -7,11 +7,19 @@ import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { initializeDatabase, createSampleData } from './utils/initializeDatabase';
 import RoutesWrapper from "./components/RoutesWrapper";
+import { AppErrorBoundary } from './components/AppErrorBoundary';
+import ComprehensiveErrorBoundary from './components/ComprehensiveErrorBoundary';
+import EnhancedErrorBoundary from './components/EnhancedErrorBoundary';
+import { NetworkErrorHandler } from './components/NetworkErrorHandler';
+import GlobalErrorHandler from './components/GlobalErrorHandler';
+import SafeContextProvider from './components/SafeContextProvider';
+import AppLoader from './components/AppLoader';
 import { setDocumentTitle } from './utils/documentTitle';
+import OfflineIndicator from './components/OfflineIndicator';
 import { Toaster } from 'sonner';
-import apiService from './services/apiService';
-import { mockDataService } from './services/mockDataService';
+import { environmentHandler } from './services/environmentHandler';
 
 export default function App() {
   // Set the base document title on app initialization
@@ -23,29 +31,41 @@ export default function App() {
     setDocumentTitle();
   }, []);
 
-// Initialize application with network connectivity check
+  // Initialize environment and database with comprehensive error handling
   useEffect(() => {
     const setupApplication = async () => {
       try {
-        console.log('🚀 Initializing Soleva application...');
+        console.log('🚀 Initializing Soleva application with enhanced error handling...');
 
-        // Check network connectivity
-        const isConnected = await apiService.checkConnectivity();
-        
-        if (!isConnected) {
-          console.log('🔄 Backend not available, enabling mock data mode');
-          mockDataService.setOfflineMode(true);
-          apiService.setFallbackEnabled(true);
+        // Log environment information
+        const envInfo = environmentHandler.getEnvironmentInfo();
+        console.log('🔍 Environment detected:', envInfo);
+
+        // Check if we're in recovery mode
+        if (environmentHandler.isRecoveryMode()) {
+          console.log('🛡️ Running in recovery mode with fallback data');
+          return;
+        }
+
+        const isInitialized = await initializeDatabase();
+
+        if (isInitialized) {
+          console.log('✅ Database initialized successfully');
+          // Try to create sample data if it doesn't exist
+          try {
+            await createSampleData();
+            console.log('✅ Sample data created/verified');
+          } catch (sampleDataError) {
+            console.warn('⚠️ Sample data creation failed, continuing with empty database:', sampleDataError);
+          }
         } else {
-          console.log('✅ Backend connection established');
-          mockDataService.setOfflineMode(false);
+          console.warn('⚠️ Database initialization incomplete, using fallback mode');
         }
 
         console.log('✅ Soleva application ready');
       } catch (error) {
-        console.warn('⚠️ Application setup warning, continuing with fallback mode:', error);
-        mockDataService.setOfflineMode(true);
-        apiService.setFallbackEnabled(true);
+        console.warn('⚠️ Database setup warning, app will continue in offline mode:', error);
+        // The app should still work with mock data fallbacks
       }
     };
 
@@ -53,24 +73,39 @@ export default function App() {
   }, []);
 
   return (
-    <LangProvider>
-      <ThemeProvider>
-        <ToastProvider>
-          <FavoritesProvider>
-            <AuthProvider>
-              <CartProvider>
-                <RoutesWrapper />
-                <Toaster
-                    position="top-right"
-                    closeButton
-                    richColors
-                    expand
-                    duration={4000}
-                    visibleToasts={5} />
-              </CartProvider>
-            </AuthProvider>
-          </FavoritesProvider>
-        </ToastProvider>
-      </ThemeProvider>
-    </LangProvider>);
+    <AppErrorBoundary>
+      <ComprehensiveErrorBoundary>
+        <EnhancedErrorBoundary context="App" showDetails={import.meta.env.DEV}>
+          <SafeContextProvider>
+          <AppLoader>
+            <LangProvider>
+              <ThemeProvider>
+                <NotificationProvider>
+                  <FavoritesProvider>
+                    <AuthProvider>
+                      <CartProvider>
+                        <ToastProvider>
+                          <GlobalErrorHandler />
+                          <NetworkErrorHandler />
+                          <RoutesWrapper />
+                          <OfflineIndicator />
+                          <Toaster
+                              position="top-right"
+                              closeButton
+                              richColors
+                              expand
+                              duration={4000}
+                              visibleToasts={5} />
+                        </ToastProvider>
+                      </CartProvider>
+                    </AuthProvider>
+                  </FavoritesProvider>
+                </NotificationProvider>
+              </ThemeProvider>
+            </LangProvider>
+          </AppLoader>
+          </SafeContextProvider>
+        </EnhancedErrorBoundary>
+      </ComprehensiveErrorBoundary>
+    </AppErrorBoundary>);
 }

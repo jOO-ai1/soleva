@@ -3,7 +3,7 @@ import { FiCreditCard, FiTrash2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
-import { useLang } from '../../contexts/LangContext';
+import { useLang, useTranslation } from '../../contexts/LangContext';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 import AuthWarningModal from '../../components/AuthWarningModal';
 import { COUPONS } from '../../constants/brand';

@@ -3,54 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiCreditCard, FiUser, FiMapPin, FiPhone, FiDollarSign, FiSmartphone, FiZap, FiUpload } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
-import { useLang } from '../contexts/LangContext';
+import { useLang, useTranslation } from '../contexts/LangContext';
 import GlassCard from '../components/GlassCard';
 import GlassButton from '../components/GlassButton';
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const { lang } = useLang();
-  const t = (key: string) => {
-    const translations: Record<string, Record<string, string>> = {
-      en: {
-        checkout: 'Checkout',
-        empty: 'Your cart is empty',
-        fullName: 'Full Name',
-        primaryPhone: 'Primary Phone',
-        secondaryPhone: 'Secondary Phone (Optional)',
-        address: 'Delivery Address',
-        paymentMethod: 'Payment Method',
-        cashOnDelivery: 'Cash on Delivery',
-        bankWallet: 'Bank Transfer',
-        digitalWallet: 'Digital Wallet',
-        placeOrder: 'Place Order',
-        total: 'Order Summary',
-        egp: 'EGP',
-        couponDiscount: 'Coupon Discount',
-        shipping: 'Shipping',
-        free: 'Free'
-      },
-      ar: {
-        checkout: 'إتمام الطلب',
-        empty: 'سلة التسوق فارغة',
-        fullName: 'الاسم الكامل',
-        primaryPhone: 'رقم الهاتف الأساسي',
-        secondaryPhone: 'رقم هاتف إضافي (اختياري)',
-        address: 'عنوان التوصيل',
-        paymentMethod: 'طريقة الدفع',
-        cashOnDelivery: 'الدفع عند الاستلام',
-        bankWallet: 'تحويل بنكي',
-        digitalWallet: 'محفظة رقمية',
-        placeOrder: 'تأكيد الطلب',
-        total: 'ملخص الطلب',
-        egp: 'جنيه',
-        couponDiscount: 'خصم الكوبون',
-        shipping: 'الشحن',
-        free: 'مجاني'
-      }
-    };
-    return translations[lang]?.[key] || key;
-  };
+  const t = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const applied = location.state?.appliedCoupon || null;
@@ -345,9 +305,10 @@ export default function CheckoutPage() {
               <GlassButton
                 type="submit"
                 className="w-full bg-[#d1b16a] text-black border-none hover:bg-[#d1b16a]/80 text-lg sm:text-xl py-4 min-h-[56px] font-bold hover:scale-105 transition-all duration-300"
-                disabled={false}>
+                disabled={isUploading}>
 
-                {
+                {isUploading ?
+                <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> :
 
                 <>
                     <FiCreditCard size={24} />

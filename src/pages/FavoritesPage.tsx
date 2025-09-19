@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiHeart, FiShoppingBag } from 'react-icons/fi';
-import { useLang } from '../contexts/LangContext';
+import { useLang, useTranslation } from '../contexts/LangContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { products } from '../data/products';
 import GlassButton from '../components/GlassButton';

@@ -27,10 +27,10 @@ class EnvironmentConfigHandler {
     const isDevelopment = import.meta.env.DEV;
 
     // Primary API URL sources (in order of preference)
-    const apiUrl = this.buildApiUrl();
+    const apiUrl = this.getApiUrl();
 
     // Chat-specific API URL
-    const chatApiUrl = this.buildChatApiUrl() || apiUrl;
+    const chatApiUrl = this.getChatApiUrl() || apiUrl;
 
     return {
       apiUrl,
@@ -39,75 +39,46 @@ class EnvironmentConfigHandler {
       isDevelopment,
       enableOfflineMode: this.getBoolean('VITE_ENABLE_OFFLINE_MODE', false),
       apiTimeout: this.getNumber('VITE_API_TIMEOUT', 10000),
-      enableMockData: this.getBoolean('VITE_ENABLE_MOCK_DATA', true)
+      enableMockData: this.getBoolean('VITE_ENABLE_MOCK_DATA', isDevelopment)
     };
   }
 
-  private buildApiUrl(): string {
+  private getApiUrl(): string {
     // Try multiple environment variable names
     const envUrls = [
-      import.meta.env.VITE_API_URL,
-      import.meta.env.VITE_API_BASE_URL,
-      import.meta.env.VITE_BACKEND_URL,
-      import.meta.env.VITE_SERVER_URL
-    ].filter(Boolean);
+    import.meta.env.VITE_API_URL,
+    import.meta.env.VITE_API_BASE_URL,
+    import.meta.env.VITE_BACKEND_URL,
+    import.meta.env.VITE_SERVER_URL].
+    filter(Boolean);
 
     if (envUrls.length > 0) {
       return envUrls[0];
     }
 
-    // Check if we're in development mode
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      return 'http://localhost:3001/api/v1';
-    }
-
-    // Production fallback - but prefer localhost for development
+    // Production fallback
     if (import.meta.env.PROD) {
       // Try to construct from current domain
       const protocol = window.location.protocol;
       const hostname = window.location.hostname;
 
-      // If we're on localhost, use localhost backend
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:3001/api/v1';
-      }
-
       // Common production API patterns
       const possibleUrls = [
-        `${protocol}//api.${hostname}/api/v1`,
-        `${protocol}//${hostname}/api/v1`,
-        `${protocol}//${hostname.replace('www.', 'api.')}/api/v1`,
-        'https://api.solevaeg.com/api/v1'
-      ];
+      `${protocol}//api.${hostname}`,
+      `${protocol}//${hostname}/api`,
+      `${protocol}//${hostname.replace('www.', 'api.')}`,
+      'https://api.solevaeg.com/api/v1'];
+
 
       return possibleUrls[0];
     }
 
-    // Final fallback
-    return 'http://localhost:3001/api/v1';
+    // Development fallback
+    return 'http://localhost:3001/api';
   }
 
-  private buildChatApiUrl(): string | null {
-    const chatUrl = import.meta.env.VITE_CHAT_API_URL;
-    
-    if (chatUrl) {
-      return chatUrl;
-    }
-
-    // Use the same base as API but for chat endpoints
-    const apiUrl = this.buildApiUrl();
-    
-    // Remove /v1 suffix if present to get base API URL
-    if (apiUrl.endsWith('/api/v1')) {
-      return apiUrl.replace('/api/v1', '/api');
-    }
-    
-    if (apiUrl.endsWith('/api')) {
-      return apiUrl;
-    }
-    
-    // Fallback to localhost
-    return 'http://localhost:3001/api';
+  private getChatApiUrl(): string | null {
+    return import.meta.env.VITE_CHAT_API_URL || null;
   }
 
   private getBoolean(key: string, defaultValue: boolean): boolean {

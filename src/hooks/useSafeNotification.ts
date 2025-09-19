@@ -26,15 +26,15 @@ export const useSafeNotification = () => {
 
 
 
-
-
-
-
-
-
     // Context not available, use fallback
   }const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {// Use toast as fallback if context not available
-    switch (type) {case 'success':toast.success(title, { description: message });break;case 'error':toast.error(title, { description: message });break;case 'warning':toast.warning(title, { description: message });break;case 'info':toast.info(title, { description: message });break;}};const showSuccess = (title: string, message: string) => {if (notificationContext) {notificationContext.showSuccess(title, message);} else {
+    switch (type) {case 'success':toast.success(title, { description: message });break;case 'error':toast.error(title, { description: message });break;case 'warning':toast.warning(title, { description: message });break;case 'info':toast.info(title, { description: message });break;}
+  };
+
+  const showSuccess = (title: string, message: string) => {
+    if (notificationContext) {
+      notificationContext.showSuccess(title, message);
+    } else {
       showNotification('success', title, message);
     }
   };

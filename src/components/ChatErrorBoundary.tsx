@@ -319,36 +319,6 @@ class ChatErrorBoundary extends Component<Props, State> {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       // Example: Sentry, LogRocket, or custom endpoint
       // window.gtag?.('event', 'exception', {
       //   description: error.message,
@@ -357,4 +327,23 @@ class ChatErrorBoundary extends Component<Props, State> {
     } catch (reportingError) {console.error('Failed to report chat error:', reportingError);}};private handleRetry = () => {console.info('🔄 Retrying chat after error...'); // Clear error state
     this.setState({ hasError: false, error: null, errorInfo: null, errorId: '' }); // Clear any potentially corrupted chat data
     try {sessionStorage.removeItem('chat_state');sessionStorage.removeItem('chat_messages');sessionStorage.removeItem('chat_conversation');} catch (e) {console.warn('Could not clear chat storage:', e);}};private handleReport = () => {console.info('📞 Redirecting to contact form...'); // Open contact form or phone number
-    const contactUrl = window.location.origin + '/contact';window.open(contactUrl, '_blank');};render() {if (this.state.hasError) {const FallbackComponent = this.props.fallback || DefaultErrorFallback;return <FallbackComponent error={this.state.error} errorInfo={this.state.errorInfo} onRetry={this.handleRetry} onReport={this.handleReport} />;}return this.props.children;}}export default ChatErrorBoundary;
+    const contactUrl = window.location.origin + '/contact';window.open(contactUrl, '_blank');};
+  render() {
+    if (this.state.hasError) {
+      const FallbackComponent = this.props.fallback || DefaultErrorFallback;
+
+      return (
+        <FallbackComponent
+          error={this.state.error}
+          errorInfo={this.state.errorInfo}
+          onRetry={this.handleRetry}
+          onReport={this.handleReport} />);
+
+
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ChatErrorBoundary;

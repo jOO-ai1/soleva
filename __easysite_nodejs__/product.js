@@ -1,10 +1,13 @@
-// Single product API function
-function getProduct(id) {
+// Get a single product by ID
+function product(id) {
   const allProducts = [
   {
     id: '1',
     name: { en: 'Classic Oxford Shoes', ar: 'حذاء أكسفورد كلاسيكي' },
-    description: { en: 'Premium leather Oxford shoes perfect for formal occasions', ar: 'حذاء أكسفورد من الجلد الفاخر مثالي للمناسبات الرسمية' },
+    description: {
+      en: 'Premium leather Oxford shoes perfect for formal occasions',
+      ar: 'حذاء أكسفورد من الجلد الفاخر مثالي للمناسبات الرسمية'
+    },
     price: 1200,
     originalPrice: 1500,
     images: [
@@ -13,7 +16,7 @@ function getProduct(id) {
 
     category: {
       id: '1',
-      name: { en: "Men's Shoes", ar: 'أحذية رجالي' },
+      name: { en: 'Men\'s Shoes', ar: 'أحذية رجالي' },
       slug: 'mens-shoes'
     },
     collection: {
@@ -31,12 +34,15 @@ function getProduct(id) {
   {
     id: '2',
     name: { en: 'Elegant High Heels', ar: 'كعب عالي أنيق' },
-    description: { en: 'Stylish high heel shoes for special occasions', ar: 'حذاء بكعب عالي أنيق للمناسبات الخاصة' },
+    description: {
+      en: 'Stylish high heel shoes for special occasions',
+      ar: 'حذاء بكعب عالي أنيق للمناسبات الخاصة'
+    },
     price: 800,
     images: ['https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600'],
     category: {
       id: '2',
-      name: { en: "Women's Shoes", ar: 'أحذية حريمي' },
+      name: { en: 'Women\'s Shoes', ar: 'أحذية حريمي' },
       slug: 'womens-shoes'
     },
     collection: {
@@ -54,7 +60,10 @@ function getProduct(id) {
   {
     id: '3',
     name: { en: 'Running Sneakers', ar: 'حذاء جري رياضي' },
-    description: { en: 'Comfortable running shoes with advanced cushioning', ar: 'حذاء جري مريح مع وسائد متطورة' },
+    description: {
+      en: 'Comfortable running shoes with advanced cushioning',
+      ar: 'حذاء جري مريح مع وسائد متطورة'
+    },
     price: 950,
     images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'],
     category: {
@@ -77,12 +86,15 @@ function getProduct(id) {
   {
     id: '4',
     name: { en: 'Casual Loafers', ar: 'حذاء كاجوال بدون رباط' },
-    description: { en: 'Comfortable casual loafers for everyday wear', ar: 'حذاء كاجوال مريح للاستخدام اليومي' },
+    description: {
+      en: 'Comfortable casual loafers for everyday wear',
+      ar: 'حذاء كاجوال مريح للاستخدام اليومي'
+    },
     price: 600,
     images: ['https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600'],
     category: {
       id: '1',
-      name: { en: "Men's Shoes", ar: 'أحذية رجالي' },
+      name: { en: 'Men\'s Shoes', ar: 'أحذية رجالي' },
       slug: 'mens-shoes'
     },
     sizes: [40, 41, 42, 43, 44],
@@ -95,12 +107,15 @@ function getProduct(id) {
   {
     id: '5',
     name: { en: 'Ballet Flats', ar: 'حذاء باليه مسطح' },
-    description: { en: 'Elegant ballet flats for comfort and style', ar: 'حذاء باليه مسطح أنيق للراحة والأناقة' },
+    description: {
+      en: 'Elegant ballet flats for comfort and style',
+      ar: 'حذاء باليه مسطح أنيق للراحة والأناقة'
+    },
     price: 400,
     images: ['https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?w=600'],
     category: {
       id: '2',
-      name: { en: "Women's Shoes", ar: 'أحذية حريمي' },
+      name: { en: 'Women\'s Shoes', ar: 'أحذية حريمي' },
       slug: 'womens-shoes'
     },
     collection: {
@@ -117,12 +132,11 @@ function getProduct(id) {
   }];
 
 
-  const product = allProducts.find((p) => p.id === id.toString());
+  const foundProduct = allProducts.find((p) => p.id === id.toString());
 
-  if (!product) {
-    throw new Error('Product not found');
+  if (!foundProduct) {
+    throw new Error(`Product with ID ${id} not found`);
   }
 
-  return product;
+  return foundProduct;
 }
-

@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 import { FiMinus, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
-import { useLang } from '../../contexts/LangContext';
+import { useLang, useTranslation } from '../../contexts/LangContext';
 
 export default function CartItem({ item, index, onRemove }: {item: any;index: number;onRemove: (item: any) => void;}) {
   const { updateQty } = useCart();
   const { showToast } = useToast();
   const { lang } = useLang();
+  const t = useTranslation();
 
   const handleQty = (diff: number) => {
     const newQty = item.qty + diff;
@@ -21,7 +22,7 @@ export default function CartItem({ item, index, onRemove }: {item: any;index: nu
     }
 
     updateQty(item.id, item.color, item.size, newQty);
-    showToast("Update Success");
+    showToast(t("updateSuccess"));
   };
 
   return (
@@ -46,11 +47,11 @@ export default function CartItem({ item, index, onRemove }: {item: any;index: nu
       <div className="flex-1 min-w-0 w-full">
         <h3 className="font-semibold text-base sm:text-lg text-[var(--text-primary)] line-clamp-2 mb-2">{item.name[lang]}</h3>
         <div className="text-sm text-[var(--text-secondary)] space-y-1">
-          <div>Color: {item.color}</div>
-          <div>Size: {item.size}</div>
+          <div>{t("color")}: {item.color}</div>
+          <div>{t("size")}: {item.size}</div>
         </div>
         <div className="text-[var(--primary)] font-bold text-lg mt-2">
-          {item.price * item.qty} EGP
+          {item.price * item.qty} {t("egp")}
         </div>
       </div>
 

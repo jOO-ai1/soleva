@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
-import { useLang } from '../contexts/LangContext';
+import { useLang, useTranslation } from '../contexts/LangContext';
 import SectionTitle from '../components/SectionTitle';
 import EmptyCart from './cart/EmptyCart';
 import CartItem from './cart/CartItem';
@@ -13,7 +13,7 @@ export default function CartPage() {
   const { cart, removeFromCart } = useCart();
   const { showToast } = useToast();
   // const { lang } = useLang(); // Removed as it's not used
-  const t = (key: string) => key; // Placeholder translation function
+  const t = useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
   const [removeItem, setRemoveItem] = useState<any>(null);
 

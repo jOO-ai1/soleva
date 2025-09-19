@@ -9,8 +9,8 @@ import { HiEyeOff } from 'react-icons/hi';
 
 // Import React hooks
 const { useState } = React;
-import { useAuth } from '../contexts/AuthContext';
-import { useLang } from '../contexts/LangContext';
+import { useAuthSafe } from '../contexts/AuthContext';
+import { useLang, useTranslation } from '../contexts/LangContext';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 import AuthWarningModal from '../components/AuthWarningModal';
 import GlassCard from '../components/GlassCard';
@@ -18,11 +18,11 @@ import GlassButton from '../components/GlassButton';
 import SocialLogin from '../components/SocialLogin';
 
 export default function LoginPage() {
-  const auth = useAuth();
+  const auth = useAuthSafe();
   const login = auth?.login;
   const navigate = useNavigate();
   const { lang } = useLang();
-
+  const t = useTranslation();
 
   const {
     showWarning,
@@ -43,13 +43,13 @@ export default function LoginPage() {
     const newErrors: Record<string, string> = {};
 
     if (!email) {
-      newErrors.email = lang === "ar" ? "هذا الحقل مطلوب" : "This field is required";
+      newErrors.email = t("requiredField");
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = lang === "ar" ? "البريد الإلكتروني غير صحيح" : "Invalid email format";
     }
 
     if (!password) {
-      newErrors.password = lang === "ar" ? "هذا الحقل مطلوب" : "This field is required";
+      newErrors.password = t("requiredField");
     } else if (password.length < 6) {
       newErrors.password = lang === "ar" ? "كلمة المرور يجب أن تكون 6 أحرف على الأقل" : "Password must be at least 6 characters";
     }
@@ -197,14 +197,6 @@ export default function LoginPage() {
 
 
 
-
-
-
-
-
-
-
-
         // Error handling is now done by the AuthContext with notification banners
       }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
     } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
@@ -216,7 +208,7 @@ export default function LoginPage() {
 
               <HiLogin size={32} />
             </motion.div>
-            <h1 className="text-3xl font-bold mb-2 text-[#111]">{lang === "ar" ? "تسجيل الدخول" : "Login"}</h1>
+            <h1 className="text-3xl font-bold mb-2 text-[#111]">{t("login")}</h1>
             <p className="text-gray-600">
               {lang === "ar" ? "مرحباً بعودتك إلى سوليفا" : "Welcome back to Soleva"}
             </p>
@@ -226,7 +218,7 @@ export default function LoginPage() {
             {/* Email Field */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {lang === "ar" ? "البريد الإلكتروني" : "Email"}
+                {t("email")}
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -241,7 +233,7 @@ export default function LoginPage() {
             {/* Password Field */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {lang === "ar" ? "كلمة المرور" : "Password"}
+                {t("password")}
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -261,7 +253,7 @@ export default function LoginPage() {
 
               {isLoading ? <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <>
                   <HiLogin />
-                  {lang === "ar" ? "تسجيل الدخول" : "Login"}
+                  {t("login")}
                 </>}
             </button>
           </form>
@@ -277,11 +269,11 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              {lang === "ar" ? "ليس لديك حساب؟" : "Don't have an account?"}
+              {t("dontAccount")}
             </p>
             <Link to="/register" className="text-[#d1b16a] hover:text-[#d1b16a]/80 font-semibold transition-colors">
 
-              {lang === "ar" ? "إنشاء حساب" : "Sign Up"}
+              {t("register")}
             </Link>
           </div>
         </GlassCard>

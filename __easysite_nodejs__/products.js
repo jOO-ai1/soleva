@@ -1,10 +1,16 @@
-// Products API function
-function getProducts(params = {}) {
+// Get all products with filtering and pagination support
+function products(params = {}) {
+  const { page = 1, per_page = 20, search = '', collection = '' } = params || {};
+
+  // Mock products data (comprehensive e-commerce catalog)
   const allProducts = [
   {
     id: '1',
     name: { en: 'Classic Oxford Shoes', ar: 'حذاء أكسفورد كلاسيكي' },
-    description: { en: 'Premium leather Oxford shoes perfect for formal occasions', ar: 'حذاء أكسفورد من الجلد الفاخر مثالي للمناسبات الرسمية' },
+    description: {
+      en: 'Premium leather Oxford shoes perfect for formal occasions',
+      ar: 'حذاء أكسفورد من الجلد الفاخر مثالي للمناسبات الرسمية'
+    },
     price: 1200,
     originalPrice: 1500,
     images: [
@@ -13,7 +19,7 @@ function getProducts(params = {}) {
 
     category: {
       id: '1',
-      name: { en: "Men's Shoes", ar: 'أحذية رجالي' },
+      name: { en: 'Men\'s Shoes', ar: 'أحذية رجالي' },
       slug: 'mens-shoes'
     },
     collection: {
@@ -31,12 +37,15 @@ function getProducts(params = {}) {
   {
     id: '2',
     name: { en: 'Elegant High Heels', ar: 'كعب عالي أنيق' },
-    description: { en: 'Stylish high heel shoes for special occasions', ar: 'حذاء بكعب عالي أنيق للمناسبات الخاصة' },
+    description: {
+      en: 'Stylish high heel shoes for special occasions',
+      ar: 'حذاء بكعب عالي أنيق للمناسبات الخاصة'
+    },
     price: 800,
     images: ['https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600'],
     category: {
       id: '2',
-      name: { en: "Women's Shoes", ar: 'أحذية حريمي' },
+      name: { en: 'Women\'s Shoes', ar: 'أحذية حريمي' },
       slug: 'womens-shoes'
     },
     collection: {
@@ -54,7 +63,10 @@ function getProducts(params = {}) {
   {
     id: '3',
     name: { en: 'Running Sneakers', ar: 'حذاء جري رياضي' },
-    description: { en: 'Comfortable running shoes with advanced cushioning', ar: 'حذاء جري مريح مع وسائد متطورة' },
+    description: {
+      en: 'Comfortable running shoes with advanced cushioning',
+      ar: 'حذاء جري مريح مع وسائد متطورة'
+    },
     price: 950,
     images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'],
     category: {
@@ -77,12 +89,15 @@ function getProducts(params = {}) {
   {
     id: '4',
     name: { en: 'Casual Loafers', ar: 'حذاء كاجوال بدون رباط' },
-    description: { en: 'Comfortable casual loafers for everyday wear', ar: 'حذاء كاجوال مريح للاستخدام اليومي' },
+    description: {
+      en: 'Comfortable casual loafers for everyday wear',
+      ar: 'حذاء كاجوال مريح للاستخدام اليومي'
+    },
     price: 600,
     images: ['https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600'],
     category: {
       id: '1',
-      name: { en: "Men's Shoes", ar: 'أحذية رجالي' },
+      name: { en: 'Men\'s Shoes', ar: 'أحذية رجالي' },
       slug: 'mens-shoes'
     },
     sizes: [40, 41, 42, 43, 44],
@@ -95,12 +110,15 @@ function getProducts(params = {}) {
   {
     id: '5',
     name: { en: 'Ballet Flats', ar: 'حذاء باليه مسطح' },
-    description: { en: 'Elegant ballet flats for comfort and style', ar: 'حذاء باليه مسطح أنيق للراحة والأناقة' },
+    description: {
+      en: 'Elegant ballet flats for comfort and style',
+      ar: 'حذاء باليه مسطح أنيق للراحة والأناقة'
+    },
     price: 400,
     images: ['https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?w=600'],
     category: {
       id: '2',
-      name: { en: "Women's Shoes", ar: 'أحذية حريمي' },
+      name: { en: 'Women\'s Shoes', ar: 'أحذية حريمي' },
       slug: 'womens-shoes'
     },
     collection: {
@@ -117,11 +135,11 @@ function getProducts(params = {}) {
   }];
 
 
+  // Apply filtering
   let filteredProducts = allProducts;
 
-  // Apply search filter
-  if (params[0]?.search) {
-    const searchTerm = params[0].search.toLowerCase();
+  if (search) {
+    const searchTerm = search.toLowerCase();
     filteredProducts = filteredProducts.filter((product) =>
     product.name.en.toLowerCase().includes(searchTerm) ||
     product.name.ar.toLowerCase().includes(searchTerm) ||
@@ -130,13 +148,24 @@ function getProducts(params = {}) {
     );
   }
 
-  // Apply collection filter
-  if (params[0]?.collection) {
+  if (collection) {
     filteredProducts = filteredProducts.filter((product) =>
-    product.collection?.slug === params[0].collection
+    product.collection?.slug === collection
     );
   }
 
-  return filteredProducts;
-}
+  // Apply pagination
+  const start = (page - 1) * per_page;
+  const paginatedProducts = filteredProducts.slice(start, start + per_page);
 
+  return {
+    data: paginatedProducts,
+    pagination: {
+      current_page: page,
+      per_page: per_page,
+      total: filteredProducts.length,
+      total_pages: Math.ceil(filteredProducts.length / per_page)
+    },
+    message: 'Products loaded successfully'
+  };
+}

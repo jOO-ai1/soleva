@@ -10,8 +10,8 @@ import { HiEyeOff } from 'react-icons/hi';
 
 // Import React hooks
 const { useState } = React;
-import { useAuth } from '../contexts/AuthContext';
-import { useLang } from '../contexts/LangContext';
+import { useAuthSafe } from '../contexts/AuthContext';
+import { useLang, useTranslation } from '../contexts/LangContext';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 import AuthWarningModal from '../components/AuthWarningModal';
 import GlassCard from '../components/GlassCard';
@@ -19,7 +19,7 @@ import GlassButton from '../components/GlassButton';
 import SocialLogin from '../components/SocialLogin';
 
 export default function RegisterPage() {
-  const auth = useAuth();
+  const auth = useAuthSafe();
   const register = auth?.register;
   const navigate = useNavigate();
   const { lang } = useLang();
@@ -116,14 +116,6 @@ export default function RegisterPage() {
 
       if (result.success) {
         if (result.requiresVerification) {
-
-
-
-
-
-
-
-
 
 
 
