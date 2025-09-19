@@ -209,6 +209,8 @@ export const useDeviceDetection = () => {
 
 
 
+
+
         // FCP observation not supported
       } // Largest Contentful Paint
       const lcpObserver = new PerformanceObserver((list) => {const entries = list.getEntries();if (entries.length > 0) {metrics.lcp = entries[entries.length - 1].startTime;}});try {lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });} catch (e) {
@@ -323,9 +325,7 @@ export const useDeviceDetection = () => {
         const metrics = await measurePerformanceMetrics();setPerformanceMetrics(metrics); // Enable adaptive mode if needed
         enableAdaptiveMode(device); // Log data to backend
         await logDeviceData(device, metrics);}; // Run detection after initial render
-      setTimeout(initializeDeviceDetection, 1000);}, []);
-  return {
-    deviceInfo,
+      setTimeout(initializeDeviceDetection, 1000);}, []);return { deviceInfo,
     performanceMetrics,
     isAdaptiveModeEnabled: deviceInfo?.adaptiveModeEnabled || false
   };

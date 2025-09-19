@@ -152,6 +152,8 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
@@ -195,9 +197,7 @@ export default function RegisterPage() {
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                   <HiMail size={20} />
                 </div>
-                <input type="email" value={formData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)} className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${
-                errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`
-                }
+                <input type="email" value={formData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)} className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${errors.email ? 'border-red-400' : 'border-[#d1b16a]/40'}`}
                 placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"} />
 
               </div>
