@@ -170,12 +170,12 @@ export default function RegisterPage() {
 
 
 
+
+
           // Don't navigate to account page, show verification message instead
         } else {// Execute pending action if there was one, otherwise go to account
           const actionExecuted = executePendingAction();if (!actionExecuted) {navigate("/account");}}}} catch (error: any) {console.error('Registration error:', error); // Error handling is now done by the AuthContext with notification banners
-    } finally {setIsLoading(false);}}
-
-  return (
+    } finally {setIsLoading(false);}}return (
     <div className="container mx-auto py-10 px-4">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }} className="max-w-md mx-auto">
 
