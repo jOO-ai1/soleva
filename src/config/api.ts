@@ -1,24 +1,18 @@
 // API Configuration for Backend Integration
-export const API_CONFIG = {
-  // Base URL - prefer VITE_API_URL, fallback to local development
-  BASE_URL: (() => {
-    // Check for environment variable first
-    if (import.meta.env.VITE_API_URL) {
-      return import.meta.env.VITE_API_URL;
-    }
-    if (import.meta.env.VITE_API_BASE_URL) {
-      return import.meta.env.VITE_API_BASE_URL;
-    }
+import { getApiUrl, getChatApiUrl, getApiTimeout } from './environment';
 
-    // Use localhost for development
-    return 'http://localhost:3001/api';
-  })(),
+export const API_CONFIG = {
+  // Base URL - uses environment handler
+  BASE_URL: getApiUrl(),
+
+  // Chat-specific API URL
+  CHAT_BASE_URL: getChatApiUrl(),
 
   // API Version
   VERSION: 'v1',
 
-  // Timeout settings - reduced for faster fallback
-  TIMEOUT: 10000,
+  // Timeout settings - from environment configuration
+  TIMEOUT: getApiTimeout(),
 
   // Headers
   DEFAULT_HEADERS: {

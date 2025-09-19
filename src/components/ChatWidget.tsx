@@ -2,6 +2,9 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback } = React;
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_CONFIG } from '../config/api';
+import { getChatApiUrl, getApiTimeout } from '../config/environment';
+import ChatErrorBoundary from './ChatErrorBoundary';
+import ChatDock from './ChatDock';
 import {
   FiMessageCircle,
   FiX,
@@ -83,23 +86,28 @@ const ChatWidget = () => {
   const checkAvailability = useCallback(async () => {
     try {
       // First try to get availability from backend
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/availability?language=${lang}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
         setAvailability(data.data);
+        console.info('✅ Chat availability loaded from backend');
       } else {
-        // Fallback to client-side calculation
-        const clientAvailability = getChatAvailability(undefined, lang as 'en' | 'ar');
-        setAvailability(clientAvailability);
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
-      console.error('Failed to check availability:', error);
+      console.info('🔄 Backend unavailable, using client-side availability calculation:', error instanceof Error ? error.message : 'Unknown error');
       // Fallback to client-side calculation
       const clientAvailability = getChatAvailability(undefined, lang as 'en' | 'ar');
       setAvailability(clientAvailability);
@@ -108,6 +116,9 @@ const ChatWidget = () => {
 
   const createNewConversation = useCallback(async () => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations`, {
         method: 'POST',
         headers: {
@@ -118,26 +129,57 @@ const ChatWidget = () => {
           source: 'WEBSITE',
           customerName: user?.name,
           customerEmail: user?.email
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
         setConversation(data.data);
+        console.info('✅ Chat conversation created successfully');
 
         // Send welcome message
         await sendWelcomeMessage();
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Failed to create conversation:', error);
+      console.info('🔄 Failed to create server conversation, using offline mode:', error instanceof Error ? error.message : 'Unknown error');
+      
+      // Create offline conversation
+      const offlineConversation: Conversation = {
+        id: `offline_${Date.now()}`,
+        status: 'OPEN',
+        priority: 'NORMAL',
+        messages: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      setConversation(offlineConversation);
+      
+      // Send offline welcome message
+      await sendWelcomeMessage();
+      
+      // Show user notification about offline mode
+      showToast(
+        lang === 'ar' ? 
+        '🔄 تم التبديل إلى الوضع دون اتصال. ستعمل المحادثة محلياً.' : 
+        '🔄 Switched to offline mode. Chat will work locally.'
+      );
     }
-  }, [user]);
+  }, [user, lang, showToast]);
 
   const initializeChat = useCallback(async () => {
     try {
       setLoading(true);
 
       // Check if user has an existing open conversation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/conversations/current`, {
         method: 'POST',
         headers: {
@@ -147,23 +189,27 @@ const ChatWidget = () => {
         body: JSON.stringify({
           customerName: user?.name,
           customerEmail: user?.email
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
         if (data.data) {
           setConversation(data.data);
           setMessages(data.data.messages || []);
+          console.info('✅ Existing conversation loaded successfully');
         } else {
           // Create new conversation
           await createNewConversation();
         }
       } else {
-        await createNewConversation();
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
-      console.error('Failed to initialize chat:', error);
+      console.info('🔄 Failed to initialize server chat, creating offline conversation:', error instanceof Error ? error.message : 'Unknown error');
       await createNewConversation();
     } finally {
       setLoading(false);
@@ -215,6 +261,9 @@ const ChatWidget = () => {
     setIsTyping(true);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
       const response = await fetch(`${API_CONFIG.BASE_URL}/chat/messages`, {
         method: 'POST',
         headers: {
@@ -225,10 +274,14 @@ const ChatWidget = () => {
           conversationId: conversation?.id,
           content: inputMessage.trim(),
           type: 'TEXT'
-        })
+        }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+
       if (response.ok) {
+        console.info('✅ Message sent successfully');
         // Handle AI or agent response
         if (chatMode === 'AI') {
           await handleAIResponse(inputMessage.trim());
@@ -237,11 +290,27 @@ const ChatWidget = () => {
           setAgentTyping(true);
           setTimeout(() => setAgentTyping(false), 3000);
         }
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      showToast(
-        lang === 'ar' ? 'فشل في إرسال الرسالة' : 'Failed to send message'
-      );
+      console.info('🔄 Failed to send message to server, handling offline:', error instanceof Error ? error.message : 'Unknown error');
+      
+      // Handle message offline if chat mode is AI
+      if (chatMode === 'AI') {
+        await handleAIResponse(inputMessage.trim());
+      } else {
+        // For human mode, show appropriate message
+        showToast(
+          lang === 'ar' ? 
+          '⚠️ لا يمكن الاتصال بالخادم. جاري المحاولة في الوضع دون اتصال.' : 
+          '⚠️ Cannot connect to server. Trying offline mode.'
+        );
+        
+        // Switch to AI mode as fallback
+        setChatMode('AI');
+        await handleAIResponse(inputMessage.trim());
+      }
     } finally {
       setIsTyping(false);
     }
@@ -274,43 +343,58 @@ const ChatWidget = () => {
       }
 
       // Generate AI response with user data access
-      const response = await fetch(`${API_CONFIG.BASE_URL}/chat/ai-response`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
-          conversationId: conversation?.id,
-          message: userMessage,
-          language: lang,
-          context: {
-            userId: user?.id,
-            userEmail: user?.email,
-            userName: user?.name,
-            previousMessages: messages.slice(-5), // Last 5 messages for context
-            includeUserData: true // Flag to include user's orders, cart, favorites, etc.
-          }
-        })
-      });
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        
+        const response = await fetch(`${API_CONFIG.BASE_URL}/chat/ai-response`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          },
+          body: JSON.stringify({
+            conversationId: conversation?.id,
+            message: userMessage,
+            language: lang,
+            context: {
+              userId: user?.id,
+              userEmail: user?.email,
+              userName: user?.name,
+              previousMessages: messages.slice(-5), // Last 5 messages for context
+              includeUserData: true // Flag to include user's orders, cart, favorites, etc.
+            }
+          }),
+          signal: controller.signal
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        const aiMessage: Message = {
-          id: Date.now().toString() + '_ai',
-          content: data.data.response,
-          type: 'TEXT',
-          senderType: 'AI',
-          senderName: 'Soleva Assistant',
-          isFromAI: true,
-          timestamp: new Date(),
-          metadata: {
-            confidence: data.data.confidence,
-            model: data.data.model
-          }
-        };
+        clearTimeout(timeoutId);
 
-        setMessages((prev: Message[]) => [...prev, aiMessage]);
+        if (response.ok) {
+          const data = await response.json();
+          const aiMessage: Message = {
+            id: Date.now().toString() + '_ai',
+            content: data.data.response,
+            type: 'TEXT',
+            senderType: 'AI',
+            senderName: 'Soleva Assistant',
+            isFromAI: true,
+            timestamp: new Date(),
+            metadata: {
+              confidence: data.data.confidence,
+              model: data.data.model
+            }
+          };
+
+          setMessages((prev: Message[]) => [...prev, aiMessage]);
+          console.info('✅ AI response received successfully');
+          return; // Exit early on success
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (aiError) {
+        console.info('🔄 AI response failed, using fallback logic:', aiError instanceof Error ? aiError.message : 'Unknown AI error');
+        // Continue to fallback response below
       }
     } catch (error) {
       console.error('AI response error:', error);
@@ -821,7 +905,14 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
   }, [availability]);
 
   return (
-    <>
+    <ChatErrorBoundary>
+      {/* Use ChatDock for better architecture */}
+      <ChatDock 
+        isOpen={isOpen}
+        onToggle={openChat}
+        onClose={closeChat}
+      />
+
       {/* Chat Widget Button */}
       <AnimatePresence>
         {!isOpen &&
@@ -1595,8 +1686,8 @@ ${order.estimatedDelivery ? `Est. Delivery: ${new Date(order.estimatedDelivery).
         onSignUp={handleSignUpClick}
         type={warningType}
         action={actionDescription} />
-
-    </>);
+    </ChatErrorBoundary>
+  );
 
 };
 
