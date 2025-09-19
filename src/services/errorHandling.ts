@@ -36,19 +36,19 @@ class ErrorHandlingService {
    * Log an error with context and optional recovery strategies
    */
   logError(
-    error: Error | string,
-    context?: ErrorContext,
-    severity: LoggedError['severity'] = 'medium'
-  ): LoggedError {
+  error: Error | string,
+  context?: ErrorContext,
+  severity: LoggedError['severity'] = 'medium')
+  : LoggedError {
     const loggedError: LoggedError = {
       ...(typeof error === 'string' ? new Error(error) : error),
       context: {
         timestamp: Date.now(),
-        ...context,
+        ...context
       },
       severity,
       category: this.categorizeError(error),
-      recoverable: this.isRecoverable(error),
+      recoverable: this.isRecoverable(error)
     } as LoggedError;
 
     // Add to queue
@@ -73,11 +73,11 @@ class ErrorHandlingService {
    * Handle network-specific errors
    */
   handleNetworkError(
-    error: Error,
-    context?: ErrorContext
-  ): LoggedError & { recovery: ErrorRecoveryStrategy } {
+  error: Error,
+  context?: ErrorContext)
+  : LoggedError & {recovery: ErrorRecoveryStrategy;} {
     const loggedError = this.logError(error, context, 'high');
-    
+
     const recovery: ErrorRecoveryStrategy = {
       retry: async () => {
         // Retry logic would be handled by the calling component
@@ -101,10 +101,10 @@ class ErrorHandlingService {
    * Handle API-specific errors
    */
   handleApiError(
-    error: any,
-    endpoint: string,
-    context?: ErrorContext
-  ): LoggedError & { recovery: ErrorRecoveryStrategy } {
+  error: any,
+  endpoint: string,
+  context?: ErrorContext)
+  : LoggedError & {recovery: ErrorRecoveryStrategy;} {
     const errorMessage = error.message || error.toString();
     const loggedError = this.logError(
       new Error(`API Error: ${errorMessage} (${endpoint})`),
@@ -146,10 +146,10 @@ class ErrorHandlingService {
    * Handle React component errors
    */
   handleComponentError(
-    error: Error,
-    errorInfo: { componentStack: string },
-    context?: ErrorContext
-  ): LoggedError {
+  error: Error,
+  errorInfo: {componentStack: string;},
+  context?: ErrorContext)
+  : LoggedError {
     return this.logError(error, {
       ...context,
       componentStack: errorInfo.componentStack,
@@ -181,7 +181,7 @@ class ErrorHandlingService {
 
   private categorizeError(error: Error | string): LoggedError['category'] {
     const message = typeof error === 'string' ? error : error.message;
-    
+
     if (message.includes('fetch') || message.includes('network') || message.includes('ERR_CONNECTION')) {
       return 'network';
     }
@@ -199,62 +199,62 @@ class ErrorHandlingService {
 
   private isRecoverable(error: Error | string): boolean {
     const message = typeof error === 'string' ? error : error.message;
-    
+
     // Network errors are usually recoverable with retry
     if (message.includes('fetch') || message.includes('network') || message.includes('timeout')) {
       return true;
     }
-    
+
     // API errors might be recoverable depending on status
     if (message.includes('API') && !message.includes('404')) {
       return true;
     }
-    
+
     return false;
   }
 
   private consoleLog(error: LoggedError): void {
     const emoji = this.getSeverityEmoji(error.severity);
     const category = error.category?.toUpperCase() || 'ERROR';
-    
+
     const style = this.getSeverityStyle(error.severity);
-    
+
     console.group(`${emoji} ${category} Error`);
     console.error(`%c${error.message}`, style);
-    
+
     if (error.context) {
       console.log('Context:', error.context);
     }
-    
+
     if (error.stack) {
       console.log('Stack:', error.stack);
     }
-    
+
     console.groupEnd();
   }
 
   private getSeverityEmoji(severity?: LoggedError['severity']): string {
     switch (severity) {
-      case 'low': return '⚠️';
-      case 'medium': return '🔶';
-      case 'high': return '❌';
-      case 'critical': return '🚨';
-      default: return '⚠️';
+      case 'low':return '⚠️';
+      case 'medium':return '🔶';
+      case 'high':return '❌';
+      case 'critical':return '🚨';
+      default:return '⚠️';
     }
   }
 
   private getSeverityStyle(severity?: LoggedError['severity']): string {
     switch (severity) {
-      case 'low': return 'color: orange; font-weight: normal;';
-      case 'medium': return 'color: darkorange; font-weight: bold;';
-      case 'high': return 'color: red; font-weight: bold;';
-      case 'critical': return 'color: darkred; font-weight: bold; font-size: 14px;';
-      default: return 'color: orange; font-weight: normal;';
+      case 'low':return 'color: orange; font-weight: normal;';
+      case 'medium':return 'color: darkorange; font-weight: bold;';
+      case 'high':return 'color: red; font-weight: bold;';
+      case 'critical':return 'color: darkred; font-weight: bold; font-size: 14px;';
+      default:return 'color: orange; font-weight: normal;';
     }
   }
 
   private notifyListeners(error: LoggedError): void {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(error);
       } catch (err) {

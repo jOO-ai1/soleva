@@ -26,7 +26,7 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { 
+    this.state = {
       hasError: false,
       isRetrying: false,
       isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -80,7 +80,7 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
         isOnline: this.state.isOnline
       }
     });
-    
+
     this.setState({
       error,
       errorInfo,
@@ -122,7 +122,7 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
     this.retryCount++;
 
     // Add delay before retry
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     this.setState({
       hasError: false,
@@ -149,7 +149,7 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
 
   private handleContactSupport = () => {
     if (typeof window === 'undefined') return;
-    
+
     // Create error report
     const errorReport = {
       error: this.state.error?.message,
@@ -167,7 +167,7 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
 
   private getErrorSeverity(): 'low' | 'medium' | 'high' | 'critical' {
     if (!this.state.error) return 'medium';
-    
+
     const message = this.state.error.message.toLowerCase();
     if (message.includes('network') || message.includes('fetch')) return 'high';
     if (message.includes('chunk') || message.includes('loading')) return 'medium';
@@ -178,11 +178,11 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
     if (!this.state.isOnline) {
       return <WifiOff className="w-8 h-8 text-red-600" />;
     }
-    
+
     const severity = this.getErrorSeverity();
-    const color = severity === 'critical' ? 'text-red-700' : 
-                  severity === 'high' ? 'text-red-600' : 'text-orange-500';
-    
+    const color = severity === 'critical' ? 'text-red-700' :
+    severity === 'high' ? 'text-red-600' : 'text-orange-500';
+
     return <AlertTriangle className={`w-8 h-8 ${color}`} />;
   }
 
@@ -190,12 +190,12 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
     if (!this.state.isOnline) {
       return 'You\'re offline';
     }
-    
+
     const error = this.state.error;
     if (error?.message.includes('network') || error?.message.includes('fetch')) {
       return 'Connection problem';
     }
-    
+
     return 'Something went wrong';
   }
 
@@ -203,16 +203,16 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
     if (!this.state.isOnline) {
       return 'Check your internet connection and try again.';
     }
-    
+
     const error = this.state.error;
     if (error?.message.includes('network') || error?.message.includes('fetch')) {
       return 'Unable to connect to our servers. This might be a temporary issue.';
     }
-    
+
     if (error?.message.includes('chunk') || error?.message.includes('loading')) {
       return 'Failed to load part of the application. Try refreshing the page.';
     }
-    
+
     return 'We\'re sorry for the inconvenience. The application encountered an unexpected error.';
   }
 
@@ -244,22 +244,22 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
 
             {/* Network status */}
             <div className="flex items-center justify-center mb-6 text-sm">
-              {this.state.isOnline ? (
-                <div className="flex items-center text-green-600">
+              {this.state.isOnline ?
+              <div className="flex items-center text-green-600">
                   <Wifi className="w-4 h-4 mr-2" />
                   Connected
-                </div>
-              ) : (
-                <div className="flex items-center text-red-600">
+                </div> :
+
+              <div className="flex items-center text-red-600">
                   <WifiOff className="w-4 h-4 mr-2" />
                   No internet connection
                 </div>
-              )}
+              }
             </div>
 
             {/* Development error details */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="mb-6 p-4 bg-gray-100 rounded-lg text-left">
+            {process.env.NODE_ENV === 'development' &&
+            <div className="mb-6 p-4 bg-gray-100 rounded-lg text-left">
                 <h3 className="font-medium text-gray-900 mb-2">Error Details:</h3>
                 <p className="text-sm text-gray-700 mb-2">{this.state.error?.message}</p>
                 <p className="text-xs text-gray-600">
@@ -269,33 +269,33 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
                   Retry Count: {this.retryCount}/{this.maxRetries}
                 </p>
               </div>
-            )}
+            }
 
             {/* Action buttons */}
             <div className="space-y-3">
               <button
                 onClick={this.handleRetry}
-                disabled={this.state.isRetrying || (!this.state.isOnline && this.retryCount >= this.maxRetries)}
-                className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                disabled={this.state.isRetrying || !this.state.isOnline && this.retryCount >= this.maxRetries}
+                className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${this.state.isRetrying ? 'animate-spin' : ''}`} />
-                {this.state.isRetrying ? 'Retrying...' : 
-                 this.retryCount >= this.maxRetries ? 'Reload Page' : 
-                 `Try Again (${this.maxRetries - this.retryCount} left)`}
+                {this.state.isRetrying ? 'Retrying...' :
+                this.retryCount >= this.maxRetries ? 'Reload Page' :
+                `Try Again (${this.maxRetries - this.retryCount} left)`}
               </button>
 
               <button
                 onClick={this.handleGoHome}
-                className="w-full flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
+                className="w-full flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+
                 <Home className="w-4 h-4 mr-2" />
                 Go Home
               </button>
 
               <button
                 onClick={this.handleContactSupport}
-                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
+                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Report Issue
               </button>
@@ -305,8 +305,8 @@ class ComprehensiveErrorBoundary extends Component<Props, State> {
               Error ID: {Date.now().toString(36)}
             </div>
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;

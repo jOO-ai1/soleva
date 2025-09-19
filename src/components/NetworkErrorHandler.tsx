@@ -10,9 +10,9 @@ interface NetworkErrorProps {
   context?: string;
 }
 
-export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({ 
-  error, 
-  retry, 
+export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
+  error,
+  retry,
   fallback,
   context = 'Unknown'
 }) => {
@@ -27,7 +27,7 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
     const handleOnline = () => {
       setIsOnline(true);
       toast.success('🌐 Internet connection restored');
-      
+
       // Auto-retry when connection is restored (with delay to ensure stability)
       if (retryCount < maxRetries) {
         setTimeout(() => {
@@ -60,7 +60,7 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
     const now = Date.now();
     const timeSinceLastRetry = now - lastRetryTime;
     const requiredDelay = retryDelay[Math.min(retryCount, retryDelay.length - 1)];
-    
+
     if (timeSinceLastRetry < requiredDelay) {
       const remainingTime = Math.ceil((requiredDelay - timeSinceLastRetry) / 1000);
       toast.info(`⏱️ Please wait ${remainingTime} seconds before retrying`);
@@ -75,11 +75,11 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
     // Log retry attempt
     errorHandler.logError(
       `Retry attempt ${currentRetry}/${maxRetries} for network error`,
-      { 
+      {
         component: 'NetworkErrorHandler',
         action: 'retry_attempt',
         context,
-        metadata: { 
+        metadata: {
           originalError: error?.message,
           isOnline,
           retryCount: currentRetry
@@ -89,16 +89,16 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
     );
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for UX
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Small delay for UX
       await retry();
-      
+
       toast.success(`✅ Connection restored successfully`);
       setRetryCount(0); // Reset on success
       setLastRetryTime(0);
     } catch (err: any) {
       const errorMessage = err?.message || 'Unknown error';
       toast.error(`❌ Retry ${currentRetry}/${maxRetries} failed: ${errorMessage}`);
-      
+
       // Log failed retry
       errorHandler.handleNetworkError(err, {
         component: 'NetworkErrorHandler',
@@ -113,7 +113,7 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
 
   const getErrorType = () => {
     const message = error?.message?.toLowerCase() || '';
-    
+
     if (!isOnline) return 'offline';
     if (message.includes('err_connection_refused')) return 'server_down';
     if (message.includes('timeout') || message.includes('request timeout')) return 'timeout';
@@ -124,7 +124,7 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
 
   const getErrorDetails = () => {
     const errorType = getErrorType();
-    
+
     switch (errorType) {
       case 'offline':
         return {
@@ -172,7 +172,7 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
   };
 
   const errorType = getErrorType();
-  
+
   // Only handle network-related errors
   if (errorType === 'unknown' && isOnline) {
     return null;
@@ -205,9 +205,9 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
           </h3>
           <div className={`mt-2 text-sm ${textColor.replace('800', '700')}`}>
             <p>{errorDetails.description}</p>
-            {context && (
-              <p className="mt-1 text-xs">Context: {context}</p>
-            )}
+            {context &&
+            <p className="mt-1 text-xs">Context: {context}</p>
+            }
           </div>
           
           {/* Action buttons and status */}
@@ -216,48 +216,48 @@ export const NetworkErrorHandler: React.FC<NetworkErrorProps> = ({
               <button
                 onClick={handleRetry}
                 disabled={isRetryDisabled}
-                className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${buttonColor} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${errorDetails.color}-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
-              >
+                className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${buttonColor} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${errorDetails.color}-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}>
+
                 <RefreshCw className={`h-4 w-4 mr-2 ${isRetrying ? 'animate-spin' : ''}`} />
-                {isRetrying ? 'Retrying...' : 
-                 retryCount >= maxRetries ? 'Max retries reached' :
-                 `Retry${retryCount > 0 ? ` (${retryCount}/${maxRetries})` : ''}`}
+                {isRetrying ? 'Retrying...' :
+                retryCount >= maxRetries ? 'Max retries reached' :
+                `Retry${retryCount > 0 ? ` (${retryCount}/${maxRetries})` : ''}`}
               </button>
               
-              {retryCount >= maxRetries && (
-                <button
-                  onClick={() => window.location.reload()}
-                  className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${buttonColor}`}
-                >
+              {retryCount >= maxRetries &&
+              <button
+                onClick={() => window.location.reload()}
+                className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${buttonColor}`}>
+
                   Reload Page
                 </button>
-              )}
+              }
             </div>
 
             {/* Connection status indicator */}
             <div className={`flex items-center text-xs ${statusColor}`}>
-              {isOnline ? (
-                <>
+              {isOnline ?
+              <>
                   <Wifi className="h-3 w-3 mr-1" />
                   Online
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <WifiOff className="h-3 w-3 mr-1" />
                   Offline
                 </>
-              )}
+              }
             </div>
           </div>
 
           {/* Progressive retry info */}
-          {retryCount > 0 && retryCount < maxRetries && (
-            <div className="mt-2 text-xs text-gray-600">
+          {retryCount > 0 && retryCount < maxRetries &&
+          <div className="mt-2 text-xs text-gray-600">
               Next retry available in {Math.ceil(retryDelay[Math.min(retryCount, retryDelay.length - 1)] / 1000)} seconds
             </div>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };

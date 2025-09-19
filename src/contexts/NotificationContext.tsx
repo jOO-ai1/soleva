@@ -75,7 +75,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     // Check if we already have this error notification
     if (notification.errorId) {
-      const existingError = notifications.find(n => n.errorId === notification.errorId);
+      const existingError = notifications.find((n) => n.errorId === notification.errorId);
       if (existingError) {
         return id; // Don't duplicate error notifications
       }
@@ -90,11 +90,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     // Show toast with enhanced styling
     const toastOptions = {
       description: notification.message,
-      duration: notification.persistent ? Infinity : (notification.duration || 5000),
+      duration: notification.persistent ? Infinity : notification.duration || 5000,
       action: notification.actions?.length ? {
         label: notification.actions[0].label,
-        onClick: notification.actions[0].action,
-      } : undefined,
+        onClick: notification.actions[0].action
+      } : undefined
     };
 
     switch (notification.type) {
@@ -113,7 +113,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       case 'network':
         toast.error(`🌐 ${notification.title}`, {
           ...toastOptions,
-          className: 'border-orange-200 bg-orange-50',
+          className: 'border-orange-200 bg-orange-50'
         });
         break;
     }
@@ -195,13 +195,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const notifyError = useCallback((error: Error | LoggedError, context?: any) => {
     const isLoggedError = error && typeof error === 'object' && 'severity' in error;
     const loggedError = isLoggedError ? error as LoggedError : null;
-    
-    const isNetworkError = error.message.includes('network') || 
-                          error.message.includes('fetch') || 
-                          error.message.includes('ERR_CONNECTION');
+
+    const isNetworkError = error.message.includes('network') ||
+    error.message.includes('fetch') ||
+    error.message.includes('ERR_CONNECTION');
 
     const errorId = `error_${Date.now()}`;
-    
+
     showNotification({
       type: isNetworkError ? 'network' : 'error',
       title: isNetworkError ? 'Connection Error' : 'Error',
@@ -215,42 +215,42 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         recoverable: loggedError?.recoverable || false
       },
       actions: isNetworkError ? [
-        {
-          label: 'Retry',
-          action: () => {
-            console.log('Retry action triggered');
-            window.location.reload();
-          },
-          variant: 'default'
-        }
-      ] : undefined
+      {
+        label: 'Retry',
+        action: () => {
+          console.log('Retry action triggered');
+          window.location.reload();
+        },
+        variant: 'default'
+      }] :
+      undefined
     });
   }, [showNotification]);
 
   const notifyNetworkError = useCallback((error: any, retryAction?: () => void) => {
     const errorId = `network_${Date.now()}`;
-    
+
     showNotification({
       type: 'network',
       title: 'Connection Problem',
-      message: navigator.onLine 
-        ? 'Unable to connect to our servers. Please try again.'
-        : 'No internet connection. Please check your connection and try again.',
+      message: navigator.onLine ?
+      'Unable to connect to our servers. Please try again.' :
+      'No internet connection. Please check your connection and try again.',
       duration: 0, // Keep until manually dismissed or resolved
       persistent: true,
       errorId,
       actions: [
-        ...(retryAction ? [{
-          label: 'Retry',
-          action: retryAction,
-          variant: 'default' as const
-        }] : []),
-        {
-          label: 'Dismiss',
-          action: () => removeNotification(errorId),
-          variant: 'outline' as const
-        }
-      ]
+      ...(retryAction ? [{
+        label: 'Retry',
+        action: retryAction,
+        variant: 'default' as const
+      }] : []),
+      {
+        label: 'Dismiss',
+        action: () => removeNotification(errorId),
+        variant: 'outline' as const
+      }]
+
     });
 
     return errorId;

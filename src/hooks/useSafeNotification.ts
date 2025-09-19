@@ -48,10 +48,10 @@ const fallbackNotification: NotificationContextType = {
   removeNotification: () => {
 
 
+
+
     // Sonner handles this automatically
-  }, clearAllNotifications: () => {toast.dismiss();
-  }
-};
+  }, clearAllNotifications: () => {toast.dismiss();} };
 
 export const useSafeNotification = (): NotificationContextType => {
   try {

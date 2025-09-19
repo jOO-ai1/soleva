@@ -235,19 +235,78 @@ export const authApi = {
 
 export const productsApi = {
   getAll: async (params?: {page?: number;per_page?: number;search?: string;collection?: string;}) => {
-    // Always use Supabase API with graceful fallback to mock data
     try {
+      // Check if we're in development or if API is available
+      if (import.meta.env.DEV || window.location.hostname === 'localhost') {
+        console.info('🔄 Development mode - Using mock data with enhanced features');
+        const { getMockProducts } = await import('./mockData');
+        const mockProducts = getMockProducts();
+        
+        // Apply filters if provided
+        let filteredProducts = mockProducts;
+        
+        if (params?.search) {
+          const searchTerm = params.search.toLowerCase();
+          filteredProducts = filteredProducts.filter(product =>
+            product.name.en.toLowerCase().includes(searchTerm) ||
+            product.name.ar.toLowerCase().includes(searchTerm) ||
+            product.description.en.toLowerCase().includes(searchTerm) ||
+            product.description.ar.toLowerCase().includes(searchTerm)
+          );
+        }
+        
+        if (params?.collection) {
+          filteredProducts = filteredProducts.filter(product =>
+            product.collection?.slug === params.collection
+          );
+        }
+        
+        return Promise.resolve({
+          data: filteredProducts,
+          status: 200,
+          success: true,
+          message: 'Using development mock data'
+        });
+      }
+
+      // Try Supabase API in production
       const { supabaseProductsApi } = await import('./supabaseApi');
-      return await supabaseProductsApi.getAll(params);
+      const response = await supabaseProductsApi.getAll(params);
+      console.info('✅ Successfully loaded products from API');
+      return response;
     } catch (error) {
-      console.warn('Using fallback data due to API connection error:', error);
-      // Return mock data as fallback with proper structure
+      console.warn('⚠️ API connection failed, using fallback data:', error);
+      
+      // Enhanced fallback with error context
       const { getMockProducts } = await import('./mockData');
+      const mockProducts = getMockProducts();
+      
+      // Apply same filtering logic as above
+      let filteredProducts = mockProducts;
+      
+      if (params?.search) {
+        const searchTerm = params.search.toLowerCase();
+        filteredProducts = filteredProducts.filter(product =>
+          product.name.en.toLowerCase().includes(searchTerm) ||
+          product.name.ar.toLowerCase().includes(searchTerm) ||
+          product.description.en.toLowerCase().includes(searchTerm) ||
+          product.description.ar.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      if (params?.collection) {
+        filteredProducts = filteredProducts.filter(product =>
+          product.collection?.slug === params.collection
+        );
+      }
+      
       return Promise.resolve({
-        data: getMockProducts(),
+        data: filteredProducts,
         status: 200,
         success: true,
-        message: 'Using offline data'
+        message: 'Using offline data due to network connectivity issues',
+        fallback: true,
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   },

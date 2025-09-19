@@ -11,6 +11,7 @@ import { initializeDatabase, createSampleData } from './utils/initializeDatabase
 import RoutesWrapper from "./components/RoutesWrapper";
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import ComprehensiveErrorBoundary from './components/ComprehensiveErrorBoundary';
+import EnhancedErrorBoundary from './components/EnhancedErrorBoundary';
 import { NetworkErrorHandler } from './components/NetworkErrorHandler';
 import GlobalErrorHandler from './components/GlobalErrorHandler';
 import SafeContextProvider from './components/SafeContextProvider';
@@ -18,6 +19,7 @@ import AppLoader from './components/AppLoader';
 import { setDocumentTitle } from './utils/documentTitle';
 import OfflineIndicator from './components/OfflineIndicator';
 import { Toaster } from 'sonner';
+import { environmentHandler } from './services/environmentHandler';
 
 export default function App() {
   // Set the base document title on app initialization
@@ -29,11 +31,22 @@ export default function App() {
     setDocumentTitle();
   }, []);
 
-  // Initialize database on app startup with better error handling
+  // Initialize environment and database with comprehensive error handling
   useEffect(() => {
-    const setupDatabase = async () => {
+    const setupApplication = async () => {
       try {
-        console.log('🚀 Initializing Soleva application...');
+        console.log('🚀 Initializing Soleva application with enhanced error handling...');
+        
+        // Log environment information
+        const envInfo = environmentHandler.getEnvironmentInfo();
+        console.log('🔍 Environment detected:', envInfo);
+        
+        // Check if we're in recovery mode
+        if (environmentHandler.isRecoveryMode()) {
+          console.log('🛡️ Running in recovery mode with fallback data');
+          return;
+        }
+        
         const isInitialized = await initializeDatabase();
 
         if (isInitialized) {
@@ -56,13 +69,14 @@ export default function App() {
       }
     };
 
-    setupDatabase();
+    setupApplication();
   }, []);
 
   return (
     <AppErrorBoundary>
       <ComprehensiveErrorBoundary>
-        <SafeContextProvider>
+        <EnhancedErrorBoundary context="App" showDetails={import.meta.env.DEV}>
+          <SafeContextProvider>
           <AppLoader>
             <LangProvider>
               <ThemeProvider>
@@ -91,7 +105,8 @@ export default function App() {
               </ThemeProvider>
             </LangProvider>
           </AppLoader>
-        </SafeContextProvider>
+          </SafeContextProvider>
+        </EnhancedErrorBoundary>
       </ComprehensiveErrorBoundary>
     </AppErrorBoundary>);
 
