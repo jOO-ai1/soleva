@@ -1,6 +1,6 @@
 // API Configuration for Backend Integration
 export const API_CONFIG = {
-  // Base URL - prefer VITE_API_URL, fallback to offline mode
+  // Base URL - prefer VITE_API_URL, fallback to local development
   BASE_URL: (() => {
     // Check for environment variable first
     if (import.meta.env.VITE_API_URL) {
@@ -10,8 +10,8 @@ export const API_CONFIG = {
       return import.meta.env.VITE_API_BASE_URL;
     }
 
-    // Always use local API endpoints now
-    return 'local://api'; // This will trigger local API calls
+    // Use localhost for development
+    return 'http://localhost:3001/api';
   })(),
 
   // API Version
@@ -133,6 +133,11 @@ export const buildApiUrl = (endpoint: string): string => {
   // If in offline mode, return a placeholder that will trigger fallbacks
   if (API_CONFIG.OFFLINE_MODE) {
     return 'offline://api';
+  }
+
+  // Check if BASE_URL contains 'local://' which indicates Node.js API usage
+  if (API_CONFIG.BASE_URL.includes('local://')) {
+    return 'local://api'; // This will be handled by the Node.js API system
   }
 
   const baseUrl = API_CONFIG.BASE_URL.endsWith('/') ?

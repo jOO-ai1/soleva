@@ -372,10 +372,15 @@ class EnvironmentHandler {
 
     console.info('📢 User notification:', notification);
 
-    // In a real app, this would show a toast or modal
-    if (window.showNotification) {
-      (window as any).showNotification(notification);
-    }
+    // Use toast notification as safe fallback
+    import('sonner').then(({ toast }) => {
+      toast.info(notification.title, {
+        description: notification.message,
+        duration: 5000
+      });
+    }).catch(() => {
+      console.warn('Toast notification not available');
+    });
   }
 
   private getErrorTitle(type: SetupError['type']): string {

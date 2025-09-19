@@ -241,7 +241,7 @@ export const productsApi = {
         path: 'products',
         param: [params]
       });
-      
+
       console.info('✅ Successfully loaded products from local API');
       return {
         data: response.data || response,
@@ -292,7 +292,7 @@ export const productsApi = {
         path: 'product',
         param: [id]
       });
-      
+
       return {
         data: response,
         status: 200,
@@ -354,7 +354,7 @@ export const categoriesApi = {
         path: 'categories',
         param: []
       });
-      
+
       return {
         data: response,
         status: 200,
@@ -381,7 +381,7 @@ export const collectionsApi = {
         path: 'collections',
         param: []
       });
-      
+
       return {
         data: response,
         status: 200,

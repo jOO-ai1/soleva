@@ -202,6 +202,10 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
 
 
 
+
+
+
+
     // Don't throw error to avoid breaking the main operation
     // Log error silently in production
   }}; /**
@@ -214,11 +218,7 @@ export const createAuditLog = async (data: AuditLogData): Promise<void> => {
     prisma.auditLog.count({ where }), // Actions breakdown
     prisma.auditLog.groupBy({ by: ['action'], where, _count: { action: true }, orderBy: { _count: { action: 'desc' } } }), // Resources breakdown
     prisma.auditLog.groupBy({ by: ['resource'], where, _count: { resource: true }, orderBy: { _count: { resource: 'desc' } } }), // Admin activity
-    prisma.auditLog.groupBy({ by: ['adminId'], where: { ...where, adminId: { not: null } }, _count: {
-          adminId: true
-        },
-        orderBy: {
-          _count: {
+    prisma.auditLog.groupBy({ by: ['adminId'], where: { ...where, adminId: { not: null } }, _count: { adminId: true }, orderBy: { _count: {
             adminId: 'desc'
           }
         }
