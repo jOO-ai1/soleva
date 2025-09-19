@@ -5,12 +5,12 @@ export async function initializeDatabase(): Promise<boolean> {
     console.log('Initializing database...');
 
     // Check if database is accessible by testing connection
-    const { data, error } = await supabase
-      .from('products')
-      .select('count', { count: 'exact', head: true })
-      .limit(1);
+    const { data, error } = await supabase.
+    from('products').
+    select('count', { count: 'exact', head: true }).
+    limit(1);
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "relation does not exist"
+    if (error && error.code !== 'PGRST116') {// PGRST116 is "relation does not exist"
       console.warn('Database connection error:', error.message);
       return false;
     }
