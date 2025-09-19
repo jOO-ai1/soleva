@@ -61,8 +61,8 @@ export default function App() {
               </ThemeProvider>
             </LangProvider>
           </AppLoader>
-        </AppErrorBoundary>
-    );
+        </AppErrorBoundary>);
+
 
   } catch (error) {
     // Log error in development, use proper error reporting in production

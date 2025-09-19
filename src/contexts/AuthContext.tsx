@@ -124,10 +124,10 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
         } else if (message.includes('CAPTCHA_REQUIRED') || message.includes('CAPTCHA_FAILED')) {
           errorType = 'captcha_required';
         } else if (message.toLowerCase().includes('not found') ||
-          message.toLowerCase().includes('does not exist')) {
+        message.toLowerCase().includes('does not exist')) {
           errorType = 'account_not_found';
         } else if (message.toLowerCase().includes('disabled') ||
-          message.toLowerCase().includes('inactive')) {
+        message.toLowerCase().includes('inactive')) {
           errorType = 'account_disabled';
         }
 
@@ -459,8 +459,8 @@ export function AuthProvider({ children }: {children: React.ReactNode;}) {
       refreshUser
     }}>
       {children}
-    </AuthContext.Provider>
-  );
+    </AuthContext.Provider>);
+
 }
 
 export function useAuth() {

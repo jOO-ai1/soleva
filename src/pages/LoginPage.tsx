@@ -119,9 +119,20 @@ export default function LoginPage() {
 
 
 
+
+
         // Error handling is now done by the AuthContext with notification banners
-      }} catch (error: any) {console.error('Login error:', error); // Error handling is now done by the AuthContext with notification banners
-    } finally {setIsLoading(false);}}return <div className="container mx-auto py-10 px-4">
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      // Error handling is now done by the AuthContext with notification banners
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <div className="container mx-auto py-10 px-4">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }} className="max-w-md mx-auto">
 
         <GlassCard>
@@ -163,9 +174,7 @@ export default function LoginPage() {
                 </div>
                 <input type={showPassword ? "text" : "password"} value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setPassword(e.target.value);if (errors.password) setErrors({ ...errors, password: '' });}} className={`w-full glass border rounded-xl px-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#d1b16a] transition-all ${errors.password ? 'border-red-400' : 'border-[#d1b16a]/40'}`} placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"} />
 
-                <button type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
 
                   {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                 </button>
@@ -224,6 +233,6 @@ export default function LoginPage() {
       onSignUp={handleSignUpClick}
       type={warningType} />
 
-    </div>;
-
+    </div>
+  );
 }

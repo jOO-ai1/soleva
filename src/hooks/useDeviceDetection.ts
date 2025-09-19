@@ -59,11 +59,11 @@ export const useDeviceDetection = () => {
 
     // OS detection
     let os = 'unknown';
-    if (/Windows/i.test(userAgent)) os = 'Windows';else
-    if (/Mac/i.test(userAgent)) os = 'macOS';else
-    if (/Linux/i.test(userAgent)) os = 'Linux';else
-    if (/Android/i.test(userAgent)) os = 'Android';else
-    if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
+    if (/Windows/i.test(userAgent)) os = 'Windows';
+    else if (/Mac/i.test(userAgent)) os = 'macOS';
+    else if (/Linux/i.test(userAgent)) os = 'Linux';
+    else if (/Android/i.test(userAgent)) os = 'Android';
+    else if (/iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
 
     // Browser detection
     let browser = 'unknown';
@@ -173,6 +173,8 @@ export const useDeviceDetection = () => {
       try {
         fcpObserver.observe({ entryTypes: ['paint'] });
       } catch (e) {
+
+
 
 
 
@@ -327,6 +329,4 @@ export const useDeviceDetection = () => {
         const metrics = await measurePerformanceMetrics();setPerformanceMetrics(metrics); // Enable adaptive mode if needed
         enableAdaptiveMode(device); // Log data to backend
         await logDeviceData(device, metrics);}; // Run detection after initial render
-      setTimeout(initializeDeviceDetection, 1000);}, []);return { deviceInfo, performanceMetrics, isAdaptiveModeEnabled: deviceInfo?.adaptiveModeEnabled || false
-  };
-};
+      setTimeout(initializeDeviceDetection, 1000);}, []);return { deviceInfo, performanceMetrics, isAdaptiveModeEnabled: deviceInfo?.adaptiveModeEnabled || false };};
